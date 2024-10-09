@@ -4,8 +4,6 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
-<<<<<<< HEAD
-=======
 Route::post('login', [UserController::class, 'loginAction'])->name('user.login.action');
 
 
@@ -32,7 +30,6 @@ Route::get('/', function () {
 Route::get('Test',function(){
     return "Testing route";
 });
->>>>>>> 6fb0e9542de13791ce6902ce782e14d07b58072e
 
 Route::get('/', [UserController::class, 'login'])->name('login');
 Route::post('/', [UserController::class, 'loginAction'])->name('login.action');
