@@ -4,7 +4,6 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
-<<<<<<< HEAD
 Route::get('/auditor', function () {
     return view('pages.auditor', ['type_menu' => 'auditor']);
 });
@@ -29,7 +28,6 @@ Route::get('Test',function(){
     return "Testing route";
 });
 
-=======
 Route::get('/', [UserController::class, 'login'])->name('login');
 Route::post('/', [UserController::class, 'loginAction'])->name('login.action');
 Route::post('/logout', function () {
@@ -50,4 +48,3 @@ Route::middleware('auth')->group(function () {
 // Route::get('/', function () {
 //     return view('welcome');
 // });
->>>>>>> origin/main
