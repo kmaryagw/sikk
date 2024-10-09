@@ -21,7 +21,11 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
+<<<<<<< HEAD
                 return redirect('/dashboard');
+=======
+                return redirect('pages.dashboard');
+>>>>>>> 6fb0e9542de13791ce6902ce782e14d07b58072e
             }
         }
 
