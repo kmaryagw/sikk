@@ -16,36 +16,27 @@
             
 
             {{-- Master Data --}}
-            <li class="nav-item dropdown {{ $type_menu === 'masterdata' ? 'active' : '' }}">
-                <a href="#"
-                    class="nav-link has-dropdown"
-                    data-toggle="dropdown"><i class="fa-solid fa-basketball"></i> <span>Master Data</span></a>
+             <li class="nav-item dropdown {{ $type_menu === 'masterdata' ? 'active' : '' }}">
+                <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fa-solid fa-basketball"></i> <span>Master Data</span></a>
                 <ul class="dropdown-menu">
                     <li class="{{ Request::is('user') ? 'active' : '' }}">
-                        <a class="nav-link"
-                            href="{{ url('user') }}">User</a>
+                        <a class="nav-link" href="{{ url('user') }}">User</a>
                     </li>
-                    <li class="{{ Request::is('transparent-sidebar') ? 'active' : '' }}">
-                        <a class="nav-link"
-                            href="{{ url('transparent-sidebar') }}">Program Studi</a>
+                    <li class="{{ Request::is('program-studi') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('program-studi') }}">Program Studi</a>
                     </li>
-                    <li class="{{ Request::is('layout-top-navigation') ? 'active' : '' }}">
-                        <a class="nav-link"
-                            href="{{ url('layout-top-navigation') }}">Unit Kerja</a>
+                    <li class="{{ Request::is('unit-kerja') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('unit-kerja') }}">Unit Kerja</a>
                     </li>
-                    <li class="{{ Request::is('layout-top-navigation') ? 'active' : '' }}">
-                        <a class="nav-link"
-                            href="{{ url('layout-top-navigation') }}">Rencana Strategis</a>
+                    <li class="{{ Request::is('rencana-strategis') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('rencana-strategis') }}">Rencana Strategis</a>
                     </li>
-                    <li class="{{ Request::is('layout-top-navigation') ? 'active' : '' }}">
-                        <a class="nav-link"
-                            href="{{ url('layout-top-navigation') }}">Tahun</a>
+                    <li class="{{ Request::is('tahun') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('tahun') }}">Tahun</a>
                     </li>
-                    <li class="{{ Request::is('layout-top-navigation') ? 'active' : '' }}">
-                        <a class="nav-link"
-                            href="{{ url('layout-top-navigation') }}">Periode Monev</a>
+                    <li class="{{ Request::is('periode-monev') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('periode-monev') }}">Periode Monev</a>
                     </li>
-
                 </ul>
             </li>
 

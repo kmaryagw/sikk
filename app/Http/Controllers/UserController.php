@@ -40,7 +40,13 @@ class UserController extends Controller
         ->withQueryString();
         $no = $users->firstItem();
         
-        return view('pages.index-user', compact('title', 'users','q','no'));
+        return view('pages.index-user', [
+            'title' => $title,
+            'users' => $users,
+            'q' => $q,
+            'no' => $no,
+            'type_menu' => 'masterdata',
+        ]);
     }
 
     public function create()
@@ -48,7 +54,11 @@ class UserController extends Controller
         $title = 'Tambah User';
         $levels = ['admin','prodi','unit kerja'];
         
-        return view('pages.create-user', compact('title','levels'));
+        return view('pages.create-user', [
+            'title' => $title,
+            'levels' => $levels,
+            'type_menu' => 'masterdata',
+        ]);
     }
 
     public function store(Request $request)
@@ -72,6 +82,6 @@ class UserController extends Controller
         
         $user->save();
     
-        return redirect()->route('pages.index-user')->with(['message' => 'Data Berhasil Ditambah']);
+        return redirect()->route('user')->with(['message' => 'Data Berhasil Ditambah']);
     }
 }

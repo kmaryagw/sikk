@@ -627,6 +627,7 @@
     </div>
 @endsection
 
+
 @push('scripts')
     <!-- JS Libraies -->
     <script src="{{ asset('library/simpleweather/jquery.simpleWeather.min.js') }}"></script>
