@@ -82,6 +82,6 @@ class UserController extends Controller
         
         $user->save();
     
-        return redirect()->route('user')->with(['message' => 'Data Berhasil Ditambah']);
+        return redirect()->route('user.index')->with(['message' => 'Data Berhasil Ditambah']);
     }
 }
