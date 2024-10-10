@@ -86,9 +86,6 @@ class UserController extends Controller
 
         Alert::success('Sukses', 'Data Berhasil Ditambah');
     
-<<<<<<< HEAD
-        return redirect()->route('user.index')->with(['message' => 'Data Berhasil Ditambah']);
-=======
         return redirect()->route('user.index');
     }
 
@@ -134,6 +131,5 @@ class UserController extends Controller
         $user->delete();
         Alert::success('Sukses', 'Data Berhasil Dihapus');
         return redirect()->route('user.index');
->>>>>>> origin/main
     }
 }

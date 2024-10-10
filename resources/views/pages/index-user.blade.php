@@ -21,7 +21,7 @@
             confirmButtonText: 'Ya, hapus data!'
         }).then((result) => {
             if (result.isConfirmed) {
-                document.getElementById('delete-form-' + id_user).submit();
+                document.getElementById('delete-form-' + id).submit();
             }
         })
     }
@@ -73,10 +73,10 @@
                                     <td>{{ $user->level }}</td>
                                     <td>
                                         <a class="btn btn-warning" href="{{ route('user.edit', $user) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
-                                        <form id="delete-form-{{ $user->id_user }}" method="POST" class="d-inline" action="{{ route('user.destroy', $user) }}">
+                                        <form id="delete-form-{{ $user->id }}" method="POST" class="d-inline" action="{{ route('user.destroy', $user) }}">
                                             @csrf
                                             @method('DELETE')
-                                            <button class="btn btn-danger" onclick="confirmDelete({{ $user->id_user }})"><i class="fa-solid fa-trash"></i> Hapus</button>
+                                            <button class="btn btn-danger" onclick="confirmDelete({{ $user->id }})"><i class="fa-solid fa-trash"></i> Hapus</button>
                                         </form>
                                     </td>
                                 </tr>
