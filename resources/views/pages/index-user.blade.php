@@ -7,6 +7,27 @@
     <link rel="stylesheet" href="{{ asset('library/summernote/dist/summernote-bs4.min.css') }}">
 @endpush
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    function confirmDelete(id) {
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Data yang dihapus tidak bisa dikembalikan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, hapus data!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('delete-form-' + id_user).submit();
+            }
+        })
+    }
+</script>
+
+
 @section('main')
     <div class="main-content">
         <section class="section">
@@ -51,11 +72,11 @@
                                     <td>{{ $user->alamat }}</td>
                                     <td>{{ $user->level }}</td>
                                     <td>
-                                        <a class="btn btn-warning" href="#"><i class="fa-solid fa-pen-to-square"></i> Ubah</a>
-                                        <form method="POST" class="d-inline" action="#">
+                                        <a class="btn btn-warning" href="{{ route('user.edit', $user) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
+                                        <form id="delete-form-{{ $user->id_user }}" method="POST" class="d-inline" action="{{ route('user.destroy', $user) }}">
                                             @csrf
                                             @method('DELETE')
-                                            <button class="btn btn-danger" onclick="return confirm('Hapus data?')"><i class="fa-solid fa-trash"></i> Hapus</button>
+                                            <button class="btn btn-danger" onclick="confirmDelete({{ $user->id_user }})"><i class="fa-solid fa-trash"></i> Hapus</button>
                                         </form>
                                     </td>
                                 </tr>

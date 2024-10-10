@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'create-user')
+@section('title', 'edit-user')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -16,7 +16,7 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Form User</h1>
+                <h1>Edit User</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
                     <div class="breadcrumb-item">Form User</div>
@@ -38,8 +38,9 @@
                                     </div>
                                 @endif
 
-                                <form method="POST" action="{{ route('user.store') }}">
+                                <form method="POST" action="{{ route('user.update', $user) }}">
                                     @csrf
+                                    @method('put')
                                     <div class="form-group">
                                         <label>Nama User</label>
                                         <div class="input-group">
@@ -48,7 +49,7 @@
                                                     <i class="fa-solid fa-user"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="nama_user" value="{{ old('nama_user') }}"/>
+                                            <input class="form-control" type="text" name="nama_user" value="{{ old('nama_user', $user->nama_user) }}"/>
                                         </div>
                                     </div>
 
@@ -60,7 +61,7 @@
                                                     <i class="fa-solid fa-envelope"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="email" name="email" value="{{ old('email') }}"/>
+                                            <input class="form-control" type="email" name="email" value="{{ old('email', $user->email) }}"/>
                                         </div>
                                     </div>
 
@@ -72,7 +73,7 @@
                                                     <i class="fas fa-lock"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="password" name="password" value="{{ old('password') }}"/>
+                                            <input class="form-control" type="password" name="password" value="{{ old('password', $user->password) }}"/>
                                         </div>
                                         <div id="pwindicator" class="pwindicator">
                                             <div class="bar"></div>
@@ -88,7 +89,7 @@
                                                     <i class="fa-solid fa-house-chimney"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="alamat" value="{{ old('alamat') }}"/>
+                                            <input class="form-control" type="text" name="alamat" value="{{ old('alamat' , $user->alamat) }}"/>
                                         </div>
                                     </div>
 
@@ -96,7 +97,7 @@
                                         <label>Level</label>
                                         <select class="form-select" name="level">
                                             @foreach ($levels as $level)
-                                                <option value="{{ $level }}" {{ old('level') == $level ? 'selected' : '' }}>{{ $level }}</option>
+                                                <option value="{{ $level }}" {{ old('level', $user->level) == $level ? 'selected' : '' }}>{{ $level }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -125,8 +126,6 @@
     <script src="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js') }}"></script>
     <script src="{{ asset('library/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ asset('library/selectric/public/jquery.selectric.min.js') }}"></script>
-
-    @include('sweetalert::alert')
 
     <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>

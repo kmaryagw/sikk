@@ -53,6 +53,9 @@
             <!-- Content -->
             @yield('main')
 
+            @include('sweetalert::alert')
+
+
             <!-- Footer -->
             @include('components.footer')
         </div>
@@ -72,6 +75,7 @@
     <!-- Template JS File -->
     <script src="{{ asset('js/scripts.js') }}"></script>
     <script src="{{ asset('js/custom.js') }}"></script>
+    
 </body>
 
 </html>
