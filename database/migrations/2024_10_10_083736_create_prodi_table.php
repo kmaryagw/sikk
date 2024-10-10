@@ -12,10 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('prodi', function (Blueprint $table) {
-            $table->id('prodi_id' ,50);
+            $table->string('prodi_id' ,50)->primary();
             $table->string('nama_prodi', 150);
-            $table->dateTime('create_date');
-            $table->dateTime('update_date')->nullable();
             $table->timestamps();
         });
     }

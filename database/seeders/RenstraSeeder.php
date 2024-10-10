@@ -21,8 +21,6 @@ class RenstraSeeder extends Seeder
                 'ren_periode_awal' => 2024,
                 'ren_periode_akhir' => 2028,
                 'ren_is_aktif' => 'y',
-                'create_date' => Carbon::now(),
-                'update_date' => Carbon::now(),
 
         ]);
     }
