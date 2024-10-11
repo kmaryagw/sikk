@@ -247,7 +247,7 @@
                         class="rounded-circle mr-1">
                     <!-- Tampilkan nama pengguna yang sedang login -->
                     <div class="d-sm-none d-lg-inline-block">
-                        Hi, {{ Auth::user()->nama_user }}
+                        Hi, {{ Auth::user()->username }}
                     </div>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">

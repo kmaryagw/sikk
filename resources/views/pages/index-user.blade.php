@@ -36,9 +36,8 @@
                             <tr>
                                 <th>No</th>
                                 <th>Nama User</th>
-                                <th>Email</th>
-                                <th>Alamat</th>
-                                <th>Level</th>
+                                <th>Status</th>
+                                <th>Role</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -47,16 +46,15 @@
                             @foreach ($users as $user)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $user->nama_user }}</td>
-                                    <td>{{ $user->email }}</td>
-                                    <td>{{ $user->alamat }}</td>
-                                    <td>{{ $user->level }}</td>
+                                    <td>{{ $user->username }}</td>
+                                    <td>{{ $user->status }}</td>
+                                    <td>{{ $user->role }}</td>
                                     <td>
                                         <a class="btn btn-warning" href="{{ route('user.edit', $user) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
-                                        <form id="delete-form-{{ $user->id_user }}" method="POST" class="d-inline" action="{{ route('user.destroy', $user) }}">
+                                        <form id="delete-form-{{ $no-1 }}" method="POST" class="d-inline" action="{{ route('user.destroy', $user) }}">
                                             @csrf
                                             @method('DELETE')
-                                            <button class="btn btn-danger" onclick="confirmDelete(event,{{ $user->id_user }})"><i class="fa-solid fa-trash"></i> Hapus</button>
+                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $no-1 }}' )"><i class="fa-solid fa-trash"></i> Hapus</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -90,7 +88,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    function confirmDelete(event, id_user) {
+    function confirmDelete(event, formid) {
         event.preventDefault();
         Swal.fire({
             title: 'Apakah Anda yakin?',
@@ -102,7 +100,7 @@
             confirmButtonText: 'Ya, hapus data!'
         }).then((result) => {
             if (result.isConfirmed) {
-                document.getElementById('delete-form-' + id_user).submit();
+                document.getElementById('delete-form-' + formid).submit();
             }
         })
     }

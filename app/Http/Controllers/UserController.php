@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -18,18 +19,18 @@ class UserController extends Controller
     public function loginAction(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'username' => 'required',
             'password' => 'required',
         ]);
         
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+        if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
             $request->session()->regenerate();
             Alert::success('Sukses', 'Selamat Datang');
             return redirect()->route('pages.dashboard');
         }
 
         return back()->withErrors([
-            'email' => 'Email atau Password salah!',
+            'username' => 'Username atau Password salah!',
         ]);
     }
 
@@ -37,7 +38,7 @@ class UserController extends Controller
     {
         $title = 'Data User';
         $q = $request->query('q');
-        $users = User::where('nama_user', 'like', '%' . $q . '%')
+        $users = User::where('username', 'like', '%' . $q . '%')
         ->paginate(10)
         ->withQueryString();
         $no = $users->firstItem();
@@ -54,11 +55,11 @@ class UserController extends Controller
     public function create()
     {
         $title = 'Tambah User';
-        $levels = ['admin','prodi','unit kerja'];
-        
+        $roles = ['admin', 'prodi', 'unit kerja'];
+
         return view('pages.create-user', [
             'title' => $title,
-            'levels' => $levels,
+            'roles' => $roles,  // Kirim array role ke view
             'type_menu' => 'masterdata',
         ]);
     }
@@ -66,24 +67,23 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_user' => 'required',
-            'email' => 'required',
-            'alamat' => 'required', 
-            
-            
-            'password' => 'required',
-            
+            'username' => 'required|string|max:255',
+            'status' => 'required|string|max:1',
+            'password' => 'required|string|min:8',
+            'role' => 'required|in:admin,prodi,unit kerja',
         ]);
-
-        if (User::where('email',$request->email)->first())
-            return back()->withErrors(['email' =>'Email sudah terdaftar']);
-        
+    
+        $customPrefix = 'US';
+        $timestamp = time();
+        $md5Hash = md5($timestamp);
+        $id_user = $customPrefix . strtoupper($md5Hash);
+    
         $user = new User($request->all());
-        
+        $user->id_user = $id_user;
         $user->password = Hash::make($request->password);
-        
+    
         $user->save();
-
+    
         Alert::success('Sukses', 'Data Berhasil Ditambah');
     
         return redirect()->route('user.index');

@@ -14,7 +14,7 @@ class ProdiSeeder extends Seeder
     public function run(): void
     {
         DB::table('prodi')->insert([
-            'prodi_id' => '1',
+            'id_prodi' => '1',
             'nama_prodi' => 'TI',
         ]);
     }

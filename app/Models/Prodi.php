@@ -9,7 +9,7 @@ class Prodi extends Model
 {
     use HasFactory;
     protected $table = 'prodi';
-    protected $primaryKey = 'prodi_id';
+    protected $primaryKey = 'id_prodi';
 
     /**
      * The attributes that are mass assignable.
@@ -17,7 +17,7 @@ class Prodi extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'prodi_id',
+        'id_prodi',
         'nama_prodi',
     ];
 }

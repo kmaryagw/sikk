@@ -16,7 +16,7 @@
             
 
             {{-- Master Data --}}
-            @if (Auth::user()->level == 'admin')
+            @if (Auth::user()->role == 'admin')
              <li class="nav-item dropdown {{ $type_menu === 'masterdata' ? 'active' : '' }}">
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fa-solid fa-basketball"></i> <span>Master Data</span></a>
                 <ul class="dropdown-menu">
@@ -43,7 +43,7 @@
             @endif
 
             {{-- Standar --}}
-            @if (Auth::user()->level == 'admin')
+            @if (Auth::user()->role == 'admin')
             <li class="{{ Request::is('survei') ? 'active' : '' }}">
                 <a class="nav-link"
                     href="{{ url('credits') }}"><i class="fa fa-paper-plane" aria-hidden="true"></i> <span>Standar</span>
@@ -52,7 +52,7 @@
             @endif
 
             {{-- Indikator Kinerja Utama/Tambahan --}}
-            @if (Auth::user()->level == 'admin'|| Auth::user()->level == 'prodi')
+            @if (Auth::user()->role== 'admin'|| Auth::user()->role == 'prodi')
             <li class="{{ Request::is('survei') ? 'active' : '' }}">
                 <a class="nav-link"
                     href="{{ url('credits') }}"><i class="fa-solid fa-circle-info"></i> <span>Indikator Kinerja Utama/Tambahan</span>
@@ -61,7 +61,7 @@
             @endif
 
             {{-- Target Capaian --}}
-            @if (Auth::user()->level == 'admin'|| Auth::user()->level == 'prodi')
+            @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi')
             <li class="{{ Request::is('survei') ? 'active' : '' }}">
                 <a class="nav-link"
                     href="{{ url('credits') }}"><i class="fa-solid fa-award"></i> <span>Target Capaian</span>
@@ -70,7 +70,7 @@
             @endif
 
             {{-- Program Kerja --}}
-            @if (Auth::user()->level == 'admin'|| Auth::user()->level == 'prodi'|| Auth::user()->level == 'unit kerja')
+            @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi'|| Auth::user()->role == 'unit kerja')
             <li class="{{ Request::is('survei') ? 'active' : '' }}">
                 <a class="nav-link"
                     href="{{ url('credits') }}"><i class="fa-solid fa-book"></i> <span>Program Kerja</span>
@@ -79,7 +79,7 @@
             @endif
 
             {{-- Realisasi Renja --}}
-            @if (Auth::user()->level == 'admin'|| Auth::user()->level == 'prodi'|| Auth::user()->level == 'unit kerja')
+            @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi'|| Auth::user()->role == 'unit kerja')
             <li class="{{ Request::is('survei') ? 'active' : '' }}">
                 <a class="nav-link"
                     href="{{ url('credits') }}"><i class="fa-solid fa-circle-info"></i> <span>Realisasi Renja</span>
@@ -88,7 +88,7 @@
             @endif
 
             {{-- Monitoring --}}
-            @if (Auth::user()->level == 'admin')
+            @if (Auth::user()->role == 'admin')
             <li class="{{ Request::is('survei') ? 'active' : '' }}">
                 <a class="nav-link"
                     href="{{ url('credits') }}"><i class="fa fa-eye" aria-hidden="true"></i> <span>Monitoring</span>
@@ -97,7 +97,7 @@
             @endif
 
             {{-- Evaluasi --}}
-            @if (Auth::user()->level == 'admin')
+            @if (Auth::user()->role == 'admin')
             <li class="{{ Request::is('survei') ? 'active' : '' }}">
                 <a class="nav-link"
                     href="{{ url('credits') }}"><i class="fa-solid fa-file-pen"></i> <span>Evaluasi</span>

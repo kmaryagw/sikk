@@ -14,7 +14,7 @@ class UnitKerjaSeeder extends Seeder
     public function run(): void
     {
         DB::table('unit_kerja')->insert([
-            'id_unit' => 'UN001',
+            'id_unit_kerja' => 'UN001',
             'unit_nama' => 'TEST',
             'unit_kerja' => 'y',
 

@@ -9,8 +9,8 @@ class Unit_Kerja extends Model
 {
     use HasFactory;
 
-    protected $table = '';
-    protected $primaryKey = 'id_user';
+    protected $table = 'unit_kerja';
+    protected $primaryKey = 'id_unit_kerja';
 
     /**
      * The attributes that are mass assignable.
@@ -18,11 +18,8 @@ class Unit_Kerja extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'id_user',
-        'nama_user',
-        'email',
-        'password',
-        'alamat',
-        'level',
+        'id_unit_kerja',
+        'unit_nama',
+        'unit_kerja',
     ];
 }
