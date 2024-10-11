@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\ProdiController;
+use App\Http\Controllers\RenstraController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -16,11 +18,10 @@ Route::get('/audit-internal', function () {
 });
 
 Route::middleware('auth')->group(function () {
-    // Route::get('/user', function () {
-    //     return view('pages.user', ['type_menu' => 'user']);
-    // })->name('pages.user');
 
     Route::resource('user', UserController::class);
+    Route::resource('program-studi', ProdiController::class);
+    Route::resource('rencana-strategis', RenstraController::class);
 
     Route::get('/dashboard', function () {
         return view('pages.dashboard', ['type_menu' => 'dashboard']);

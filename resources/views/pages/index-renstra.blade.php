@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Prodi')
+@section('title', 'Renstra')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -12,7 +12,7 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Daftar Prodi</h1>
+                <h1>Daftar Rencana Strategis</h1>
             </div>
 
             <div class="card mb-3">
@@ -35,16 +35,24 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Nama Prodi</th>
+                                <th>Nama Renstra</th>
+                                <th>Pimpinan Renstra</th>
+                                <th>Periode Awal Renstra</th>
+                                <th>Periode Akhir Renstra</th>
+                                <th>Renstra is Active</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @php $no = $prodis->firstItem(); @endphp
-                            @foreach ($prodis as $prodi)
+                            @php $no = $renstras->firstItem(); @endphp
+                            @foreach ($renstras as $renstra)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $prodi->nama_prodi }}</td>
+                                    <td>{{ $renstra->ren_nama }}</td>
+                                    <td>{{ $renstra->ren_pimpinan }}</td>
+                                    <td>{{ $renstra->ren_periode_awal }}</td>
+                                    <td>{{ $renstra->ren_periode_akhir }}</td>
+                                    <td>{{ $renstra->ren_is_aktif }}</td>
                                     <td>
                                         <a class="btn btn-warning" href="#"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
                                         <form id="delete-form-{{ $no-1 }}" method="POST" class="d-inline" action="#">
@@ -59,9 +67,9 @@
                     </table>
                 </div>
 
-                @if ($prodis->hasPages())
+                @if ($renstras->hasPages())
                     <div class="card-footer">
-                        {{ $prodis->links() }}
+                        {{ $renstras->links() }}
                     </div>
                 @endif
             </div>
