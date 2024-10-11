@@ -8,9 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Renstra extends Model
 {
     use HasFactory;
-    
-
-     
       protected $table = 'renstra';
       protected $primaryKey = 'ren_id';
       public $incrementing = false;
@@ -22,13 +19,7 @@ class Renstra extends Model
           'ren_periode_awal',
           'ren_periode_akhir',
           'ren_is_aktif',
-          'create_date',
-          'update_date',
-      ];
-      public $timestamps = false;
-      protected $dates = [
-          'create_date',
-          'update_date',
+          
       ];
     
 }

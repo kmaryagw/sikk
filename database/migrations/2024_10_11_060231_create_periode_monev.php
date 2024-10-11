@@ -11,13 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('renstra', function (Blueprint $table) {
-            $table->string('ren_id', 50)->primary();
-            $table->string('ren_nama', 100);
-            $table->string('ren_pimpinan', 100);
-            $table->year('ren_periode_awal');
-            $table->year('ren_periode_akhir');
-            $table->enum('ren_is_aktif', ['y', 'n']);
+        Schema::create('periode_monev', function (Blueprint $table) {
+            $table->string('pm_id', 10)->primary(); 
+            $table->string('pm_nama', 20);
             $table->timestamps();
         });
     }
@@ -27,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('renstra');
+        Schema::dropIfExists('periode_monev');
     }
 };

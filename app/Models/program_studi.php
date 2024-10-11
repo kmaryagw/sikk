@@ -5,10 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Prodi extends Model
+class program_studi extends Model
 {
     use HasFactory;
-    protected $table = 'prodi';
+    protected $table = 'program_studi';
     protected $primaryKey = 'prodi_id';
 
     /**

@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('prodi', function (Blueprint $table) {
-            $table->string('prodi_id' ,50)->primary();
-            $table->string('nama_prodi', 150);
+        Schema::create('tahun_kerja', function (Blueprint $table) {
+            $table->string('th_id', 10)->primary();
+            $table->year('th_tahun');
+            $table->enum('ren_is_aktif', ['y', 'n']);
+            $table->string('ren_id', 10);
             $table->timestamps();
         });
     }
@@ -23,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('prodi');
+        Schema::dropIfExists('tahun_kerja');
     }
 };

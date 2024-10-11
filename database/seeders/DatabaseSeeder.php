@@ -21,8 +21,14 @@ class DatabaseSeeder extends Seeder
         // ]);
         $this->call([
             UserSeeder::class,
-            ProdiSeeder::class,
+            Program_studiSeeder::class,
             UnitKerjaSeeder::class,
+            Tahun_kerjaSeeder::class,
+            Target_indikatorSeeder::class,
+            Indikator_kinerjaSeeder::class,
+            StandarSeeder::class,
+            Periode_monevSeeder::class,
+            Standar_dokumenSeeder::class,
         ]);
     }
 
