@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Prodi extends Model
+class program_studi extends Model
 {
     use HasFactory;
-    protected $table = 'prodi';
-    protected $primaryKey = 'id_prodi';
+    protected $table = 'program_studi';
+    protected $primaryKey = 'prodi_id';
 
     /**
      * The attributes that are mass assignable.
@@ -17,7 +17,7 @@ class Prodi extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'id_prodi',
+        'prodi_id',
         'nama_prodi',
     ];
 }

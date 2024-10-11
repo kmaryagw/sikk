@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('renstra', function (Blueprint $table) {
-            $table->string('ren_id', 50)->primary();
-            $table->string('ren_nama', 100);
-            $table->string('ren_pimpinan', 100);
-            $table->year('ren_periode_awal');
-            $table->year('ren_periode_akhir');
+        Schema::create('tahun_kerja', function (Blueprint $table) {
+            $table->string('th_id', 50)->primary();
+            $table->year('th_tahun');
             $table->enum('ren_is_aktif', ['y', 'n']);
+            $table->string('ren_id', 50);
             $table->timestamps();
         });
     }
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('renstra');
+        Schema::dropIfExists('tahun_kerja');
     }
 };
