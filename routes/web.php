@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UnitKerjaController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +22,7 @@ Route::middleware('auth')->group(function () {
     // })->name('pages.user');
 
     Route::resource('user', UserController::class);
+    Route::resource('unit', UnitKerjaController::class);
 
     Route::get('/dashboard', function () {
         return view('pages.dashboard', ['type_menu' => 'dashboard']);

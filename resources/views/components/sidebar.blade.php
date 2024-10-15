@@ -26,8 +26,8 @@
                     <li class="{{ Request::is('program-studi') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('program-studi') }}">Program Studi</a>
                     </li>
-                    <li class="{{ Request::is('unit-kerja') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ url('unit-kerja') }}">Unit Kerja</a>
+                    <li class="{{ Request::is('unit') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('unit') }}">Unit Kerja</a>
                     </li>
                     <li class="{{ Request::is('rencana-strategis') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('rencana-strategis') }}">Rencana Strategis</a>
