@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Prodi')
+@section('title', 'Periode Monev')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -12,7 +12,7 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Daftar Prodi</h1>
+                <h1>Daftar Periode Monev</h1>
             </div>
 
             <div class="card mb-3">
@@ -35,16 +35,16 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Nama Prodi</th>
+                                <th>Nama Periode Monev</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @php $no = $prodis->firstItem(); @endphp
-                            @foreach ($prodis as $prodi)
+                            @php $no = $periodems->firstItem(); @endphp
+                            @foreach ($periodems as $periode_monev)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $prodi->nama_prodi }}</td>
+                                    <td>{{ $periode_monev->pm_nama }}</td>
                                     <td>
                                         <a class="btn btn-warning" href="#"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
                                         <form id="delete-form-{{ $no-1 }}" method="POST" class="d-inline" action="#">
@@ -59,9 +59,9 @@
                     </table>
                 </div>
 
-                @if ($prodis->hasPages())
+                @if ($periodems->hasPages())
                     <div class="card-footer">
-                        {{ $prodis->links() }}
+                        {{ $periodems->links() }}
                     </div>
                 @endif
             </div>

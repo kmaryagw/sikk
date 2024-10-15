@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Prodi')
+@section('title', 'Tahun Kerja')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -12,7 +12,7 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Daftar Prodi</h1>
+                <h1>Daftar Tahun Kerja</h1>
             </div>
 
             <div class="card mb-3">
@@ -35,16 +35,18 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Nama Prodi</th>
+                                <th>Tahun</th>
+                                <th>Renstra is Active</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @php $no = $prodis->firstItem(); @endphp
-                            @foreach ($prodis as $prodi)
+                            @php $no = $tahuns->firstItem(); @endphp
+                            @foreach ($tahuns as $tahun_kerja)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $prodi->nama_prodi }}</td>
+                                    <td>{{ $tahun_kerja->th_tahun }}</td>
+                                    <td>{{ $tahun_kerja->ren_is_aktif }}</td>
                                     <td>
                                         <a class="btn btn-warning" href="#"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
                                         <form id="delete-form-{{ $no-1 }}" method="POST" class="d-inline" action="#">
@@ -59,9 +61,9 @@
                     </table>
                 </div>
 
-                @if ($prodis->hasPages())
+                @if ($tahuns->hasPages())
                     <div class="card-footer">
-                        {{ $prodis->links() }}
+                        {{ $tahuns->links() }}
                     </div>
                 @endif
             </div>

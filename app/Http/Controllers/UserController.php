@@ -59,7 +59,7 @@ class UserController extends Controller
 
         return view('pages.create-user', [
             'title' => $title,
-            'roles' => $roles,  // Kirim array role ke view
+            'roles' => $roles,
             'type_menu' => 'masterdata',
         ]);
     }
@@ -92,10 +92,10 @@ class UserController extends Controller
     public function edit(user $user)
     {
         $title = 'Ubah User';
-        $levels = ['admin','prodi','unit kerja'];
+        $roles = ['admin','prodi','unit kerja'];
         return view('pages.edit-user', [
             'title' => $title,
-            'levels' => $levels,
+            'roles' => $roles,
             'user' => $user,
             'type_menu' => 'masterdata',
         ]);
@@ -104,19 +104,18 @@ class UserController extends Controller
     public function update(User $user, Request $request)
     {
         $request->validate([
-            'nama_user' => 'required',
-            'alamat' => 'required', 
-            'email' => 'required',
-            'password' => 'required',
+            'username' => 'required',
+            'password' => 'required', 
+            'status' => 'required',
+            'role' => 'required',
         ]);
     
-        if (User::where('email', $request->email)->where('id_user', '<>', $user->id_user)->first()) 
-            return back()->withErrors(['email' => 'Email sudah terdaftar']);
+        if (User::where('username', $request->email)->where('id_user', '<>', $user->id_user)->first()) 
+            return back()->withErrors(['username' => 'Username sudah terdaftar']);
     
-        $user->nama_user = $request->nama_user;
-        $user->email = $request->email;
-        $user->alamat = $request->alamat;
-        $user->level = $request->level;
+        $user->username = $request->username;
+        $user->status = $request->status;
+        $user->role = $request->role;
         if ($request->password)
             $user->password = Hash::make($request->password);
         $user->save();

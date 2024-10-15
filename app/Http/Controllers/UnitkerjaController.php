@@ -47,6 +47,7 @@ class UnitKerjaController extends Controller
             'unit_nama' => 'required|string|max:255',
             
             'unit_kerja' => 'required|in:y,n',
+            
         ]);
     
         $customPrefix = 'US';

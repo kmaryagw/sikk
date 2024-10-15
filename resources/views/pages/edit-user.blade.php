@@ -49,19 +49,7 @@
                                                     <i class="fa-solid fa-user"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="nama_user" value="{{ old('nama_user', $user->nama_user) }}"/>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label>Email</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <i class="fa-solid fa-envelope"></i>
-                                                </div>
-                                            </div>
-                                            <input class="form-control" type="email" name="email" value="{{ old('email', $user->email) }}"/>
+                                            <input class="form-control" type="text" name="username" value="{{ old('username', $user->username) }}"/>
                                         </div>
                                     </div>
 
@@ -82,22 +70,22 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <label>Alamat</label>
+                                        <label>Status</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
-                                                    <i class="fa-solid fa-house-chimney"></i>
+                                                    <i class="fa-solid fa-status"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="alamat" value="{{ old('alamat' , $user->alamat) }}"/>
+                                            <input class="form-control" type="text" name="status" value="{{ old('status', $user->status) }}"/>
                                         </div>
                                     </div>
 
                                     <div class="form-group">
                                         <label>Level</label>
                                         <select class="form-select" name="level">
-                                            @foreach ($levels as $level)
-                                                <option value="{{ $level }}" {{ old('level', $user->level) == $level ? 'selected' : '' }}>{{ $level }}</option>
+                                            @foreach ($roles as $role)
+                                                <option value="{{ $role }}" {{ old('role', $user->role) == $role ? 'selected' : '' }}>{{ $role }}</option>
                                             @endforeach
                                         </select>
                                     </div>

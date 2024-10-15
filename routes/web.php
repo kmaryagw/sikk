@@ -1,6 +1,13 @@
 <?php
 
+<<<<<<< HEAD
 use App\Http\Controllers\UnitKerjaController;
+=======
+use App\Http\Controllers\PeriodeMonevController;
+use App\Http\Controllers\ProdiController;
+use App\Http\Controllers\RenstraController;
+use App\Http\Controllers\TahunController;
+>>>>>>> c178f4e08f0af9bc9dc0930b9ccb5fbe6a7a3bee
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -12,17 +19,18 @@ Route::post('/logout', function () {
     return redirect('/');
 })->name('logout');
 
-Route::get('/audit-internal', function () {
-    return view('pages.form-audit-internal', ['type_menu' => 'audit-internal']);
-});
-
 Route::middleware('auth')->group(function () {
-    // Route::get('/user', function () {
-    //     return view('pages.user', ['type_menu' => 'user']);
-    // })->name('pages.user');
 
     Route::resource('user', UserController::class);
+<<<<<<< HEAD
     Route::resource('unit', UnitKerjaController::class);
+=======
+    Route::resource('program-studi', ProdiController::class);
+    Route::resource('rencana-strategis', RenstraController::class);
+    Route::resource('tahun', TahunController::class);
+    Route::resource('periode-monev', PeriodeMonevController::class);
+    
+>>>>>>> c178f4e08f0af9bc9dc0930b9ccb5fbe6a7a3bee
 
     Route::get('/dashboard', function () {
         return view('pages.dashboard', ['type_menu' => 'dashboard']);
