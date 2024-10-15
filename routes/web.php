@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\PeriodeMonevController;
 use App\Http\Controllers\ProdiController;
 use App\Http\Controllers\RenstraController;
+use App\Http\Controllers\TahunController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -13,15 +15,14 @@ Route::post('/logout', function () {
     return redirect('/');
 })->name('logout');
 
-Route::get('/audit-internal', function () {
-    return view('pages.form-audit-internal', ['type_menu' => 'audit-internal']);
-});
-
 Route::middleware('auth')->group(function () {
 
     Route::resource('user', UserController::class);
     Route::resource('program-studi', ProdiController::class);
     Route::resource('rencana-strategis', RenstraController::class);
+    Route::resource('tahun', TahunController::class);
+    Route::resource('periode-monev', PeriodeMonevController::class);
+    
 
     Route::get('/dashboard', function () {
         return view('pages.dashboard', ['type_menu' => 'dashboard']);
