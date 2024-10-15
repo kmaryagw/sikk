@@ -50,7 +50,7 @@ class UnitKerjaController extends Controller
             
         ]);
     
-        $customPrefix = 'US';
+        $customPrefix = 'UK';
         $timestamp = time();
         $md5Hash = md5($timestamp);
         $id_unit_kerja = $customPrefix . strtoupper($md5Hash);

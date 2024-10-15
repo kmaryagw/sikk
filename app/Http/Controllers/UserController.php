@@ -1,6 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Models\program_studi;
+use App\Models\UnitKerja;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -38,7 +41,10 @@ class UserController extends Controller
     {
         $title = 'Data User';
         $q = $request->query('q');
-        $users = User::where('username', 'like', '%' . $q . '%')
+        $users = User::select('users.*', 'program_studi.nama_prodi', 'unit_kerja.unit_nama')
+        ->where('username', 'like', '%' . $q . '%')
+        ->leftjoin('program_studi', 'program_studi.prodi_id', '=', 'users.prodi_id')
+        ->leftjoin('unit_kerja', 'unit_kerja.id_unit_kerja', '=', 'users.id_unit_kerja')
         ->paginate(10)
         ->withQueryString();
         $no = $users->firstItem();
@@ -56,10 +62,14 @@ class UserController extends Controller
     {
         $title = 'Tambah User';
         $roles = ['admin', 'prodi', 'unit kerja'];
+        $prodis = program_studi::orderBy('nama_prodi')->get();
+        $units = UnitKerja::orderBy('unit_nama')->get();
 
         return view('pages.create-user', [
             'title' => $title,
             'roles' => $roles,
+            'prodis' => $prodis,
+            'units' => $units,
             'type_menu' => 'masterdata',
         ]);
     }
@@ -71,6 +81,8 @@ class UserController extends Controller
             'status' => 'required|string|max:1',
             'password' => 'required|string|min:8',
             'role' => 'required|in:admin,prodi,unit kerja',
+            'prodi_id' => 'nullable|required_without:id_unit_kerja|exists:program_studi,prodi_id',
+            'id_unit_kerja' => 'nullable|required_without:prodi_id|exists:unit_kerja,id_unit_kerja',
         ]);
     
         $customPrefix = 'US';
@@ -78,9 +90,15 @@ class UserController extends Controller
         $md5Hash = md5($timestamp);
         $id_user = $customPrefix . strtoupper($md5Hash);
     
-        $user = new User($request->all());
+        $user = new User();
         $user->id_user = $id_user;
+        $user->username = $request->username;
+        $user->status = $request->status;
+        $user->role = $request->role;
         $user->password = Hash::make($request->password);
+
+        $user->prodi_id = $request->prodi_id;
+        $user->id_unit_kerja = $request->id_unit_kerja;
     
         $user->save();
     
@@ -107,7 +125,7 @@ class UserController extends Controller
             'username' => 'required',
             'password' => 'required', 
             'status' => 'required',
-            'role' => 'required',
+            'role' => 'required|in:admin,prodi,unit kerja',
         ]);
     
         if (User::where('username', $request->email)->where('id_user', '<>', $user->id_user)->first()) 

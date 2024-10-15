@@ -38,6 +38,8 @@
                                 <th>Nama User</th>
                                 <th>Status</th>
                                 <th>Role</th>
+                                <th>Prodi</th>
+                                <th>Unit Kerja</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -49,6 +51,8 @@
                                     <td>{{ $user->username }}</td>
                                     <td>{{ $user->status }}</td>
                                     <td>{{ $user->role }}</td>
+                                    <td>{{ $user->nama_prodi }}</td>
+                                    <td>{{ $user->unit_nama }}</td>
                                     <td>
                                         <a class="btn btn-warning" href="{{ route('user.edit', $user) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
                                         <form id="delete-form-{{ $no-1 }}" method="POST" class="d-inline" action="{{ route('user.destroy', $user) }}">

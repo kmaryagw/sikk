@@ -19,12 +19,12 @@ return new class extends Migration
             $table->enum('role', ['admin', 'prodi', 'unit kerja']);
 
              // Menambahkan kolom prodi_id dan unit_kerja_id
-             $table->string('prodi_id', 50)->nullable(); // menempatkan setelah kolom 'role'
-             $table->string('id_unit_kerja', 50)->nullable();; // menempatkan setelah kolom 'prodi_id'
+            $table->string('prodi_id', 50)->nullable(); // menempatkan setelah kolom 'role'
+            $table->string('id_unit_kerja', 50)->nullable();; // menempatkan setelah kolom 'prodi_id'
  
              // Menambahkan foreign key constraint
-             $table->foreign('prodi_id')->references('prodi_id')->on('program_studi')->onDelete('set null');
-             $table->foreign('id_unit_kerja')->references('id_unit_kerja')->on('unit_kerja')->onDelete('set null');
+            $table->foreign('prodi_id')->references('prodi_id')->on('program_studi')->onDelete('set null');
+            $table->foreign('id_unit_kerja')->references('id_unit_kerja')->on('unit_kerja')->onDelete('set null');
 
             $table->timestamps();
         });
@@ -50,16 +50,16 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('sessions');
-
         Schema::table('users', function (Blueprint $table) {
             // Menghapus foreign key dan kolom
             $table->dropForeign(['prodi_id']);
             $table->dropForeign(['id_unit_kerja']);
             $table->dropColumn(['prodi_id', 'id_unit_kerja']);
         });
+
+        Schema::dropIfExists('users');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('sessions');
 
     }
 };
