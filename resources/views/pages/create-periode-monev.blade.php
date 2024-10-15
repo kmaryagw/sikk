@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'edit-unit')
+@section('title', 'create-periode_monev')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -16,10 +16,10 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Edit Unit</h1>
+                <h1>Form Periode Monev</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
-                    <div class="breadcrumb-item">Form Unit</div>
+                    <div class="breadcrumb-item">Form Periode Monev</div>
                 </div>
             </div>
 
@@ -38,37 +38,26 @@
                                     </div>
                                 @endif
 
-                                <form method="POST" action="{{ route('unit.update', $unit) }}">
+                                <form method="POST" action="{{ route('periode-monev.store') }}">
                                     @csrf
-                                    @method('put')
                                     <div class="form-group">
-                                        <label>Nama Unit</label>
+                                        <label>Nama Periode Monev</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
                                                     <i class="fa-solid fa-user"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="unit_nama" value="{{ old('unit_nama', $unit->unit_nama) }}"/>
+                                            <input class="form-control" type="text" name="pm_nama" value="{{ old('pm_nama') }}"/>
                                         </div>
                                     </div>
 
-                                    
 
                                     
-
-                                    <div class="form-group">
-                                        <label>unit kerja</label>
-                                        <select class="form-select" name="unit_kerjas">
-                                            @foreach ($unit_kerjas as $unit_kerja)
-                                                <option value="{{ $unit_kerja }}" {{ old('unit_kerja', $unit->unit_kerja) == $unit_kerja ? 'selected' : '' }}>{{ $unit_kerja }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
 
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Simpan</button>
-                                        <a href="{{ url('unit') }}" class="btn btn-danger">Kembali</a>
+                                        <a href="{{ url('periode-monev') }}" class="btn btn-danger">Kembali</a>
                                     </div>
                                 </form>
                             </div>
@@ -90,6 +79,8 @@
     <script src="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js') }}"></script>
     <script src="{{ asset('library/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ asset('library/selectric/public/jquery.selectric.min.js') }}"></script>
+
+    @include('sweetalert::alert')
 
     <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>

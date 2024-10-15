@@ -25,7 +25,11 @@
                             <button class="btn btn-info"><i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
                         </div>
                         <div class="col">
+<<<<<<< HEAD
                             <a class="btn btn-primary" href="#"><i class="fa-solid fa-plus"></i> Tambah</a>
+=======
+                            <a class="btn btn-primary" href="{{ route('rencana-strategis.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
+>>>>>>> bd52e736e0f86519fdd0c05ad883d8d71183a411
                         </div>
                     </form>
                 </div>
