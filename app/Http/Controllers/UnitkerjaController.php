@@ -47,10 +47,10 @@ class UnitKerjaController extends Controller
             'unit_nama' => 'required|string|max:255',
             
             'unit_kerja' => 'required|in:y,n',
-            
+
         ]);
     
-        $customPrefix = 'US';
+        $customPrefix = 'UK';
         $timestamp = time();
         $md5Hash = md5($timestamp);
         $id_unit_kerja = $customPrefix . strtoupper($md5Hash);
@@ -66,17 +66,17 @@ class UnitKerjaController extends Controller
     }
 
     public function edit(UnitKerja $unit)
-    {
-        
-        $title = 'Ubah Unit';
-        $unit_kerjas = ['y','n'];
-        return view('pages.edit-unit', [
-            'title' => $title,
-            'unit_kerjas' => $unit_kerjas,
-            'unit' => $unit,
-            'type_menu' => 'masterdata',
-        ]);
-    }
+{
+    $title = 'Ubah Unit';
+    $unit_kerjas = ['y', 'n'];
+    
+    return view('pages.edit-unit', [
+        'title' => $title,
+        'unit_kerjas' => $unit_kerjas,
+        'unit' => $unit,
+        'type_menu' => 'masterdata',
+    ]);
+}
 
     public function update(UnitKerja $unit, Request $request)
     {

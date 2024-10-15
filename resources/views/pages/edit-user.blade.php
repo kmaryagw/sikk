@@ -83,7 +83,7 @@
 
                                     <div class="form-group">
                                         <label>Level</label>
-                                        <select class="form-select" name="level">
+                                        <select class="form-select" name="role">
                                             @foreach ($roles as $role)
                                                 <option value="{{ $role }}" {{ old('role', $user->role) == $role ? 'selected' : '' }}>{{ $role }}</option>
                                             @endforeach
