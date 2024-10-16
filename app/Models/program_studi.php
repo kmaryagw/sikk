@@ -10,6 +10,7 @@ class program_studi extends Model
     use HasFactory;
     protected $table = 'program_studi';
     protected $primaryKey = 'prodi_id';
+    public $incrementing = false;
 
     /**
      * The attributes that are mass assignable.

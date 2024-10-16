@@ -38,7 +38,7 @@
                                     </div>
                                 @endif
 
-                                <form method="POST" action="{{ route('program-studi.store') }}">
+                                <form method="POST" action="{{ route('prodi.store') }}">
                                     @csrf
                                     <div class="form-group">
                                         <label>Nama Prodi</label>
@@ -54,7 +54,7 @@
 
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Simpan</button>
-                                        <a href="{{ url('program-studi') }}" class="btn btn-danger">Kembali</a>
+                                        <a href="{{ url('prodi') }}" class="btn btn-danger">Kembali</a>
                                     </div>
                                 </form>
                             </div>

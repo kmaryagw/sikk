@@ -11,6 +11,7 @@ class periode_monev extends Model
 
     protected $table = 'periode_monev';
     protected $primaryKey = 'pm_id';
+    public $incrementing = false;
    protected $fillable = [
         'pm_id',
         'pm_nama',

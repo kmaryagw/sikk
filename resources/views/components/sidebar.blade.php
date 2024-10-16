@@ -23,20 +23,20 @@
                     <li class="{{ Request::is('user') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('user') }}">User</a>
                     </li>
-                    <li class="{{ Request::is('program-studi') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ url('program-studi') }}">Program Studi</a>
+                    <li class="{{ Request::is('prodi') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('prodi') }}">Program Studi</a>
                     </li>
                     <li class="{{ Request::is('unit') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('unit') }}">Unit Kerja</a>
                     </li>
-                    <li class="{{ Request::is('rencana-strategis') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ url('rencana-strategis') }}">Rencana Strategis</a>
+                    <li class="{{ Request::is('renstra') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('renstra') }}">Rencana Strategis</a>
                     </li>
                     <li class="{{ Request::is('tahun') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('tahun') }}">Tahun</a>
                     </li>
-                    <li class="{{ Request::is('periode-monev') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ url('periode-monev') }}">Periode Monev</a>
+                    <li class="{{ Request::is('periodemonev') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('periodemonev') }}">Periode Monev</a>
                     </li>
                 </ul>
             </li>

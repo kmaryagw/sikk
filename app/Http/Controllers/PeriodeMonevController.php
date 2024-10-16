@@ -38,24 +38,60 @@ class PeriodeMonevController extends Controller
     }
 
     public function store(Request $request)
+{
+    $request->validate([
+        'pm_nama' => 'required|string|max:255',  // Validasi untuk pm_nama
+    ]);
+
+    // Generate custom ID
+    $customPrefix = 'PM';
+    $timestamp = time(); // Ambil timestamp sebagai basis untuk ID
+    $md5Hash = md5($timestamp);  // Hash dari timestamp
+    $pm_id = $customPrefix . strtoupper($md5Hash);  // ID yang di-generate
+
+    // Cek apakah ID sudah benar
+      // Debug log untuk memeriksa pm_id
+
+    // Create new instance and assign values
+    $pm = new periode_monev();
+    $pm->pm_id = $pm_id;  // Set custom ID
+    $pm->pm_nama = $request->pm_nama;
+    
+    $pm->save();
+
+    Alert::success('Sukses', 'Data Berhasil Ditambah');
+    return redirect()->route('periodemonev.index');
+}
+
+public function edit(periode_monev $periodemonev)
+{
+    $title = 'Ubah Periode Monev';
+    return view('pages.edit-periode-monev', [
+        'title' => $title,
+        'periodemonev' => $periodemonev,
+        'type_menu' => 'masterdata',
+    ]);
+}
+
+    public function update(periode_monev $periodemonev, Request $request)
     {
         $request->validate([
-            'pm_nama' => 'required|string|max:255',
+            'pm_nama' => 'required',
+            
             
         ]);
-    
-        $customPrefix = 'PM';
-        $timestamp = time();
-        $md5Hash = md5($timestamp);
-        $pm_id = $customPrefix . strtoupper($md5Hash);
-    
-        $pm = new periode_monev($request->all());
-        $pm->pm_id = $pm_id;
-        
-        $pm->save();
-    
-        Alert::success('Sukses', 'Data Berhasil Ditambah');
-    
-        return redirect()->route('periode-monev.index');
+        $periodemonev->pm_nama = $request->pm_nama;
+        $periodemonev->save();
+
+        Alert::success('Sukses', 'Data Berhasil Diubah');
+
+        return redirect()->route('periodemonev.index');
+    }
+
+    public function destroy(periode_monev $periodemonev)
+    {
+        $periodemonev->delete();
+        Alert::success('Sukses', 'Data Berhasil Dihapus');
+        return redirect()->route('periodemonev.index');
     }
 }

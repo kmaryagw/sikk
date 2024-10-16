@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'create-renstra')
+@section('title', 'edit-renstra')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -16,10 +16,10 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Form Rencana Strategis</h1>
+                <h1>Edit Renstra</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
-                    <div class="breadcrumb-item">Form Rencana Strategis</div>
+                    <div class="breadcrumb-item">Form Renstra</div>
                 </div>
             </div>
 
@@ -38,64 +38,53 @@
                                     </div>
                                 @endif
 
-                                <form method="POST" action="{{ route('renstra.store') }}">
+                                <form method="POST" action="{{ route('renstra.update', $renstra) }}">
                                     @csrf
+                                    @method('put')
                                     <div class="form-group">
-                                        <label>Nama Rencana Strategis</label>
+                                        <label>Nama Renstra</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
-                                                    <i class="fa-solid fa-file-alt"></i>
+                                                    <i class="fa-solid fa-user"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="ren_nama" value="{{ old('ren_nama') }}" required/>
+                                            <input class="form-control" type="text" name="ren_nama" value="{{ old('ren_nama', $renstra->ren_nama) }}" />
                                         </div>
                                     </div>
 
                                     <div class="form-group">
-                                        <label>Nama Pimpinan</label>
+                                        <label>Pimpinan Renstra</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
                                                     <i class="fa-solid fa-user-tie"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="ren_pimpinan" value="{{ old('ren_pimpinan') }}" required/>
+                                            <input class="form-control" type="text" name="ren_pimpinan" value="{{ old('ren_pimpinan', $renstra->ren_pimpinan) }}" />
                                         </div>
                                     </div>
 
                                     <div class="form-group">
                                         <label>Periode Awal</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <i class="fa-solid fa-calendar-alt"></i>
-                                                </div>
-                                            </div>
-                                            <input class="form-control" type="number" name="ren_periode_awal" value="{{ old('ren_periode_awal') }}" required/>
-                                        </div>
+                                        <input class="form-control" type="number" name="ren_periode_awal" value="{{ old('ren_periode_awal', $renstra->ren_periode_awal) }}" min="1900" max="{{ date('Y') }}" />
                                     </div>
 
                                     <div class="form-group">
                                         <label>Periode Akhir</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <i class="fa-solid fa-calendar-alt"></i>
-                                                </div>
-                                            </div>
-                                            <input class="form-control" type="number" name="ren_periode_akhir" value="{{ old('ren_periode_akhir') }}" required/>
-                                        </div>
+                                        <input class="form-control" type="number" name="ren_periode_akhir" value="{{ old('ren_periode_akhir', $renstra->ren_periode_akhir) }}" min="1900" max="{{ date('Y') }}" />
                                     </div>
 
                                     <div class="form-group">
-                                        <label>Renstra is Active</label>
+                                        <label>Status Aktif</label>
                                         <select class="form-select" name="ren_is_aktif">
-                                            @foreach ($ren_is_aktifs as $ren_is_aktif)
-                                                <option value="{{ $ren_is_aktif }}" {{ old('ren_is_aktif') == $ren_is_aktif ? 'selected' : '' }}>{{ $ren_is_aktif }}</option>
-                                            @endforeach
+                                            <option value="y" {{ old('ren_is_aktif', $renstra->ren_is_aktif) == 'y' ? 'selected' : '' }}>Aktif</option>
+                                            <option value="n" {{ old('ren_is_aktif', $renstra->ren_is_aktif) == 'n' ? 'selected' : '' }}>Non-Aktif</option>
                                         </select>
                                     </div>
+
+                                    <!-- Optional unit_kerja if you need to edit it -->
+                                    
 
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Simpan</button>
@@ -121,8 +110,6 @@
     <script src="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js') }}"></script>
     <script src="{{ asset('library/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ asset('library/selectric/public/jquery.selectric.min.js') }}"></script>
-
-    @include('sweetalert::alert')
 
     <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>

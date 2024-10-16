@@ -48,11 +48,13 @@
                                     <td>{{ $tahun_kerja->th_tahun }}</td>
                                     <td>{{ $tahun_kerja->ren_is_aktif }}</td>
                                     <td>
-                                        <a class="btn btn-warning" href="#"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
-                                        <form id="delete-form-{{ $no-1 }}" method="POST" class="d-inline" action="#">
+                                        <a class="btn btn-warning" href="{{ route('tahun.edit', $tahun_kerja->th_id) }}">
+                                            <i class="fa-solid fa-pen-to-square"></i> Ubah
+                                        </a>
+                                        <form id="delete-form-{{ $tahun_kerja->th_id }}" method="POST" class="d-inline" action="{{ route('tahun.destroy', $tahun_kerja->th_id) }}">
                                             @csrf
                                             @method('DELETE')
-                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $no-1 }}' )"><i class="fa-solid fa-trash"></i> Hapus</button>
+                                            <button type="submit" class="btn btn-danger" onclick="confirmDelete(event, '{{ $tahun_kerja->th_id }}')"><i class="fa-solid fa-trash"></i> Hapus</button>
                                         </form>
                                     </td>
                                 </tr>

@@ -58,6 +58,51 @@ class RenstraController extends Controller
         $renstra->save();
 
         Alert::success('Sukses', 'Renstra berhasil ditambahkan.');
-        return redirect()->route('rencana-strategis.index');
+        return redirect()->route('renstra.index');
+    }
+
+    public function edit(Renstra $renstra)
+{
+    $title = 'Ubah Rencana Strategis';
+    $ren_is_aktifs = ['y', 'n']; // Menyediakan pilihan untuk aktif/tidak aktif
+    
+    return view('pages.edit-renstra', [
+        'title' => $title,
+        'ren_is_aktifs' => $ren_is_aktifs,
+        'renstra' => $renstra, // Pastikan objek renstra diteruskan
+        'type_menu' => 'masterdata',
+    ]);
+}
+
+    public function update(Renstra $renstra, Request $request)
+{
+    // Validasi input
+    $request->validate([
+        'ren_nama' => 'required|string|max:100',
+        'ren_pimpinan' => 'required|string|max:100',
+        'ren_periode_awal' => 'required|integer|min:1900|max:' . date('Y'),
+        'ren_periode_akhir' => 'required|integer|min:1900|max:' . date('Y'),
+        'ren_is_aktif' => 'required|in:y,n',
+    ]);
+
+    // Update nilai-nilai di model
+    $renstra->ren_nama = $request->ren_nama;
+    $renstra->ren_pimpinan = $request->ren_pimpinan;
+    $renstra->ren_periode_awal = $request->ren_periode_awal;
+    $renstra->ren_periode_akhir = $request->ren_periode_akhir;
+    $renstra->ren_is_aktif = $request->ren_is_aktif;
+
+    // Simpan perubahan
+    $renstra->save();
+
+    Alert::success('Sukses', 'Data Renstra berhasil diubah.');
+    return redirect()->route('renstra.index');
+}
+
+    public function destroy(Renstra $renstra)
+    {
+        $renstra->delete();
+        Alert::success('Sukses', 'Data Renstra berhasil dihapus.');
+        return redirect()->route('renstra.index');
     }
 }

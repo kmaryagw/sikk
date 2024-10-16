@@ -59,7 +59,7 @@
 
                                     <div class="form-group">
                                         <label>unit kerja</label>
-                                        <select class="form-select" name="unit_kerjas">
+                                        <select class="form-select" name="unit_kerja">
                                             @foreach ($unit_kerjas as $unit_kerja)
                                                 <option value="{{ $unit_kerja }}" {{ old('unit_kerja', $unit->unit_kerja) == $unit_kerja ? 'selected' : '' }}>{{ $unit_kerja }}</option>
                                             @endforeach

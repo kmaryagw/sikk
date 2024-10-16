@@ -11,6 +11,7 @@ class UnitKerja extends Model
 
     protected $table = 'unit_kerja';
     protected $primaryKey = 'id_unit_kerja';
+    public $incrementing = false;
 
     /**
      * The attributes that are mass assignable.

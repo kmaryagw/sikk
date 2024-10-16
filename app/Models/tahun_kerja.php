@@ -11,6 +11,7 @@ class tahun_kerja extends Model
     protected $table = 'tahun_kerja';
 
     protected $primaryKey = 'th_id';
+    public $incrementing = false;
 
     protected $fillable = [
         'th_id',

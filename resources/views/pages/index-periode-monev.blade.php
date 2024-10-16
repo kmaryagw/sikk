@@ -25,7 +25,7 @@
                             <button class="btn btn-info"><i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
                         </div>
                         <div class="col">
-                            <a class="btn btn-primary" href="{{ route('periode-monev.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
+                            <a class="btn btn-primary" href="{{ route('periodemonev.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
                         </div>
                     </form>
                 </div>
@@ -41,16 +41,18 @@
                         </thead>
                         <tbody>
                             @php $no = $periodems->firstItem(); @endphp
-                            @foreach ($periodems as $periode_monev)
+                            @foreach ($periodems as $periodemonev)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $periode_monev->pm_nama }}</td>
+                                    <td>{{ $periodemonev->pm_nama }}</td>
                                     <td>
-                                        <a class="btn btn-warning" href="#"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
-                                        <form id="delete-form-{{ $no-1 }}" method="POST" class="d-inline" action="#">
+                                        <a class="btn btn-warning" href="{{ route('periodemonev.edit', $periodemonev->pm_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
+                                        <form id="delete-form-{{ $periodemonev->pm_id }}" method="POST" class="d-inline" action="{{ route('periodemonev.destroy', $periodemonev->pm_id) }}">
+
                                             @csrf
                                             @method('DELETE')
-                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $no-1 }}' )"><i class="fa-solid fa-trash"></i> Hapus</button>
+                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $periodemonev->pm_id }}' )"><i class="fa-solid fa-trash"></i> Hapus</button>
+
                                         </form>
                                     </td>
                                 </tr>
