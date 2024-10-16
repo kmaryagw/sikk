@@ -53,12 +53,6 @@
                                         </div>
                                     </div>
 
-                                    
-
-                                    
-
-                                    
-
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Simpan</button>
                                         <a href="{{ url('periodemonev') }}" class="btn btn-danger">Kembali</a>

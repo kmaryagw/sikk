@@ -41,8 +41,7 @@ class UserController extends Controller
     {
         $title = 'Data User';
         $q = $request->query('q');
-        $users = User::select('users.*', 'program_studi.nama_prodi', 'unit_kerja.unit_nama')
-        ->where('username', 'like', '%' . $q . '%')
+        $users = User::where('username', 'like', '%' . $q . '%')
         ->leftjoin('program_studi', 'program_studi.prodi_id', '=', 'users.prodi_id')
         ->leftjoin('unit_kerja', 'unit_kerja.id_unit_kerja', '=', 'users.id_unit_kerja')
         ->paginate(10)
@@ -81,9 +80,20 @@ class UserController extends Controller
             'status' => 'required|string|max:1',
             'password' => 'required|string|min:8',
             'role' => 'required|in:admin,prodi,unit kerja',
-            'prodi_id' => 'nullable|required_without:id_unit_kerja|exists:program_studi,prodi_id',
-            'id_unit_kerja' => 'nullable|required_without:prodi_id|exists:unit_kerja,id_unit_kerja',
         ]);
+
+        if ($request->role === 'prodi') {
+            $rules['prodi_id'] = 'required|exists:program_studi,prodi_id';
+            $rules['id_unit_kerja'] = 'nullable';
+        } elseif ($request->role === 'unit kerja') {
+            $rules['id_unit_kerja'] = 'required|exists:unit_kerja,id_unit_kerja';
+            $rules['prodi_id'] = 'nullable';
+        } elseif ($request->role === 'admin') {
+            $rules['prodi_id'] = 'nullable';
+            $rules['id_unit_kerja'] = 'nullable';
+        }
+    
+        
     
         $customPrefix = 'US';
         $timestamp = time();

@@ -113,15 +113,6 @@
                                         </select>
                                     </div>
 
-                                    <select class="form-select" name="prodi_id">
-    <option value="" disabled selected>Pilih prodi</option>
-    @foreach ($prodis as $prodi)
-        <option value="{{ $prodi->prodi_id }}" {{ old('prodi_id') == $prodi->prodi_id ? 'selected' : '' }}>
-            {{ $prodi->nama_prodi }}
-        </option>
-    @endforeach
-</select>
-
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Simpan</button>
                                         <a href="{{ url('user') }}" class="btn btn-danger">Kembali</a>
@@ -162,7 +153,13 @@
             function toggleFields() {
                 const selectedRole = roleSelect.value;
 
-                if (selectedRole === 'prodi') {
+                
+                if (selectedRole === 'admin') {
+                    prodiField.style.display = 'none';
+                    unitField.style.display = 'none';
+                    document.querySelector('select[name="prodi_id"]').value = '';
+                    document.querySelector('select[name="id_unit_kerja"]').value = '';
+                } else if (selectedRole === 'prodi') {
                     prodiField.style.display = 'block';
                     unitField.style.display = 'none';
                     document.querySelector('select[name="id_unit_kerja"]').value = '';
