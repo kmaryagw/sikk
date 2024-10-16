@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'edit-user')
+@section('title', 'Edit User')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -41,6 +41,7 @@
                                 <form method="POST" action="{{ route('user.update', $user) }}">
                                     @csrf
                                     @method('put')
+                                    
                                     <div class="form-group">
                                         <label>Nama User</label>
                                         <div class="input-group">
@@ -54,14 +55,14 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <label>Password</label>
+                                        <label>Password (kosongkan jika tidak diubah)</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
                                                     <i class="fas fa-lock"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="password" name="password" value="{{ old('password', $user->password) }}"/>
+                                            <input class="form-control" type="password" name="password" placeholder="Kosongkan jika tidak diubah"/>
                                         </div>
                                         <div id="pwindicator" class="pwindicator">
                                             <div class="bar"></div>
@@ -83,9 +84,33 @@
 
                                     <div class="form-group">
                                         <label>Level</label>
-                                        <select class="form-select" name="role">
+                                        <select class="form-select" name="role" id="role">
                                             @foreach ($roles as $role)
                                                 <option value="{{ $role }}" {{ old('role', $user->role) == $role ? 'selected' : '' }}>{{ $role }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3" id="prodi_field" style="display: none;">
+                                        <label>Prodi</label>
+                                        <select class="form-select" name="prodi_id">
+                                            <option value="" disabled selected>Pilih Prodi</option>
+                                            @foreach ($prodis as $prodi)
+                                                <option value="{{ $prodi->prodi_id }}" {{ old('prodi_id', $user->prodi_id) == $prodi->prodi_id ? 'selected' : '' }}>
+                                                    {{ $prodi->nama_prodi }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3" id="unit_field" style="display: none;">
+                                        <label>Unit Kerja</label>
+                                        <select class="form-select" name="id_unit_kerja">
+                                            <option value="" disabled selected>Pilih Unit Kerja</option>
+                                            @foreach ($units as $unit)
+                                                <option value="{{ $unit->id_unit_kerja }}" {{ old('id_unit_kerja', $user->id_unit_kerja) == $unit->id_unit_kerja ? 'selected' : '' }}>
+                                                    {{ $unit->unit_nama }}
+                                                </option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -117,4 +142,38 @@
 
     <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>
+
+    <!-- Custom Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const roleSelect = document.getElementById('role');
+            const prodiField = document.getElementById('prodi_field');
+            const unitField = document.getElementById('unit_field');
+
+            function toggleFields() {
+                const selectedRole = roleSelect.value;
+
+                if (selectedRole === 'admin') {
+                    prodiField.style.display = 'none';
+                    unitField.style.display = 'none';
+                    document.querySelector('select[name="prodi_id"]').value = '';
+                    document.querySelector('select[name="id_unit_kerja"]').value = '';
+                } else if (selectedRole === 'prodi') {
+                    prodiField.style.display = 'block';
+                    unitField.style.display = 'none';
+                    document.querySelector('select[name="id_unit_kerja"]').value = '';
+                } else if (selectedRole === 'unit kerja') {
+                    prodiField.style.display = 'none';
+                    unitField.style.display = 'block';
+                    document.querySelector('select[name="prodi_id"]').value = '';
+                } else {
+                    prodiField.style.display = 'none';
+                    unitField.style.display = 'none';
+                }
+            }
+
+            roleSelect.addEventListener('change', toggleFields);
+            toggleFields(); // Call the function on load to set initial state
+        });
+    </script>
 @endpush

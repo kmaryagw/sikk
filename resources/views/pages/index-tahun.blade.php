@@ -37,6 +37,7 @@
                                 <th>No</th>
                                 <th>Tahun</th>
                                 <th>Renstra is Active</th>
+                                <th>Nama Renstra</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -47,6 +48,7 @@
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $tahun_kerja->th_tahun }}</td>
                                     <td>{{ $tahun_kerja->ren_is_aktif }}</td>
+                                    <td>{{ $tahun_kerja->ren_nama }}</td>
                                     <td>
                                         <a class="btn btn-warning" href="{{ route('tahun.edit', $tahun_kerja->th_id) }}">
                                             <i class="fa-solid fa-pen-to-square"></i> Ubah

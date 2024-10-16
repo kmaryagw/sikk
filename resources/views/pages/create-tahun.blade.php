@@ -51,10 +51,6 @@
                                             <input class="form-control" type="number" name="th_tahun" value="{{ old('th_tahun') }}"/>
                                         </div>
                                     </div>
-
-
-                                    
-
                                     
 
                                     <div class="form-group">
@@ -66,7 +62,17 @@
                                         </select>
                                     </div>
 
-                                    
+                                    <div class="form-group">
+                                        <label>Nama Renstra</label>
+                                        <select class="form-select" name="ren_id">
+                                            <option value="" disabled selected>Pilih Prodi</option>
+                                            @foreach ($renstras as $renstra)
+                                                <option value="{{ $renstra->ren_id }}" {{ old('ren_id') == $renstra->ren_id ? 'selected' : '' }}>
+                                                    {{ $renstra->ren_nama }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
 
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Simpan</button>

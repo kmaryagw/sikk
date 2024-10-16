@@ -121,8 +121,12 @@ class UserController extends Controller
     {
         $title = 'Ubah User';
         $roles = ['admin','prodi','unit kerja'];
+        $prodis = program_studi::orderBy('nama_prodi')->get();
+        $units = UnitKerja::orderBy('unit_nama')->get();
         return view('pages.edit-user', [
             'title' => $title,
+            'prodis' => $prodis,
+            'units' => $units,
             'roles' => $roles,
             'user' => $user,
             'type_menu' => 'masterdata',
@@ -132,26 +136,52 @@ class UserController extends Controller
     public function update(User $user, Request $request)
     {
         $request->validate([
-            'username' => 'required',
-            'password' => 'required', 
-            'status' => 'required',
+            'username' => 'required|string|max:255',
+            'status' => 'required|string|max:1',
             'role' => 'required|in:admin,prodi,unit kerja',
         ]);
-    
-        if (User::where('username', $request->email)->where('id_user', '<>', $user->id_user)->first()) 
+
+        // Cek apakah username sudah terdaftar dan bukan milik user yang sama
+        if (User::where('username', $request->username)->where('id_user', '<>', $user->id_user)->first()) {
             return back()->withErrors(['username' => 'Username sudah terdaftar']);
-    
+        }
+
+        // Update data pengguna
         $user->username = $request->username;
         $user->status = $request->status;
         $user->role = $request->role;
-        if ($request->password)
+
+        if ($request->password) {
+            $request->validate([
+                'password' => 'string|min:8',
+            ]);
             $user->password = Hash::make($request->password);
+        }
+
+        // Menangani prodi_id dan id_unit_kerja
+        if ($request->role === 'prodi') {
+            $request->validate([
+                'prodi_id' => 'required|exists:program_studi,prodi_id',
+            ]);
+            $user->prodi_id = $request->prodi_id;
+            $user->id_unit_kerja = null; // Kosongkan unit kerja
+        } elseif ($request->role === 'unit kerja') {
+            $request->validate([
+                'id_unit_kerja' => 'required|exists:unit_kerja,id_unit_kerja',
+            ]);
+            $user->id_unit_kerja = $request->id_unit_kerja;
+            $user->prodi_id = null; // Kosongkan prodi
+        } else {
+            $user->prodi_id = null; // Kosongkan prodi untuk admin
+            $user->id_unit_kerja = null; // Kosongkan unit kerja untuk admin
+        }
+
         $user->save();
 
         Alert::success('Sukses', 'Data Berhasil Diubah');
-
         return redirect()->route('user.index');
     }
+
     
     public function destroy(user $user)
     {

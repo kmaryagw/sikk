@@ -17,7 +17,6 @@ class Tahun_kerjaSeeder extends Seeder
                 'th_id' => 1,
                 'th_tahun' => 2023,
                 'ren_is_aktif' => 'y',
-                'ren_id' => 'REN001',
             ]);
     }
 }
