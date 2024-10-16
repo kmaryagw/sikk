@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\program_studi;
-use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+
+use RealRashid\SweetAlert\Facades\Alert;
 
 class ProdiController extends Controller
 {
@@ -57,6 +59,47 @@ class ProdiController extends Controller
         Alert::success('Sukses', 'Data Berhasil Ditambah');
     
         return redirect()->route('program-studi.index');
+    }
+
+    public function edit(program_studi $prodi)
+    {
+        $title = 'Ubah Prodi';
+    
+    
+    return view('pages.edit-prodi', [
+        'title' => $title,
+        'prodi' => $prodi,
+        'type_menu' => 'masterdata',
+    ]);
+    }
+
+    public function update(program_studi $prodi, Request $request)
+    {
+        $request->validate([
+            'nama_prodi' => 'required',
+            
+            
+        ]);
+    
+        
+    
+        $prodi->nama_prodi = $request->nama_prodi;
+        
+        
+        
+        
+        $prodi->save();
+
+        Alert::success('Sukses', 'Data Berhasil Diubah');
+
+        return redirect()->route('prodi.index');
+    }
+
+    public function destroy(program_studi $prodi)
+    {
+        $prodi->delete();
+        Alert::success('Sukses', 'Data Berhasil Dihapus');
+        return redirect()->route('prodi.index');
     }
 
 }

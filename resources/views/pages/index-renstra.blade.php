@@ -25,11 +25,7 @@
                             <button class="btn btn-info"><i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
                         </div>
                         <div class="col">
-<<<<<<< HEAD
-                            <a class="btn btn-primary" href="#"><i class="fa-solid fa-plus"></i> Tambah</a>
-=======
-                            <a class="btn btn-primary" href="{{ route('rencana-strategis.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
->>>>>>> bd52e736e0f86519fdd0c05ad883d8d71183a411
+                            <a class="btn btn-primary" href="{{ route('renstra.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
                         </div>
                     </form>
                 </div>
@@ -58,11 +54,13 @@
                                     <td>{{ $renstra->ren_periode_akhir }}</td>
                                     <td>{{ $renstra->ren_is_aktif }}</td>
                                     <td>
-                                        <a class="btn btn-warning" href="#"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
-                                        <form id="delete-form-{{ $no-1 }}" method="POST" class="d-inline" action="#">
+                                        <a class="btn btn-warning" href="{{ route('renstra.edit', $renstra->ren_id) }}">
+                                            <i class="fa-solid fa-pen-to-square"></i> Ubah
+                                        </a>
+                                        <form id="delete-form-{{ $renstra->ren_id }}" method="POST" class="d-inline" action="{{ route('renstra.destroy', $renstra->ren_id) }}">
                                             @csrf
                                             @method('DELETE')
-                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $no-1 }}' )"><i class="fa-solid fa-trash"></i> Hapus</button>
+                                            <button type="submit" class="btn btn-danger" onclick="confirmDelete(event, '{{ $renstra->ren_id }}')"><i class="fa-solid fa-trash"></i> Hapus</button>
                                         </form>
                                     </td>
                                 </tr>

@@ -25,7 +25,7 @@
                             <button class="btn btn-info"><i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
                         </div>
                         <div class="col">
-                            <a class="btn btn-primary" href="{{ route('program-studi.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
+                            <a class="btn btn-primary" href="{{ route('prodi.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
                         </div>
                     </form>
                 </div>
@@ -46,11 +46,13 @@
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $prodi->nama_prodi }}</td>
                                     <td>
-                                        <a class="btn btn-warning" href="#"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
-                                        <form id="delete-form-{{ $no-1 }}" method="POST" class="d-inline" action="#">
+                                        <a class="btn btn-warning" href="{{ route('prodi.edit', $prodi->prodi_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
+                                        <form id="delete-form-{{ $prodi->prodi_id }}" method="POST" class="d-inline" action="{{ route('prodi.destroy', $prodi->prodi_id) }}">
+
                                             @csrf
                                             @method('DELETE')
-                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $no-1 }}' )"><i class="fa-solid fa-trash"></i> Hapus</button>
+                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $prodi->prodi_id }}' )"><i class="fa-solid fa-trash"></i> Hapus</button>
+
                                         </form>
                                     </td>
                                 </tr>

@@ -64,4 +64,47 @@ class TahunController extends Controller
     
         return redirect()->route('tahun.index');
     }
+
+    public function edit(tahun_kerja $tahun)
+{
+    $title = 'Ubah tahun';
+    $ren_is_aktifs = ['y', 'n'];
+    
+    return view('pages.edit-tahun', [
+        'title' => $title,
+        'ren_is_aktifs' => $ren_is_aktifs,
+        'tahun' => $tahun,
+        'type_menu' => 'masterdata',
+    ]);
+}
+
+public function update(tahun_kerja $tahun, Request $request)
+    {
+        $request->validate([
+            'th_tahun' => 'required',
+            
+            
+        ]);
+    
+        
+    
+        $tahun->th_tahun = $request->th_tahun;
+        
+        
+        
+        
+        $tahun->save();
+
+        Alert::success('Sukses', 'Data Berhasil Diubah');
+
+        return redirect()->route('tahun.index');
+    }
+
+    public function destroy(tahun_kerja $tahun)
+    {
+        $tahun->delete();
+        Alert::success('Sukses', 'Data Berhasil Dihapus');
+        return redirect()->route('tahun.index');
+    }
+
 }

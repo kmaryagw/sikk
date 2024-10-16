@@ -91,7 +91,7 @@ class UnitKerjaController extends Controller
         $unit->unit_nama = $request->unit_nama;
         
         
-        $unit->level = $request->level;
+        
         
         $unit->save();
 
