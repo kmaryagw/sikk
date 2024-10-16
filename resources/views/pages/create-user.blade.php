@@ -113,15 +113,6 @@
                                         </select>
                                     </div>
 
-                                    <select class="form-select" name="prodi_id">
-    <option value="" disabled selected>Pilih prodi</option>
-    @foreach ($prodis as $prodi)
-        <option value="{{ $prodi->prodi_id }}" {{ old('prodi_id') == $prodi->prodi_id ? 'selected' : '' }}>
-            {{ $prodi->nama_prodi }}
-        </option>
-    @endforeach
-</select>
-
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Simpan</button>
                                         <a href="{{ url('user') }}" class="btn btn-danger">Kembali</a>
