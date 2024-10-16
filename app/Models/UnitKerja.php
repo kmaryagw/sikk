@@ -10,7 +10,7 @@ class UnitKerja extends Model
     use HasFactory;
 
     protected $table = 'unit_kerja';
-    protected $primaryKey = 'id_unit_kerja';
+    protected $primaryKey = 'unit_id';
     public $incrementing = false;
 
     /**
@@ -19,7 +19,7 @@ class UnitKerja extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'id_unit_kerja',
+        'unit_id',
         'unit_nama',
         'unit_kerja',
     ];

@@ -20,11 +20,11 @@ return new class extends Migration
 
              // Menambahkan kolom prodi_id dan unit_kerja_id
             $table->string('prodi_id', 50)->nullable(); // menempatkan setelah kolom 'role'
-            $table->string('id_unit_kerja', 50)->nullable();; // menempatkan setelah kolom 'prodi_id'
+            $table->string('unit_id', 50)->nullable();; // menempatkan setelah kolom 'prodi_id'
  
              // Menambahkan foreign key constraint
             $table->foreign('prodi_id')->references('prodi_id')->on('program_studi')->onDelete('set null');
-            $table->foreign('id_unit_kerja')->references('id_unit_kerja')->on('unit_kerja')->onDelete('set null');
+            $table->foreign('unit_id')->references('unit_id')->on('unit_kerja')->onDelete('set null');
 
             $table->timestamps();
         });
@@ -53,8 +53,8 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             // Menghapus foreign key dan kolom
             $table->dropForeign(['prodi_id']);
-            $table->dropForeign(['id_unit_kerja']);
-            $table->dropColumn(['prodi_id', 'id_unit_kerja']);
+            $table->dropForeign(['unit_id']);
+            $table->dropColumn(['prodi_id', 'unit_id']);
         });
 
         Schema::dropIfExists('users');

@@ -6,18 +6,16 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class UnitKerjaSeeder extends Seeder
+class RencanaKerjaPelaksanaanSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        DB::table('unit_kerja')->insert([
-            'unit_id' => 'UN001',
-            'unit_nama' => 'TEST',
-            'unit_kerja' => 'y',
-
+        DB::table('rencana_kerja_pelaksanaan')->insert([
+               
+            
         ]);
     }
 }

@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\RencanaKerjaPelaksanaan;
+use App\Models\RencanaKerjaTargetIndikator;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -29,6 +31,11 @@ class DatabaseSeeder extends Seeder
             Target_indikatorSeeder::class,
             Periode_monevSeeder::class,
             Standar_dokumenSeeder::class,
+            EvaluasiSeeder::class,
+            RencanaKerjaTargetIndikatorSeeder::class,
+            RencanaKerjaSeeder::class,
+            MonitoringSeeder::class,
+            RencanaKerjaPelaksanaanSeeder::class,
         ]);
     }
 
