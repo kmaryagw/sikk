@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Renstra;
 use App\Models\tahun_kerja;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
@@ -15,6 +16,7 @@ class TahunController extends Controller
         $title = 'Data Tahun Kerja';
         $q = $request->query('q');
         $tahuns = tahun_kerja::where('th_tahun', 'like', '%' . $q . '%')
+        ->leftjoin('renstra', 'renstra.ren_id', '=', 'tahun_kerja.ren_id')
         ->paginate(10)
         ->withQueryString();
         $no = $tahuns->firstItem();
@@ -33,10 +35,12 @@ class TahunController extends Controller
         $title = 'Tambah Tahun';
         
         $ren_is_aktifs = ['y', 'n'];
+        $renstras = Renstra::orderBy('ren_nama')->get();
 
         return view('pages.create-tahun', [
             'title' => $title,
             'ren_is_aktifs' => $ren_is_aktifs,
+            'renstras' => $renstras,
             'type_menu' => 'masterdata',
         ]);
     }
@@ -46,6 +50,7 @@ class TahunController extends Controller
         $request->validate([
             'th_tahun' => 'required|integer|min:1900|max:2100',
             'ren_is_aktif' => 'required|in:y,n',
+            'ren_id' => 'required',
             
         ]);
     
@@ -54,10 +59,10 @@ class TahunController extends Controller
         $md5Hash = md5($timestamp);
         $th_id = $customPrefix . strtoupper($md5Hash);
     
-        $tahun = new tahun_kerja($request->all());
+        $tahun = new tahun_kerja();
         $tahun->th_id = $th_id;
+        $tahun->th_tahun = $request->th_tahun;
         $tahun->ren_id = $request->ren_id;
-        $tahun->ren_id = 1;
         $tahun->save();
     
         Alert::success('Sukses', 'Data Berhasil Ditambah');
@@ -66,19 +71,21 @@ class TahunController extends Controller
     }
 
     public function edit(tahun_kerja $tahun)
-{
-    $title = 'Ubah tahun';
-    $ren_is_aktifs = ['y', 'n'];
+    {
+        $title = 'Ubah tahun';
+        $ren_is_aktifs = ['y', 'n'];
+        $renstras = Renstra::orderBy('ren_nama')->get();
     
-    return view('pages.edit-tahun', [
-        'title' => $title,
-        'ren_is_aktifs' => $ren_is_aktifs,
-        'tahun' => $tahun,
-        'type_menu' => 'masterdata',
-    ]);
-}
+        return view('pages.edit-tahun', [
+            'title' => $title,
+            'ren_is_aktifs' => $ren_is_aktifs,
+            'renstras' => $renstras,
+            'tahun' => $tahun,
+            'type_menu' => 'masterdata',
+        ]);
+    }
 
-public function update(tahun_kerja $tahun, Request $request)
+    public function update(tahun_kerja $tahun, Request $request)
     {
         $request->validate([
             'th_tahun' => 'required',
@@ -86,12 +93,7 @@ public function update(tahun_kerja $tahun, Request $request)
             
         ]);
     
-        
-    
-        $tahun->th_tahun = $request->th_tahun;
-        
-        
-        
+        $tahun->th_tahun = $request->th_tahun; 
         
         $tahun->save();
 

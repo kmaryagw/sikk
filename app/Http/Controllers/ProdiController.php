@@ -58,7 +58,7 @@ class ProdiController extends Controller
     
         Alert::success('Sukses', 'Data Berhasil Ditambah');
     
-        return redirect()->route('program-studi.index');
+        return redirect()->route('prodi.index');
     }
 
     public function edit(program_studi $prodi)
