@@ -81,12 +81,7 @@ class ProdiController extends Controller
             
         ]);
     
-        
-    
         $prodi->nama_prodi = $request->nama_prodi;
-        
-        
-        
         
         $prodi->save();
 
@@ -101,5 +96,4 @@ class ProdiController extends Controller
         Alert::success('Sukses', 'Data Berhasil Dihapus');
         return redirect()->route('prodi.index');
     }
-
 }
