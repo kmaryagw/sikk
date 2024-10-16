@@ -38,7 +38,7 @@
                                     </div>
                                 @endif
 
-                                <form action="{{ route('periodemonev.update', $periodems->pm_id) }}" method="POST">
+                                <form action="{{ route('periodemonev.update', $periodemonev->pm_id) }}" method="POST">
                                     @csrf
                                     @method('put')
                                     <div class="form-group">
@@ -49,7 +49,7 @@
                                                     <i class="fa-solid fa-user"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="pm_nama" value="{{ old('pm_nama', $periodems->pm_nama) }}"/>
+                                            <input class="form-control" type="text" name="pm_nama" value="{{ old('pm_nama', $periodemonev->pm_nama) }}"/>
                                         </div>
                                     </div>
 
