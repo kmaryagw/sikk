@@ -44,9 +44,10 @@
 
             {{-- Standar --}}
             @if (Auth::user()->role == 'admin')
-            <li class="{{ Request::is('survei') ? 'active' : '' }}">
-                <a class="nav-link"
-                    href="{{ url('credits') }}"><i class="fa fa-paper-plane" aria-hidden="true"></i> <span>Standar</span>
+            <li class="{{ $type_menu === 'standar' ? 'active' : '' }}">
+                <a class="nav-link" href="{{ url('standar') }}">
+                    <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                    <span>Standar</span>
                 </a>
             </li>
             @endif
