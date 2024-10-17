@@ -118,16 +118,6 @@
                                     
                                     <div class="mb-3" id="unit_field" style="display: none;">
                                         <label>Unit Kerja</label>
-<<<<<<< HEAD
-                                        <select class="form-select" name="unit_id">
-                                            <option value="" disabled selected>Pilih Unit Kerja</option>
-                                            @foreach ($units as $unit)
-                                                <option value="{{ $unit->unit_id }}" {{ old('unit_id') == $unit->unit_id ? 'selected' : '' }}>
-                                                    {{ $unit->unit_nama }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-=======
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
@@ -141,7 +131,6 @@
                                                 @endforeach
                                             </select>
                                         </div>
->>>>>>> 96038baf97e75133d03fc3acda624e6cbce53d47
                                     </div>
                                     
 

@@ -46,6 +46,7 @@
                                 <tr>
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $indikatorkinerjautama->ik_nama }}</td>
+                                    <td>{{ $indikatorkinerjautama->std_nama ?? '-' }}</td>
  
                                     <td>
                                         <a class="btn btn-warning" href="{{ route('indikatorkinerjautama.edit', $indikatorkinerjautama->ik_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
@@ -63,9 +64,9 @@
                     </table>
                 </div>
 
-                @if ($units->hasPages())
+                @if ($indikatorkinerjautamas->hasPages())
                     <div class="card-footer">
-                        {{ $units->links() }}
+                        {{ $indikatorkinerjautamas->links() }}
                     </div>
                 @endif
             </div>

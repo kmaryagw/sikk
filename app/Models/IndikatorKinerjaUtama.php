@@ -9,7 +9,7 @@ class IndikatorKinerjaUtama extends Model
 {
     use HasFactory;
 
-    protected $table = 'indikator_kinerja_utama';
+    protected $table = 'indikator_kinerja';
     protected $primaryKey = 'ik_id';
     public $incrementing = false;
    protected $fillable = [

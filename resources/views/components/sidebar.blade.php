@@ -44,16 +44,10 @@
 
             {{-- Standar --}}
             @if (Auth::user()->role == 'admin')
-<<<<<<< HEAD
-            <li class="{{ Request::is('standar') ? 'active' : '' }}">
-                <a class="nav-link"
-                    href="{{ url('credits') }}"><i class="fa fa-paper-plane" aria-hidden="true"></i> <span>Standar</span>
-=======
             <li class="{{ $type_menu === 'standar' ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('standar') }}">
                     <i class="fa fa-paper-plane" aria-hidden="true"></i>
                     <span>Standar</span>
->>>>>>> 96038baf97e75133d03fc3acda624e6cbce53d47
                 </a>
             </li>
             @endif
