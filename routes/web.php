@@ -12,10 +12,8 @@ use Illuminate\Support\Facades\Auth;
 
 Route::get('/', [UserController::class, 'login'])->name('login');
 Route::post('/', [UserController::class, 'loginAction'])->name('login.action');
-Route::post('/logout', function () {
-    Auth::logout();
-    return redirect('/');
-})->name('logout');
+Route::post('/logout', [UserController::class, 'logout'])->name('logout');
+
 
 Route::middleware('auth')->group(function () {
 

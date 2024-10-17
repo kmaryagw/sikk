@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'User')
+@section('title', 'Unit')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -49,12 +49,12 @@
                                     <td>{{ $unit->unit_kerja }}</td>
                                     
                                     <td>
-                                        <a class="btn btn-warning" href="{{ route('unit.edit', $unit->id_unit_kerja) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
-                                        <form id="delete-form-{{ $unit->id_unit_kerja }}" method="POST" class="d-inline" action="{{ route('unit.destroy', $unit->id_unit_kerja) }}">
+                                        <a class="btn btn-warning" href="{{ route('unit.edit', $unit->unit_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
+                                        <form id="delete-form-{{ $unit->id_unit_kerja }}" method="POST" class="d-inline" action="{{ route('unit.destroy', $unit->unit_id) }}">
 
                                             @csrf
                                             @method('DELETE')
-                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $unit->id_unit_kerja }}' )"><i class="fa-solid fa-trash"></i> Hapus</button>
+                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $unit->unit_id }}' )"><i class="fa-solid fa-trash"></i> Hapus</button>
 
                                         </form>
                                     </td>

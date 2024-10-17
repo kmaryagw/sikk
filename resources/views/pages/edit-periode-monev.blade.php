@@ -46,7 +46,7 @@
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
-                                                    <i class="fa-solid fa-user"></i>
+                                                    <i class="fa-solid fa-clock"></i>
                                                 </div>
                                             </div>
                                             <input class="form-control" type="text" name="pm_nama" value="{{ old('pm_nama', $periodemonev->pm_nama) }}"/>

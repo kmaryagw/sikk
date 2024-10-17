@@ -6,7 +6,6 @@ use App\Models\Renstra;
 use App\Models\tahun_kerja;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class TahunController extends Controller
@@ -89,11 +88,10 @@ class TahunController extends Controller
     {
         $request->validate([
             'th_tahun' => 'required',
-            
-            
         ]);
     
         $tahun->th_tahun = $request->th_tahun; 
+        $tahun->ren_id = $request->ren_id;
         
         $tahun->save();
 

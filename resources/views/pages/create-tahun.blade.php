@@ -45,7 +45,7 @@
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
-                                                    <i class="fa-solid fa-user"></i>
+                                                    <i class="fa-solid fa-calendar-alt"></i>
                                                 </div>
                                             </div>
                                             <input class="form-control" type="number" name="th_tahun" value="{{ old('th_tahun') }}"/>
@@ -55,23 +55,37 @@
 
                                     <div class="form-group">
                                         <label>Renstra is Active</label>
-                                        <select class="form-select" name="ren_is_aktif">
-                                            @foreach ($ren_is_aktifs as $ren_is_aktif)
-                                                <option value="{{ $ren_is_aktif }}" {{ old('ren_is_aktif') == $ren_is_aktif ? 'selected' : '' }}>{{ $ren_is_aktif }}</option>
-                                            @endforeach
-                                        </select>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-check"></i>
+                                                </div>
+                                            </div>
+                                            <select class="form-control" name="ren_is_aktif">
+                                                @foreach ($ren_is_aktifs as $ren_is_aktif)
+                                                    <option value="{{ $ren_is_aktif }}" {{ old('ren_is_aktif') == $ren_is_aktif ? 'selected' : '' }}>{{ $ren_is_aktif }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
 
                                     <div class="form-group">
-                                        <label>Nama Renstra</label>
-                                        <select class="form-select" name="ren_id">
-                                            <option value="" disabled selected>Pilih Prodi</option>
-                                            @foreach ($renstras as $renstra)
-                                                <option value="{{ $renstra->ren_id }}" {{ old('ren_id') == $renstra->ren_id ? 'selected' : '' }}>
-                                                    {{ $renstra->ren_nama }}
-                                                </option>
-                                            @endforeach
-                                        </select>
+                                        <label>Nama Rencana Strategis</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-file-alt"></i>
+                                                </div>
+                                            </div>
+                                            <select class="form-control" name="ren_id">
+                                                <option value="" disabled selected>Pilih Renstra</option>
+                                                @foreach ($renstras as $renstra)
+                                                    <option value="{{ $renstra->ren_id }}" {{ old('ren_id') == $renstra->ren_id ? 'selected' : '' }}>
+                                                        {{ $renstra->ren_nama }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
 
                                     <div class="form-group">

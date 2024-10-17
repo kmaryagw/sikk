@@ -21,22 +21,22 @@
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fa-solid fa-basketball"></i> <span>Master Data</span></a>
                 <ul class="dropdown-menu">
                     <li class="{{ Request::is('user') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ url('user') }}">User</a>
+                        <a class="nav-link" href="{{ url('user') }}"><i class="fas fa-user"></i>User</a>
                     </li>
                     <li class="{{ Request::is('prodi') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ url('prodi') }}">Program Studi</a>
+                        <a class="nav-link" href="{{ url('prodi') }}"><i class="fas fa-building-columns"></i>Program Studi</a>
                     </li>
                     <li class="{{ Request::is('unit') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ url('unit') }}">Unit Kerja</a>
+                        <a class="nav-link" href="{{ url('unit') }}"><i class="fas fa-briefcase"></i>Unit Kerja</a>
                     </li>
                     <li class="{{ Request::is('renstra') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ url('renstra') }}">Rencana Strategis</a>
+                        <a class="nav-link" href="{{ url('renstra') }}"><i class="fas fa-file-alt"></i>Rencana Strategis</a>
                     </li>
                     <li class="{{ Request::is('tahun') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ url('tahun') }}">Tahun</a>
+                        <a class="nav-link" href="{{ url('tahun') }}"><i class="fas fa-calendar-alt"></i>Tahun</a>
                     </li>
                     <li class="{{ Request::is('periodemonev') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ url('periodemonev') }}">Periode Monev</a>
+                        <a class="nav-link" href="{{ url('periodemonev') }}"><i class="fas fa-clock"></i>Periode Monev</a>
                     </li>
                 </ul>
             </li>
@@ -82,7 +82,7 @@
             @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi'|| Auth::user()->role == 'unit kerja')
             <li class="{{ Request::is('survei') ? 'active' : '' }}">
                 <a class="nav-link"
-                    href="{{ url('credits') }}"><i class="fa-solid fa-circle-info"></i> <span>Realisasi Renja</span>
+                    href="{{ url('credits') }}"><i class="fa-solid fa-tasks"></i> <span>Realisasi Renja</span>
                 </a>
             </li>
             @endif

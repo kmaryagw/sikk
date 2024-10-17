@@ -41,15 +41,16 @@
                                 <form method="POST" action="{{ route('renstra.update', $renstra) }}">
                                     @csrf
                                     @method('put')
+
                                     <div class="form-group">
                                         <label>Nama Renstra</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
-                                                    <i class="fa-solid fa-user"></i>
+                                                    <i class="fa-solid fa-file-alt"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="ren_nama" value="{{ old('ren_nama', $renstra->ren_nama) }}" />
+                                            <input class="form-control" type="text" name="ren_nama" value="{{ old('ren_nama', $renstra->ren_nama) }}" required/>
                                         </div>
                                     </div>
 
@@ -61,30 +62,49 @@
                                                     <i class="fa-solid fa-user-tie"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="ren_pimpinan" value="{{ old('ren_pimpinan', $renstra->ren_pimpinan) }}" />
+                                            <input class="form-control" type="text" name="ren_pimpinan" value="{{ old('ren_pimpinan', $renstra->ren_pimpinan) }}" required/>
                                         </div>
                                     </div>
 
                                     <div class="form-group">
                                         <label>Periode Awal</label>
-                                        <input class="form-control" type="number" name="ren_periode_awal" value="{{ old('ren_periode_awal', $renstra->ren_periode_awal) }}" min="1900" max="{{ date('Y') }}" />
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-calendar-alt"></i>
+                                                </div>
+                                            </div>
+                                            <input class="form-control" type="number" name="ren_periode_awal" value="{{ old('ren_periode_awal', $renstra->ren_periode_awal) }}" required/>
+                                        </div>
                                     </div>
 
                                     <div class="form-group">
                                         <label>Periode Akhir</label>
-                                        <input class="form-control" type="number" name="ren_periode_akhir" value="{{ old('ren_periode_akhir', $renstra->ren_periode_akhir) }}" min="1900" max="{{ date('Y') }}" />
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-calendar-alt"></i>
+                                                </div>
+                                            </div>
+                                            <input class="form-control" type="number" name="ren_periode_akhir" value="{{ old('ren_periode_akhir', $renstra->ren_periode_akhir) }}" required/>
+                                        </div>
                                     </div>
 
                                     <div class="form-group">
                                         <label>Status Aktif</label>
-                                        <select class="form-select" name="ren_is_aktif">
-                                            <option value="y" {{ old('ren_is_aktif', $renstra->ren_is_aktif) == 'y' ? 'selected' : '' }}>Aktif</option>
-                                            <option value="n" {{ old('ren_is_aktif', $renstra->ren_is_aktif) == 'n' ? 'selected' : '' }}>Non-Aktif</option>
-                                        </select>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-check"></i>
+                                                </div>
+                                            </div>
+                                            <select class="form-control" name="ren_is_aktif">
+                                                @foreach ($ren_is_aktifs as $ren_is_aktif)
+                                                    <option value="{{ $ren_is_aktif }}" {{ old('ren_is_aktif', $renstra->ren_is_aktif) == $ren_is_aktif ? 'selected' : '' }}>{{ $ren_is_aktif }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
-
-                                    <!-- Optional unit_kerja if you need to edit it -->
-                                    
 
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Simpan</button>
