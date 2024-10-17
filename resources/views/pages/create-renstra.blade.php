@@ -90,11 +90,18 @@
 
                                     <div class="form-group">
                                         <label>Renstra is Active</label>
-                                        <select class="form-select" name="ren_is_aktif">
-                                            @foreach ($ren_is_aktifs as $ren_is_aktif)
-                                                <option value="{{ $ren_is_aktif }}" {{ old('ren_is_aktif') == $ren_is_aktif ? 'selected' : '' }}>{{ $ren_is_aktif }}</option>
-                                            @endforeach
-                                        </select>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-check"></i>
+                                                </div>
+                                            </div>
+                                            <select class="form-control" name="ren_is_aktif">
+                                                @foreach ($ren_is_aktifs as $ren_is_aktif)
+                                                    <option value="{{ $ren_is_aktif }}" {{ old('ren_is_aktif') == $ren_is_aktif ? 'selected' : '' }}>{{ $ren_is_aktif }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
 
                                     <div class="form-group">

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Unit')
+@section('title', 'Standar')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -12,7 +12,7 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Daftar Unit</h1>
+                <h1>Daftar Standar</h1>
             </div>
 
             <div class="card mb-3">
@@ -25,7 +25,7 @@
                             <button class="btn btn-info"><i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
                         </div>
                         <div class="col">
-                            <a class="btn btn-primary" href="{{ route('unit.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
+                            <a class="btn btn-primary" href="{{ route('standar.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
                         </div>
                     </form>
                 </div>
@@ -35,30 +35,26 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Nama Unit</th>
-                                <th>Unit Kerja</th>
+                                <th>Standar</th>
+                                <th>Deskripsi</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @php $no = $units->firstItem(); @endphp
-                            @foreach ($units as $unit)
+                            @php $no = $standars->firstItem(); @endphp
+                            @foreach ($standars as $standar)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $unit->unit_nama }}</td>
-                                    <td>{{ $unit->unit_kerja }}</td>
+                                    <td>{{ $standar->std_nama }}</td>
+                                    <td>{{ $standar->std_deskripsi }}</td>
                                     
                                     <td>
-                                        <a class="btn btn-warning" href="{{ route('unit.edit', $unit->unit_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
-<<<<<<< HEAD
-                                        <form id="delete-form-{{ $unit->unit_id }}" method="POST" class="d-inline" action="{{ route('unit.destroy', $unit->unit_id) }}">
-=======
-                                        <form id="delete-form-{{ $unit->id_unit_kerja }}" method="POST" class="d-inline" action="{{ route('unit.destroy', $unit->unit_id) }}">
->>>>>>> 96038baf97e75133d03fc3acda624e6cbce53d47
+                                        <a class="btn btn-warning" href="{{ route('standar.edit', $standar->std_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
+                                        <form id="delete-form-{{ $standar->std_id }}" method="POST" class="d-inline" action="{{ route('standar.destroy', $standar->std_id) }}">
 
                                             @csrf
                                             @method('DELETE')
-                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $unit->unit_id }}' )"><i class="fa-solid fa-trash"></i> Hapus</button>
+                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $standar->std_id }}' )"><i class="fa-solid fa-trash"></i> Hapus</button>
 
                                         </form>
                                     </td>
@@ -68,9 +64,9 @@
                     </table>
                 </div>
 
-                @if ($units->hasPages())
+                @if ($standars->hasPages())
                     <div class="card-footer">
-                        {{ $units->links() }}
+                        {{ $standars->links() }}
                     </div>
                 @endif
             </div>

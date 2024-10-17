@@ -5,6 +5,7 @@ use App\Http\Controllers\PeriodeMonevController;
 use App\Http\Controllers\UnitKerjaController;
 use App\Http\Controllers\ProdiController;
 use App\Http\Controllers\RenstraController;
+use App\Http\Controllers\StandarController;
 use App\Http\Controllers\TahunController;
 
 use App\Http\Controllers\UserController;
@@ -13,10 +14,8 @@ use Illuminate\Support\Facades\Auth;
 
 Route::get('/', [UserController::class, 'login'])->name('login');
 Route::post('/', [UserController::class, 'loginAction'])->name('login.action');
-Route::post('/logout', function () {
-    Auth::logout();
-    return redirect('/');
-})->name('logout');
+Route::post('/logout', [UserController::class, 'logout'])->name('logout');
+
 
 Route::middleware('auth')->group(function () {
 
@@ -27,6 +26,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('tahun', TahunController::class);
     Route::resource('periodemonev', PeriodeMonevController::class);
     Route::resource('indikatorkinerjautama', IndikatorKinerjaUtamaController::class);
+
+    Route::resource('standar', StandarController::class);
 
     Route::get('/dashboard', function () {
         return view('pages.dashboard', ['type_menu' => 'dashboard']);

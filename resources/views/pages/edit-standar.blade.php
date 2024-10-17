@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'create-tahun')
+@section('title', 'edit-standar')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -16,10 +16,10 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Form Tahun</h1>
+                <h1>Edit Standar</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
-                    <div class="breadcrumb-item">Form Tahun</div>
+                    <div class="breadcrumb-item">Form Standar</div>
                 </div>
             </div>
 
@@ -38,59 +38,36 @@
                                     </div>
                                 @endif
 
-                                <form method="POST" action="{{ route('tahun.store') }}">
+                                <form method="POST" action="{{ route('standar.update', $standar) }}">
                                     @csrf
+                                    @method('put')
                                     <div class="form-group">
-                                        <label>Tahun</label>
+                                        <label>Nama Standar</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
-                                                    <i class="fa-solid fa-calendar-alt"></i>
+                                                    <i class="fa-solid fa-thumbs-up"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="number" name="th_tahun" value="{{ old('th_tahun') }}"/>
+                                            <input class="form-control" type="text" name="std_nama" value="{{ old('std_nama', $standar->std_nama) }}"/>
                                         </div>
                                     </div>
                                     
-
                                     <div class="form-group">
-                                        <label>Renstra is Active</label>
+                                        <label>Deskripsi</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
-                                                    <i class="fa-solid fa-check"></i>
+                                                    <i class="fa-solid fa-clipboard-list"></i>
                                                 </div>
                                             </div>
-                                            <select class="form-control" name="ren_is_aktif">
-                                                @foreach ($ren_is_aktifs as $ren_is_aktif)
-                                                    <option value="{{ $ren_is_aktif }}" {{ old('ren_is_aktif') == $ren_is_aktif ? 'selected' : '' }}>{{ $ren_is_aktif }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label>Nama Rencana Strategis</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <i class="fa-solid fa-file-alt"></i>
-                                                </div>
-                                            </div>
-                                            <select class="form-control" name="ren_id">
-                                                <option value="" disabled selected>Pilih Renstra</option>
-                                                @foreach ($renstras as $renstra)
-                                                    <option value="{{ $renstra->ren_id }}" {{ old('ren_id') == $renstra->ren_id ? 'selected' : '' }}>
-                                                        {{ $renstra->ren_nama }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
+                                            <input class="form-control" type="text" name="std_deskripsi" value="{{ old('std_deskripsi', $standar->std_deskripsi) }}"/>
                                         </div>
                                     </div>
 
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Simpan</button>
-                                        <a href="{{ url('tahun') }}" class="btn btn-danger">Kembali</a>
+                                        <a href="{{ url('standar') }}" class="btn btn-danger">Kembali</a>
                                     </div>
                                 </form>
                             </div>
@@ -112,8 +89,6 @@
     <script src="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js') }}"></script>
     <script src="{{ asset('library/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ asset('library/selectric/public/jquery.selectric.min.js') }}"></script>
-
-    @include('sweetalert::alert')
 
     <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>

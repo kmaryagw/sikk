@@ -73,36 +73,52 @@
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
-                                                    <i class="fa-solid fa-house-chimney"></i>
+                                                    <i class="fa-solid fa-exclamation-circle"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="status" value="{{ old('status') }}" required />
+                                            <select class="form-control" name="status" required>
+                                                <option value="1" {{ old('status') == '1' ? 'selected' : '' }}>Active</option>
+                                                <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>Inactive</option>
+                                            </select>
                                         </div>
                                     </div>
 
                                     <div class="form-group">
                                         <label>Role</label>
-                                        <select class="form-select" name="role" id="role" required>
-                                            @foreach ($roles as $role)
-                                                <option value="{{ $role }}" {{ old('role') == $role ? 'selected' : '' }}>{{ $role }}</option>
-                                            @endforeach
-                                        </select>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-user-tag"></i>
+                                                </div>
+                                            </div>
+                                            <select class="form-control" name="role" id="role" required>
+                                                @foreach ($roles as $role)
+                                                    <option value="{{ $role }}" {{ old('role') == $role ? 'selected' : '' }}>{{ $role }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
-
+                                    
                                     <div class="mb-3" id="prodi_field" style="display: none;">
                                         <label>Prodi</label>
-                                        <select class="form-select" name="prodi_id">
-                                            <option value="" disabled selected>Pilih Prodi</option>
-                                            @foreach ($prodis as $prodi)
-                                                <option value="{{ $prodi->prodi_id }}" {{ old('prodi_id') == $prodi->prodi_id ? 'selected' : '' }}>
-                                                    {{ $prodi->nama_prodi }}
-                                                </option>
-                                            @endforeach
-                                        </select>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-building-columns"></i>
+                                                </div>
+                                            </div>
+                                            <select class="form-control" name="prodi_id">
+                                                <option value="" disabled selected>Pilih Prodi</option>
+                                                @foreach ($prodis as $prodi)
+                                                    <option value="{{ $prodi->prodi_id }}" {{ old('prodi_id') == $prodi->prodi_id ? 'selected' : '' }}>{{ $prodi->nama_prodi }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
-
+                                    
                                     <div class="mb-3" id="unit_field" style="display: none;">
                                         <label>Unit Kerja</label>
+<<<<<<< HEAD
                                         <select class="form-select" name="unit_id">
                                             <option value="" disabled selected>Pilih Unit Kerja</option>
                                             @foreach ($units as $unit)
@@ -111,7 +127,23 @@
                                                 </option>
                                             @endforeach
                                         </select>
+=======
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-briefcase"></i>
+                                                </div>
+                                            </div>
+                                            <select class="form-control" name="unit_id">
+                                                <option value="" disabled selected>Pilih Unit Kerja</option>
+                                                @foreach ($units as $unit)
+                                                    <option value="{{ $unit->unit_id }}" {{ old('unit_id') == $unit->unit_id ? 'selected' : '' }}>{{ $unit->unit_nama }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+>>>>>>> 96038baf97e75133d03fc3acda624e6cbce53d47
                                     </div>
+                                    
 
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Simpan</button>

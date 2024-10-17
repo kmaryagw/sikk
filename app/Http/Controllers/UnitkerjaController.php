@@ -66,17 +66,17 @@ class UnitKerjaController extends Controller
     }
 
     public function edit(UnitKerja $unit)
-{
-    $title = 'Ubah Unit';
-    $unit_kerjas = ['y', 'n'];
+    {
+        $title = 'Ubah Unit';
+        $unit_kerjas = ['y', 'n'];
     
-    return view('pages.edit-unit', [
-        'title' => $title,
-        'unit_kerjas' => $unit_kerjas,
-        'unit' => $unit,
-        'type_menu' => 'masterdata',
-    ]);
-}
+        return view('pages.edit-unit', [
+            'title' => $title,
+            'unit_kerjas' => $unit_kerjas,
+            'unit' => $unit,
+            'type_menu' => 'masterdata',
+        ]);
+    }
 
     public function update(UnitKerja $unit, Request $request)
     {
@@ -86,13 +86,9 @@ class UnitKerjaController extends Controller
             
         ]);
     
-        
     
         $unit->unit_nama = $request->unit_nama;
         $unit->unit_kerja = $request->unit_kerja;
-        
-        
-        
         
         
         $unit->save();

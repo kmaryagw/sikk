@@ -49,7 +49,13 @@
                                 <tr>
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $user->username }}</td>
-                                    <td>{{ $user->status }}</td>
+                                    <td>
+                                        @if($user->status == 1)
+                                            <span class="badge badge-success">Active</span>
+                                        @else
+                                            <span class="badge badge-danger">Inactive</span>
+                                        @endif
+                                    </td>                                    
                                     <td>{{ $user->role }}</td>
                                     <td>{{ $user->nama_prodi ?? '-' }}</td>
                                     <td>{{ $user->unit_nama ?? '-' }}</td>

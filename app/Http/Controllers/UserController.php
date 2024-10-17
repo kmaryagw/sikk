@@ -28,6 +28,16 @@ class UserController extends Controller
         
         if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
             $request->session()->regenerate();
+
+            $user = Auth::user();
+            
+            if ($user instanceof User) {
+                $user->status = 1;
+                $user->save();
+            } else {
+                return back()->withErrors(['username' => 'User tidak valid.']);
+            }
+
             Alert::success('Sukses', 'Selamat Datang');
             return redirect()->route('pages.dashboard');
         }
@@ -35,6 +45,24 @@ class UserController extends Controller
         return back()->withErrors([
             'username' => 'Username atau Password salah!',
         ]);
+    }
+
+    public function logout(Request $request)
+    {
+        $user = Auth::user();
+        
+        if ($user instanceof User) {
+            $user->status = 0;
+            $user->save();
+        } else {
+            return redirect('/')->withErrors(['logout' => 'Tidak ada pengguna yang sedang login.']);
+        }
+
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/');
     }
 
     public function index(Request $request)
@@ -77,7 +105,7 @@ class UserController extends Controller
     {
         $request->validate([
             'username' => 'required|string|max:255',
-            'status' => 'required|string|max:1',
+            'status' => 'required|string|in:0,1',
             'password' => 'required|string|min:8',
             'role' => 'required|in:admin,prodi,unit kerja',
         ]);
@@ -137,16 +165,14 @@ class UserController extends Controller
     {
         $request->validate([
             'username' => 'required|string|max:255',
-            'status' => 'required|string|max:1',
+            'status' => 'required|string|in:0,1',
             'role' => 'required|in:admin,prodi,unit kerja',
         ]);
 
-        // Cek apakah username sudah terdaftar dan bukan milik user yang sama
         if (User::where('username', $request->username)->where('id_user', '<>', $user->id_user)->first()) {
             return back()->withErrors(['username' => 'Username sudah terdaftar']);
         }
 
-        // Update data pengguna
         $user->username = $request->username;
         $user->status = $request->status;
         $user->role = $request->role;
@@ -158,22 +184,21 @@ class UserController extends Controller
             $user->password = Hash::make($request->password);
         }
 
-        // Menangani prodi_id dan id_unit_kerja
         if ($request->role === 'prodi') {
             $request->validate([
                 'prodi_id' => 'required|exists:program_studi,prodi_id',
             ]);
             $user->prodi_id = $request->prodi_id;
-            $user->id_unit_kerja = null; // Kosongkan unit kerja
+            $user->unit_id = null;
         } elseif ($request->role === 'unit kerja') {
             $request->validate([
                 'unit_id' => 'required|exists:unit_kerja,unit_id',
             ]);
-            $user->unit_id = $request->id_unit_kerja;
-            $user->prodi_id = null; // Kosongkan prodi
+            $user->unit_id = $request->unit_id;
+            $user->prodi_id = null;
         } else {
-            $user->prodi_id = null; // Kosongkan prodi untuk admin
-            $user->unit_id = null; // Kosongkan unit kerja untuk admin
+            $user->prodi_id = null;
+            $user->unit_id = null;
         }
 
         $user->save();

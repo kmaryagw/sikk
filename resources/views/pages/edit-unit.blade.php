@@ -52,18 +52,22 @@
                                             <input class="form-control" type="text" name="unit_nama" value="{{ old('unit_nama', $unit->unit_nama) }}"/>
                                         </div>
                                     </div>
-
-                                    
-
                                     
 
                                     <div class="form-group">
-                                        <label>unit kerja</label>
-                                        <select class="form-select" name="unit_kerja">
-                                            @foreach ($unit_kerjas as $unit_kerja)
-                                                <option value="{{ $unit_kerja }}" {{ old('unit_kerja', $unit->unit_kerja) == $unit_kerja ? 'selected' : '' }}>{{ $unit_kerja }}</option>
-                                            @endforeach
-                                        </select>
+                                        <label>Unit Kerja</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-sitemap"></i>
+                                                </div>
+                                            </div>
+                                            <select class="form-control" name="unit_kerja">
+                                                @foreach ($unit_kerjas as $unit_kerja)
+                                                    <option value="{{ $unit_kerja }}" {{ old('unit_kerja', $unit->unit_kerja) == $unit_kerja ? 'selected' : '' }}>{{ $unit_kerja }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
 
                                     <div class="form-group">

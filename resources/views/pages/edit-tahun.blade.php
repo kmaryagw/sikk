@@ -41,23 +41,55 @@
                                 <form action="{{ route('tahun.update', $tahun->th_id) }}" method="POST">
                                     @csrf
                                     @method('put')
+
                                     <div class="form-group">
                                         <label for="th_tahun">Tahun</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
-                                                    <i class="fa-solid fa-user"></i>
+                                                    <i class="fa-solid fa-calendar-alt"></i>
                                                 </div>
                                             </div>
                                             <input class="form-control" type="number" name="th_tahun" value="{{ old('th_tahun', $tahun->th_tahun) }}"/>
                                         </div>
                                     </div>
 
-                                    
+                                    <div class="form-group">
+                                        <label for="ren_is_aktif">Renstra is Active</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-check"></i>
+                                                </div>
+                                            </div>
+                                            <select class="form-control" name="ren_is_aktif">
+                                                @foreach ($ren_is_aktifs as $ren_is_aktif)
+                                                    <option value="{{ $ren_is_aktif }}" {{ old('ren_is_aktif', $tahun->ren_is_aktif) == $ren_is_aktif ? 'selected' : '' }}>
+                                                        {{ $ren_is_aktif }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
 
-                                    
-
-                                    
+                                    <div class="form-group">
+                                        <label for="ren_id">Nama Rencana Strategis</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-file-alt"></i>
+                                                </div>
+                                            </div>
+                                            <select class="form-control" name="ren_id">
+                                                <option value="" disabled>Pilih Renstra</option>
+                                                @foreach ($renstras as $renstra)
+                                                    <option value="{{ $renstra->ren_id }}" {{ old('ren_id', $tahun->ren_id) == $renstra->ren_id ? 'selected' : '' }}>
+                                                        {{ $renstra->ren_nama }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
 
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Simpan</button>
