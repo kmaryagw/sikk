@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'create-unit')
+@section('title', 'edit-indikatorkinerjautama')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -16,10 +16,10 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Form User</h1>
+                <h1>Edit Indikator Kinerja Utama</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
-                    <div class="breadcrumb-item">Form Unit</div>
+                    <div class="breadcrumb-item">Form Indikator Kinerja Utama</div>
                 </div>
             </div>
 
@@ -38,33 +38,24 @@
                                     </div>
                                 @endif
 
-                                <form method="POST" action="{{ route('unit.store') }}">
+                                <form action="{{ route('indikatorkinerjautama.update', $indikatorkinerjautama->ik_id) }}" method="POST">
                                     @csrf
+                                    @method('put')
                                     <div class="form-group">
-                                        <label>Nama Unit</label>
+                                        <label>Nama Indikator Kinerja Utama</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
                                                     <i class="fa-solid fa-user"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="unit_nama" value="{{ old('unit_nama') }}"/>
+                                            <input class="form-control" type="text" name="ik_nama" value="{{ old('ik_nama', $indikatorkinerjautama->ik_nama) }}"/>
                                         </div>
-                                    </div>
-
-
-                                    <div class="form-group">
-                                        <label>Unit Kerja</label>
-                                        <select class="form-select" name="unit_kerja">
-                                            @foreach ($unit_kerjas as $unit_kerja)
-                                                <option value="{{ $unit_kerja }}" {{ old('unit_kerja') == $unit_kerja ? 'selected' : '' }}>{{ $unit_kerja }}</option>
-                                            @endforeach
-                                        </select>
                                     </div>
 
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Simpan</button>
-                                        <a href="{{ url('unit') }}" class="btn btn-danger">Kembali</a>
+                                        <a href="{{ url('indikatorkinerjautama') }}" class="btn btn-danger">Kembali</a>
                                     </div>
                                 </form>
                             </div>
@@ -86,8 +77,6 @@
     <script src="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js') }}"></script>
     <script src="{{ asset('library/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ asset('library/selectric/public/jquery.selectric.min.js') }}"></script>
-
-    @include('sweetalert::alert')
 
     <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>

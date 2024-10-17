@@ -53,10 +53,10 @@ class UnitKerjaController extends Controller
         $customPrefix = 'UK';
         $timestamp = time();
         $md5Hash = md5($timestamp);
-        $id_unit_kerja = $customPrefix . strtoupper($md5Hash);
+        $unit_id = $customPrefix . strtoupper($md5Hash);
     
         $unit = new UnitKerja($request->all());
-        $unit->id_unit_kerja = $id_unit_kerja;
+        $unit->unit_id = $unit_id;
     
         $unit->save();
     
@@ -89,6 +89,8 @@ class UnitKerjaController extends Controller
         
     
         $unit->unit_nama = $request->unit_nama;
+        $unit->unit_kerja = $request->unit_kerja;
+        
         
         
         

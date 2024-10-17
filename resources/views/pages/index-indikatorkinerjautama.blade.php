@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'User')
+@section('title', 'IKU')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -12,7 +12,7 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Daftar Unit</h1>
+                <h1>Daftar Indikator Kinerja Utama/Tambahan</h1>
             </div>
 
             <div class="card mb-3">
@@ -25,7 +25,7 @@
                             <button class="btn btn-info"><i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
                         </div>
                         <div class="col">
-                            <a class="btn btn-primary" href="{{ route('unit.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
+                            <a class="btn btn-primary" href="{{ route('indikatorkinerjautama.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
                         </div>
                     </form>
                 </div>
@@ -35,26 +35,25 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Nama Unit</th>
-                                <th>Unit Kerja</th>
+                                <th>Nama Indikator Kinerja Utama/Tambahan</th>
+                                <th>Standar</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @php $no = $units->firstItem(); @endphp
-                            @foreach ($units as $unit)
+                            @php $no = $indikatorkinerjautamas->firstItem(); @endphp
+                            @foreach ($indikatorkinerjautamas as $indikatorkinerjautama)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $unit->unit_nama }}</td>
-                                    <td>{{ $unit->unit_kerja }}</td>
-                                    
+                                    <td>{{ $indikatorkinerjautama->ik_nama }}</td>
+ 
                                     <td>
-                                        <a class="btn btn-warning" href="{{ route('unit.edit', $unit->unit_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
-                                        <form id="delete-form-{{ $unit->unit_id }}" method="POST" class="d-inline" action="{{ route('unit.destroy', $unit->unit_id) }}">
+                                        <a class="btn btn-warning" href="{{ route('indikatorkinerjautama.edit', $indikatorkinerjautama->ik_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
+                                        <form id="delete-form-{{ $indikatorkinerjautama->ik_id }}" method="POST" class="d-inline" action="{{ route('indikatorkinerjautama.destroy', $indikatorkinerjautama->ik_id) }}">
 
                                             @csrf
                                             @method('DELETE')
-                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $unit->unit_id }}' )"><i class="fa-solid fa-trash"></i> Hapus</button>
+                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $indikatorkinerjautama->ik_id }}' )"><i class="fa-solid fa-trash"></i> Hapus</button>
 
                                         </form>
                                     </td>

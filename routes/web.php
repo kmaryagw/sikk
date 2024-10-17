@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\IndikatorKinerjaUtamaController;
 use App\Http\Controllers\PeriodeMonevController;
 use App\Http\Controllers\UnitKerjaController;
 use App\Http\Controllers\ProdiController;
@@ -25,6 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('renstra', RenstraController::class);
     Route::resource('tahun', TahunController::class);
     Route::resource('periodemonev', PeriodeMonevController::class);
+    Route::resource('indikatorkinerjautama', IndikatorKinerjaUtamaController::class);
 
     Route::get('/dashboard', function () {
         return view('pages.dashboard', ['type_menu' => 'dashboard']);

@@ -44,7 +44,7 @@
 
             {{-- Standar --}}
             @if (Auth::user()->role == 'admin')
-            <li class="{{ Request::is('survei') ? 'active' : '' }}">
+            <li class="{{ Request::is('standar') ? 'active' : '' }}">
                 <a class="nav-link"
                     href="{{ url('credits') }}"><i class="fa fa-paper-plane" aria-hidden="true"></i> <span>Standar</span>
                 </a>
@@ -52,10 +52,12 @@
             @endif
 
             {{-- Indikator Kinerja Utama/Tambahan --}}
+            
             @if (Auth::user()->role== 'admin'|| Auth::user()->role == 'prodi')
-            <li class="{{ Request::is('survei') ? 'active' : '' }}">
-                <a class="nav-link"
-                    href="{{ url('credits') }}"><i class="fa-solid fa-circle-info"></i> <span>Indikator Kinerja Utama/Tambahan</span>
+            <li class="{{ $type_menu === 'indikatorkinerjautama' ? 'active' : '' }}">
+                <a class="nav-link" href="{{ url('indikatorkinerjautama') }}">
+                    <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                    <span>Indikator Kinerja Utama/Tambahan</span>
                 </a>
             </li>
             @endif

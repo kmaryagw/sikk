@@ -43,7 +43,7 @@ class UserController extends Controller
         $q = $request->query('q');
         $users = User::where('username', 'like', '%' . $q . '%')
         ->leftjoin('program_studi', 'program_studi.prodi_id', '=', 'users.prodi_id')
-        ->leftjoin('unit_kerja', 'unit_kerja.id_unit_kerja', '=', 'users.id_unit_kerja')
+        ->leftjoin('unit_kerja', 'unit_kerja.unit_id', '=', 'users.unit_id')
         ->paginate(10)
         ->withQueryString();
         $no = $users->firstItem();
@@ -84,13 +84,13 @@ class UserController extends Controller
 
         if ($request->role === 'prodi') {
             $rules['prodi_id'] = 'required|exists:program_studi,prodi_id';
-            $rules['id_unit_kerja'] = 'nullable';
+            $rules['unit_id'] = 'nullable';
         } elseif ($request->role === 'unit kerja') {
-            $rules['id_unit_kerja'] = 'required|exists:unit_kerja,id_unit_kerja';
+            $rules['unit_id'] = 'required|exists:unit_kerja,id_unit_kerja';
             $rules['prodi_id'] = 'nullable';
         } elseif ($request->role === 'admin') {
             $rules['prodi_id'] = 'nullable';
-            $rules['id_unit_kerja'] = 'nullable';
+            $rules['unit_id'] = 'nullable';
         }
     
         
@@ -108,7 +108,7 @@ class UserController extends Controller
         $user->password = Hash::make($request->password);
 
         $user->prodi_id = $request->prodi_id;
-        $user->id_unit_kerja = $request->id_unit_kerja;
+        $user->unit_id = $request->unit_id;
     
         $user->save();
     
@@ -167,13 +167,13 @@ class UserController extends Controller
             $user->id_unit_kerja = null; // Kosongkan unit kerja
         } elseif ($request->role === 'unit kerja') {
             $request->validate([
-                'id_unit_kerja' => 'required|exists:unit_kerja,id_unit_kerja',
+                'unit_id' => 'required|exists:unit_kerja,unit_id',
             ]);
-            $user->id_unit_kerja = $request->id_unit_kerja;
+            $user->unit_id = $request->id_unit_kerja;
             $user->prodi_id = null; // Kosongkan prodi
         } else {
             $user->prodi_id = null; // Kosongkan prodi untuk admin
-            $user->id_unit_kerja = null; // Kosongkan unit kerja untuk admin
+            $user->unit_id = null; // Kosongkan unit kerja untuk admin
         }
 
         $user->save();

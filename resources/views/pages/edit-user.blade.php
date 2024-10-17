@@ -105,10 +105,10 @@
 
                                     <div class="mb-3" id="unit_field" style="display: none;">
                                         <label>Unit Kerja</label>
-                                        <select class="form-select" name="id_unit_kerja">
+                                        <select class="form-select" name="unit_id">
                                             <option value="" disabled selected>Pilih Unit Kerja</option>
                                             @foreach ($units as $unit)
-                                                <option value="{{ $unit->id_unit_kerja }}" {{ old('id_unit_kerja', $user->id_unit_kerja) == $unit->id_unit_kerja ? 'selected' : '' }}>
+                                                <option value="{{ $unit->unit_id }}" {{ old('unit_id', $user->unit_id) == $unit->unit_id ? 'selected' : '' }}>
                                                     {{ $unit->unit_nama }}
                                                 </option>
                                             @endforeach

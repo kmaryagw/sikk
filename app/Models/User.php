@@ -28,7 +28,7 @@ class User extends Authenticatable
         'password',
         'role',
         'prodi_id',
-        'id_unit_kerja',
+        'unit_id',
     ];
     
 
