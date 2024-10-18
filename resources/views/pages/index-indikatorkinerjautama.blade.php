@@ -24,9 +24,11 @@
                         <div class="col">
                             <button class="btn btn-info"><i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
                         </div>
+                        @if (Auth::user()->role== 'admin')
                         <div class="col">
                             <a class="btn btn-primary" href="{{ route('indikatorkinerjautama.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
                         </div>
+                        @endif
                     </form>
                 </div>
 
@@ -37,7 +39,9 @@
                                 <th>No</th>
                                 <th>Nama Indikator Kinerja Utama/Tambahan</th>
                                 <th>Standar</th>
+                                @if (Auth::user()->role== 'admin')
                                 <th>Aksi</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -47,7 +51,8 @@
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $indikatorkinerjautama->ik_nama }}</td>
                                     <td>{{ $indikatorkinerjautama->std_nama ?? '-' }}</td>
- 
+
+                                    @if (Auth::user()->role== 'admin')
                                     <td>
                                         <a class="btn btn-warning" href="{{ route('indikatorkinerjautama.edit', $indikatorkinerjautama->ik_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
                                         <form id="delete-form-{{ $indikatorkinerjautama->ik_id }}" method="POST" class="d-inline" action="{{ route('indikatorkinerjautama.destroy', $indikatorkinerjautama->ik_id) }}">
@@ -58,6 +63,7 @@
 
                                         </form>
                                     </td>
+                                    @endif
                                 </tr>
                             @endforeach
                         </tbody>
