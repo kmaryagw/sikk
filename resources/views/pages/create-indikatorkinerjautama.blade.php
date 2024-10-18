@@ -52,20 +52,23 @@
                                         </div>
                                     </div>
 
-                                    
 
                                     <div class="mb-3">
                                         <label for="std_id">Standar</label>
-                                        <select class="form-control" name="std_id" id="std_id" required>
-                                            <option value="" disabled selected>Pilih Standar</option>
-                                            @foreach ($standar as $s)
-                                                <option value="{{ $s->std_id }}" {{ old('std_id', $indikatorkinerjautama->std_id ?? '') == $s->std_id ? 'selected' : '' }}>
-                                                    {{ $s->std_nama }}
-                                                </option>
-                                            @endforeach
-                                        </select>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-thumbs-up"></i>
+                                                </div>
+                                            </div>
+                                            <select class="form-control" name="std_id" id="std_id" required>
+                                                <option value="" disabled selected>Pilih Standar</option>
+                                                @foreach ($standar as $s)
+                                                    <option value="{{ $s->std_id }}" {{ old('std_id', $indikatorkinerjautama->std_id ?? '') == $s->std_id ? 'selected' : '' }}>{{ $s->std_nama }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
-                                    
                                     
 
                                     <div class="form-group">

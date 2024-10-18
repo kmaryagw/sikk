@@ -50,11 +50,7 @@
                                     
                                     <td>
                                         <a class="btn btn-warning" href="{{ route('unit.edit', $unit->unit_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
-<<<<<<< HEAD
                                         <form id="delete-form-{{ $unit->unit_id }}" method="POST" class="d-inline" action="{{ route('unit.destroy', $unit->unit_id) }}">
-=======
-                                        <form id="delete-form-{{ $unit->id_unit_kerja }}" method="POST" class="d-inline" action="{{ route('unit.destroy', $unit->unit_id) }}">
->>>>>>> 96038baf97e75133d03fc3acda624e6cbce53d47
 
                                             @csrf
                                             @method('DELETE')
