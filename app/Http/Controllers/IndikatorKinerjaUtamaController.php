@@ -25,7 +25,7 @@ class IndikatorKinerjaUtamaController extends Controller
             'indikatorkinerjautamas' => $indikatorkinerjautamas,
             'q' => $q,
             'no' => $no,
-            'type_menu' => 'masterdata',
+            'type_menu' => 'indikatorkinerjautama',
             
         ]);
     }
@@ -38,7 +38,7 @@ class IndikatorKinerjaUtamaController extends Controller
         return view('pages.create-indikatorkinerjautama', [
             'title' => $title,
             'standar' => $standar,
-            'type_menu' => 'masterdata',
+            'type_menu' => 'indikatorkinerjautama',
         ]);
     }
 
