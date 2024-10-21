@@ -10,7 +10,7 @@
 @section('main')
     <div class="login-bg">
         <div class="card card-danger">
-            <div class="card-header">
+            <div class="card-header ">
                 <h4>Login</h4>
             </div>
 
