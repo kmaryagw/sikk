@@ -49,7 +49,7 @@
                                     <td>
                                         @if($standar->standardokumen->isNotEmpty())
                                             @foreach($standar->standardokumen as $dokumen)
-                                                <a href="{{ asset('storage/dokumen/' . basename($dokumen->stdd_file)) }}" target="_blank">Lihat Dokumen</a>
+                                                <a href="{{ asset($dokumen->stdd_file) }}" target="_blank">Lihat Dokumen</a>
                                             @endforeach
                                         @else
                                             Tidak Ada Dokumen
