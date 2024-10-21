@@ -57,7 +57,7 @@
             @if (Auth::user()->role== 'admin'|| Auth::user()->role == 'prodi')
             <li class="{{ $type_menu === 'indikatorkinerjautama' ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('indikatorkinerjautama') }}">
-                    <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                    <i class="fa fa-bullseye" aria-hidden="true"></i>
                     <span>Indikator Kinerja Utama/Tambahan</span>
                 </a>
             </li>
@@ -65,45 +65,45 @@
 
             {{-- Target Capaian --}}
             @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi')
-            <li class="{{ Request::is('survei') ? 'active' : '' }}">
+            <li class="{{ $type_menu === 'targetcapaian' ? 'active' : '' }}">
                 <a class="nav-link"
-                    href="{{ url('credits') }}"><i class="fa-solid fa-award"></i> <span>Target Capaian</span>
+                    href="{{ url('targetcapaian') }}"><i class="fa-solid fa-award"></i> <span>Target Capaian</span>
                 </a>
             </li>
             @endif
 
             {{-- Program Kerja --}}
             @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi'|| Auth::user()->role == 'unit kerja')
-            <li class="{{ Request::is('survei') ? 'active' : '' }}">
+            <li class="{{ $type_menu === 'programkerja' ? 'active' : '' }}">
                 <a class="nav-link"
-                    href="{{ url('credits') }}"><i class="fa-solid fa-book"></i> <span>Program Kerja</span>
+                    href="{{ url('programkerja') }}"><i class="fa-solid fa-book"></i> <span>Program Kerja</span>
                 </a>
             </li>
             @endif
 
             {{-- Realisasi Renja --}}
             @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi'|| Auth::user()->role == 'unit kerja')
-            <li class="{{ Request::is('survei') ? 'active' : '' }}">
+            <li class="{{ $type_menu === 'realisasirenja' ? 'active' : '' }}">
                 <a class="nav-link"
-                    href="{{ url('credits') }}"><i class="fa-solid fa-tasks"></i> <span>Realisasi Renja</span>
+                    href="{{ url('realisasirenja') }}"><i class="fa-solid fa-tasks"></i> <span>Realisasi Renja</span>
                 </a>
             </li>
             @endif
 
             {{-- Monitoring --}}
             @if (Auth::user()->role == 'admin')
-            <li class="{{ Request::is('survei') ? 'active' : '' }}">
+            <li class="{{ $type_menu === 'monitoring' ? 'active' : '' }}">
                 <a class="nav-link"
-                    href="{{ url('credits') }}"><i class="fa fa-eye" aria-hidden="true"></i> <span>Monitoring</span>
+                    href="{{ url('monitoring') }}"><i class="fa fa-eye" aria-hidden="true"></i> <span>Monitoring</span>
                 </a>
             </li>
             @endif
 
             {{-- Evaluasi --}}
             @if (Auth::user()->role == 'admin')
-            <li class="{{ Request::is('survei') ? 'active' : '' }}">
+            <li class="{{ $type_menu === 'evaluasi' ? 'active' : '' }}">
                 <a class="nav-link"
-                    href="{{ url('credits') }}"><i class="fa-solid fa-file-pen"></i> <span>Evaluasi</span>
+                    href="{{ url('evaluasi') }}"><i class="fa-solid fa-file-pen"></i> <span>Evaluasi</span>
                 </a>
             </li>
             @endif
