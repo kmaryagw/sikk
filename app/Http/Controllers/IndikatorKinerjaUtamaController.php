@@ -74,7 +74,7 @@ class IndikatorKinerjaUtamaController extends Controller
     
     return view('pages.edit-indikatorkinerjautama', [
         'title' => $title,
-        'type_menu' => 'masterdata',
+        'type_menu' => 'indikatorkinerjautama',
         'indikatorkinerjautama' => $indikatorkinerjautama,
         'standar' => $standar,
         
