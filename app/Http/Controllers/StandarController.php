@@ -57,18 +57,26 @@ class StandarController extends Controller
         $standar->std_deskripsi = $request->std_deskripsi;
         $standar->save();
 
-        // Menyimpan file dokumen
         if ($request->hasFile('stdd_file')) {
             $file = $request->file('stdd_file');
-            // Simpan file ke storage/app/public/dokumen
-            $filePath = $file->store('public/dokumen'); 
 
-            // Simpan ke tabel standar_dokumen
+            $filename = time().'_'.$file->getClientOriginalName();
+            
+            $destinationPath = 'dokumen/';
+            $filePath = $destinationPath.$filename;
+            $file->move($destinationPath, $filename);
+
             $standardokumen = new standar_dokumen();
-            $standardokumen->stdd_id = uniqid(); // ID dokumen, sesuaikan jika perlu
-            $standardokumen->std_id = $standar->std_id; // ID standar yang baru dibuat
-            $standardokumen->stdd_file = $filePath; // Simpan path file
+            $standardokumen->stdd_id = uniqid();
+            $standardokumen->std_id = $standar->std_id;
+            $standardokumen->stdd_file = $filePath;
             $standardokumen->save();
+
+            if (!file_exists($filePath)) {
+                Alert::error('Error', 'File Gagal!');
+                return back();
+            }
+
         }
 
         Alert::success('Sukses', 'Data Berhasil Ditambah');
