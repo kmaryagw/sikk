@@ -46,15 +46,12 @@
                     </div>
                 </form>
 
-                @if ($errors->any())
-                    <div class="alert alert-danger">
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
+                @if (session('alert.config'))
+                    <script>
+                        Swal.fire({!! session('alert.config') !!});
+                    </script>
                 @endif
+
             </div>
         </div>
     </div>

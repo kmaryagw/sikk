@@ -1293,8 +1293,9 @@ table tr:hover .table-links {
 }
 
 /* 3.10 Pagination */
+
 .page-item .page-link {
-  color: #fc544b;
+  color: #fc544a;
   border-radius: 3px;
   margin: 0 3px;
 }

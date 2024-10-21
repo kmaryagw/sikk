@@ -19,4 +19,9 @@ class standar extends Model
         'std_nama',
         'std_deskripsi',
     ];
+
+    public function standardokumen()
+    {
+        return $this->hasMany(standar_dokumen::class, 'std_id', 'std_id');
+    }
 }
