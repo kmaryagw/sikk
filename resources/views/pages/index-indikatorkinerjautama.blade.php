@@ -17,15 +17,15 @@
 
             <div class="card mb-3">
                 <div class="card-header">
-                    <form class="row row-cols-auto g-1">
-                        <div class="col">
+                    <form class="row g-2 align-items-center">
+                        <div class="col-auto">
                             <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>
-                        <div class="col">
-                            <button class="btn btn-info"><i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
+                        <div class="col-auto">
+                            <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
                         </div>
                         @if (Auth::user()->role== 'admin')
-                        <div class="col">
+                        <div class="col-auto">
                             <a class="btn btn-primary" href="{{ route('indikatorkinerjautama.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
                         </div>
                         @endif
@@ -72,7 +72,7 @@
 
                 @if ($indikatorkinerjautamas->hasPages())
                     <div class="card-footer">
-                        {{ $indikatorkinerjautamas->links() }}
+                        {{ $indikatorkinerjautamas->links('pagination::bootstrap-5') }}
                     </div>
                 @endif
             </div>

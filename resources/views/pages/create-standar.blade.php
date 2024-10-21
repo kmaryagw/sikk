@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'create-standar')
+@section('title', 'Create Standar')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -25,9 +25,10 @@
 
             <div class="section-body">
                 <div class="row">
-                    <div class="col-12 col-lg-6">
+                    <div class="col-12 col-lg-12">
                         <div class="card">
                             <div class="card-body">
+                                <div class="col-6 col-lg-6">
                                 @if ($errors->any())
                                     <div class="alert alert-danger">
                                         <ul>
@@ -38,7 +39,7 @@
                                     </div>
                                 @endif
 
-                                <form method="POST" action="{{ route('standar.store') }}">
+                                <form method="POST" action="{{ route('standar.store') }}" enctype="multipart/form-data">
                                     @csrf
                                     <div class="form-group">
                                         <label>Nama Standar</label>
@@ -48,7 +49,7 @@
                                                     <i class="fa-solid fa-thumbs-up"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="std_nama" value="{{ old('std_nama') }}"/>
+                                            <input class="form-control" type="text" name="std_nama" value="{{ old('std_nama') }}" required/>
                                         </div>
                                     </div>
 
@@ -60,7 +61,19 @@
                                                     <i class="fa-solid fa-clipboard-list"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="std_deskripsi" value="{{ old('std_deskrispi') }}"/>
+                                            <textarea class="form-control" name="std_deskripsi" required>{{ old('std_deskripsi') }}</textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Upload Dokumen</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-file-upload"></i>
+                                                </div>
+                                            </div>
+                                            <input class="form-control" type="file" name="stdd_file" required/>
                                         </div>
                                     </div>
 
@@ -69,6 +82,7 @@
                                         <a href="{{ url('standar') }}" class="btn btn-danger">Kembali</a>
                                     </div>
                                 </form>
+                                </div>
                             </div>
                         </div>
                     </div>

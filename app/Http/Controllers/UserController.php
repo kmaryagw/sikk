@@ -35,16 +35,17 @@ class UserController extends Controller
                 $user->status = 1;
                 $user->save();
             } else {
-                return back()->withErrors(['username' => 'User tidak valid.']);
+                Alert::error('Error', 'Username Tidak Valid!');
+                return back();
             }
 
             Alert::success('Sukses', 'Selamat Datang');
             return redirect()->route('pages.dashboard');
         }
 
-        return back()->withErrors([
-            'username' => 'Username atau Password salah!',
-        ]);
+        Alert::error('Error', 'Username atau Password salah!');
+        return back();
+
     }
 
     public function logout(Request $request)

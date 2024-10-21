@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('standar_dokumen', function (Blueprint $table) {
             $table->string('stdd_id', 50)->primary();
             $table->string('std_id', 50);
-            $table->string('stdd_file', 10);
+            $table->string('stdd_file', 255);
             $table->foreign('std_id')->references('std_id')->on('standar')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });

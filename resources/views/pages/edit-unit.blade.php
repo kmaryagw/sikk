@@ -25,9 +25,10 @@
 
             <div class="section-body">
                 <div class="row">
-                    <div class="col-12 col-lg-6">
+                    <div class="col-12 col-lg-12">
                         <div class="card">
                             <div class="card-body">
+                                <div class="col-6 col-lg-6">
                                 @if ($errors->any())
                                     <div class="alert alert-danger">
                                         <ul>
@@ -75,6 +76,7 @@
                                         <a href="{{ url('unit') }}" class="btn btn-danger">Kembali</a>
                                     </div>
                                 </form>
+                                </div>
                             </div>
                         </div>
                     </div>
