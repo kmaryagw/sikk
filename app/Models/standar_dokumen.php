@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class standar_dokumen extends Model
 {
@@ -21,4 +22,13 @@ class standar_dokumen extends Model
     {
         return $this->belongsTo(standar::class, 'std_id', 'std_id');
     }
+
+    // protected static function boot()
+    // {
+    //     parent::boot();
+
+    //     static::creating(function ($model) {
+    //         $model->stdd_id = (string) Str::uuid(); // Generate UUID string
+    //     });
+    // }
 }

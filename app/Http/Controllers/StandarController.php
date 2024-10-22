@@ -97,17 +97,48 @@ class StandarController extends Controller
     public function update(standar $standar, Request $request)
     {
         $request->validate([
-            'std_nama' => 'required|max:20',
-            'std_deskripsi' => 'required', 
+            'std_nama' => 'required|string|max:20',
+            'std_deskripsi' => 'required',
+            'stdd_file' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
         ]);
 
         $standar->std_nama = $request->std_nama;
         $standar->std_deskripsi = $request->std_deskripsi;
         $standar->save();
 
+        if ($request->hasFile('stdd_file')) {
+            $file = $request->file('stdd_file');
+
+            $hashedFilename = Hash::make($file->getClientOriginalName());
+
+            $extension = $file->getClientOriginalExtension();
+            $filePath = $file->storeAs('dokumen', $hashedFilename . '.' . $extension, 'public');
+
+            $standardokumen = standar_dokumen::where('std_id', $standar->std_id)->first();
+
+            if ($standardokumen && Storage::exists('public/' . $standardokumen->stdd_file)) {
+                Storage::delete('public/' . $standardokumen->stdd_file);
+            }
+
+            if (!$standardokumen) {
+                $standardokumen = new standar_dokumen();
+                $standardokumen->stdd_id = uniqid();
+                $standardokumen->std_id = $standar->std_id;
+            }
+
+            $standardokumen->stdd_file = $filePath;
+            $standardokumen->save();
+
+            if (!$filePath) {
+                Alert::error('Error', 'File Gagal Disimpan!');
+                return back();
+            }
+        }
+
         Alert::success('Sukses', 'Data Berhasil Diubah');
         return redirect()->route('standar.index');
     }
+
 
     public function destroy(standar $standar)
     {
