@@ -7,7 +7,7 @@ use App\Http\Controllers\ProdiController;
 use App\Http\Controllers\RenstraController;
 use App\Http\Controllers\StandarController;
 use App\Http\Controllers\TahunController;
-
+use App\Http\Controllers\TargetCapaianController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -26,6 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('tahun', TahunController::class);
     Route::resource('periodemonev', PeriodeMonevController::class);
     Route::resource('indikatorkinerjautama', IndikatorKinerjaUtamaController::class);
+    Route::resource('targetcapaian', TargetCapaianController::class);
 
     Route::resource('standar', StandarController::class);
 
