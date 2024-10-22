@@ -66,17 +66,27 @@ class UserController extends Controller
         return redirect('/');
     }
 
+
     public function index(Request $request)
     {
         $title = 'Data User';
         $q = $request->query('q');
-        $users = User::where('username', 'like', '%' . $q . '%')
-        ->leftjoin('program_studi', 'program_studi.prodi_id', '=', 'users.prodi_id')
-        ->leftjoin('unit_kerja', 'unit_kerja.unit_id', '=', 'users.unit_id')
-        ->paginate(10)
-        ->withQueryString();
+        $user = Auth::user();
+
+        $usersQuery = User::where('username', 'like', '%' . $q . '%')
+            ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'users.prodi_id')
+            ->leftJoin('unit_kerja', 'unit_kerja.unit_id', '=', 'users.unit_id');
+
+        if ($user->role === 'admin') {
+            $usersQuery->where(function($query) use ($user) {
+                $query->where('users.role', '<>', 'admin')
+                      ->orWhere('users.id_user', $user->id_user);
+            });
+        }
+
+        $users = $usersQuery->paginate(10)->withQueryString();
         $no = $users->firstItem();
-        
+
         return view('pages.index-user', [
             'title' => $title,
             'users' => $users,
@@ -85,6 +95,7 @@ class UserController extends Controller
             'type_menu' => 'masterdata',
         ]);
     }
+
 
     public function create()
     {

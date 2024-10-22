@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'edit-standar')
+@section('title', 'Edit Standar')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -19,7 +19,7 @@
                 <h1>Edit Standar</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
-                    <div class="breadcrumb-item">Form Standar</div>
+                    <div class="breadcrumb-item">Edit Standar</div>
                 </div>
             </div>
 
@@ -39,9 +39,10 @@
                                     </div>
                                 @endif
 
-                                <form method="POST" action="{{ route('standar.update', $standar) }}">
+                                <form method="POST" action="{{ route('standar.update', $standar) }}" enctype="multipart/form-data">
                                     @csrf
                                     @method('put')
+
                                     <div class="form-group">
                                         <label>Nama Standar</label>
                                         <div class="input-group">
@@ -50,7 +51,7 @@
                                                     <i class="fa-solid fa-thumbs-up"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="std_nama" value="{{ old('std_nama', $standar->std_nama) }}"/>
+                                            <input class="form-control" type="text" name="std_nama" value="{{ old('std_nama', $standar->std_nama) }}" required/>
                                         </div>
                                     </div>
                                     
@@ -62,8 +63,34 @@
                                                     <i class="fa-solid fa-clipboard-list"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="std_deskripsi" value="{{ old('std_deskripsi', $standar->std_deskripsi) }}"/>
+                                            <textarea class="form-control" name="std_deskripsi" required>{{ old('std_deskripsi', $standar->std_deskripsi) }}</textarea>
                                         </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Dokumen yang Sudah Diunggah</label>
+                                        <div>
+                                            @if($standar->standardokumen->isNotEmpty())
+                                                @foreach($standar->standardokumen as $dokumen)
+                                                    <a href="{{ asset('storage/' . $dokumen->stdd_file) }}" target="_blank" class="btn btn-info mb-2">Lihat Dokumen Sebelumnya</a><br>
+                                                @endforeach
+                                            @else
+                                                Tidak Ada Dokumen
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Upload Dokumen Baru (Opsional)</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-file-upload"></i>
+                                                </div>
+                                            </div>
+                                            <input class="form-control" type="file" name="stdd_file"/>
+                                        </div>
+                                        <small class="text-muted">Biarkan kosong jika tidak ingin mengganti dokumen.</small>
                                     </div>
 
                                     <div class="form-group">
@@ -91,6 +118,8 @@
     <script src="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js') }}"></script>
     <script src="{{ asset('library/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ asset('library/selectric/public/jquery.selectric.min.js') }}"></script>
+
+    @include('sweetalert::alert')
 
     <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>
