@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\standar;
 use App\Models\standar_dokumen;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -60,11 +61,10 @@ class StandarController extends Controller
         if ($request->hasFile('stdd_file')) {
             $file = $request->file('stdd_file');
 
-            $filename = time().'_'.$file->getClientOriginalName();
-            
-            $destinationPath = 'dokumen/';
-            $filePath = $destinationPath.$filename;
-            $file->move($destinationPath, $filename);
+            $hashedFilename = Hash::make($file->getClientOriginalName());
+
+            $extension = $file->getClientOriginalExtension();
+            $filePath = $file->storeAs('dokumen', $hashedFilename . '.' . $extension, 'public');
 
             $standardokumen = new standar_dokumen();
             $standardokumen->stdd_id = uniqid();
@@ -72,10 +72,10 @@ class StandarController extends Controller
             $standardokumen->stdd_file = $filePath;
             $standardokumen->save();
 
-            if (!file_exists($filePath)) {
-                Alert::error('Error', 'File Gagal!');
+            if (!$filePath) {
+                Alert::error('Error', 'File Gagal Disimpan!');
                 return back();
-            }
+            }           
 
         }
 
@@ -111,10 +111,12 @@ class StandarController extends Controller
 
     public function destroy(standar $standar)
     {
+   
         $standarDokumen = standar_dokumen::where('std_id', $standar->std_id)->first();
         if ($standarDokumen) {
-            Storage::delete($standarDokumen->stdd_file); // Hapus file dari storage
+            Storage::delete('public/' . $standarDokumen->stdd_file);
         }
+
         $standar->delete();
         Alert::success('Sukses', 'Data Berhasil Dihapus');
         return redirect()->route('standar.index');

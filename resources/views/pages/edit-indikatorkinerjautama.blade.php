@@ -71,6 +71,23 @@
                                         </div>
                                     </div>
 
+                                    <div class="mb-3">
+                                        <label for="th_id">Tahun</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-calendar"></i>
+                                                </div>
+                                            </div>
+                                            <select class="form-control" name="th_id" id="th_id" required>
+                                                <option value="" disabled selected>Pilih Tahun</option>
+                                                @foreach ($tahunKerja as $th)
+                                                    <option value="{{ $th->th_id }}" {{ old('th_id', $indikatorkinerjautama->th_id ?? '') == $th->th_id ? 'selected' : '' }}>{{ $th->th_tahun }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Simpan</button>
                                         <a href="{{ url('indikatorkinerjautama') }}" class="btn btn-danger">Kembali</a>

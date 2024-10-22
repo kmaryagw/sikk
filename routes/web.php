@@ -31,7 +31,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('standar', StandarController::class);
 
     Route::get('/storage/{filename}', function ($filename) {
-        $filePath = storage_path('app/public/' . $filename);
+        $filePath = storage_path('app/public/dokumen/' . $filename);
         if (!file_exists($filePath)) {
             return abort(404, 'File tidak ditemukan.');
         }

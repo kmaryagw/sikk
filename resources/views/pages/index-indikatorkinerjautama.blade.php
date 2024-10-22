@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="{{ asset('library/summernote/dist/summernote-bs4.min.css') }}">
 @endpush
 
-
 @section('main')
     <div class="main-content">
         <section class="section">
@@ -18,6 +17,15 @@
             <div class="card mb-3">
                 <div class="card-header">
                     <form class="row g-2 align-items-center">
+                        <div class="col-auto">
+                            <!-- Dropdown untuk memilih tahun -->
+                            <select class="form-control" name="tahun">
+                                <option value="">-- Pilih Tahun --</option>
+                                @foreach ($tahun as $thn)
+                                    <option value="{{ $thn->th_id }}" {{ request('tahun') == $thn->th_id ? 'selected' : '' }}>{{ $thn->th_tahun }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="col-auto">
                             <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>
@@ -39,6 +47,7 @@
                                 <th>No</th>
                                 <th>Nama Indikator Kinerja Utama/Tambahan</th>
                                 <th>Standar</th>
+                                <th>Tahun</th> <!-- Tambahkan kolom tahun -->
                                 @if (Auth::user()->role== 'admin')
                                 <th>Aksi</th>
                                 @endif
@@ -51,6 +60,7 @@
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $indikatorkinerjautama->ik_nama }}</td>
                                     <td>{{ $indikatorkinerjautama->std_nama ?? '-' }}</td>
+                                    <td>{{ $indikatorkinerjautama->th_tahun ?? '-' }}</td> <!-- Tampilkan data tahun -->
 
                                     @if (Auth::user()->role== 'admin')
                                     <td>

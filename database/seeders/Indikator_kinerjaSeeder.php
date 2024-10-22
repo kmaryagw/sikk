@@ -14,9 +14,7 @@ class Indikator_kinerjaSeeder extends Seeder
     public function run(): void
     {
         DB::table('indikator_kinerja')->insert([
-            'ik_id' => 'IK001',
-            'ik_nama' => 'Indikator Kinerja 1',
-            'std_id' => 'STD001',
+            
         ]);
     }
 }
