@@ -14,9 +14,7 @@ class Tahun_kerjaSeeder extends Seeder
     public function run(): void
     {
         DB::table('tahun_kerja')->insert([
-                'th_id' => 1,
-                'th_tahun' => 2023,
-                'ren_is_aktif' => 'y',
+                
             ]);
     }
 }
