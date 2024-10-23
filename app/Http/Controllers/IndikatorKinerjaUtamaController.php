@@ -17,12 +17,10 @@ class IndikatorKinerjaUtamaController extends Controller
 {
     $title = 'Data Indikator Kinerja Utama';
     $q = $request->query('q');
-    $tahunId = $request->query('tahun'); // Ambil input tahun dari query string
+    $tahunId = $request->query('tahun');
 
-    // Ambil data tahun aktif untuk dropdown filter
     $tahun = tahun_kerja::where('ren_is_aktif', 'y')->get();
 
-    // Query untuk filter nama dan tahun
     $query = IndikatorKinerjaUtama::where('ik_nama', 'like', '%'. $q. '%') // Tambahkan kolom tahun
         ->leftJoin('standar', 'standar.std_id', '=', 'indikator_kinerja.std_id')
         ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'indikator_kinerja.th_id'); // Lakukan join dengan tabel tahun

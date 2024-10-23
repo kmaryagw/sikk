@@ -20,12 +20,14 @@
                         <div class="col-auto">
                             <!-- Dropdown untuk memilih tahun -->
                             <select class="form-control" name="tahun">
-                                <option value="">-- Pilih Tahun --</option>
                                 @foreach ($tahun as $thn)
-                                    <option value="{{ $thn->th_id }}" {{ request('tahun') == $thn->th_id ? 'selected' : '' }}>{{ $thn->th_tahun }}</option>
+                                    <option value="{{ $thn->th_id }}" 
+                                        {{ request('tahun') == $thn->th_id || (request('tahun') == null && $loop->first) ? 'selected' : '' }}>
+                                        {{ $thn->th_tahun }}
+                                    </option>
                                 @endforeach
                             </select>
-                        </div>
+                        </div>                        
                         <div class="col-auto">
                             <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>

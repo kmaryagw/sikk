@@ -62,6 +62,7 @@ class TahunController extends Controller
         $tahun->th_id = $th_id;
         $tahun->th_tahun = $request->th_tahun;
         $tahun->ren_id = $request->ren_id;
+        $tahun->ren_is_aktif= $request->ren_is_aktif;
         $tahun->save();
     
         Alert::success('Sukses', 'Data Berhasil Ditambah');
@@ -92,6 +93,7 @@ class TahunController extends Controller
     
         $tahun->th_tahun = $request->th_tahun; 
         $tahun->ren_id = $request->ren_id;
+        $tahun->ren_is_aktif= $request->ren_is_aktif;
         
         $tahun->save();
 
