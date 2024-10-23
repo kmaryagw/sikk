@@ -18,6 +18,7 @@
             <div class="card mb-3">
                 <div class="card-header">
                     <form class="row g-2 align-items-center">
+                        @if (Auth::user()->role== 'admin')
                         <div class="col-auto">
                             <select class="form-control" name="prodi">
                                 <option value="">Semua Prodi</option>
@@ -28,16 +29,19 @@
                                     </option>
                                 @endforeach
                             </select>
-                        </div>                                                
+                        </div>
+                        @endif                                             
                         <div class="col-auto">
                             <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>
                         <div class="col-auto">
                             <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
                         </div>
+                        @if (Auth::user()->role== 'admin')
                         <div class="col-auto">
                             <a class="btn btn-primary" href="{{ route('targetcapaian.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
                         </div>
+                        @endif
                     </form>
                 </div>
 

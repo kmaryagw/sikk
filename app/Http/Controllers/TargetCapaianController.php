@@ -6,6 +6,7 @@ use App\Models\IndikatorKinerjaUtama;
 use App\Models\program_studi;
 use App\Models\tahun_kerja;
 use App\Models\target_indikator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -28,6 +29,10 @@ class TargetCapaianController extends Controller
                 $join->on('aktif_tahun.th_id', '=', 'target_indikator.th_id')
                     ->where('aktif_tahun.ren_is_aktif', 'y');
             });
+
+        if (Auth::user()->role == 'prodi') {
+            $query->where('target_indikator.prodi_id', Auth::user()->prodi_id);
+        }
 
         if ($q) {
             $query->where('ik_nama', 'like', '%' . $q . '%');
