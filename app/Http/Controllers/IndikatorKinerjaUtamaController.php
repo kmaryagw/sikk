@@ -23,9 +23,12 @@ class IndikatorKinerjaUtamaController extends Controller
     $tahun = tahun_kerja::where('ren_is_aktif', 'y')->get();
 
     // Query untuk filter nama dan tahun
-    $query = IndikatorKinerjaUtama::where('ik_nama', 'like', '%'. $q. '%') // Tambahkan kolom tahun
+    $query = IndikatorKinerjaUtama::where('ik_nama', 'like', '%' . $q . '%')
         ->leftJoin('standar', 'standar.std_id', '=', 'indikator_kinerja.std_id')
-        ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'indikator_kinerja.th_id'); // Lakukan join dengan tabel tahun
+        ->leftJoin('tahun_kerja', function($join) {
+            $join->on('tahun_kerja.th_id', '=', 'indikator_kinerja.th_id')
+                ->where('tahun_kerja.ren_is_aktif', 'y'); // Pastikan hanya tahun yang aktif muncul
+        });
     
     // Filter berdasarkan nama indikator
     if ($q) {
@@ -34,7 +37,7 @@ class IndikatorKinerjaUtamaController extends Controller
 
     // Filter berdasarkan tahun jika ada
     if ($tahunId) {
-        $query->where('tahun_kerja.th_id', $tahunId); // Filter berdasarkan th_id dari tahun_kerja
+        $query->where('tahun_kerja.th_id', $tahunId);
     }
 
     $indikatorkinerjautamas = $query->paginate(10)->withQueryString();
@@ -52,11 +55,12 @@ class IndikatorKinerjaUtamaController extends Controller
 }
 
 
-    public function create()
+
+public function create()
 {
     $title = 'Tambah Indikator Kinerja Utama';
     $standar = Standar::orderBy('std_nama')->get();
-    $tahunKerja = DB::table('tahun_kerja')->where('ren_is_aktif', 'y')->get(); // Mengambil tahun aktif
+    $tahunKerja = tahun_kerja::where('ren_is_aktif', 'y')->get(); // Mengambil tahun aktif saja
 
     return view('pages.create-indikatorkinerjautama', [
         'title' => $title,
@@ -65,6 +69,7 @@ class IndikatorKinerjaUtamaController extends Controller
         'type_menu' => 'indikatorkinerjautama',
     ]);
 }
+
 
     public function store(Request $request)
     {

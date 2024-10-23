@@ -25,6 +25,7 @@
                                     <option value="{{ $thn->th_id }}" {{ request('tahun') == $thn->th_id ? 'selected' : '' }}>{{ $thn->th_tahun }}</option>
                                 @endforeach
                             </select>
+                            
                         </div>
                         <div class="col-auto">
                             <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />

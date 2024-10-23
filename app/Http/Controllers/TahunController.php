@@ -35,6 +35,7 @@ class TahunController extends Controller
         
         $ren_is_aktifs = ['y', 'n'];
         $renstras = Renstra::orderBy('ren_nama')->get();
+        $renstras = Renstra::all();
 
         return view('pages.create-tahun', [
             'title' => $title,
@@ -45,35 +46,37 @@ class TahunController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'th_tahun' => 'required|integer|min:1900|max:2100',
-            'ren_is_aktif' => 'required|in:y,n',
-            'ren_id' => 'required',
-            
-        ]);
-    
-        $customPrefix = 'TH';
-        $timestamp = time();
-        $md5Hash = md5($timestamp);
-        $th_id = $customPrefix . strtoupper($md5Hash);
-    
-        $tahun = new tahun_kerja();
-        $tahun->th_id = $th_id;
-        $tahun->th_tahun = $request->th_tahun;
-        $tahun->ren_id = $request->ren_id;
-        $tahun->save();
-    
-        Alert::success('Sukses', 'Data Berhasil Ditambah');
-    
-        return redirect()->route('tahun.index');
-    }
+{
+    $request->validate([
+        'th_tahun' => 'required|integer|min:1900|max:2100',
+        'ren_is_aktif' => 'required|in:y,n', // Tambahkan validasi untuk ren_is_aktif
+        'ren_id' => 'required',
+    ]);
+
+    $customPrefix = 'TH';
+    $timestamp = time();
+    $md5Hash = md5($timestamp);
+    $th_id = $customPrefix . strtoupper($md5Hash);
+
+    $tahun = new tahun_kerja();
+    $tahun->th_id = $th_id;
+    $tahun->th_tahun = $request->th_tahun;
+    $tahun->ren_is_aktif = $request->ren_is_aktif; // Simpan ren_is_aktif
+    $tahun->ren_id = $request->ren_id;
+    $tahun->save();
+
+    Alert::success('Sukses', 'Data Berhasil Ditambah');
+
+    return redirect()->route('tahun.index');
+}
+
 
     public function edit(tahun_kerja $tahun)
     {
         $title = 'Ubah tahun';
         $ren_is_aktifs = ['y', 'n'];
         $renstras = Renstra::orderBy('ren_nama')->get();
+        $renstras = Renstra::all();
     
         return view('pages.edit-tahun', [
             'title' => $title,
@@ -85,20 +88,24 @@ class TahunController extends Controller
     }
 
     public function update(tahun_kerja $tahun, Request $request)
-    {
-        $request->validate([
-            'th_tahun' => 'required',
-        ]);
+{
+    $request->validate([
+        'th_tahun' => 'required|integer|min:1900|max:2100',
+        'ren_is_aktif' => 'required|in:y,n', // Tambahkan validasi untuk ren_is_aktif
+        'ren_id' => 'required',
+    ]);
+
+    $tahun->th_tahun = $request->th_tahun; 
+    $tahun->ren_is_aktif = $request->ren_is_aktif; // Simpan ren_is_aktif
+    $tahun->ren_id = $request->ren_id;
     
-        $tahun->th_tahun = $request->th_tahun; 
-        $tahun->ren_id = $request->ren_id;
-        
-        $tahun->save();
+    $tahun->save();
 
-        Alert::success('Sukses', 'Data Berhasil Diubah');
+    Alert::success('Sukses', 'Data Berhasil Diubah');
 
-        return redirect()->route('tahun.index');
-    }
+    return redirect()->route('tahun.index');
+}
+
 
     public function destroy(tahun_kerja $tahun)
     {
