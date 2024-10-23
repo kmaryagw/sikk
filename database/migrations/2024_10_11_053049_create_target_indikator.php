@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('target_indikator', function (Blueprint $table) {
             $table->string('ti_id', 50)->primary();
-            $table->string('ik_id', 50)->nullable();
+            $table->string('ik_id', 50);
             $table->string('ti_target', 100);
             $table->text('ti_keterangan');
-            $table->string('prodi_id', 50)->nullable();
-            $table->string('th_id', 50)->nullable();
+            $table->string('prodi_id', 50);
+            $table->string('th_id', 50);
+            $table->timestamps();
 
             $table->foreign('ik_id')->references('ik_id')->on('indikator_kinerja')->onDelete('cascade');
             $table->foreign('prodi_id')->references('prodi_id')->on('program_studi')->onDelete('cascade');
