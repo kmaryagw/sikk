@@ -35,6 +35,7 @@ class TahunController extends Controller
         
         $ren_is_aktifs = ['y', 'n'];
         $renstras = Renstra::orderBy('ren_nama')->get();
+        $renstras = Renstra::all();
 
         return view('pages.create-tahun', [
             'title' => $title,
@@ -62,7 +63,7 @@ class TahunController extends Controller
         $tahun->th_id = $th_id;
         $tahun->th_tahun = $request->th_tahun;
         $tahun->ren_id = $request->ren_id;
-        $tahun->ren_is_aktif= $request->ren_is_aktif;
+        $tahun->ren_is_aktif = $request->ren_is_aktif;
         $tahun->save();
     
         Alert::success('Sukses', 'Data Berhasil Ditambah');
@@ -75,6 +76,7 @@ class TahunController extends Controller
         $title = 'Ubah tahun';
         $ren_is_aktifs = ['y', 'n'];
         $renstras = Renstra::orderBy('ren_nama')->get();
+        $renstras = Renstra::all();
     
         return view('pages.edit-tahun', [
             'title' => $title,
@@ -93,14 +95,14 @@ class TahunController extends Controller
     
         $tahun->th_tahun = $request->th_tahun; 
         $tahun->ren_id = $request->ren_id;
-        $tahun->ren_is_aktif= $request->ren_is_aktif;
-        
+        $tahun->ren_is_aktif = $request->ren_is_aktif;
         $tahun->save();
 
-        Alert::success('Sukses', 'Data Berhasil Diubah');
+    Alert::success('Sukses', 'Data Berhasil Diubah');
 
-        return redirect()->route('tahun.index');
-    }
+    return redirect()->route('tahun.index');
+}
+
 
     public function destroy(tahun_kerja $tahun)
     {

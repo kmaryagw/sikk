@@ -21,18 +21,19 @@ class IndikatorKinerjaUtamaController extends Controller
 
     $tahun = tahun_kerja::where('ren_is_aktif', 'y')->get();
 
-    $query = IndikatorKinerjaUtama::where('ik_nama', 'like', '%'. $q. '%') // Tambahkan kolom tahun
+    $query = IndikatorKinerjaUtama::where('ik_nama', 'like', '%'. $q. '%')
         ->leftJoin('standar', 'standar.std_id', '=', 'indikator_kinerja.std_id')
-        ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'indikator_kinerja.th_id'); // Lakukan join dengan tabel tahun
-    
-    // Filter berdasarkan nama indikator
+        ->leftJoin('tahun_kerja', function($join) {
+            $join->on('tahun_kerja.th_id', '=', 'indikator_kinerja.th_id')
+                ->where('tahun_kerja.ren_is_aktif', 'y');
+        });
+
     if ($q) {
         $query->where('ik_nama', 'like', '%' . $q . '%');
     }
 
-    // Filter berdasarkan tahun jika ada
     if ($tahunId) {
-        $query->where('tahun_kerja.th_id', $tahunId); // Filter berdasarkan th_id dari tahun_kerja
+        $query->where('tahun_kerja.th_id', $tahunId);
     }
 
     $indikatorkinerjautamas = $query->paginate(10)->withQueryString();
@@ -42,34 +43,36 @@ class IndikatorKinerjaUtamaController extends Controller
         'title' => $title,
         'indikatorkinerjautamas' => $indikatorkinerjautamas,
         'q' => $q,
-        'tahun' => $tahun, // Kirim data tahun ke view
-        'tahunId' => $tahunId, // Kirim tahun yang dipilih ke view untuk pengisian kembali
+        'tahun' => $tahun,
+        'tahunId' => $tahunId,
         'no' => $no,
         'type_menu' => 'indikatorkinerjautama',
     ]);
 }
 
 
-    public function create()
+
+public function create()
 {
     $title = 'Tambah Indikator Kinerja Utama';
     $standar = Standar::orderBy('std_nama')->get();
-    $tahunKerja = DB::table('tahun_kerja')->where('ren_is_aktif', 'y')->get(); // Mengambil tahun aktif
+    $tahunKerja = tahun_kerja::where('ren_is_aktif', 'y')->get();
 
     return view('pages.create-indikatorkinerjautama', [
         'title' => $title,
         'standar' => $standar,
-        'tahunKerja' => $tahunKerja, // Menambahkan tahun kerja ke view
+        'tahunKerja' => $tahunKerja,
         'type_menu' => 'indikatorkinerjautama',
     ]);
 }
+
 
     public function store(Request $request)
     {
         $request->validate([
             'ik_nama' => 'required|string|max:255',
-            'std_id' => 'required|string', // Add validation for std_id
-            'th_id' => 'required', // Tambahkan validasi untuk tahun
+            'std_id' => 'required|string',
+            'th_id' => 'required',
         ]);
 
         $customPrefix = 'IK';
@@ -81,7 +84,7 @@ class IndikatorKinerjaUtamaController extends Controller
         $indikatorkinerjautama->ik_id = $ik_id;
         $indikatorkinerjautama->ik_nama = $request->ik_nama;
         $indikatorkinerjautama->std_id = $request->std_id;
-        $indikatorkinerjautama->th_id = $request->th_id; // Simpan tahun yang dipilih
+        $indikatorkinerjautama->th_id = $request->th_id;
 
         $indikatorkinerjautama->save();
 
@@ -110,12 +113,12 @@ class IndikatorKinerjaUtamaController extends Controller
         $request->validate([
             'ik_nama' => 'required',
             'std_id' => 'required',
-            'th_id' => 'required', // Tambahkan validasi tahun
+            'th_id' => 'required',
         ]);
 
         $indikatorkinerjautama->ik_nama = $request->ik_nama;
         $indikatorkinerjautama->std_id = $request->std_id;
-        $indikatorkinerjautama->th_id = $request->th_id; // Simpan tahun yang dipilih
+        $indikatorkinerjautama->th_id = $request->th_id;
 
         $indikatorkinerjautama->save();
 

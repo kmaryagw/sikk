@@ -18,7 +18,6 @@
                 <div class="card-header">
                     <form class="row g-2 align-items-center">
                         <div class="col-auto">
-                            <!-- Dropdown untuk memilih tahun -->
                             <select class="form-control" name="tahun">
                                 @foreach ($tahun as $thn)
                                     <option value="{{ $thn->th_id }}" 
@@ -28,6 +27,8 @@
                                 @endforeach
                             </select>
                         </div>                        
+                            
+                        </div>
                         <div class="col-auto">
                             <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>
