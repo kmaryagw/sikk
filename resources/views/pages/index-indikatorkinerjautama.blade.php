@@ -27,8 +27,6 @@
                                 @endforeach
                             </select>
                         </div>                        
-                            
-                        </div>
                         <div class="col-auto">
                             <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>
