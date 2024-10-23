@@ -7,6 +7,7 @@ use App\Models\RencanaKerja;
 use App\Models\tahun_kerja;
 use App\Models\UnitKerja;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -35,7 +36,9 @@ class ProgramKerjaController extends Controller
             ->where('tahun_kerja.ren_is_aktif', 'y');
     });
 
-
+    if (Auth::user()->role == 'unit kerja') {
+        $query->where('rencana_kerja.unit_id', Auth::user()->unit_id);
+    }
     
     if ($q) {
         $query->where('rk_nama', 'like', '%' . $q . '%');

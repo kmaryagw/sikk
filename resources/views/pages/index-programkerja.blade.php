@@ -20,19 +20,23 @@
                         <div class="col-auto">
                             <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>
+                        @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi')
                         <div class="col-auto">
                             <select class="form-control" name="unit_id">
                                 <option value="">Semua Unit Kerja</option>
                                 @foreach ($units as $unit)
-                                    @if ($unit->unit_kerja == 'y') <!-- Menampilkan hanya unit kerja yang aktif -->
+                                     <!-- Menampilkan hanya unit kerja yang aktif -->
                                         <option value="{{ $unit->unit_id }}" {{ request('unit_id') == $unit->unit_id ? 'selected' : '' }}>{{ $unit->unit_nama }}</option>
-                                    @endif
+                                    
                                 @endforeach
                             </select>
                         </div>
+                        
+
+                        
                         <div class="col-auto">
                             <select class="form-control" name="tahun">
-                                <option value="">Semua Tahun</option>
+                                
                                 @foreach ($tahuns as $tahun)
                                     @if ($tahun->ren_is_aktif == 'y') <!-- Menampilkan hanya tahun yang aktif -->
                                         <option value="{{ $tahun->th_id }}" {{ request('tahun') == $tahun->th_id ? 'selected' : '' }}>{{ $tahun->th_tahun }}</option>
@@ -40,12 +44,15 @@
                                 @endforeach
                             </select>
                         </div>
+                        @endif
                         <div class="col-auto">
                             <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
                         </div>
+                        @if (Auth::user()->role == 'admin')
                         <div class="col-auto">
                             <a class="btn btn-primary" href="{{ route('programkerja.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
                         </div>
+                        @endif
                     </form>
                 </div>
 
@@ -57,18 +64,22 @@
                                 <th>Nama Program Kerja</th>
                                 <th>Unit Kerja</th>
                                 <th>Tahun</th>
+                                @if (Auth::user()->role == 'admin')
                                 <th>Aksi</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
                             @php $no = $programkerjas->firstItem(); @endphp
                             @foreach ($programkerjas as $programkerja)
-                                @if ($programkerja->unit->unit_kerja == 'y' && $programkerja->tahun_kerja->ren_is_aktif == 'y') <!-- Filter program kerja berdasarkan unit dan tahun yang aktif -->
+                                {{-- @if ($programkerja->unit->unit_nama && $programkerja->tahun_kerja->ren_is_aktif == 'y') <!-- Filter program kerja berdasarkan unit dan tahun yang aktif --> --}}
                                     <tr>
                                         <td>{{ $no++ }}</td>
                                         <td>{{ $programkerja->rk_nama }}</td>
-                                        <td>{{ $programkerja->unit->unit_nama }}</td>
-                                        <td>{{ $programkerja->tahun->th_tahun }}</td>
+                                        <td>{{ $programkerja->unit_nama }}</td>
+                                        <td>{{ $programkerja->th_tahun }}</td>
+
+                                        @if (Auth::user()->role== 'admin')
                                         <td>
                                             <a class="btn btn-warning" href="{{ route('programkerja.edit', $programkerja->rk_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
                                             <form id="delete-form-{{ $programkerja->rk_id }}" method="POST" class="d-inline" action="{{ route('programkerja.destroy', $programkerja->rk_id) }}">
@@ -77,8 +88,9 @@
                                                 <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $programkerja->rk_id }}' )"><i class="fa-solid fa-trash"></i> Hapus</button>
                                             </form>
                                         </td>
+                                        @endif
                                     </tr>
-                                @endif
+                                {{-- @endif --}}
                             @endforeach
                         </tbody>
                     </table>
