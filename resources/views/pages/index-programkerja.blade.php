@@ -16,31 +16,29 @@
 
             <div class="card mb-3">
                 <div class="card-header">
-                    <form class="row g-2 align-items-center">
+                    <form class="row g-2 align-items-center" method="GET" action="{{ route('programkerja.index') }}">
                         <div class="col-auto">
                             <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>
-                        @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi')
+                        @if (Auth::user()->role == 'admin' || Auth::user()->role == 'prodi')
                         <div class="col-auto">
                             <select class="form-control" name="unit_id">
                                 <option value="">Semua Unit Kerja</option>
                                 @foreach ($units as $unit)
-                                     <!-- Menampilkan hanya unit kerja yang aktif -->
-                                        <option value="{{ $unit->unit_id }}" {{ request('unit_id') == $unit->unit_id ? 'selected' : '' }}>{{ $unit->unit_nama }}</option>
-                                    
+                                    <option value="{{ $unit->unit_id }}" {{ request('unit_id') == $unit->unit_id ? 'selected' : '' }}>
+                                        {{ $unit->unit_nama }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
-                        
 
-                        
                         <div class="col-auto">
                             <select class="form-control" name="tahun">
-                                
+                                <option value="">Pilih Tahun</option>
                                 @foreach ($tahuns as $tahun)
-                                    @if ($tahun->ren_is_aktif == 'y') <!-- Menampilkan hanya tahun yang aktif -->
-                                        <option value="{{ $tahun->th_id }}" {{ request('tahun') == $tahun->th_id ? 'selected' : '' }}>{{ $tahun->th_tahun }}</option>
-                                    @endif
+                                    <option value="{{ $tahun->th_id }}" {{ request('tahun') == $tahun->th_id ? 'selected' : '' }}>
+                                        {{ $tahun->th_tahun }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -64,36 +62,47 @@
                                 <th>Nama Program Kerja</th>
                                 <th>Unit Kerja</th>
                                 <th>Tahun</th>
+                                <th>Periode</th> <!-- Kolom baru untuk periode -->
                                 @if (Auth::user()->role == 'admin')
-                                <th>Aksi</th>
+                                    <th>Aksi</th>
                                 @endif
                             </tr>
                         </thead>
                         <tbody>
                             @php $no = $programkerjas->firstItem(); @endphp
                             @foreach ($programkerjas as $programkerja)
-                                {{-- @if ($programkerja->unit->unit_nama && $programkerja->tahun_kerja->ren_is_aktif == 'y') <!-- Filter program kerja berdasarkan unit dan tahun yang aktif --> --}}
-                                    <tr>
-                                        <td>{{ $no++ }}</td>
-                                        <td>{{ $programkerja->rk_nama }}</td>
-                                        <td>{{ $programkerja->unit_nama }}</td>
-                                        <td>{{ $programkerja->th_tahun }}</td>
-
-                                        @if (Auth::user()->role== 'admin')
-                                        <td>
-                                            <a class="btn btn-warning" href="{{ route('programkerja.edit', $programkerja->rk_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
-                                            <form id="delete-form-{{ $programkerja->rk_id }}" method="POST" class="d-inline" action="{{ route('programkerja.destroy', $programkerja->rk_id) }}">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $programkerja->rk_id }}' )"><i class="fa-solid fa-trash"></i> Hapus</button>
-                                            </form>
-                                        </td>
+                                <tr>
+                                    <td>{{ $no++ }}</td>
+                                    <td>{{ $programkerja->rk_nama }}</td>
+                                    <td>{{ $programkerja->unit_nama }}</td>
+                                    <td>{{ $programkerja->th_tahun }}</td>
+                                    
+                                    <!-- Menampilkan daftar periode terkait -->
+                                    <td>
+                                        @if($programkerja->periodes->isNotEmpty())
+                                            @foreach ($programkerja->periodes as $periode)
+                                                <span class="badge badge-info">{{ $periode->pm_nama }}</span>
+                                            @endforeach
+                                        @else
+                                            <span class="text-muted">Tidak ada periode</span>
                                         @endif
-                                    </tr>
-                                {{-- @endif --}}
+                                    </td>
+                                    
+                                    @if (Auth::user()->role == 'admin')
+                                    <td>
+                                        <a class="btn btn-warning" href="{{ route('programkerja.edit', $programkerja->rk_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
+                                        <form id="delete-form-{{ $programkerja->rk_id }}" method="POST" class="d-inline" action="{{ route('programkerja.destroy', $programkerja->rk_id) }}">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $programkerja->rk_id }}' )"><i class="fa-solid fa-trash"></i> Hapus</button>
+                                        </form>
+                                    </td>
+                                    @endif
+                                </tr>
                             @endforeach
                         </tbody>
                     </table>
+                    
                 </div>
 
                 @if ($programkerjas->hasPages())

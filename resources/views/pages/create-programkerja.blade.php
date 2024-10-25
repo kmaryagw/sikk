@@ -94,6 +94,17 @@
                                             </div>
                                         </div>
 
+
+                                        <div class="form-group">
+                                            <label>Pilih Periode Monev</label>
+                                            <div class="form-check">
+                                                @foreach ($periodes as $periode)
+                                                    <input type="checkbox" class="form-check-input" name="pm_id[]" value="{{ $periode->pm_id }}">
+                                                    <label class="form-check-label">{{ $periode->pm_nama }}</label><br>
+                                                @endforeach
+                                            </div>
+                                        </div>
+
                                         <div class="form-group">
                                             <button type="submit" class="btn btn-primary">Simpan</button>
                                             <a href="{{ route('programkerja.index') }}" class="btn btn-danger">Kembali</a>

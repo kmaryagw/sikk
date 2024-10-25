@@ -16,8 +16,10 @@ return new class extends Migration
             $table->string('rk_nama', 150);
             $table->string('th_id', 50);  
             $table->string('unit_id', 50);
+            
             $table->foreign('th_id')->references('th_id')->on('tahun_kerja')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('unit_id')->references('unit_id')->on('unit_kerja')->onDelete('cascade')->onUpdate('cascade');
+            
             $table->timestamps();
         });
     }
@@ -31,6 +33,7 @@ return new class extends Migration
             
             $table->dropForeign(['th_id']);
             $table->dropForeign(['unit_id']);
+            
             
         });
 

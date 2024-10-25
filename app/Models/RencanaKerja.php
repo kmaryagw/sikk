@@ -16,6 +16,7 @@ class RencanaKerja extends Model
         'rk_nama',
         'th_id',
         'unit_id',
+        'pm_id',
     ];
 
     public function tahun_kerja()
@@ -26,6 +27,11 @@ class RencanaKerja extends Model
     public function UnitKerja()
     {
         return $this->belongsTo(UnitKerja::class, 'unit_id', 'unit_id');
+    }
+
+    public function periodes()
+    {
+        return $this->belongsToMany(periode_monev::class, 'rencana_kerja_pelaksanaan', 'rk_id', 'pm_id');
     }
 
     public $timestamps = true;

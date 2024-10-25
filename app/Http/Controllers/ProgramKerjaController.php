@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\periode_monev;
 use App\Models\ProgramKerja;
 use App\Models\RencanaKerja;
+use App\Models\RencanaKerjaPelaksanaan;
 use App\Models\tahun_kerja;
 use App\Models\UnitKerja;
 use Illuminate\Http\Request;
@@ -82,10 +84,13 @@ public function create()
     
     $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
 
+    $periodes = periode_monev::all();
+
     return view('pages.create-programkerja', [
         'title' => $title,
         'units' => $units,
         'tahuns' => $tahuns,
+        'periodes' => $periodes,
         'type_menu' => 'programkerja',
     ]);
 }
@@ -97,9 +102,10 @@ public function store(Request $request)
         'rk_nama' => 'required|string|max:255',
         'unit_id' => 'required|exists:unit_kerja,unit_id',
         'th_id' => 'required|exists:tahun_kerja,th_id',
+        'pm_id' => 'array', // Validasi untuk checkbox periode
     ]);
 
-    
+    // Cek keaktifan unit dan tahun
     $unitAktif = UnitKerja::where('unit_id', $request->unit_id)->where('unit_kerja', 'y')->exists();
     $tahunAktif = tahun_kerja::where('th_id', $request->th_id)->where('ren_is_aktif', 'y')->exists();
 
@@ -108,43 +114,65 @@ public function store(Request $request)
         return redirect()->back()->withInput();
     }
 
+    // Buat ID unik untuk `rk_id`
     $customPrefix = 'PR';
     $timestamp = time();
     $md5Hash = md5($timestamp);
     $rk_id = $customPrefix . strtoupper($md5Hash);
 
+    // Simpan data ke `rencana_kerja`
     $programkerja = new RencanaKerja();
     $programkerja->rk_id = $rk_id;
+    
     $programkerja->rk_nama = $request->rk_nama;
     $programkerja->unit_id = $request->unit_id;
     $programkerja->th_id = $request->th_id;
-
     $programkerja->save();
 
-    Alert::success('Sukses', 'Data Berhasil Ditambah');
+    // Menyimpan `pm_id` di tabel pivot `rencana_kerja_pelaksanaan`
+    if ($request->has('pm_id')) {
+        $programkerja->periodes()->sync($request->pm_id); // Simpan data ke tabel pivot
+    }
 
+    Alert::success('Sukses', 'Data Berhasil Ditambah');
     return redirect()->route('programkerja.index');
 }
+
+
+
 
 
 public function edit(RencanaKerja $programkerja)
 {
     $title = 'Ubah Program Kerja';
-    
-    
+
+    // Mendapatkan unit kerja yang aktif
     $units = UnitKerja::where('unit_kerja', 'y')->get();
-    
-    
+
+    // Mendapatkan tahun kerja yang aktif
     $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
+
+    // Mendapatkan semua periode
+    $periode = periode_monev::all();
+
+    
+
+    // Mendapatkan ID periode yang terkait dengan program kerja ini
+    $selectedPeriodes = $programkerja->periodes->pluck('pm_id')->toArray();
+    // dd($periode);
 
     return view('pages.edit-programkerja', [
         'title' => $title,
         'programkerja' => $programkerja,
         'units' => $units,
         'tahuns' => $tahuns,
+        
+        'periode' => $periode,
+        'selectedPeriodes' => $selectedPeriodes, // Untuk mencentang periode yang sudah dipilih
         'type_menu' => 'programkerja',
     ]);
 }
+
 
 
 public function update(RencanaKerja $programkerja, Request $request)
@@ -153,9 +181,9 @@ public function update(RencanaKerja $programkerja, Request $request)
         'rk_nama' => 'required|string|max:255',
         'unit_id' => 'required|exists:unit_kerja,unit_id',
         'th_id' => 'required|exists:tahun_kerja,th_id',
+        'pm_id' => 'array', // Validasi tambahan untuk checkbox periode
     ]);
 
-    
     $unitAktif = UnitKerja::where('unit_id', $request->unit_id)->where('unit_kerja', 'y')->exists();
     $tahunAktif = tahun_kerja::where('th_id', $request->th_id)->where('ren_is_aktif', 'y')->exists();
 
@@ -167,13 +195,18 @@ public function update(RencanaKerja $programkerja, Request $request)
     $programkerja->rk_nama = $request->rk_nama;
     $programkerja->unit_id = $request->unit_id;
     $programkerja->th_id = $request->th_id;
-
     $programkerja->save();
+
+    // Menyimpan periode_ids yang dipilih ke tabel pivot
+    if ($request->has('pm_id')) {
+        $programkerja->periodes()->sync($request->pm_id); // Pastikan metode `periodes()` benar di model
+    }
 
     Alert::success('Sukses', 'Data Berhasil Diubah');
 
     return redirect()->route('programkerja.index');
 }
+
 
 
     public function destroy(RencanaKerja $programkerja)
