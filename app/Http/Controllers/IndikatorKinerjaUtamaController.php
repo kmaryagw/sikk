@@ -22,6 +22,7 @@ class IndikatorKinerjaUtamaController extends Controller
     $tahun = tahun_kerja::where('ren_is_aktif', 'y')->get();
 
     $query = IndikatorKinerjaUtama::where('ik_nama', 'like', '%'. $q. '%')
+        ->orderBy('ik_nama', 'asc')
         ->leftJoin('standar', 'standar.std_id', '=', 'indikator_kinerja.std_id')
         ->leftJoin('tahun_kerja', function($join) {
             $join->on('tahun_kerja.th_id', '=', 'indikator_kinerja.th_id')

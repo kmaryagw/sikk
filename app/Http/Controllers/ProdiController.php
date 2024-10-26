@@ -15,6 +15,7 @@ class ProdiController extends Controller
         $title = 'Data Prodi';
         $q = $request->query('q');
         $prodis = program_studi::where('nama_prodi', 'like', '%' . $q . '%')
+        ->orderBy('nama_prodi', 'asc')
         ->paginate(10)
         ->withQueryString();
         $no = $prodis->firstItem();

@@ -14,9 +14,9 @@ class UnitKerjaController extends Controller
         $title = 'Data Unit';
         $q = $request->query('q');
         $units = UnitKerja::where('unit_nama', 'like', '%'. $q. '%')
-        
-        ->paginate(10)
-        ->withQueryString();
+            ->orderBy('unit_nama', 'asc')
+            ->paginate(10)
+            ->withQueryString();
         $no = $units->firstItem();
         
 

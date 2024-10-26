@@ -15,9 +15,10 @@ class TahunController extends Controller
         $title = 'Data Tahun Kerja';
         $q = $request->query('q');
         $tahuns = tahun_kerja::where('th_tahun', 'like', '%' . $q . '%')
-        ->leftjoin('renstra', 'renstra.ren_id', '=', 'tahun_kerja.ren_id')
-        ->paginate(10)
-        ->withQueryString();
+            ->orderBy('th_tahun', 'asc')
+            ->leftjoin('renstra', 'renstra.ren_id', '=', 'tahun_kerja.ren_id')
+            ->paginate(10)
+            ->withQueryString();
         $no = $tahuns->firstItem();
         
         return view('pages.index-tahun', [

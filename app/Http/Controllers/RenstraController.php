@@ -12,8 +12,9 @@ class RenstraController extends Controller
         $title = 'Data Rencana Strategis';
         $q = $request->query('q');
         $renstras = Renstra::where('ren_nama', 'like', '%' . $q . '%')
-        ->paginate(10)
-        ->withQueryString();
+            ->orderBy('ren_nama', 'asc')
+            ->paginate(10)
+            ->withQueryString();
         $no = $renstras->firstItem();
         
         return view('pages.index-renstra', [
@@ -40,7 +41,6 @@ class RenstraController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi input
         $request->validate([
             'ren_nama' => 'required|string|max:100',
             'ren_pimpinan' => 'required|string|max:100',
@@ -49,10 +49,8 @@ class RenstraController extends Controller
             'ren_is_aktif' => 'required|in:y,n',
         ]);
 
-        // Membuat ID unik untuk renstra
         $ren_id = 'REN' . strtoupper(md5(time()));
 
-        // Simpan data ke dalam database
         $renstra = new Renstra($request->all());
         $renstra->ren_id = $ren_id;
         $renstra->save();
@@ -64,19 +62,18 @@ class RenstraController extends Controller
     public function edit(Renstra $renstra)
 {
     $title = 'Ubah Rencana Strategis';
-    $ren_is_aktifs = ['y', 'n']; // Menyediakan pilihan untuk aktif/tidak aktif
+    $ren_is_aktifs = ['y', 'n'];
     
     return view('pages.edit-renstra', [
         'title' => $title,
         'ren_is_aktifs' => $ren_is_aktifs,
-        'renstra' => $renstra, // Pastikan objek renstra diteruskan
+        'renstra' => $renstra,
         'type_menu' => 'masterdata',
     ]);
 }
 
     public function update(Renstra $renstra, Request $request)
 {
-    // Validasi input
     $request->validate([
         'ren_nama' => 'required|string|max:100',
         'ren_pimpinan' => 'required|string|max:100',
@@ -85,14 +82,12 @@ class RenstraController extends Controller
         'ren_is_aktif' => 'required|in:y,n',
     ]);
 
-    // Update nilai-nilai di model
     $renstra->ren_nama = $request->ren_nama;
     $renstra->ren_pimpinan = $request->ren_pimpinan;
     $renstra->ren_periode_awal = $request->ren_periode_awal;
     $renstra->ren_periode_akhir = $request->ren_periode_akhir;
     $renstra->ren_is_aktif = $request->ren_is_aktif;
 
-    // Simpan perubahan
     $renstra->save();
 
     Alert::success('Sukses', 'Data Renstra berhasil diubah.');

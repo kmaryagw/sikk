@@ -12,6 +12,7 @@ class PeriodeMonevController extends Controller
         $title = 'Data Rencana Strategis';
         $q = $request->query('q');
         $periodems = periode_monev::where('pm_nama', 'like', '%' . $q . '%')
+        ->orderBy('pm_nama', 'asc')
         ->paginate(10)
         ->withQueryString();
         $no = $periodems->firstItem();

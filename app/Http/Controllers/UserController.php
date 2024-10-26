@@ -75,7 +75,8 @@ class UserController extends Controller
 
         $usersQuery = User::where('username', 'like', '%' . $q . '%')
             ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'users.prodi_id')
-            ->leftJoin('unit_kerja', 'unit_kerja.unit_id', '=', 'users.unit_id');
+            ->leftJoin('unit_kerja', 'unit_kerja.unit_id', '=', 'users.unit_id')
+            ->orderBy('role', 'asc');
 
         if ($user->role === 'admin') {
             $usersQuery->where(function($query) use ($user) {
