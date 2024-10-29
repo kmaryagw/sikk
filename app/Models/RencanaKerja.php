@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class RencanaKerja extends Model
 {
     use HasFactory;
+
     protected $table = 'rencana_kerja';
     protected $primaryKey = 'rk_id';
     public $incrementing = false;
@@ -16,7 +17,7 @@ class RencanaKerja extends Model
         'rk_nama',
         'th_id',
         'unit_id',
-        'pm_id',
+        // 'pm_id' seharusnya dihilangkan dari fillable karena ini untuk relasi many-to-many
     ];
 
     public function tahun_kerja()
@@ -24,7 +25,7 @@ class RencanaKerja extends Model
         return $this->belongsTo(tahun_kerja::class, 'th_id', 'th_id');
     }
 
-    public function UnitKerja()
+    public function unitKerja()
     {
         return $this->belongsTo(UnitKerja::class, 'unit_id', 'unit_id');
     }
@@ -32,6 +33,13 @@ class RencanaKerja extends Model
     public function periodes()
     {
         return $this->belongsToMany(periode_monev::class, 'rencana_kerja_pelaksanaan', 'rk_id', 'pm_id');
+    }
+
+    // Hapus relasi periode_monev jika tidak digunakan dalam konteks ini
+    // Jika Anda hanya ingin mengakses satu periode monev, pastikan itu sesuai dengan logika Anda
+    public function periodeMonev()
+    {
+        return $this->belongsTo(periode_monev::class, 'pm_id', 'pm_id');
     }
 
     public $timestamps = true;

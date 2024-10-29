@@ -17,11 +17,6 @@
                     <div class="col-auto">
                         <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
                     </div>
-                    @if (Auth::user()->role== 'admin')
-                    <div class="col-auto">
-                        <a class="btn btn-primary" href="{{ route('realisasirenja.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
-                    </div>
-                    @endif
                 </form>
             </div>
 
@@ -33,6 +28,7 @@
                             <th>Program Kerja</th>
                             <th>Unit Kerja</th>
                             <th>Tahun</th>
+                            <th>Periode Monev</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -44,6 +40,15 @@
                                 <td>{{ $rencanaKerja->rk_nama }}</td>
                                 <td>{{ $rencanaKerja->UnitKerja->unit_nama ?? '-' }}</td>
                                 <td>{{ $rencanaKerja->tahun_kerja->th_tahun ?? '-' }}</td>
+                                <td>
+                                    @if($rencanaKerja->periodes->isNotEmpty())
+                                        @foreach ($rencanaKerja->periodes as $periode)
+                                            <span class="badge badge-info">{{ $periode->pm_nama }}</span>
+                                        @endforeach
+                                    @else
+                                        <span class="text-muted">Tidak ada periode</span>
+                                    @endif
+                                </td>
                                 <td>
                                     <a class="btn btn-warning" href="{{ route('realisasirenja.showRealisasi', $rencanaKerja->rk_id) }}">
                                         <i class="fa-solid fa-pen-to-square"></i> Realisasi

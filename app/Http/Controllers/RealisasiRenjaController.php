@@ -45,50 +45,66 @@ class RealisasiRenjaController extends Controller
     }
 
 
-    public function create()
-    {
-        $title = 'Tambah Realisasi Renja';
-        $rencanakerjas = RencanaKerja::orderBy('rk_nama')->get();
-        $periodes = periode_monev::all();
+    public function create(Request $request)
+{
+    $title = 'Tambah Realisasi Renja';
 
-        return view('pages.create-realisasirenja', [
-            'title' => $title,
-            'rencanakerjas' => $rencanakerjas,
-            'periodes' => $periodes,
-            'type_menu' => 'realisasirenja',
-        ]);
+    // Mengambil data RencanaKerja berdasarkan rk_id dari request
+    $rencanaKerja = RencanaKerja::with('periodes')->findOrFail($request->rk_id); 
+    $periodes = periode_monev::all();
+
+    // Ambil id periode yang sudah terpilih
+    $selectedPeriodes = $rencanaKerja->periodes->pluck('pm_id')->toArray();
+
+    return view('pages.create-realisasirenja', [
+        'title' => $title,
+        'rencanaKerja' => $rencanaKerja,
+        'rk_nama' => $rencanaKerja->rk_nama,
+        'pm_nama' => $rencanaKerja->pm_nama, // Pastikan ini sesuai dengan relasi
+        'periodes' => $periodes,
+        'selectedPeriodes' => $selectedPeriodes,
+        'type_menu' => 'realisasirenja',
+    ]);
+}
+
+
+
+public function store(Request $request)
+{
+    $request->validate([
+        'rkr_url' => 'nullable|url',
+        'rkr_file' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
+        'rkr_deskripsi' => 'nullable|string',
+        'rkr_capaian' => 'required|integer',
+        'rkr_tanggal' => 'required|date',
+    ]);
+
+    if (empty($request->rkr_url) && empty($request->rkr_deskripsi)) {
+        return back()->withErrors([
+            'rkr_url' => 'URL atau Deskripsi harus diisi.',
+            'rkr_deskripsi' => 'URL atau Deskripsi harus diisi.',
+        ])->withInput();
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'rk_id' => 'required',
-            'pm_id' => 'required',
-            'rkr_url' => 'nullable',
-            'rkr_file' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
-            'rkr_deskripsi' => 'required',
-            'rkr_capaian' => 'required|integer',
-            'rkr_tanggal' => 'required',
-        ]);
+    $customPrefix = 'RKR';
+    $timestamp = time();
+    $md5Hash = md5($timestamp);
+    $rkr_id = $customPrefix . strtoupper($md5Hash);
 
-        $customPrefix = 'RKR';
-        $timestamp = time();
-        $md5Hash = md5($timestamp);
-        $rkr_id = $customPrefix . strtoupper($md5Hash);
+    $realisasi = new RealisasiRenja();
+    $realisasi->rkr_id = $rkr_id;
+    $realisasi->rk_id = $request->rk_id; // Diperoleh dari tampilan yang otomatis terisi
+    $realisasi->pm_id = $request->pm_id;
+    $realisasi->rkr_url = $request->rkr_url;
+    $realisasi->rkr_file = $request->hasFile('rkr_file') ? $request->file('rkr_file')->store('realisasi_files') : null;
+    $realisasi->rkr_deskripsi = $request->rkr_deskripsi;
+    $realisasi->rkr_capaian = $request->rkr_capaian;
+    $realisasi->rkr_tanggal = $request->rkr_tanggal;
+    $realisasi->save();
 
-        $realisasi = new RealisasiRenja();
-        $realisasi->rkr_id = $rkr_id;
-        $realisasi->rk_id = $request->rk_id;
-        $realisasi->pm_id = $request->pm_id;
-        $realisasi->rkr_url = $request->rkr_url;
-        $realisasi->rkr_file = $request->hasFile('rkr_file') ? $request->file('rkr_file')->store('realisasi_files') : null;
-        $realisasi->rkr_deskripsi = $request->rkr_deskripsi;
-        $realisasi->rkr_capaian = $request->rkr_capaian;
-        $realisasi->rkr_tanggal = $request->rkr_tanggal;
-        $realisasi->save();
+    Alert::success('Sukses', 'Data Berhasil Ditambah');
 
-        Alert::success('Sukses', 'Data Berhasil Ditambah');
+    return redirect()->route('realisasirenja.index');
+}
 
-        return redirect()->route('realisasirenja.index');
-    }
 }

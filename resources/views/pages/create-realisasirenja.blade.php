@@ -41,30 +41,35 @@
 
                                     <form method="POST" action="{{ route('realisasirenja.store') }}" enctype="multipart/form-data">
                                         @csrf
+
+                                        <!-- Rencana Kerja (readonly) -->
                                         <div class="form-group">
-                                            <label for="rk_id">Rencana Kerja</label>
-                                            <select class="form-control" name="rk_id" required>
-                                                <option value="" disabled selected>Pilih Rencana Kerja</option>
-                                                @foreach ($rencanakerjas as $rencana)
-                                                    <option value="{{ $rencana->rk_id }}" {{ old('rk_id') == $rencana->rk_id ? 'selected' : '' }}>
-                                                        {{ $rencana->rk_nama }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
+                                            <label for="rk_nama">Rencana Kerja</label>
+                                            <input type="text" class="form-control" id="rk_nama" name="rk_nama" value="{{ $rk_nama }}" readonly>
+                                            <input type="hidden" name="rk_id" value="{{ $rencanaKerja->rk_id }}">
                                         </div>
 
+                                        <!-- Periode Monev (readonly) -->
+                                        {{-- <div class="form-group">
+                                            <label for="pm_nama">Periode Monev</label>
+                                            <input type="text" class="form-control" id="pm_nama" name="pm_nama" value="{{ $pm_nama }}" readonly>
+                                            <input type="hidden" name="pm_id" value="{{ $rencanaKerja->pm_id }}">
+                                        </div> --}}
+
                                         <div class="form-group">
-                                            <label for="pm_id">Periode Monev</label>
-                                            <select class="form-control" name="pm_id" required>
-                                                <option value="" disabled selected>Pilih Periode Monev</option>
-                                                @foreach ($periodes as $periode)
-                                                    <option value="{{ $periode->pm_id }}" {{ old('pm_id') == $periode->pm_id ? 'selected' : '' }}>
+                                            <label>Periode Monev</label>
+                                            @foreach ($periodes as $periode)
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="pm_id[]" value="{{ $periode->pm_id }}" 
+                                                    {{ in_array($periode->pm_id, $selectedPeriodes) ? 'checked' : '' }}>
+                                                    <label class="form-check-label">
                                                         {{ $periode->pm_nama }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        </div>                                        
 
+                                        <!-- URL Realisasi -->
                                         <div class="form-group">
                                             <label for="rkr_url">URL Realisasi</label>
                                             <div class="input-group">
@@ -77,12 +82,13 @@
                                             </div>
                                         </div>
 
-                                        
+                                        <!-- File Realisasi -->
                                         <div class="form-group">
                                             <label for="rkr_file">File Realisasi</label>
                                             <input class="form-control" type="file" name="rkr_file" />
                                         </div>
                                         
+                                        <!-- Deskripsi -->
                                         <div class="form-group">
                                             <label>Deskripsi</label>
                                             <div class="input-group">
@@ -95,16 +101,19 @@
                                             </div>
                                         </div>
 
+                                        <!-- Capaian -->
                                         <div class="form-group">
                                             <label for="rkr_capaian">Capaian (angka)</label>
                                             <input class="form-control" type="number" name="rkr_capaian" value="{{ old('rkr_capaian') }}" required />
                                         </div>
 
+                                        <!-- Tanggal Realisasi -->
                                         <div class="form-group">
                                             <label for="rkr_tanggal">Tanggal Realisasi</label>
                                             <input class="form-control" type="date" name="rkr_tanggal" value="{{ old('rkr_tanggal') }}" required />
                                         </div>
 
+                                        <!-- Submit Button -->
                                         <div class="form-group">
                                             <button type="submit" class="btn btn-primary">Simpan</button>
                                             <a href="{{ route('realisasirenja.index') }}" class="btn btn-danger">Kembali</a>

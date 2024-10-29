@@ -11,15 +11,9 @@
         <div class="card mb-3">
             <div class="card-header">
                 <form class="row g-2 align-items-center" method="GET" action="{{ route('realisasirenja.showRealisasi', $rencanaKerja->rk_id) }}">
+                    @if (Auth::user()->role== 'admin')
                     <div class="col-auto">
-                        <input class="form-control" name="q" value="{{ request()->get('q') }}" placeholder="Pencarian..." />
-                    </div>
-                    <div class="col-auto">
-                        <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
-                    </div>
-                    @if (Auth::user()->role == 'admin')
-                    <div class="col-auto">
-                        <a class="btn btn-primary" href="{{ route('realisasirenja.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
+                        <a class="btn btn-primary" href="{{ route('realisasirenja.create', ['rk_id' => $rencanaKerja->rk_id]) }}"><i class="fa-solid fa-plus"></i> Tambah</a>
                     </div>
                     @endif
                 </form>
