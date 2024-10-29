@@ -15,8 +15,9 @@ return new class extends Migration
             $table->string('rkr_id', 50)->primary();  
             $table->string('rk_id', 50);
             $table->string('pm_id', 50);
-            $table->string('rkr_url', 255);
-            $table->string('rkr_file', 255);
+            $table->string('rkr_url', 255)->nullable();
+            $table->string('rkr_file', 255)->nullable();
+            $table->string('rkr_deskripsi');
             $table->integer('rkr_capaian');
             $table->datetime('rkr_tanggal');
             $table->foreign('pm_id')->references('pm_id')->on('periode_monev')->onDelete('cascade')->onUpdate('cascade');

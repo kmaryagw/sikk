@@ -32,7 +32,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('targetcapaian', TargetCapaianController::class);
     Route::resource('programkerja', ProgramKerjaController::class);
     Route::resource('standar', StandarController::class);
+
     Route::resource('realisasirenja', RealisasiRenjaController::class);
+    Route::get('realisasirenja/{rk_id}/realisasi', [RealisasiRenjaController::class, 'showRealisasi'])->name('realisasirenja.showRealisasi');
+
 
     Route::get('/storage/{filename}', function ($filename) {
         $filePath = storage_path('app/public/dokumen/' . $filename);

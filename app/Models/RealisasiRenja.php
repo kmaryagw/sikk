@@ -27,6 +27,8 @@ class RealisasiRenja extends Model
         'rkr_tanggal'
     ];
 
+    protected $dates = ['rkr_tanggal'];
+
     public $timestamps = true;
 
     public function rencanaKerja()

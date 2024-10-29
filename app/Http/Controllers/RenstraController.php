@@ -55,7 +55,7 @@ class RenstraController extends Controller
         $renstra->ren_id = $ren_id;
         $renstra->save();
 
-        Alert::success('Sukses', 'Renstra berhasil ditambahkan.');
+        Alert::success('Sukses', 'Data berhasil ditambahkan.');
         return redirect()->route('renstra.index');
     }
 
