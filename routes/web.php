@@ -1,8 +1,9 @@
 <?php
 
 use App\Http\Controllers\IndikatorKinerjaUtamaController;
-
+use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\PeriodeMonevController;
+use App\Http\Controllers\PeriodeMonitoringController;
 use App\Http\Controllers\UnitKerjaController;
 use App\Http\Controllers\ProdiController;
 use App\Http\Controllers\ProgramKerjaController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\StandarController;
 use App\Http\Controllers\TahunController;
 use App\Http\Controllers\TargetCapaianController;
 use App\Http\Controllers\UserController;
+use App\Models\Monitoring;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -35,6 +37,8 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('realisasirenja', RealisasiRenjaController::class);
     Route::get('realisasirenja/{rk_id}/realisasi', [RealisasiRenjaController::class, 'showRealisasi'])->name('realisasirenja.showRealisasi');
+    Route::resource('monitoring', MonitoringController::class);
+    Route::resource('periode-monitoring', PeriodeMonitoringController::class);
 
 
     Route::get('/storage/{filename}', function ($filename) {

@@ -42,6 +42,15 @@
             </li>
             @endif
 
+            @if (Auth::user()->role == 'admin')
+            <li class="{{ $type_menu === 'periode-monitoring' ? 'active' : '' }}">
+                <a class="nav-link" href="{{ url('periode-monitoring') }}">
+                    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                    <span>Periode Monitoring</span>
+                </a>
+            </li>
+            @endif
+
             {{-- Standar --}}
             @if (Auth::user()->role == 'admin')
             <li class="{{ $type_menu === 'standar' ? 'active' : '' }}">

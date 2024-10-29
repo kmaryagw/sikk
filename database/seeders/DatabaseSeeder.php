@@ -36,6 +36,7 @@ class DatabaseSeeder extends Seeder
             RencanaKerjaSeeder::class,
             MonitoringSeeder::class,
             RencanaKerjaPelaksanaanSeeder::class,
+            Periode_monevSeeder::class,
         ]);
     }
 
