@@ -36,6 +36,7 @@ class RenstraController extends Controller
             'title' => $title,
             'ren_is_aktifs' => $ren_is_aktifs,
             'type_menu' => 'masterdata',
+            'sub_menu' => 'renstra',
         ]);
     }
 
@@ -69,6 +70,7 @@ class RenstraController extends Controller
         'ren_is_aktifs' => $ren_is_aktifs,
         'renstra' => $renstra,
         'type_menu' => 'masterdata',
+        'sub_menu' => 'renstra',
     ]);
 }
 

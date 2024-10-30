@@ -1,9 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Tambah Realisasi Renja')
+@section('title', 'Edit Realisasi Renja')
 
 @push('style')
-    <!-- CSS Libraries -->
     <link rel="stylesheet" href="{{ asset('library/bootstrap-daterangepicker/daterangepicker.css') }}">
     <link rel="stylesheet" href="{{ asset('library/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css') }}">
     <link rel="stylesheet" href="{{ asset('library/select2/dist/css/select2.min.css') }}">
@@ -16,10 +15,10 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Form Tambah Realisasi Renja</h1>
+                <h1>Form Edit Realisasi Renja</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
-                    <div class="breadcrumb-item">Form Tambah Realisasi Renja</div>
+                    <div class="breadcrumb-item">Form Edit Realisasi Renja</div>
                 </div>
             </div>
 
@@ -39,8 +38,9 @@
                                         </div>
                                     @endif
 
-                                    <form method="POST" action="{{ route('realisasirenja.store') }}" enctype="multipart/form-data">
+                                    <form method="POST" action="{{ route('realisasirenja.update', $realisasi->rkr_id) }}" enctype="multipart/form-data">
                                         @csrf
+                                        @method('PUT') <!-- Menentukan metode PUT untuk update -->
 
                                         <!-- Rencana Kerja (readonly) -->
                                         <div class="form-group">
@@ -58,20 +58,20 @@
                                                         <i class="fa-solid fa-clipboard-list"></i>
                                                     </div>
                                                 </div>
-                                                <textarea class="form-control" name="rkr_deskripsi" required>{{ old('rkr_deskripsi') }}</textarea>
+                                                <textarea class="form-control" name="rkr_deskripsi" required>{{ old('rkr_deskripsi', $realisasi->rkr_deskripsi) }}</textarea>
                                             </div>
                                         </div>
 
                                         <!-- Capaian -->
                                         <div class="form-group">
                                             <label for="rkr_capaian">Capaian (angka)</label>
-                                            <input class="form-control" type="number" name="rkr_capaian" value="{{ old('rkr_capaian') }}" required />
+                                            <input class="form-control" type="number" name="rkr_capaian" value="{{ old('rkr_capaian', $realisasi->rkr_capaian) }}" required />
                                         </div>
 
                                         <!-- Tanggal Realisasi -->
                                         <div class="form-group">
                                             <label for="rkr_tanggal">Tanggal Realisasi</label>
-                                            <input class="form-control" type="date" name="rkr_tanggal" value="{{ old('rkr_tanggal') }}" required />
+                                            <input class="form-control" type="date" name="rkr_tanggal" value="{{ old('rkr_tanggal', $realisasi->rkr_tanggal) }}" required />
                                         </div>
 
                                         <!-- URL Realisasi -->
@@ -83,20 +83,31 @@
                                                         <i class="fa-solid fa-link"></i>
                                                     </div>
                                                 </div>
-                                                <input class="form-control" type="url" name="rkr_url" value="{{ old('rkr_url') }}" />
+                                                <input class="form-control" type="url" name="rkr_url" value="{{ old('rkr_url', $realisasi->rkr_url) }}" />
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Dokumen yang Sudah Diunggah</label>
+                                            <div>
+                                                @if($realisasi->rkr_file)
+                                                    <a class="btn btn-success" href="{{ asset('storage/' . $realisasi->rkr_file) }}" target="_blank">Lihat Dokumen</a><br>
+                                                @else
+                                                    <span class="text-muted">Tidak Ada Dokumen</span>
+                                                @endif
                                             </div>
                                         </div>
 
                                         <!-- File Realisasi -->
                                         <div class="form-group">
-                                            <label for="rkr_file">File Realisasi</label>
+                                            <label for="rkr_file">File Realisasi (Kosongkan jika tidak ingin mengganti)</label>
                                             <input class="form-control" type="file" name="rkr_file" />
                                         </div>
 
                                         <!-- Submit Button -->
                                         <div class="form-group">
                                             <button type="submit" class="btn btn-primary">Simpan</button>
-                                                <a href="{{ route('realisasirenja.showRealisasi', $rencanaKerja->rk_id) }}" class="btn btn-danger">Kembali</a>
+                                            <a href="{{ route('realisasirenja.showRealisasi', $realisasi->rk_id) }}" class="btn btn-danger">Kembali</a>
                                         </div>
                                     </form>
                                 </div>
@@ -110,13 +121,11 @@
 @endsection
 
 @push('scripts')
-    <!-- JS Libraries -->
     <script src="{{ asset('library/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js') }}"></script>
     <script src="{{ asset('library/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ asset('library/selectric/public/jquery.selectric.min.js') }}"></script>
 
     @include('sweetalert::alert')
 
-    <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>
 @endpush

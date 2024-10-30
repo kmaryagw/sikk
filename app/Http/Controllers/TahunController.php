@@ -27,6 +27,7 @@ class TahunController extends Controller
             'q' => $q,
             'no' => $no,
             'type_menu' => 'masterdata',
+            'sub_menu' => 'tahun',
         ]);
     }
 
@@ -43,6 +44,7 @@ class TahunController extends Controller
             'ren_is_aktifs' => $ren_is_aktifs,
             'renstras' => $renstras,
             'type_menu' => 'masterdata',
+            'sub_menu' => 'tahun',
         ]);
     }
 
@@ -85,6 +87,7 @@ class TahunController extends Controller
             'renstras' => $renstras,
             'tahun' => $tahun,
             'type_menu' => 'masterdata',
+            'sub_menu' => 'tahun',
         ]);
     }
 

@@ -94,7 +94,7 @@
                                                 </div>
                                             </div>
                                             <select class="form-control" name="prodi_id">
-                                                <option value="" disabled selected>Pilih Indikator Kinerja</option>
+                                                <option value="" disabled selected>Pilih Prodi</option>
                                                 @foreach ($prodis as $prodi)
                                                     <option value="{{ $prodi->prodi_id }}" {{ old('prodi_id') == $prodi->prodi_id ? 'selected' : '' }}>
                                                         {{ $prodi->nama_prodi }}

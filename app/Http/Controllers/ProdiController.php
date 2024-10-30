@@ -26,6 +26,7 @@ class ProdiController extends Controller
             'q' => $q,
             'no' => $no,
             'type_menu' => 'masterdata',
+            'sub_menu' => 'prodi',
         ]);
 
     }
@@ -37,6 +38,7 @@ class ProdiController extends Controller
         return view('pages.create-prodi', [
             'title' => $title,
             'type_menu' => 'masterdata',
+            'sub_menu' => 'prodi',
         ]);
     }
 
@@ -71,6 +73,7 @@ class ProdiController extends Controller
         'title' => $title,
         'prodi' => $prodi,
         'type_menu' => 'masterdata',
+        'sub_menu' => 'prodi',
     ]);
     }
 

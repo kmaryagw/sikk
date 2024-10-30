@@ -20,22 +20,22 @@
              <li class="nav-item dropdown {{ $type_menu === 'masterdata' ? 'active' : '' }}">
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fa-solid fa-basketball"></i> <span>Master Data</span></a>
                 <ul class="dropdown-menu">
-                    <li class="{{ Request::is('user') ? 'active' : '' }}">
+                    <li class="{{ Request::is('user') || (isset($sub_menu) && $sub_menu === 'user') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('user') }}"><i class="fas fa-user"></i>User</a>
                     </li>
-                    <li class="{{ Request::is('prodi') ? 'active' : '' }}">
+                    <li class="{{ Request::is('prodi') || (isset($sub_menu) && $sub_menu === 'prodi') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('prodi') }}"><i class="fas fa-building-columns"></i>Program Studi</a>
                     </li>
-                    <li class="{{ Request::is('unit') ? 'active' : '' }}">
+                    <li class="{{ Request::is('unit') || (isset($sub_menu) && $sub_menu === 'unit') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('unit') }}"><i class="fas fa-briefcase"></i>Unit Kerja</a>
                     </li>
-                    <li class="{{ Request::is('renstra') ? 'active' : '' }}">
+                    <li class="{{ Request::is('renstra') || (isset($sub_menu) && $sub_menu === 'renstra') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('renstra') }}"><i class="fas fa-file-alt"></i>Rencana Strategis</a>
                     </li>
-                    <li class="{{ Request::is('tahun') ? 'active' : '' }}">
+                    <li class="{{ Request::is('tahun') || (isset($sub_menu) && $sub_menu === 'tahun') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('tahun') }}"><i class="fas fa-calendar-alt"></i>Tahun</a>
                     </li>
-                    <li class="{{ Request::is('periodemonev') ? 'active' : '' }}">
+                    <li class="{{ Request::is('periodemonev') || (isset($sub_menu) && $sub_menu === 'periodemonev') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('periodemonev') }}"><i class="fas fa-clock"></i>Periode Monev</a>
                     </li>
                 </ul>

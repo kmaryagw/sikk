@@ -26,6 +26,7 @@ class UnitKerjaController extends Controller
             'q' => $q,
             'no' => $no,
             'type_menu' => 'masterdata',
+            'sub_menu' => 'unit',
         ]);
     }
     
@@ -38,6 +39,7 @@ class UnitKerjaController extends Controller
             'title' => $title,
             'unit_kerjas' => $unit_kerjas,  // Kirim array role ke view
             'type_menu' => 'masterdata',
+            'sub_menu' => 'unit',
         ]);
     }
 
@@ -74,6 +76,7 @@ class UnitKerjaController extends Controller
             'unit_kerjas' => $unit_kerjas,
             'unit' => $unit,
             'type_menu' => 'masterdata',
+            'sub_menu' => 'unit',
         ]);
     }
 

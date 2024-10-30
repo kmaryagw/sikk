@@ -48,7 +48,7 @@ class PeriodeMonitoringController extends Controller
         'th_tahun' => $th_tahun,
         'periodes' => $periodes,
         'tahunKerja' => tahun_kerja::where('ren_is_aktif', 'y')->get(), 
-        'type_menu' => 'periodemonitoring',
+        'type_menu' => 'periode-monitoring',
         'tahunId' => $tahunId, 
         'q' => $q, 
     ]);
@@ -67,7 +67,7 @@ class PeriodeMonitoringController extends Controller
             'tahuns' => $tahuns, 
             'periodes' => $periodes,
             'th_tahun' => $th_tahun,
-            'type_menu' => 'periodemonitoring', 
+            'type_menu' => 'periode-monitoring', 
         ]);
     }
 
@@ -104,7 +104,7 @@ class PeriodeMonitoringController extends Controller
             'periodeMonitoring' => $periodeMonitoring,
             'tahuns' => $tahuns, 
             'periodes' => $periodes,
-            'type_menu' => 'periodemonitoring', 
+            'type_menu' => 'periode-monitoring', 
         ]);
     }
 

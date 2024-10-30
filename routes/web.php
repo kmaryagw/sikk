@@ -49,6 +49,13 @@ Route::middleware('auth')->group(function () {
         return response()->file($filePath);
     })->where('filename', '.*');
     
+    Route::get('/realisasi_files/{filename}', function ($filename) {
+        $filePath = storage_path('app/public/realisasi_files/' . $filename);
+        if (!file_exists($filePath)) {
+            return abort(404, 'File tidak ditemukan.');
+        }
+        return response()->file($filePath);
+    })->where('filename', '.*');    
 
     Route::get('/dashboard', function () {
         return view('pages.dashboard', ['type_menu' => 'dashboard']);

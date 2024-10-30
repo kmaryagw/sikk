@@ -23,6 +23,7 @@ class PeriodeMonevController extends Controller
             'q' => $q,
             'no' => $no,
             'type_menu' => 'masterdata',
+            'sub_menu' => 'periodemonev',
         ]);
     }
 
@@ -35,6 +36,7 @@ class PeriodeMonevController extends Controller
             'title' => $title,
             
             'type_menu' => 'masterdata',
+            'sub_menu' => 'periodemonev',
         ]);
     }
 
@@ -71,6 +73,7 @@ public function edit(periode_monev $periodemonev)
         'title' => $title,
         'periodemonev' => $periodemonev,
         'type_menu' => 'masterdata',
+        'sub_menu' => 'periodemonev',
     ]);
 }
 

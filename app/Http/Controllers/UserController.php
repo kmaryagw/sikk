@@ -94,6 +94,7 @@ class UserController extends Controller
             'q' => $q,
             'no' => $no,
             'type_menu' => 'masterdata',
+            'sub_menu' => 'user',
         ]);
     }
 
@@ -111,6 +112,7 @@ class UserController extends Controller
             'prodis' => $prodis,
             'units' => $units,
             'type_menu' => 'masterdata',
+            'sub_menu' => 'user',
         ]);
     }
 
@@ -171,6 +173,7 @@ class UserController extends Controller
             'roles' => $roles,
             'user' => $user,
             'type_menu' => 'masterdata',
+            'sub_menu' => 'user',
         ]);
     }
 

@@ -5,70 +5,118 @@
 <div class="main-content">
     <section class="section">
         <div class="section-header">
-            <h1>Detail Realisasi untuk {{ $rencanaKerja->rk_nama }}</h1>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h1 class="mb-0">Detail Rencana Kerja</h1>
+                    <a class="btn btn-danger" href="{{ route('realisasirenja.index') }}">
+                        <i class="fa-solid fa-arrow-left"></i> Kembali
+                    </a>
+                </div>
+                <div class="table-responsive text-center">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Nama Rencana Kerja</th>
+                                <th>Unit Kerja</th>
+                                <th>Tahun</th>
+                                <th>Periode Monev</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ $rencanaKerja->rk_nama }}</td>
+                                <td>{{ $rencanaKerja->UnitKerja->unit_nama ?? '-' }}</td>
+                                <td>{{ $rencanaKerja->tahun_kerja->th_tahun ?? '-' }}</td>
+                                <td>
+                                    @if($rencanaKerja->periodes->isNotEmpty())
+                                        @foreach ($rencanaKerja->periodes as $periode)
+                                            <span class="badge badge-info">{{ $periode->pm_nama }}</span>
+                                        @endforeach
+                                    @else
+                                        <span class="text-muted">Tidak ada periode</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <div class="card mb-3">
-            <div class="card-header">
-                <form class="row g-2 align-items-center" method="GET" action="{{ route('realisasirenja.showRealisasi', $rencanaKerja->rk_id) }}">
-                    @if (Auth::user()->role== 'admin')
-                    <div class="col-auto">
-                        <a class="btn btn-primary" href="{{ route('realisasirenja.create', ['rk_id' => $rencanaKerja->rk_id]) }}"><i class="fa-solid fa-plus"></i> Tambah</a>
-                    </div>
-                    @endif
-                </form>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Data Realisasi</h4>
+                @if (Auth::user()->role == 'admin')
+                    <a class="btn btn-primary" href="{{ route('realisasirenja.create', ['rk_id' => $rencanaKerja->rk_id]) }}">
+                        <i class="fa-solid fa-plus"></i> Tambah Realisasi
+                    </a>
+                @endif
             </div>
 
-            {{-- <div class="card-body"> --}}
-                @if($realisasi->isEmpty())
+            @if($realisasi->isEmpty())
+                <div class="card-body text-center">
                     <p>Tidak ada data realisasi untuk rencana kerja ini.</p>
-                @else
-                    <div class="table-responsive text-center">
-                        <table class="table table-hover table-bordered table-striped m-0">
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Deskripsi</th>
-                                    <th>Capaian</th>
-                                    <th>Tanggal</th>
-                                    <th>File</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @php $no = 1; @endphp
-                                @foreach ($realisasi as $item)
-                                    <tr>
-                                        <td>{{ $no++ }}</td>
-                                        <td>{{ $item->rkr_deskripsi }}</td>
-                                        <td>{{ $item->rkr_capaian }}</td>
-                                        <td>
-                                            @if($item->rkr_tanggal instanceof \Carbon\Carbon)
-                                                {{ $item->rkr_tanggal->format('d-m-Y') }}
-                                            @else
-                                                {{ $item->rkr_tanggal }}
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($item->rkr_file)
-                                                <a href="{{ Storage::url($item->rkr_file) }}" target="_blank">Lihat File</a>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @endif
-            {{-- </div> --}}
-
-            {{-- @if ($realisasi->hasPages())
-                <div class="card-footer">
-                    {{ $realisasi->links('pagination::bootstrap-5') }}
                 </div>
-            @endif --}}
+            @else
+                <div class="table-responsive text-center">
+                    <table class="table table-hover table-bordered table-striped m-0">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Deskripsi</th>
+                                <th>Capaian</th>
+                                <th>Tanggal</th>
+                                <th>Url</th>
+                                <th>File</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php $no = 1; @endphp
+                            @foreach ($realisasi as $item)
+                                <tr>
+                                    <td>{{ $no++ }}</td>
+                                    <td>{{ $item->rkr_deskripsi }}</td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar" role="progressbar" style="width: {{ $item->rkr_capaian }}%;" aria-valuenow="{{ $item->rkr_capaian }}" aria-valuemin="0" aria-valuemax="100">{{ $item->rkr_capaian }}%</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if($item->rkr_tanggal instanceof \Carbon\Carbon)
+                                            {{ $item->rkr_tanggal->format('d-m-Y') }}
+                                        @else
+                                            {{ $item->rkr_tanggal }}
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($item->rkr_url)
+                                            <a href="{{ $item->rkr_url }}" target="_blank">{{ $item->rkr_url }}</a>
+                                        @else
+                                            Tidak Ada URL
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($item->rkr_file)
+                                            <a class="btn btn-success" href="{{ asset('storage/' . $item->rkr_file) }}" target="_blank">Lihat Dokumen</a><br>
+                                        @else
+                                            Tidak Ada Dokumen
+                                        @endif
+                                    </td>                                    
+                                    <td>
+                                        <a href="{{ route('realisasirenja.edit', $item->rkr_id) }}" class="btn btn-warning">Edit</a>
+                                        <form action="{{ route('realisasirenja.destroy', $item->rkr_id) }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus?')">Hapus</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
         </div>
     </section>
 </div>
