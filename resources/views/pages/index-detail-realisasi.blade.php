@@ -104,12 +104,13 @@
                                         @endif
                                     </td>                                    
                                     <td>
-                                        <a href="{{ route('realisasirenja.edit', $item->rkr_id) }}" class="btn btn-warning">Edit</a>
-                                        <form action="{{ route('realisasirenja.destroy', $item->rkr_id) }}" method="POST" style="display:inline;">
+                                        <a href="{{ route('realisasirenja.edit', $item->rkr_id) }}" class="btn btn-warning">Edit</a>     
+                                        <form id="delete-form-{{ $item->rkr_id }}" method="POST" class="d-inline" action="{{ route('realisasirenja.destroy', $item->rkr_id) }}">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus?')">Hapus</button>
+                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $item->rkr_id }}')"><i class="fa-solid fa-trash"></i> Hapus</button>
                                         </form>
+                                                                                                                                                        
                                     </td>
                                 </tr>
                             @endforeach
@@ -121,3 +122,25 @@
     </section>
 </div>
 @endsection
+
+@push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmDelete(event, formid) {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Data yang dihapus tidak bisa dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, hapus data!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form-' + formid).submit();
+                }
+            });
+        }
+    </script>
+@endpush

@@ -42,5 +42,10 @@ class RencanaKerja extends Model
         return $this->belongsTo(periode_monev::class, 'pm_id', 'pm_id');
     }
 
+    public function realisasi()
+    {
+        return $this->hasMany(RealisasiRenja::class, 'rk_id'); // Pastikan foreign key yang benar
+    }
+
     public $timestamps = true;
 }

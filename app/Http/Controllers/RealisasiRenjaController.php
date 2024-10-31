@@ -188,4 +188,21 @@ public function update(Request $request, $id)
     return redirect()->route('realisasirenja.showRealisasi', $realisasi->rk_id);
 }
 
+public function destroy($rkr_id)
+{
+    $realisasi = RealisasiRenja::find($rkr_id);
+
+    if (!$realisasi) {
+        return redirect()->back()->withErrors('Data tidak ditemukan.');
+    }
+
+    if ($realisasi->rkr_file && Storage::exists('public/' . $realisasi->rkr_file)) {
+        Storage::delete('public/' . $realisasi->rkr_file);
+    }
+
+    $realisasi->delete();
+    Alert::success('Sukses', 'Data Berhasil Dihapus');
+    return redirect()->route('realisasirenja.showRealisasi', $realisasi->rk_id);
+}
+
 }
