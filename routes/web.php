@@ -37,6 +37,9 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('realisasirenja', RealisasiRenjaController::class);
     Route::get('realisasirenja/{rk_id}/realisasi', [RealisasiRenjaController::class, 'showRealisasi'])->name('realisasirenja.showRealisasi');
+    Route::get('monitoring/{pmo_id}/fill', [MonitoringController::class, 'fill'])->name('monitoring.fill');
+
+
     Route::resource('monitoring', MonitoringController::class);
     Route::resource('periode-monitoring', PeriodeMonitoringController::class);
 

@@ -16,9 +16,7 @@ class Monitoring extends Model
 
     protected $fillable = [
         'mtg_id',
-        'pm_id',
-        'th_id',
-        'unit_id',
+        'pmo_id',
         'mtg_capaian',
         'mtg_kondisi',
         'mtg_kendala',
@@ -31,32 +29,26 @@ class Monitoring extends Model
     /**
      * Relasi ke model `TahunKerja`
      */
-    public function tahunKerja()
+    public function PeriodeMonitoring()
     {
-        return $this->belongsTo(tahun_kerja::class, 'th_id', 'th_id');
+        return $this->belongsTo(PeriodeMonitoring::class, 'pmo_id', 'pmo_id');
     }
 
     /**
      * Relasi ke model `PeriodeMonev`
      */
-    public function periodeMonev()
-    {
-        return $this->belongsTo(periode_monev::class, 'pm_id', 'pm_id');
-    }
-
-    /**
-     * Relasi ke model `RencanaKerja`
-     */
-    public function rencanaKerja()
+    public function rencanakerja()
     {
         return $this->belongsTo(RencanaKerja::class, 'rk_id', 'rk_id');
     }
 
     /**
+     * Relasi ke model `RencanaKerja`
+     */
+    
+
+    /**
      * Relasi ke model `UnitKerja`
      */
-    public function unitKerja()
-    {
-        return $this->belongsTo(UnitKerja::class, 'unit_id', 'unit_id');
-    }
+    
 }

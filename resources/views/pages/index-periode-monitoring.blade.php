@@ -48,9 +48,13 @@
                                 <td>{{ $no++ }}</td>
                                 <td>{{ $periode->tahunKerja->th_tahun ?? '-' }}</td>
                                 <td>{{ $periode->periodeMonev->pm_nama ?? '-' }}</td>
-                                <td>{{ $periode->pmo_tanggal_mulai }}</td>
-                                <td>{{ $periode->pmo_tanggal_selesai }}</td>
+                                <td>{{ \Carbon\Carbon::parse($periode->pmo_tanggal_mulai)->format('d-m-Y ( H:i )') }}</td>
+<td>{{ \Carbon\Carbon::parse($periode->pmo_tanggal_selesai)->format('d-m-Y ( H:i )') }}</td>
+
                                 <td>
+                                    <a class="btn btn-warning" href="{{ route('periode-monitoring.edit', $periode->pmo_id) }}">
+                                        <i class="fa-solid fa-pen-to-square"></i> Edit
+                                    </a>
                                     <a class="btn btn-warning" href="{{ route('periode-monitoring.edit', $periode->pmo_id) }}">
                                         <i class="fa-solid fa-pen-to-square"></i> Ubah
                                     </a>

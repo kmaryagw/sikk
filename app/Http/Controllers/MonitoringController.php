@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Monitoring;
 use App\Models\periode_monev;
+use App\Models\PeriodeMonitoring;
 use App\Models\RencanaKerja;
 use App\Models\tahun_kerja;
 use Illuminate\Http\Request;
@@ -13,116 +14,81 @@ use RealRashid\SweetAlert\Facades\Alert;
 class MonitoringController extends Controller
 {
     public function index(Request $request)
-    {
-        $title = 'Data Monitoring';
-        $tahunId = $request->query('th_id');
-        $periodeId = $request->query('pm_id');
-        $unitId = Auth::user()->unit_id;
+{
+    $title = 'Data Monitoring';
+    $q = $request->query('q');
 
-        // Mendapatkan data tahun dan periode untuk dropdown filter
-        $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
-        $periodes = periode_monev::all();
+    $monitorings = RencanaKerja::with('tahunKerja', 'unitKerja')
+        ->where('rk_nama', 'like', '%' . $q . '%')
+        ->orderBy('rk_nama', 'asc')
+        ->paginate(10);
 
-        // Query data monitoring sesuai filter
-        $monitoring = Monitoring::where('th_id', $tahunId)
-            ->where('pm_id', $periodeId)
-            ->whereHas('rencanaKerja', function($query) use ($unitId) {
-                $query->where('unit_id', $unitId);
-            })
-            ->paginate(10);
+        
+    $no = $monitorings->firstItem();
+    $periode_monitoring = PeriodeMonitoring::paginate(10);
 
-        return view('pages.index-monitoring', compact('title', 'monitoring', 'tahuns', 'periodes', 'tahunId', 'periodeId'));
+    // Misalnya Anda ingin memeriksa rentang tanggal untuk setiap monitoring
+    foreach ($monitorings as $monitoring) {
+        $startDate = $monitoring->pmo_tanggal_mulai;
+        $endDate = $monitoring->pmo_tanggal_selesai;
+
+        if ($startDate && $endDate) {
+            // Lakukan logika yang Anda butuhkan, misalnya
+            // Cek apakah tanggal tertentu berada dalam rentang ini
+            if ($someDate->between($startDate, $endDate)) {
+                // Lakukan sesuatu jika $someDate berada dalam rentang
+            }
+        } else {
+            // Tangani situasi jika salah satu tanggal adalah null
+            // Misalnya, simpan pesan ke dalam array atau log
+        }
     }
 
-    // Create - Menampilkan form untuk membuat data monitoring baru
-    public function create()
-    {
-        $title = 'Tambah Monitoring';
-        $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
-        $periodes = periode_monev::all();
-        $rencanas = RencanaKerja::where('unit_id', Auth::user()->unit_id)->get();
+    return view('pages.index-monitoring', [
+        'title' => $title,
+        'monitorings' => $monitorings,
+        'q' => $q,
+        'no' => $no,
+        
+        'periode_monitoring' => $periode_monitoring,
+        'type_menu' => 'realisasirenja',
+    ]);
+}
 
-        return view('pages.create-monitoring', compact('title', 'tahuns', 'periodes', 'rencanas'));
+    // public function showRealisasi($rk_id)
+    // {
+    //     $rencanaKerja = RencanaKerja::findOrFail($rk_id);
+    
+    //     // Mengambil realisasi dan mengurutkannya berdasarkan tanggal dibuat
+    //     $monitoring = Monitoring::where('rk_id', $rk_id)->orderBy('created_at', 'asc')->get();
+    
+    //     return view('pages.index-detail-realisasi', [
+    //         'rencanaKerja' => $rencanaKerja,
+    //         'monitoring' => $monitoring,
+    //         'type_menu' => 'monitoring',
+    //     ]);
+    // }
+
+    public function edit($id)
+    {
+        $periode = PeriodeMonitoring::findOrFail($id);
+        return view('pages.edit-periode-monitoring', compact('periode'));
     }
 
-    // Store - Menyimpan data monitoring baru ke database
-    public function store(Request $request)
+    public function update(Request $request, $id)
     {
         $request->validate([
-            'th_id' => 'required|exists:tahun_kerja,th_id',
-            'pm_id' => 'required|exists:periode_monev,pm_id',
-            'rk_id' => 'required|exists:rencana_kerja,rk_id',
-            'mtg_capaian' => 'required|string|max:255',
-            'mtg_kondisi' => 'required|string|max:255',
-            'mtg_kendala' => 'required|string|max:255',
-            'mtg_tindak_lanjut' => 'required|string|max:255',
-            'mtg_tindak_lanjut_tanggal' => 'required|date',
-            'mtg_bukti' => 'nullable|string|max:255'
+            'pmo_tanggal_mulai' => 'required|date',
+            'pmo_tanggal_selesai' => 'required|date|after_or_equal:pmo_tanggal_mulai',
         ]);
 
-        // Buat ID unik untuk monitoring
-        $monitoring = new Monitoring();
-        $monitoring->mtg_id = 'MTG' . strtoupper(md5(time()));
-        $monitoring->th_id = $request->th_id;
-        $monitoring->pm_id = $request->pm_id;
-        $monitoring->rk_id = $request->rk_id;
-        $monitoring->mtg_capaian = $request->mtg_capaian;
-        $monitoring->mtg_kondisi = $request->mtg_kondisi;
-        $monitoring->mtg_kendala = $request->mtg_kendala;
-        $monitoring->mtg_tindak_lanjut = $request->mtg_tindak_lanjut;
-        $monitoring->mtg_tindak_lanjut_tanggal = $request->mtg_tindak_lanjut_tanggal;
-        $monitoring->mtg_bukti = $request->mtg_bukti;
-        $monitoring->save();
+        $periode = PeriodeMonitoring::findOrFail($id);
+        $periode->pmo_tanggal_mulai = $request->pmo_tanggal_mulai;
+        $periode->pmo_tanggal_selesai = $request->pmo_tanggal_selesai;
+        $periode->save();
 
-        Alert::success('Sukses', 'Data Monitoring Berhasil Ditambah');
-        return redirect()->route('monitoring.index');
-    }
-
-    public function edit(Monitoring $monitoring)
-    {
-        $title = 'Edit Monitoring';
-        $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
-        $periodes = periode_monev::all();
-        $rencanas = RencanaKerja::where('unit_id', Auth::user()->unit_id)->get();
-
-        return view('pages.edit-monitoring', compact('title', 'monitoring', 'tahuns', 'periodes', 'rencanas'));
-    }
-
-    public function update(Request $request, Monitoring $monitoring)
-    {
-        $request->validate([
-            'th_id' => 'required|exists:tahun_kerja,th_id',
-            'pm_id' => 'required|exists:periode_monev,pm_id',
-            'rk_id' => 'required|exists:rencana_kerja,rk_id',
-            'mtg_capaian' => 'required|string|max:255',
-            'mtg_kondisi' => 'required|string|max:255',
-            'mtg_kendala' => 'required|string|max:255',
-            'mtg_tindak_lanjut' => 'required|string|max:255',
-            'mtg_tindak_lanjut_tanggal' => 'required|date',
-            'mtg_bukti' => 'nullable|string|max:255'
-        ]);
-
-        $monitoring->th_id = $request->th_id;
-        $monitoring->pm_id = $request->pm_id;
-        $monitoring->rk_id = $request->rk_id;
-        $monitoring->mtg_capaian = $request->mtg_capaian;
-        $monitoring->mtg_kondisi = $request->mtg_kondisi;
-        $monitoring->mtg_kendala = $request->mtg_kendala;
-        $monitoring->mtg_tindak_lanjut = $request->mtg_tindak_lanjut;
-        $monitoring->mtg_tindak_lanjut_tanggal = $request->mtg_tindak_lanjut_tanggal;
-        $monitoring->mtg_bukti = $request->mtg_bukti;
-        $monitoring->save();
-
-        Alert::success('Sukses', 'Data Monitoring Berhasil Diubah');
-        return redirect()->route('monitoring.index');
-    }
-
-    public function destroy(Monitoring $monitoring)
-    {
-        $monitoring->delete();
-
-        Alert::success('Sukses', 'Data Monitoring Berhasil Dihapus');
-        return redirect()->route('monitoring.index');
+        Alert::success('Berhasil', 'Periode Monitoring berhasil diperbarui!');
+        return redirect()->route('periode-monitoring.index');
     }
 
 

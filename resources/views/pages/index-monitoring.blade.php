@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Data Monitoring')
+@section('title', 'Monitoring Periode')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -11,43 +11,21 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>{{ $title }}</h1>
+                <h1>Daftar Monitoring Periode</h1>
             </div>
 
             <div class="card mb-3">
                 <div class="card-header">
-                    <form class="row g-2 align-items-center" method="GET" action="{{ route('monitoring.index') }}">
+                    <form class="row g-2 align-items-center">
                         <div class="col-auto">
-                            <input class="form-control" name="q" value="{{ request('q') }}" placeholder="Pencarian..." />
-                        </div>
-                        <div class="col-auto">
-                            <select class="form-control" name="th_id">
-                                <option value="">Pilih Tahun</option>
-                                @foreach ($tahuns as $tahun)
-                                    <option value="{{ $tahun->th_id }}" {{ $tahunId == $tahun->th_id ? 'selected' : '' }}>
-                                        {{ $tahun->th_tahun }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-auto">
-                            <select class="form-control" name="pm_id">
-                                <option value="">Pilih Periode</option>
-                                @foreach ($periodes as $periode)
-                                    <option value="{{ $periode->pm_id }}" {{ $periodeId == $periode->pm_id ? 'selected' : '' }}>
-                                        {{ $periode->pm_nama }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>
                         <div class="col-auto">
                             <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
                         </div>
-                        @if (Auth::user()->role == 'admin')
                         <div class="col-auto">
                             <a class="btn btn-primary" href="{{ route('monitoring.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
                         </div>
-                        @endif
                     </form>
                 </div>
 
@@ -56,54 +34,43 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Rencana Kerja</th>
-                                <th>Tahun</th>
-                                <th>Periode</th>
-                                <th>Capaian</th>
-                                <th>Kondisi</th>
-                                <th>Kendala</th>
-                                <th>Tindak Lanjut</th>
-                                <th>Tanggal Tindak Lanjut</th>
-                                @if (Auth::user()->role == 'admin')
-                                    <th>Aksi</th>
-                                @endif
+                                <th>Tanggal Mulai - Tanggal Selesai</th>
+                                <th>Periode Monev (Kuartal)</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @php $no = $monitoring->firstItem(); @endphp
-                            @foreach ($monitoring as $item)
+                            @php
+                                $no = 1;
+                                $someDate = now();
+                            @endphp
+                            @foreach ($periode_monitoring as $item)
+                                @php
+                                    $startDate = \Carbon\Carbon::parse($item->pmo_tanggal_mulai);
+                                    $endDate = \Carbon\Carbon::parse($item->pmo_tanggal_selesai);
+                                    $diffInMonths = $startDate->diffInMonths($endDate);
+                                @endphp
+
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $item->rencanaKerja->rk_nama }}</td>
-                                    <td>{{ $item->tahunKerja->th_tahun }}</td>
-                                    <td>{{ $item->periodeMonev->pm_nama }}</td>
-                                    <td>{{ $item->mtg_capaian }}</td>
-                                    <td>{{ $item->mtg_kondisi }}</td>
-                                    <td>{{ $item->mtg_kendala }}</td>
-                                    <td>{{ $item->mtg_tindak_lanjut }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($item->mtg_tindak_lanjut_tanggal)->format('d-m-Y') }}</td>
-                                    
-                                    @if (Auth::user()->role == 'admin')
+                                    <td>{{ $startDate->format('d-m-Y') }} - {{ $endDate->format('d-m-Y') }}</td>
+                                    <td>Q{{ ceil($startDate->month / 3) }}</td>
                                     <td>
-                                        <a class="btn btn-warning" href="{{ route('monitoring.edit', $item->mtg_id) }}">
-                                            <i class="fa-solid fa-pen-to-square"></i> Ubah 
-                                        </a>
-                                        <form id="delete-form-{{ $item->mtg_id }}" method="POST" class="d-inline" action="{{ route('monitoring.destroy', $item->mtg_id) }}">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $item->mtg_id }}' )"><i class="fa-solid fa-trash"></i> Hapus</button>
-                                        </form>
+                                        @if ($diffInMonths < 3)
+                                            <a class="btn btn-success" href="{{ route('monitoring.fill', $item->pmo_id) }}">Isi</a>
+                                        @else
+                                            <button class="btn btn-secondary" disabled>Hanya bisa melihat</button>
+                                        @endif
                                     </td>
-                                    @endif
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
 
-                @if ($monitoring->hasPages())
+                @if ($periode_monitoring->hasPages())
                     <div class="card-footer">
-                        {{ $monitoring->links('pagination::bootstrap-5') }}
+                        {{ $periode_monitoring->links('pagination::bootstrap-5') }}
                     </div>
                 @endif
             </div>
@@ -119,9 +86,6 @@
     <script src="{{ asset('library/jqvmap/dist/maps/jquery.vmap.world.js') }}"></script>
     <script src="{{ asset('library/summernote/dist/summernote-bs4.min.js') }}"></script>
     <script src="{{ asset('library/chocolat/dist/js/jquery.chocolat.min.js') }}"></script>
-
-    <!-- Page Specific JS File -->
-    <script src="{{ asset('js/page/index-0.js') }}"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 

@@ -20,7 +20,7 @@ class RencanaKerja extends Model
         // 'pm_id' seharusnya dihilangkan dari fillable karena ini untuk relasi many-to-many
     ];
 
-    public function tahun_kerja()
+    public function tahunKerja()
     {
         return $this->belongsTo(tahun_kerja::class, 'th_id', 'th_id');
     }
