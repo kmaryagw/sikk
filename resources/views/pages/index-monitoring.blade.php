@@ -33,33 +33,39 @@
                     <table class="table table-hover table-bordered table-striped m-0">
                         <thead>
                             <tr>
-                                <th>No</th>
-                                <th>Tanggal Mulai - Tanggal Selesai</th>
+                                <th>No</th> <!-- Kolom No ditambahkan -->
+                                <th>Tahun</th>
                                 <th>Periode Monev (Kuartal)</th>
+                                <th>Tanggal Mulai - Tanggal Selesai</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @php
                                 $no = 1;
-                                $someDate = now();
                             @endphp
                             @foreach ($periode_monitoring as $item)
                                 @php
                                     $startDate = \Carbon\Carbon::parse($item->pmo_tanggal_mulai);
                                     $endDate = \Carbon\Carbon::parse($item->pmo_tanggal_selesai);
                                     $diffInMonths = $startDate->diffInMonths($endDate);
+                                    $year = $startDate->year; // Mengambil tahun dari tanggal mulai
                                 @endphp
 
                                 <tr>
-                                    <td>{{ $no++ }}</td>
-                                    <td>{{ $startDate->format('d-m-Y') }} - {{ $endDate->format('d-m-Y') }}</td>
+                                    <td>{{ $no++ }}</td> <!-- Menampilkan nomor urut -->
+                                    <td>{{ $year }}</td> <!-- Menampilkan tahun -->
                                     <td>Q{{ ceil($startDate->month / 3) }}</td>
-                                    <td>
+                                    <td>{{ $startDate->format('(d-m-Y)') }} - {{ $endDate->format('(d-m-Y)') }}</td>
+                                    <td class="text-center justify-content-center">
                                         @if ($diffInMonths < 3)
-                                            <a class="btn btn-success" href="{{ route('monitoring.fill', $item->pmo_id) }}">Isi</a>
+                                            <a class="btn btn-warning btn-sm" style="width: auto;" href="{{ route('monitoring.fill', $item->pmo_id) }}">
+                                                <i class="fa-solid fa-pen-to-square"></i> Isi Monitoring
+                                            </a>
                                         @else
-                                            <button class="btn btn-secondary" disabled>Hanya bisa melihat</button>
+                                            <button class="btn btn-secondary btn-sm" style="width: auto;" disabled>
+                                                <i class="fa-solid fa-eye"></i> Lihat Monitoring
+                                            </button>
                                         @endif
                                     </td>
                                 </tr>

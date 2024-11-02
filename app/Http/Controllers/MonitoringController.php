@@ -51,7 +51,7 @@ class MonitoringController extends Controller
         'no' => $no,
         
         'periode_monitoring' => $periode_monitoring,
-        'type_menu' => 'realisasirenja',
+        'type_menu' => 'monitoring',
     ]);
 }
 
