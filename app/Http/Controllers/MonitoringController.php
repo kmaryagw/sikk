@@ -55,6 +55,17 @@ class MonitoringController extends Controller
     ]);
 }
 
+
+public function fill($pmo_id)
+{
+    $monitoring = Monitoring::with('rencanaKerja')->findOrFail($pmo_id);
+    return view('pages.monitoring-fill', compact('monitoring'));
+}
+
+public function view($pmo_id)
+{
+    $monitoring = Monitoring::with('rencanaKerja')->findOrFail($pmo_id);
+    return view('monitoring.view', compact('monitoring'));
     // public function showRealisasi($rk_id)
     // {
     //     $rencanaKerja = RencanaKerja::findOrFail($rk_id);
@@ -67,11 +78,11 @@ class MonitoringController extends Controller
     //         'monitoring' => $monitoring,
     //         'type_menu' => 'monitoring',
     //     ]);
-    // }
+    }
 
-    public function edit($id)
+    public function edit($pmo_id)
     {
-        $periode = PeriodeMonitoring::findOrFail($id);
+        $periode = PeriodeMonitoring::findOrFail($pmo_id);
         return view('pages.edit-periode-monitoring', compact('periode'));
     }
 
