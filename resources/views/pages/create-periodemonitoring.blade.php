@@ -90,6 +90,20 @@
                             </div>
                         </div>
                         
+                        <div class="form-group">
+                            <label for="rk_id">Rencana Kerja</label>
+                            <select name="rk_id" id="rk_id" class="form-control @error('rk_id') is-invalid @enderror">
+                                <option value="">-- Pilih Rencana Kerja --</option>
+                                @foreach ($RencanaKerja as $rk)
+                                    <option value="{{ $rk->rk_id }}" {{ old('rk_id') == $rk->rk_id ? 'selected' : '' }}>
+                                        {{ $rk->rk_nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('rk_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
 
                         <div class="form-group">
                             <button type="submit" class="btn btn-primary">Simpan</button>

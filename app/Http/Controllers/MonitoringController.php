@@ -3,81 +3,47 @@
 namespace App\Http\Controllers;
 
 use App\Models\Monitoring;
-use App\Models\periode_monev;
 use App\Models\PeriodeMonitoring;
 use App\Models\RencanaKerja;
-use App\Models\tahun_kerja;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class MonitoringController extends Controller
 {
     public function index(Request $request)
-{
-    $title = 'Data Monitoring';
-    $q = $request->query('q');
+    {
+        $title = 'Data Monitoring';
+        $q = $request->query('q');
 
-    $monitorings = RencanaKerja::with('tahunKerja', 'unitKerja')
-        ->where('rk_nama', 'like', '%' . $q . '%')
-        ->orderBy('rk_nama', 'asc')
-        ->paginate(10);
+        // Ambil data periode monitoring dengan pencarian
+        $periode_monitoring = PeriodeMonitoring::with('rencanaKerja')
+            ->whereHas('rencanaKerja', function ($query) use ($q) {
+                $query->where('rk_nama', 'like', '%' . $q . '%');
+            })
+            ->orderBy('pmo_tanggal_mulai', 'asc')
+            ->paginate(10);
 
-        
-    $no = $monitorings->firstItem();
-    $periode_monitoring = PeriodeMonitoring::paginate(10);
+        $no = $periode_monitoring->firstItem();
 
-    // Misalnya Anda ingin memeriksa rentang tanggal untuk setiap monitoring
-    foreach ($monitorings as $monitoring) {
-        $startDate = $monitoring->pmo_tanggal_mulai;
-        $endDate = $monitoring->pmo_tanggal_selesai;
-
-        if ($startDate && $endDate) {
-            // Lakukan logika yang Anda butuhkan, misalnya
-            // Cek apakah tanggal tertentu berada dalam rentang ini
-            if ($someDate->between($startDate, $endDate)) {
-                // Lakukan sesuatu jika $someDate berada dalam rentang
-            }
-        } else {
-            // Tangani situasi jika salah satu tanggal adalah null
-            // Misalnya, simpan pesan ke dalam array atau log
-        }
+        return view('pages.index-monitoring', [
+            'title' => $title,
+            'periode_monitoring' => $periode_monitoring,
+            'q' => $q,
+            'no' => $no,
+            'type_menu' => 'monitoring',
+        ]);
     }
 
-    return view('pages.index-monitoring', [
-        'title' => $title,
-        'monitorings' => $monitorings,
-        'q' => $q,
-        'no' => $no,
-        
-        'periode_monitoring' => $periode_monitoring,
-        'type_menu' => 'monitoring',
-    ]);
-}
+    public function fill($pmo_id)
+    {
+        $monitoring = Monitoring::with('rencanaKerja')->findOrFail($pmo_id);
+        return view('pages.monitoring-fill', compact('monitoring'));
+    }
 
-
-public function fill($pmo_id)
-{
-    $monitoring = Monitoring::with('rencanaKerja')->findOrFail($pmo_id);
-    return view('pages.monitoring-fill', compact('monitoring'));
-}
-
-public function view($pmo_id)
-{
-    $monitoring = Monitoring::with('rencanaKerja')->findOrFail($pmo_id);
-    return view('monitoring.view', compact('monitoring'));
-    // public function showRealisasi($rk_id)
-    // {
-    //     $rencanaKerja = RencanaKerja::findOrFail($rk_id);
-    
-    //     // Mengambil realisasi dan mengurutkannya berdasarkan tanggal dibuat
-    //     $monitoring = Monitoring::where('rk_id', $rk_id)->orderBy('created_at', 'asc')->get();
-    
-    //     return view('pages.index-detail-realisasi', [
-    //         'rencanaKerja' => $rencanaKerja,
-    //         'monitoring' => $monitoring,
-    //         'type_menu' => 'monitoring',
-    //     ]);
+    public function view($pmo_id)
+    {
+        $monitoring = Monitoring::with('rencanaKerja')->findOrFail($pmo_id);
+        return view('monitoring.view', compact('monitoring'));
     }
 
     public function edit($pmo_id)
@@ -101,6 +67,4 @@ public function view($pmo_id)
         Alert::success('Berhasil', 'Periode Monitoring berhasil diperbarui!');
         return redirect()->route('periode-monitoring.index');
     }
-
-
 }

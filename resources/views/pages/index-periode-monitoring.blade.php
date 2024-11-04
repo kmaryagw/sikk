@@ -36,6 +36,7 @@
                                 <th>No</th>
                                 <th>Tahun</th>
                                 <th>Periode</th>
+                                <th>Nama Rencana Kerja</th>
                                 <th>Tanggal Mulai</th>
                                 <th>Tanggal Selesai</th>
                                 <th>Aksi</th>
@@ -48,8 +49,10 @@
                                 <td>{{ $no++ }}</td>
                                 <td>{{ $periode->tahunKerja->th_tahun ?? '-' }}</td>
                                 <td>{{ $periode->periodeMonev->pm_nama ?? '-' }}</td>
+                                <td>{{ $periode->rencanaKerja->rk_nama ?? '-' }}</td>
                                 <td>{{ \Carbon\Carbon::parse($periode->pmo_tanggal_mulai)->format('d-m-Y ( H:i )') }}</td>
 <td>{{ \Carbon\Carbon::parse($periode->pmo_tanggal_selesai)->format('d-m-Y ( H:i )') }}</td>
+
 
                                 <td>
                                     <a class="btn btn-warning" href="{{ route('periode-monitoring.edit', $periode->pmo_id) }}">

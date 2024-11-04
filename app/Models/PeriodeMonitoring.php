@@ -40,5 +40,10 @@ class PeriodeMonitoring extends Model
         return $this->belongsTo(periode_monev::class, 'pm_id', 'pm_id');
     }
 
+    public function RencanaKerja()
+    {
+        return $this->belongsTo(RencanaKerja::class, 'rk_id', 'rk_id');
+    }
+
     
 }
