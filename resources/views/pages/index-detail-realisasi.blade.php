@@ -26,7 +26,7 @@
                             <tr>
                                 <td>{{ $rencanaKerja->rk_nama }}</td>
                                 <td>{{ $rencanaKerja->UnitKerja->unit_nama ?? '-' }}</td>
-                                <td>{{ $rencanaKerja->tahun_kerja->th_tahun ?? '-' }}</td>
+                                <td>{{ $rencanaKerja->tahunKerja->th_tahun ?? '-' }}</td>
                                 <td>
                                     @if($rencanaKerja->periodes->isNotEmpty())
                                         @foreach ($rencanaKerja->periodes as $periode)

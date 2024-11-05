@@ -16,9 +16,19 @@
 
             <div class="card mb-3">
                 <div class="card-header">
-                    <form class="row g-2 align-items-center">
+                    <form class="row g-2 align-items-center" method="GET" action="{{ route('periode-monitoring.index') }}">
                         <div class="col-auto">
-                            <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
+                            <input class="form-control" name="q" value="{{ request()->get('q') }}" placeholder="Pencarian..." />
+                        </div>
+                        <div class="col-auto">
+                            <select class="form-control" name="th_tahun">
+                                <option value="">Pilih Tahun</option>
+                                @foreach($th_tahun as $tahun)
+                                    <option value="{{ $tahun->th_id }}" {{ request()->get('th_tahun') == $tahun->th_id ? 'selected' : '' }}>
+                                        {{ $tahun->th_tahun }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="col-auto">
                             <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
@@ -51,9 +61,7 @@
                                 <td>{{ $periode->periodeMonev->pm_nama ?? '-' }}</td>
                                 <td>{{ $periode->rencanaKerja->rk_nama ?? '-' }}</td>
                                 <td>{{ \Carbon\Carbon::parse($periode->pmo_tanggal_mulai)->format('d-m-Y ( H:i )') }}</td>
-<td>{{ \Carbon\Carbon::parse($periode->pmo_tanggal_selesai)->format('d-m-Y ( H:i )') }}</td>
-
-
+                                <td>{{ \Carbon\Carbon::parse($periode->pmo_tanggal_selesai)->format('d-m-Y ( H:i )') }}</td>
                                 <td>
                                     <a class="btn btn-warning" href="{{ route('periode-monitoring.edit', $periode->pmo_id) }}">
                                         <i class="fa-solid fa-pen-to-square"></i> Edit
@@ -97,22 +105,22 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
-    function confirmDelete(event, formid) {
-        event.preventDefault();
-        Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: "Data yang dihapus tidak bisa dikembalikan!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya, hapus data!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('delete-form-' + formid).submit();
-            }
-        })
-    }
-</script>
+    <script>
+        function confirmDelete(event, formid) {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Data yang dihapus tidak bisa dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, hapus data!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form-' + formid).submit();
+                }
+            })
+        }
+    </script>
 @endpush
