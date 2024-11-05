@@ -68,7 +68,7 @@
                                         <i class="fa-solid fa-calendar-day"></i>
                                     </div>
                                 </div>
-                                <input type="datetime-local" name="pmo_tanggal_mulai" id="pmo_tanggal_mulai" class="form-control @error('pmo_tanggal_mulai') is-invalid @enderror" value="{{ old('pmo_tanggal_mulai') }}">
+                                <input type="date" name="pmo_tanggal_mulai" id="pmo_tanggal_mulai" class="form-control @error('pmo_tanggal_mulai') is-invalid @enderror" value="{{ old('pmo_tanggal_mulai') }}">
                                 @error('pmo_tanggal_mulai')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -83,7 +83,7 @@
                                         <i class="fa-solid fa-calendar-check"></i>
                                     </div>
                                 </div>
-                                <input type="datetime-local" name="pmo_tanggal_selesai" id="pmo_tanggal_selesai" class="form-control @error('pmo_tanggal_selesai') is-invalid @enderror" value="{{ old('pmo_tanggal_selesai') }}">
+                                <input type="date" name="pmo_tanggal_selesai" id="pmo_tanggal_selesai" class="form-control @error('pmo_tanggal_selesai') is-invalid @enderror" value="{{ old('pmo_tanggal_selesai') }}">
                                 @error('pmo_tanggal_selesai')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

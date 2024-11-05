@@ -31,7 +31,58 @@ class PeriodeMonitoringController extends Controller
             'type_menu' => 'periode-monitoring',
         ]);
     
+    if ($q) {
+        $query->whereHas('periode_monev', function ($subQuery) use ($q) {
+            $subQuery->where('pm_nama', 'like', '%' . $q . '%');
+        });
     }
+
+    
+    if ($tahunId) {
+        $query->where('th_id', $tahunId); 
+    }
+
+    
+    $perides = $query->paginate(10);
+
+    $th_tahun = tahun_kerja::all();
+        // $pm_nama = periode_monev::orderBy('pm_nama')->get();
+    $periodes = periode_monev::all();
+
+    return view('pages.index-periode-monitoring', [
+        'title' => $title,
+        'perides' => $perides,
+        'th_tahun' => $th_tahun,
+        'periodes' => $periodes,
+        'tahunKerja' => tahun_kerja::where('ren_is_aktif', 'y')->get(), 
+        'type_menu' => 'periode-monitoring',
+        'tahunId' => $tahunId, 
+        'q' => $q, 
+    ]);
+}
+
+
+// v2
+// public function index(Request $request)
+// {
+//     $title = 'Data Periode Monitoring';
+//     $q = $request->query('q');
+
+//     $rencanaKerjas = RencanaKerja::with(['tahunKerja', 'UnitKerja', 'periodeMonitoring'])
+//         ->where('rk_nama', 'like', '%' . $q . '%')
+//         ->orderBy('rk_nama', 'asc')
+//         ->paginate(10);
+//     $no = $rencanaKerjas->firstItem();
+
+//     return view('pages.index-periode-monitoring', [
+//         'title' => $title,
+//         'rencanaKerjas' => $rencanaKerjas,
+//         'q' => $q,
+//         'no' => $no,
+//         'type_menu' => 'realisasirenja',
+//     ]);
+// }
+
 
     public function create()
     {

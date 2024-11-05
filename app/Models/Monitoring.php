@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Monitoring extends Model
 {
+    
+
     use HasFactory;
 
     protected $table = 'monitoring';
@@ -26,29 +28,14 @@ class Monitoring extends Model
         'rk_id',
     ];
 
-    /**
-     * Relasi ke model `TahunKerja`
-     */
-    public function PeriodeMonitoring()
+    public function periodeMonitoring()
     {
         return $this->belongsTo(PeriodeMonitoring::class, 'pmo_id', 'pmo_id');
     }
 
-    /**
-     * Relasi ke model `PeriodeMonev`
-     */
-    public function rencanakerja()
+    public function rencanaKerja()
     {
         return $this->belongsTo(RencanaKerja::class, 'rk_id', 'rk_id');
     }
-
-    /**
-     * Relasi ke model `RencanaKerja`
-     */
-    
-
-    /**
-     * Relasi ke model `UnitKerja`
-     */
     
 }

@@ -2,7 +2,6 @@
 @section('title', 'Monitoring Periode')
 
 @push('style')
-    <!-- CSS Libraries -->
     <link rel="stylesheet" href="{{ asset('library/jqvmap/dist/jqvmap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('library/summernote/dist/summernote-bs4.min.css') }}">
 @endpush
@@ -37,45 +36,37 @@
                                 <th>Tahun</th>
                                 <th>Periode Monev (Kuartal)</th>
                                 <th>Tanggal Mulai - Tanggal Selesai</th>
+                                <th>Rencana Kerja</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @php $no = 1; @endphp
-                            @foreach ($periode_monitoring as $item)
-    @php
-        $startDate = \Carbon\Carbon::parse($item->pmo_tanggal_mulai);
-        $endDate = \Carbon\Carbon::parse($item->pmo_tanggal_selesai);
-        $currentDate = now();
-        
-        // Hitung selisih bulan antara tanggal mulai dan tanggal selesai
-        $monthsDifference = $startDate->diffInMonths($endDate);
-        $isWithinPeriod = $currentDate->between($startDate, $endDate);
-    @endphp
-
-    <tr>
-        <td>{{ $no++ }}</td>
-        <td>{{ $startDate->year }}</td>
-        <td>Q{{ ceil($startDate->month / 3) }}</td>
-        <td>{{ $startDate->format('(d-m-Y)') }} - {{ $endDate->format('(d-m-Y)') }}</td>
-        <td class="text-center justify-content-center">
-            @if ($isWithinPeriod && $monthsDifference < 3)
-                <a class="btn btn-warning btn-sm" href="{{ route('monitoring.fill', $item->pmo_id) }}">
-                    <i class="fa-solid fa-pen-to-square"></i> Isi Monitoring
-                </a>
-            @else
-                <a class="btn btn-secondary btn-sm" href="{{ route('monitoring.view', $item->pmo_id) }}">
-                    <i class="fa-solid fa-eye"></i> Lihat Monitoring
-                </a>
-            @endif
-        </td>
-    </tr>
-@endforeach
+                            @foreach ($groupedMonitoring as $key => $item)
+                                <tr>
+                                    <td>{{ $no++ }}</td>
+                                    <td>{{ $item['tahun'] }}</td>
+                                    <td>{{ $item['periode'] }}</td>
+                                    <td>{{ $item['tanggal_mulai']->format('d-m-Y') }} - {{ $item['tanggal_selesai']->format('d-m-Y') }}</td>
+                                    <td>{{ $item['rencana_kerja'] }}</td>
+                                    <td class="text-center">
+                                        @if ($item['is_within_period'] && $item['months_difference'] < 3)
+                                            <a class="btn btn-warning btn-sm" href="{{ route('monitoring.fill', $key) }}">
+                                                <i class="fa-solid fa-pen-to-square"></i> Isi Monitoring
+                                            </a>
+                                        @else
+                                            <a class="btn btn-secondary btn-sm" href="{{ route('monitoring.view', $key) }}">
+                                                <i class="fa-solid fa-eye"></i> Lihat Monitoring
+                                            </a>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
 
-                @if ($periode_monitoring->hasPages())
+                @if ($groupedMonitoring->isNotEmpty() && $periode_monitoring->hasPages())
                     <div class="card-footer">
                         {{ $periode_monitoring->links('pagination::bootstrap-5') }}
                     </div>
@@ -86,14 +77,12 @@
 @endsection
 
 @push('scripts')
-    <!-- JS Libraries -->
     <script src="{{ asset('library/simpleweather/jquery.simpleWeather.min.js') }}"></script>
     <script src="{{ asset('library/chart.js/dist/Chart.min.js') }}"></script>
     <script src="{{ asset('library/jqvmap/dist/jquery.vmap.min.js') }}"></script>
     <script src="{{ asset('library/jqvmap/dist/maps/jquery.vmap.world.js') }}"></script>
     <script src="{{ asset('library/summernote/dist/summernote-bs4.min.js') }}"></script>
     <script src="{{ asset('library/chocolat/dist/js/jquery.chocolat.min.js') }}"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>

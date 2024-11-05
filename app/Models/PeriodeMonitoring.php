@@ -45,5 +45,10 @@ class PeriodeMonitoring extends Model
         return $this->belongsTo(RencanaKerja::class, 'rk_id', 'rk_id');
     }
 
+    public function periode_monev()
+    {
+        return $this->hasMany(periode_monev::class, 'pm_id', 'pm_id');
+    }
+
     
 }

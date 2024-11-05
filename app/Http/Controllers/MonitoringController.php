@@ -11,60 +11,44 @@ use RealRashid\SweetAlert\Facades\Alert;
 class MonitoringController extends Controller
 {
     public function index(Request $request)
-    {
-        $title = 'Data Monitoring';
-        $q = $request->query('q');
+{
+    $title = 'Data Monitoring';
+    $q = $request->query('q');
 
-        // Ambil data periode monitoring dengan pencarian
-        $periode_monitoring = PeriodeMonitoring::with('rencanaKerja')
-            ->whereHas('rencanaKerja', function ($query) use ($q) {
-                $query->where('rk_nama', 'like', '%' . $q . '%');
-            })
-            ->orderBy('pmo_tanggal_mulai', 'asc')
-            ->paginate(10);
+    // Ambil data periode monitoring beserta tahun kerja dan rencana kerja
+    $periode_monitoring = PeriodeMonitoring::with(['tahun_kerja', 'RencanaKerja' => function ($query) use ($q) {
+        if ($q) {
+            $query->where('rk_nama', 'like', '%' . $q . '%');
+        }
+    }])->orderBy('pmo_tanggal_mulai', 'asc')->get();
 
-        $no = $periode_monitoring->firstItem();
-
-        return view('pages.index-monitoring', [
-            'title' => $title,
-            'periode_monitoring' => $periode_monitoring,
-            'q' => $q,
-            'no' => $no,
-            'type_menu' => 'monitoring',
-        ]);
+    $groupedMonitoring = [];
+    foreach ($periode_monitoring as $periode) {
+        foreach ($periode->RencanaKerja as $RencanaKerja) {
+            if ($RencanaKerja->periodes) { // Pastikan periodes ada
+                foreach ($RencanaKerja->periodes as $periodeMonev) {
+                    $key = $periode->pmo_id; // Gunakan pmo_id sebagai kunci
+                    $groupedMonitoring[$key] = [
+                        'tahun' => optional($periode->tahun_kerja)->th_tahun ?? 'N/A',
+                        'periode' => 'Q' . ceil($periode->pmo_tanggal_mulai->month / 3),
+                        'tanggal_mulai' => $periode->pmo_tanggal_mulai,
+                        'tanggal_selesai' => $periode->pmo_tanggal_selesai,
+                        'rencana_kerja' => $RencanaKerja->rk_nama,
+                        'is_within_period' => now()->between($periode->pmo_tanggal_mulai, $periode->pmo_tanggal_selesai),
+                        'months_difference' => $periode->pmo_tanggal_mulai->diffInMonths($periode->pmo_tanggal_selesai)
+                    ];
+                }
+            }
+        }
     }
 
-    public function fill($pmo_id)
-    {
-        $monitoring = Monitoring::with('rencanaKerja')->findOrFail($pmo_id);
-        return view('pages.monitoring-fill', compact('monitoring'));
-    }
+    return view('pages.index-monitoring', [
+        'title' => $title,
+        'groupedMonitoring' => $groupedMonitoring,
+        'q' => $q,
+        'type_menu' => 'monitoring',
+    ]);
+}
 
-    public function view($pmo_id)
-    {
-        $monitoring = Monitoring::with('rencanaKerja')->findOrFail($pmo_id);
-        return view('monitoring.view', compact('monitoring'));
-    }
 
-    public function edit($pmo_id)
-    {
-        $periode = PeriodeMonitoring::findOrFail($pmo_id);
-        return view('pages.edit-periode-monitoring', compact('periode'));
-    }
-
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'pmo_tanggal_mulai' => 'required|date',
-            'pmo_tanggal_selesai' => 'required|date|after_or_equal:pmo_tanggal_mulai',
-        ]);
-
-        $periode = PeriodeMonitoring::findOrFail($id);
-        $periode->pmo_tanggal_mulai = $request->pmo_tanggal_mulai;
-        $periode->pmo_tanggal_selesai = $request->pmo_tanggal_selesai;
-        $periode->save();
-
-        Alert::success('Berhasil', 'Periode Monitoring berhasil diperbarui!');
-        return redirect()->route('periode-monitoring.index');
-    }
 }
