@@ -36,7 +36,7 @@ class MonitoringController extends Controller
 
     public function fill($pmo_id)
     {
-        $monitoring = Monitoring::with('rencanaKerja')->findOrFail($pmo_id);
+        $monitoring = PeriodeMonitoring::with('rencanaKerja')->findOrFail($pmo_id);
         return view('pages.monitoring-fill', compact('monitoring'));
     }
 

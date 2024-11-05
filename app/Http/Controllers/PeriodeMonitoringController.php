@@ -19,12 +19,6 @@ class PeriodeMonitoringController extends Controller
 
     $query = PeriodeMonitoring::with(['tahunKerja', 'periodeMonev']);
     
-
-
-    
-
-
-    
     if ($q) {
         $query->whereHas('periode_monev', function ($subQuery) use ($q) {
             $subQuery->where('pm_nama', 'like', '%' . $q . '%');
@@ -54,6 +48,29 @@ class PeriodeMonitoringController extends Controller
         'q' => $q, 
     ]);
 }
+
+
+// v2
+// public function index(Request $request)
+// {
+//     $title = 'Data Periode Monitoring';
+//     $q = $request->query('q');
+
+//     $rencanaKerjas = RencanaKerja::with(['tahunKerja', 'UnitKerja', 'periodeMonitoring'])
+//         ->where('rk_nama', 'like', '%' . $q . '%')
+//         ->orderBy('rk_nama', 'asc')
+//         ->paginate(10);
+//     $no = $rencanaKerjas->firstItem();
+
+//     return view('pages.index-periode-monitoring', [
+//         'title' => $title,
+//         'rencanaKerjas' => $rencanaKerjas,
+//         'q' => $q,
+//         'no' => $no,
+//         'type_menu' => 'realisasirenja',
+//     ]);
+// }
+
 
     public function create()
     {

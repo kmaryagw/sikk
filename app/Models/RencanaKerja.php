@@ -47,5 +47,10 @@ class RencanaKerja extends Model
         return $this->hasMany(RealisasiRenja::class, 'rk_id'); // Pastikan foreign key yang benar
     }
 
+    public function periodeMonitoring()
+    {
+        return $this->hasOne(PeriodeMonitoring::class, 'rk_id', 'rk_id');
+    }
+
     public $timestamps = true;
 }

@@ -18,7 +18,7 @@ class RealisasiRenjaController extends Controller
         $title = 'Data Realisasi Renja';
         $q = $request->query('q');
 
-        $rencanaKerjas = RencanaKerja::with('tahun_kerja', 'UnitKerja')
+        $rencanaKerjas = RencanaKerja::with('tahunKerja', 'UnitKerja')
             ->where('rk_nama', 'like', '%' . $q . '%')
             ->orderBy('rk_nama', 'asc')
             ->paginate(10);
