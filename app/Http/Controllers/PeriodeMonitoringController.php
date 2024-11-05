@@ -33,9 +33,8 @@ class PeriodeMonitoringController extends Controller
     
     $perides = $query->paginate(10);
 
-    $th_tahun = tahun_kerja::all();
-        // $pm_nama = periode_monev::orderBy('pm_nama')->get();
-    $periodes = periode_monev::all();
+    $th_tahun = tahun_kerja::orderBy('th_tahun')->get();
+    $periodes = periode_monev::orderBy('pm_nama')->get();
 
     return view('pages.index-periode-monitoring', [
         'title' => $title,
@@ -50,43 +49,19 @@ class PeriodeMonitoringController extends Controller
 }
 
 
-// v2
-// public function index(Request $request)
-// {
-//     $title = 'Data Periode Monitoring';
-//     $q = $request->query('q');
-
-//     $rencanaKerjas = RencanaKerja::with(['tahunKerja', 'UnitKerja', 'periodeMonitoring'])
-//         ->where('rk_nama', 'like', '%' . $q . '%')
-//         ->orderBy('rk_nama', 'asc')
-//         ->paginate(10);
-//     $no = $rencanaKerjas->firstItem();
-
-//     return view('pages.index-periode-monitoring', [
-//         'title' => $title,
-//         'rencanaKerjas' => $rencanaKerjas,
-//         'q' => $q,
-//         'no' => $no,
-//         'type_menu' => 'realisasirenja',
-//     ]);
-// }
-
 
     public function create()
     {
         $title = 'Tambah Periode Monitoring';
         $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
-        $th_tahun = tahun_kerja::all();
-        // $pm_nama = periode_monev::orderBy('pm_nama')->get();
-        $periodes = periode_monev::all();
-        $RencanaKerja = RencanaKerja::all();
+        $th_tahun = tahun_kerja::orderBy('th_tahun')->get();
+        $periodes = periode_monev::orderBy('pm_nama')->get();
 
         return view('pages.create-periodemonitoring', [
             'title' => $title,
             'tahuns' => $tahuns, 
             'periodes' => $periodes,
             'th_tahun' => $th_tahun,
-            'RencanaKerja' => $RencanaKerja,
             'type_menu' => 'periode-monitoring', 
         ]);
     }
@@ -98,19 +73,17 @@ class PeriodeMonitoringController extends Controller
             'pm_id' => 'required|exists:periode_monev,pm_id',
             'pmo_tanggal_mulai' => 'required|date',
             'pmo_tanggal_selesai' => 'required|date|after:pmo_tanggal_mulai',
-            'rk_id' => 'required|exists:rencana_kerja,rk_id',
         ]);
 
         $periodeMonitoring = new PeriodeMonitoring();
         $periodeMonitoring->pmo_id = 'PMO' . strtoupper(md5(time())); 
         $periodeMonitoring->th_id = $request->th_id;
         $periodeMonitoring->pm_id = $request->pm_id;
-        $periodeMonitoring->rk_id = $request->rk_id;
         $periodeMonitoring->pmo_tanggal_mulai = $request->pmo_tanggal_mulai;
         $periodeMonitoring->pmo_tanggal_selesai = $request->pmo_tanggal_selesai;
         $periodeMonitoring->save();
 
-        Alert::success('Sukses', 'Data Periode Monitoring Berhasil Ditambah');
+        Alert::success('Sukses', 'Data Berhasil Ditambah');
 
         return redirect()->route('periode-monitoring.index');
     }
@@ -119,12 +92,14 @@ class PeriodeMonitoringController extends Controller
     {
         $title = 'Edit Periode Monitoring';
         $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
-        $periodes = periode_monev::all();
+        $th_tahun = tahun_kerja::orderBy('th_tahun')->get();
+        $periodes = periode_monev::orderBy('pm_nama')->get();
 
         return view('pages.edit-periodemonitoring', [
             'title' => $title,
             'periodeMonitoring' => $periodeMonitoring,
-            'tahuns' => $tahuns, 
+            'tahuns' => $tahuns,
+            'th_tahun' => $th_tahun,
             'periodes' => $periodes,
             'type_menu' => 'periode-monitoring', 
         ]);
@@ -145,7 +120,7 @@ class PeriodeMonitoringController extends Controller
         $periodeMonitoring->pmo_tanggal_selesai = $request->pmo_tanggal_selesai;
         $periodeMonitoring->save();
 
-        Alert::success('Sukses', 'Data Periode Monitoring Berhasil Diubah');
+        Alert::success('Sukses', 'Data Berhasil Diubah');
 
         return redirect()->route('periode-monitoring.index');
     }
@@ -153,9 +128,7 @@ class PeriodeMonitoringController extends Controller
     public function destroy(PeriodeMonitoring $periodeMonitoring)
     {
         $periodeMonitoring->delete();
-
-        Alert::success('Sukses', 'Data Periode Monitoring Berhasil Dihapus');
-
+        Alert::success('Sukses', 'Data Berhasil Dihapus');
         return redirect()->route('periode-monitoring.index');
     }
 }

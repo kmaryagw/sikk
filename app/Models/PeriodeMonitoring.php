@@ -23,7 +23,6 @@ class PeriodeMonitoring extends Model
         'pmo_id',
         'th_id',
         'pm_id',
-        'rk_id',
         'pmo_tanggal_mulai',
         'pmo_tanggal_selesai',
     ];
@@ -39,11 +38,5 @@ class PeriodeMonitoring extends Model
     {
         return $this->belongsTo(periode_monev::class, 'pm_id', 'pm_id');
     }
-
-    public function RencanaKerja()
-    {
-        return $this->belongsTo(RencanaKerja::class, 'rk_id', 'rk_id');
-    }
-
     
 }
