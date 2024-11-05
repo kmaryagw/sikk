@@ -30,6 +30,7 @@
                                 @endforeach
                             </select>
                         </div>
+                        
                         <div class="col-auto">
                             <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
                         </div>
@@ -46,7 +47,6 @@
                                 <th>No</th>
                                 <th>Tahun</th>
                                 <th>Periode</th>
-                                <th>Nama Rencana Kerja</th>
                                 <th>Tanggal Mulai</th>
                                 <th>Tanggal Selesai</th>
                                 <th>Aksi</th>
@@ -58,14 +58,14 @@
                             <tr>
                                 <td>{{ $no++ }}</td>
                                 <td>{{ $periode->tahunKerja->th_tahun ?? '-' }}</td>
-                                <td>{{ $periode->periodeMonev->pm_nama ?? '-' }}</td>
-                                <td>{{ $periode->rencanaKerja->rk_nama ?? '-' }}</td>
+                                <td><span class="badge badge-info">{{ $periode->periodeMonev->pm_nama ?? '-' }}</span></td>
                                 <td>{{ \Carbon\Carbon::parse($periode->pmo_tanggal_mulai)->format('d-m-Y ( H:i )') }}</td>
                                 <td>{{ \Carbon\Carbon::parse($periode->pmo_tanggal_selesai)->format('d-m-Y ( H:i )') }}</td>
                                 <td>
-                                    <a class="btn btn-warning" href="{{ route('periode-monitoring.edit', $periode->pmo_id) }}">
+                                    <a class="btn btn-warning" href="{{ route('periode-monitoring.edit', ['periode_monitoring' => $periode->pmo_id]) }}">
                                         <i class="fa-solid fa-pen-to-square"></i> Edit
                                     </a>
+                                    
                             
                                     <form id="delete-form-{{ $periode->pmo_id }}" method="POST" class="d-inline" action="{{ route('periode-monitoring.destroy', $periode->pmo_id) }}">
                                         @csrf

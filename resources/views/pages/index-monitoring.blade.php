@@ -66,7 +66,7 @@
                     </table>
                 </div>
 
-                @if ($groupedMonitoring->isNotEmpty() && $periode_monitoring->hasPages())
+                @if (count($groupedMonitoring) > 0)
                     <div class="card-footer">
                         {{ $periode_monitoring->links('pagination::bootstrap-5') }}
                     </div>

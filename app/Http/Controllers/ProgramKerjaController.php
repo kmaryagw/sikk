@@ -24,6 +24,7 @@ class ProgramKerjaController extends Controller
 
         $units = UnitKerja::where('unit_kerja', 'y')->get();
         $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
+        $periodes = periode_monev::orderBy('pm_nama')->get();
 
         $query = RencanaKerja::where('rk_nama', 'like', '%' . $q . '%')
             ->orderBy('rk_nama', 'asc')
@@ -60,6 +61,7 @@ class ProgramKerjaController extends Controller
             'programkerjas' => $programkerjas,
             'units' => $units,
             'tahuns' => $tahuns,
+            'periodes' => $periodes,
             'q' => $q,
             'unit_id' => $unit_id,
             'tahun' => $tahunId,
@@ -73,7 +75,7 @@ class ProgramKerjaController extends Controller
         $title = 'Tambah Program Kerja';
         $units = UnitKerja::where('unit_kerja', 'y')->get();
         $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
-        $periodes = periode_monev::all();
+        $periodes = periode_monev::orderBy('pm_nama')->get();
 
         return view('pages.create-programkerja', [
             'title' => $title,

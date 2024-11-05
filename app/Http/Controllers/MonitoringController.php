@@ -16,7 +16,7 @@ class MonitoringController extends Controller
     $q = $request->query('q');
 
     // Ambil data periode monitoring beserta tahun kerja dan rencana kerja
-    $periode_monitoring = PeriodeMonitoring::with(['tahun_kerja', 'RencanaKerja' => function ($query) use ($q) {
+    $periode_monitoring = PeriodeMonitoring::with(['tahunKerja', 'rencanaKerja' => function ($query) use ($q) {
         if ($q) {
             $query->where('rk_nama', 'like', '%' . $q . '%');
         }
@@ -24,16 +24,19 @@ class MonitoringController extends Controller
 
     $groupedMonitoring = [];
     foreach ($periode_monitoring as $periode) {
-        foreach ($periode->RencanaKerja as $RencanaKerja) {
-            if ($RencanaKerja->periodes) { // Pastikan periodes ada
-                foreach ($RencanaKerja->periodes as $periodeMonev) {
+        foreach ($periode->rencanaKerja as $rencanaKerja) {
+            // Gunakan collect() untuk memastikan relasi periodes berupa Collection
+            $periodes = collect($rencanaKerja->periodes);
+
+            if ($periodes->isNotEmpty()) { // Sekarang menggunakan Collection
+                foreach ($periodes as $periodeMonev) {
                     $key = $periode->pmo_id; // Gunakan pmo_id sebagai kunci
                     $groupedMonitoring[$key] = [
-                        'tahun' => optional($periode->tahun_kerja)->th_tahun ?? 'N/A',
+                        'tahun' => optional($periode->tahunKerja)->th_tahun ?? 'N/A',
                         'periode' => 'Q' . ceil($periode->pmo_tanggal_mulai->month / 3),
                         'tanggal_mulai' => $periode->pmo_tanggal_mulai,
                         'tanggal_selesai' => $periode->pmo_tanggal_selesai,
-                        'rencana_kerja' => $RencanaKerja->rk_nama,
+                        'rencana_kerja' => $rencanaKerja->rk_nama,
                         'is_within_period' => now()->between($periode->pmo_tanggal_mulai, $periode->pmo_tanggal_selesai),
                         'months_difference' => $periode->pmo_tanggal_mulai->diffInMonths($periode->pmo_tanggal_selesai)
                     ];
@@ -49,6 +52,7 @@ class MonitoringController extends Controller
         'type_menu' => 'monitoring',
     ]);
 }
+
 
 
 }

@@ -30,9 +30,10 @@ class RencanaKerja extends Model
     }
 
     public function periodes()
-    {
-        return $this->belongsToMany(periode_monev::class, 'rencana_kerja_pelaksanaan', 'rk_id', 'pm_id');
-    }
+{
+    return $this->belongsToMany(periode_monev::class, 'rencana_kerja_pelaksanaan', 'rk_id', 'pm_id');
+}
+
 
     public function periodeMonitoring()
     {

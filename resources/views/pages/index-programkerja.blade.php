@@ -86,7 +86,7 @@
                                         @else
                                             <span class="text-muted">Tidak ada periode</span>
                                         @endif
-                                    </td>
+                                    </td>                                    
                                     
                                     @if (Auth::user()->role == 'admin')
                                     <td>

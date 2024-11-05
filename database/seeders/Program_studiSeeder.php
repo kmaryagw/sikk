@@ -13,9 +13,9 @@ class Program_studiSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('program_studi')->insert([
-            'prodi_id' => '1',
-            'nama_prodi' => 'TI',
-        ]);
+        // DB::table('program_studi')->insert([
+        //     'prodi_id' => '1',
+        //     'nama_prodi' => 'TI',
+        // ]);
     }
 }

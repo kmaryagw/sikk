@@ -71,7 +71,7 @@
                                         <!-- Tanggal Realisasi -->
                                         <div class="form-group">
                                             <label for="rkr_tanggal">Tanggal Realisasi</label>
-                                            <input class="form-control" type="date" name="rkr_tanggal" value="{{ old('rkr_tanggal') }}" required />
+                                            <input class="form-control" type="datetime-local" name="rkr_tanggal" value="{{ old('rkr_tanggal') }}" required />
                                         </div>
 
                                         <!-- URL Realisasi -->
