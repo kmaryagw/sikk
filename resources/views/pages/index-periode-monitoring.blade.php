@@ -68,7 +68,7 @@
                                         <i class="fa-solid fa-pen-to-square"></i> Edit
                                     </a>
                                     
-                            
+                                    
                                     <form id="delete-form-{{ $periode->pmo_id }}" method="POST" class="d-inline" action="{{ route('periode-monitoring.destroy', $periode->pmo_id) }}">
                                         @csrf
                                         @method('DELETE')
