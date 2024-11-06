@@ -118,6 +118,15 @@
             </li>
             @endif
 
+            {{-- Laporan --}}
+            @if (Auth::user()->role == 'admin')
+            <li class="{{ $type_menu === 'laporan' ? 'active' : '' }}">
+                <a class="nav-link"
+                    href="{{ url('laporan') }}"><i class="fa-solid fa-file-alt"></i> <span>Laporan</span>
+                </a>
+            </li>
+            @endif
+
         
     </aside>
 </div>

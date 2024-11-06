@@ -12,21 +12,7 @@ class RencanaKerjaObserver
      */
     public function created(RencanaKerja $rencanaKerja): void
     {
-        {
-            // Ambil semua periode monitoring terkait dengan tahun kerja ini
-            $periodeMonitorings = $rencanaKerja->tahunKerja->periodeMonitorings;
-    
-            foreach ($periodeMonitorings as $periode) {
-                Monitoring::firstOrCreate([
-                    'mtg_id' => uniqid(),
-                    'pmo_id' => $periode->pmo_id,
-                    'rk_id' => $rencanaKerja->rk_id,
-                ], [
-                    'mtg_capaian' => null,
-                    'mtg_kondisi' => null,
-                ]);
-            }
-        }
+
     }
 
     /**
