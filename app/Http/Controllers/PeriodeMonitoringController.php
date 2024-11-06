@@ -13,43 +13,42 @@ use Carbon\Carbon;
 class PeriodeMonitoringController extends Controller
 {
     public function index(Request $request)
-    {
-        $title = 'Data Realisasi Renja';
-        $q = $request->query('q');
-        $tahunId = $request->query('th_tahun'); // pastikan ini sudah didefinisikan
-        $query = RencanaKerja::with('tahunKerja', 'UnitKerja')
-            ->where('rk_nama', 'like', '%' . $q . '%')
-            ->orderBy('rk_nama', 'asc');
-    
-        if ($q) {
-            $query->whereHas('periode_monev', function ($subQuery) use ($q) {
-                $subQuery->where('pm_nama', 'like', '%' . $q . '%');
-            });
-        }
-    
-        if ($tahunId) {
-            $query->where('th_id', $tahunId); 
-        }
-    
-        $perides = $query->paginate(10);
-        $no = $perides->firstItem();
-    
-        $th_tahun = tahun_kerja::orderBy('th_tahun')->get(); // definisikan $th_tahun di sini
-        $periodes = periode_monev::orderBy('pm_nama')->get();
-    
-        return view('pages.index-periode-monitoring', [
-            'title' => $title,
-            'perides' => $perides,
-            'th_tahun' => $th_tahun,
-            'periodes' => $periodes,
-            'tahunKerja' => tahun_kerja::where('ren_is_aktif', 'y')->get(), 
-            'type_menu' => 'periode-monitoring',
-            'tahunId' => $tahunId, 
-            'q' => $q,
-            'no' => $no, 
-        ]);
+{
+    $title = 'Data Realisasi Renja';
+    $q = $request->query('q');
+    $tahunId = $request->query('th_tahun'); // pastikan ini sudah didefinisikan
+    $query = RencanaKerja::with('tahunKerja', 'UnitKerja')
+        ->where('rk_nama', 'like', '%' . $q . '%')
+        ->orderBy('rk_nama', 'asc');
+
+    if ($q) {
+        $query->whereHas('periode_monev', function ($subQuery) use ($q) {
+            $subQuery->where('pm_nama', 'like', '%' . $q . '%');
+        });
     }
 
+    if ($tahunId) {
+        $query->where('th_id', $tahunId); 
+    }
+
+    $perides = $query->paginate(10);
+    $no = $perides->firstItem();
+
+    $th_tahun = tahun_kerja::orderBy('th_tahun')->get(); // definisikan $th_tahun di sini
+    $periodes = periode_monev::orderBy('pm_nama')->get();
+
+    return view('pages.index-periode-monitoring', [
+        'title' => $title,
+        'perides' => $perides,
+        'th_tahun' => $th_tahun,
+        'periodes' => $periodes,
+        'tahunKerja' => tahun_kerja::where('ren_is_aktif', 'y')->get(), 
+        'type_menu' => 'periode-monitoring',
+        'tahunId' => $tahunId, 
+        'q' => $q,
+        'no' => $no, 
+    ]);
+}
 
 
     public function create()
@@ -92,50 +91,49 @@ class PeriodeMonitoringController extends Controller
         return redirect()->route('periode-monitoring.index');
     }
 
-    public function edit($periode_monitoring)
+    public function edit(PeriodeMonitoring $periode_monitoring)
 {
     $title = 'Edit Periode Monitoring';
-    $periodeMonitoring = PeriodeMonitoring::findOrFail($periode_monitoring);
     $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
     $th_tahun = tahun_kerja::orderBy('th_tahun')->get();
     $periodes = periode_monev::orderBy('pm_nama')->get();
 
     return view('pages.edit-periodemonitoring', [
         'title' => $title,
-        'periodeMonitoring' => $periodeMonitoring,
+        'periodeMonitoring' => $periode_monitoring,
         'tahuns' => $tahuns,
         'th_tahun' => $th_tahun,
         'periodes' => $periodes,
-        'type_menu' => 'periode-monitoring',
+        'type_menu' => 'periode-monitoring', 
     ]);
 }
 
-public function update(Request $request, $periode_monitoring)
-{
-    $request->validate([
-        'th_id' => 'required|exists:tahun_kerja,th_id',
-        'pm_id' => 'required|exists:periode_monev,pm_id',
-        'pmo_tanggal_mulai' => 'required|date',
-        'pmo_tanggal_selesai' => 'required|date|after:pmo_tanggal_mulai',
-    ]);
 
-    $periodeMonitoring = PeriodeMonitoring::findOrFail($periode_monitoring);
-    $periodeMonitoring->th_id = $request->th_id;
-    $periodeMonitoring->pm_id = $request->pm_id;
-    $periodeMonitoring->pmo_tanggal_mulai = $request->pmo_tanggal_mulai;
-    $periodeMonitoring->pmo_tanggal_selesai = $request->pmo_tanggal_selesai;
-    $periodeMonitoring->save();
-
-    Alert::success('Sukses', 'Data Berhasil Diubah');
-    return redirect()->route('periode-monitoring.index');
-}
-
-
-
-    public function destroy(PeriodeMonitoring $periodeMonitoring)
+    public function update(Request $request, $periode_monitoring)
     {
-        $periodeMonitoring->delete();
-        Alert::success('Sukses', 'Data Berhasil Dihapus');
+        $request->validate([
+            'th_id' => 'required|exists:tahun_kerja,th_id',
+            'pm_id' => 'required|exists:periode_monev,pm_id',
+            'pmo_tanggal_mulai' => 'required|date',
+            'pmo_tanggal_selesai' => 'required|date|after:pmo_tanggal_mulai',
+        ]);
+
+        $periode_monitoring->th_id = $request->th_id;
+        $periode_monitoring->pm_id = $request->pm_id;
+        $periode_monitoring->pmo_tanggal_mulai = $request->pmo_tanggal_mulai;
+        $periode_monitoring->pmo_tanggal_selesai = $request->pmo_tanggal_selesai;
+        $periode_monitoring->save();
+
+        Alert::success('Sukses', 'Data Berhasil Diubah');
+
         return redirect()->route('periode-monitoring.index');
     }
+
+    public function destroy(PeriodeMonitoring $periode_monitoring)
+{
+    
+    $periode_monitoring->delete();
+    Alert::success('Sukses', 'Data Berhasil Dihapus');
+    return redirect()->route('periode-monitoring.index');
+}
 }

@@ -44,6 +44,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('periode-monitoring', PeriodeMonitoringController::class);
 
 
+
     Route::get('/storage/{filename}', function ($filename) {
         $filePath = storage_path('app/public/dokumen/' . $filename);
         if (!file_exists($filePath)) {

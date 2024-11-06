@@ -15,24 +15,45 @@ class MonitoringController extends Controller
     $title = 'Data Monitoring';
     $q = $request->query('q');
 
-    // Ambil data periode monitoring beserta tahun kerja dan rencana kerja
+    // Ambil semua periode monitoring
     $periode_monitoring = PeriodeMonitoring::with(['tahunKerja', 'rencanaKerja' => function ($query) use ($q) {
         if ($q) {
             $query->where('rk_nama', 'like', '%' . $q . '%');
         }
-    }])->orderBy('pmo_tanggal_mulai', 'asc')->get();
+    }, 'rencanaKerja.periodeMonev'])
+    ->orderBy('pmo_tanggal_mulai', 'asc')
+    ->get();
 
+    // Loop untuk cek dan membuat data monitoring jika belum ada
+    foreach ($periode_monitoring as $periode) {
+        foreach ($periode->rencanaKerja as $rencanaKerja) {
+            // Periksa apakah data monitoring sudah ada
+            $existingMonitoring = Monitoring::where('pmo_id', $periode->pmo_id)
+                ->where('rk_id', $rencanaKerja->rk_id)
+                ->first();
+
+            if (!$existingMonitoring) {
+                // Buat data monitoring baru
+                Monitoring::create([
+                    'mtg_id' => uniqid(),
+                    'pmo_id' => $periode->pmo_id,
+                    'rk_id' => $rencanaKerja->rk_id,
+                    'mtg_capaian' => null,
+                    'mtg_kondisi' => null,
+                ]);
+            }
+        }
+    }
+
+    // Ambil ulang data monitoring setelah sinkronisasi
     $groupedMonitoring = [];
     foreach ($periode_monitoring as $periode) {
         foreach ($periode->rencanaKerja as $rencanaKerja) {
-            // Gunakan collect() untuk memastikan relasi periodes berupa Collection
-            $periodes = collect($rencanaKerja->periodes);
-
-            if ($periodes->isNotEmpty()) { // Sekarang menggunakan Collection
-                foreach ($periodes as $periodeMonev) {
-                    $key = $periode->pmo_id; // Gunakan pmo_id sebagai kunci
+            if ($rencanaKerja->periodeMonev) {
+                foreach ($rencanaKerja->periodeMonev as $periodeMonev) {
+                    $key = $periode->pmo_id;
                     $groupedMonitoring[$key] = [
-                        'tahun' => optional($periode->tahunKerja)->th_tahun ?? 'N/A',
+                        'tahun' => $periode->tahunKerja ? $periode->tahunKerja->th_tahun : 'N/A',
                         'periode' => 'Q' . ceil($periode->pmo_tanggal_mulai->month / 3),
                         'tanggal_mulai' => $periode->pmo_tanggal_mulai,
                         'tanggal_selesai' => $periode->pmo_tanggal_selesai,
@@ -52,7 +73,4 @@ class MonitoringController extends Controller
         'type_menu' => 'monitoring',
     ]);
 }
-
-
-
 }
