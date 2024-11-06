@@ -61,19 +61,21 @@
                                 <td><span class="badge badge-info">{{ $periode->periodeMonev->pm_nama ?? '-' }}</span></td>
                                 <td>{{ \Carbon\Carbon::parse($periode->pmo_tanggal_mulai)->format('d-m-Y ( H:i )') }}</td>
                                 <td>{{ \Carbon\Carbon::parse($periode->pmo_tanggal_selesai)->format('d-m-Y ( H:i )') }}</td>
+
+                                
                                 <td>
                                     <a class="btn btn-warning" href="{{ route('periode-monitoring.edit', $periode) }}">
                                         <i class="fa-solid fa-pen-to-square"></i> Edit
                                     </a>
                                     
                             
-                                    {{-- <form id="delete-form-{{ $periode->pmo_id }}" method="POST" class="d-inline" action="{{ route('periode-monitoring.destroy', $periode->pmo_id) }}">
+                                    <form id="delete-form-{{ $periode->pmo_id }}" method="POST" class="d-inline" action="{{ route('periode-monitoring.destroy', $periode->pmo_id) }}">
                                         @csrf
                                         @method('DELETE')
                                         <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $periode->pmo_id }}')">
                                             <i class="fa-solid fa-trash"></i> Hapus
                                         </button>
-                                    </form> --}}
+                                    </form>
                                     
                                 </td>
                             </tr>
