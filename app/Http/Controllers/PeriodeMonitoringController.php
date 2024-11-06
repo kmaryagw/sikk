@@ -128,6 +128,7 @@ class PeriodeMonitoringController extends Controller
     public function destroy(PeriodeMonitoring $periodeMonitoring)
     {
         $periodeMonitoring->delete();
+        
         Alert::success('Sukses', 'Data Berhasil Dihapus');
         return redirect()->route('periode-monitoring.index');
     }
