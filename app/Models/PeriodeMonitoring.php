@@ -39,4 +39,8 @@ class PeriodeMonitoring extends Model
         return $this->belongsTo(periode_monev::class, 'pm_id', 'pm_id');
     }
     
+    public function periodes()
+{
+    return $this->hasMany(periode_monev::class, 'pm_id', 'pm_id');
+}
 }

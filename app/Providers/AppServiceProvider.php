@@ -23,7 +23,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        RencanaKerja::observe(RencanaKerjaObserver::class);
-        PeriodeMonitoring::observe(PeriodeMonitoringObserver::class);
+        // RencanaKerja::observe(RencanaKerjaObserver::class);
+        // PeriodeMonitoring::observe(PeriodeMonitoringObserver::class);
     }
 }

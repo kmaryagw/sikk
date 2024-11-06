@@ -35,27 +35,45 @@
                                 <th>No</th>
                                 <th>Tahun</th>
                                 <th>Periode Monev (Kuartal)</th>
-                                <th>Tanggal Mulai - Tanggal Selesai</th>
-                                <th>Rencana Kerja</th>
+                                <th>Tanggal Mulai</th>
+                                <th>Tanggal selesai </th> 
                                 <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @php $no = 1; @endphp
-                            @foreach ($groupedMonitoring as $key => $item)
+                            @foreach ($periodemonitorings as $item )
                                 <tr>
+
+
+                                    
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $item['tahun'] }}</td>
-                                    <td>{{ $item['periode'] }}</td>
-                                    <td>{{ $item['tanggal_mulai']->format('d-m-Y') }} - {{ $item['tanggal_selesai']->format('d-m-Y') }}</td>
-                                    <td>{{ $item['rencana_kerja'] }}</td>
-                                    <td class="text-center">
-                                        @if ($item['is_within_period'] && $item['months_difference'] < 3)
-                                            <a class="btn btn-warning btn-sm" href="{{ route('monitoring.fill', $key) }}">
+                                    <td>
+                                        @if($item->periodes->isNotEmpty())
+                                            @foreach ($item->periodes as $periode)
+                                                <span class="badge badge-info">{{ $periode->pm_nama }}</span>
+                                            @endforeach
+                                        @else
+                                            <span class="text-muted">Tidak ada periode</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $item->tahunKerja->th_tahun }}</td>
+                                    
+
+                                    
+                                    
+                                    <td>{{ $item->pmo_tanggal_mulai}} </td>
+                                     <td>{{ $item->pmo_tanggal_selesai}}</td>
+                                    
+                                     <td class="text-center">
+                                        @if ($item->is_within_three_months)
+                                            <!-- Tombol Isi Monitoring jika selisih <= 3 bulan -->
+                                            <a class="btn btn-warning btn-sm" href="{{ route('monitoring.fill', $item->pmo_id) }}">
                                                 <i class="fa-solid fa-pen-to-square"></i> Isi Monitoring
                                             </a>
                                         @else
-                                            <a class="btn btn-secondary btn-sm" href="{{ route('monitoring.view', $key) }}">
+                                            <!-- Tombol Lihat Monitoring jika selisih > 3 bulan -->
+                                            <a class="btn btn-secondary btn-sm" href="{{ route('monitoring.view', $item->pmo_id) }}">
                                                 <i class="fa-solid fa-eye"></i> Lihat Monitoring
                                             </a>
                                         @endif
@@ -66,9 +84,9 @@
                     </table>
                 </div>
 
-                @if (count($groupedMonitoring) > 0)
+                @if (count($periodemonitorings) > 0)
                     <div class="card-footer">
-                        {{ $periode_monitoring->links('pagination::bootstrap-5') }}
+                        {{ $periodemonitorings->links('pagination::bootstrap-5') }}
                     </div>
                 @endif
             </div>
