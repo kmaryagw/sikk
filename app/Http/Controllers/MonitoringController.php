@@ -28,10 +28,9 @@ class MonitoringController extends Controller
     // Hitung selisih bulan dan tambahkan property ke setiap item
     foreach ($periodemonitorings as $item) {
         $tanggalSelesai = Carbon::parse($item->pmo_tanggal_selesai);
-        $selisihBulan = Carbon::now()->diffInMonths($tanggalSelesai);
-        
+        $selisihBulan = Carbon::now()->diffInMonths($tanggalSelesai, false); // false untuk mendapatkan nilai negatif jika lebih besar
 
-        // Jika selisih bulan lebih kecil dari atau sama dengan 3, set aksi ke 'Isi Monitoring'
+        // Tentukan apakah selisih bulan <= 3 untuk aksi 'Isi Monitoring'
         $item->is_within_three_months = $selisihBulan <= 3;
     }
     

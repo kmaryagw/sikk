@@ -22,9 +22,7 @@
                         <div class="col-auto">
                             <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
                         </div>
-                        <div class="col-auto">
-                            <a class="btn btn-primary" href="{{ route('monitoring.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
-                        </div>
+                        
                     </form>
                 </div>
 
@@ -62,10 +60,12 @@
 
                                     
                                     
-                                    <td>{{ $item->pmo_tanggal_mulai}} </td>
-                                     <td>{{ $item->pmo_tanggal_selesai}}</td>
+                                    <td>{{ \Carbon\Carbon::parse($item->pmo_tanggal_mulai)->format('Y-m-d H:i:s') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($item->pmo_tanggal_selesai)->format('Y-m-d H:i:s') }}</td>
+
                                     
                                      <td class="text-center">
+                                        
                                         @if ($item->is_within_three_months)
                                             <!-- Tombol Isi Monitoring jika selisih <= 3 bulan -->
                                             <a class="btn btn-warning btn-sm" href="{{ route('monitoring.fill', $item->pmo_id) }}">
