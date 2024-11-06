@@ -46,6 +46,7 @@
 
                                     
                                     <td>{{ $no++ }}</td>
+                                    <td>{{ $item->tahunKerja->th_tahun }}</td>
                                     <td>
                                         @if($item->periodes->isNotEmpty())
                                             @foreach ($item->periodes as $periode)
@@ -55,7 +56,7 @@
                                             <span class="text-muted">Tidak ada periode</span>
                                         @endif
                                     </td>
-                                    <td>{{ $item->tahunKerja->th_tahun }}</td>
+                                    
                                     
 
                                     

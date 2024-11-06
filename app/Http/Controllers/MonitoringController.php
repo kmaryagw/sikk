@@ -23,24 +23,27 @@ class MonitoringController extends Controller
         ->orderBy('th_id', 'asc')
         ->paginate(10);
 
-        $no = $periodemonitorings->firstItem();
+    $no = $periodemonitorings->firstItem();
 
     // Hitung selisih bulan dan tambahkan property ke setiap item
     foreach ($periodemonitorings as $item) {
+        $tanggalMulai = Carbon::parse($item->pmo_tanggal_mulai);
         $tanggalSelesai = Carbon::parse($item->pmo_tanggal_selesai);
-        $selisihBulan = Carbon::now()->diffInMonths($tanggalSelesai, false); // false untuk mendapatkan nilai negatif jika lebih besar
 
-        // Tentukan apakah selisih bulan <= 3 untuk aksi 'Isi Monitoring'
+        // Hitung selisih antara tanggal mulai dan tanggal selesai
+        $selisihBulan = $tanggalMulai->diffInMonths($tanggalSelesai);
+
+        // Jika selisih bulan lebih besar dari 3 bulan, set aksi ke 'Lihat Monitoring'
         $item->is_within_three_months = $selisihBulan <= 3;
     }
-    
+
     return view('pages.index-monitoring', [
         'title' => $title,
         'periodemonitorings' => $periodemonitorings,
         'q' => $q,
-        
         'no' => $no,
         'type_menu' => 'monitoring',
     ]);
 }
+
 }
