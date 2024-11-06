@@ -8,30 +8,30 @@ use App\Models\RencanaKerja;
 use App\Models\tahun_kerja;
 use Illuminate\Http\Request;
 use RealRashid\SweetAlert\Facades\Alert;
-use Carbon\Carbon;
 
 class PeriodeMonitoringController extends Controller
 {
     public function index(Request $request)
 {
-    $title = 'Data Realisasi Renja';
+    $title = 'Data Periode Monitoring';
     $q = $request->query('q');
     $tahunId = $request->query('th_tahun'); // pastikan ini sudah didefinisikan
     $query = PeriodeMonitoring::with('tahunKerja', 'periodeMonev');
-
+    
     if ($q) {
         $query->whereHas('periode_monev', function ($subQuery) use ($q) {
             $subQuery->where('pm_nama', 'like', '%' . $q . '%');
         });
     }
 
+    
     if ($tahunId) {
         $query->where('th_id', $tahunId); 
     }
 
+    
     $perides = $query->paginate(10);
     $no = $perides->firstItem();
-
 
     $th_tahun = tahun_kerja::orderBy('th_tahun')->get(); // definisikan $th_tahun di sini
     $periodes = periode_monev::orderBy('pm_nama')->get();
@@ -45,10 +45,10 @@ class PeriodeMonitoringController extends Controller
         'tahunKerja' => tahun_kerja::where('ren_is_aktif', 'y')->get(), 
         'type_menu' => 'periode-monitoring',
         'tahunId' => $tahunId, 
-        'q' => $q,
-        'no' => $no, 
+        'q' => $q, 
     ]);
 }
+
 
 
     public function create()
@@ -91,25 +91,24 @@ class PeriodeMonitoringController extends Controller
         return redirect()->route('periode-monitoring.index');
     }
 
-    public function edit(PeriodeMonitoring $periode_monitoring)
-{
-    $title = 'Edit Periode Monitoring';
-    $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
-    $th_tahun = tahun_kerja::orderBy('th_tahun')->get();
-    $periodes = periode_monev::orderBy('pm_nama')->get();
+    public function edit(PeriodeMonitoring $periodeMonitoring)
+    {
+        $title = 'Edit Periode Monitoring';
+        $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
+        $th_tahun = tahun_kerja::orderBy('th_tahun')->get();
+        $periodes = periode_monev::orderBy('pm_nama')->get();
 
-    return view('pages.edit-periodemonitoring', [
-        'title' => $title,
-        'periodeMonitoring' => $periode_monitoring,
-        'tahuns' => $tahuns,
-        'th_tahun' => $th_tahun,
-        'periodes' => $periodes,
-        'type_menu' => 'periode-monitoring', 
-    ]);
-}
+        return view('pages.edit-periodemonitoring', [
+            'title' => $title,
+            'periodeMonitoring' => $periodeMonitoring,
+            'tahuns' => $tahuns,
+            'th_tahun' => $th_tahun,
+            'periodes' => $periodes,
+            'type_menu' => 'periode-monitoring', 
+        ]);
+    }
 
-
-    public function update(Request $request, $periode_monitoring)
+    public function update(Request $request, PeriodeMonitoring $periodeMonitoring)
     {
         $request->validate([
             'th_id' => 'required|exists:tahun_kerja,th_id',
@@ -118,11 +117,11 @@ class PeriodeMonitoringController extends Controller
             'pmo_tanggal_selesai' => 'required|date|after:pmo_tanggal_mulai',
         ]);
 
-        $periode_monitoring->th_id = $request->th_id;
-        $periode_monitoring->pm_id = $request->pm_id;
-        $periode_monitoring->pmo_tanggal_mulai = $request->pmo_tanggal_mulai;
-        $periode_monitoring->pmo_tanggal_selesai = $request->pmo_tanggal_selesai;
-        $periode_monitoring->save();
+        $periodeMonitoring->th_id = $request->th_id;
+        $periodeMonitoring->pm_id = $request->pm_id;
+        $periodeMonitoring->pmo_tanggal_mulai = $request->pmo_tanggal_mulai;
+        $periodeMonitoring->pmo_tanggal_selesai = $request->pmo_tanggal_selesai;
+        $periodeMonitoring->save();
 
         Alert::success('Sukses', 'Data Berhasil Diubah');
 
@@ -132,7 +131,6 @@ class PeriodeMonitoringController extends Controller
     public function destroy(PeriodeMonitoring $periodeMonitoring)
     {
         $periodeMonitoring->delete();
-        
         Alert::success('Sukses', 'Data Berhasil Dihapus');
         return redirect()->route('periode-monitoring.index');
     }
