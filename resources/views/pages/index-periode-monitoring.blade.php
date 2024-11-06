@@ -67,13 +67,13 @@
                                     </a>
                                     
                             
-                                    <form id="delete-form-{{ $periode->pmo_id }}" method="POST" class="d-inline" action="{{ route('periode-monitoring.destroy', $periode->pmo_id) }}">
+                                    {{-- <form id="delete-form-{{ $periode->pmo_id }}" method="POST" class="d-inline" action="{{ route('periode-monitoring.destroy', $periode->pmo_id) }}">
                                         @csrf
                                         @method('DELETE')
                                         <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $periode->pmo_id }}')">
                                             <i class="fa-solid fa-trash"></i> Hapus
                                         </button>
-                                    </form>
+                                    </form> --}}
                                     
                                 </td>
                             </tr>
