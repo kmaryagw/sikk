@@ -61,6 +61,7 @@ public function show($pmo_id)
         'title' => $title,
         'periodemonitoring' => $periodemonitoring,
         'programKerjas' => $programKerjas,
+        'type_menu' => 'monitoring',
     ]);
 }
 
