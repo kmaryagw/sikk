@@ -35,10 +35,11 @@ class RealisasiRenjaController extends Controller
 
     public function showRealisasi($rk_id)
 {
-    $rencanaKerja = RencanaKerja::findOrFail($rk_id);
+    // Jika rk_id adalah string yang dipisahkan koma, ubah menjadi array
+    $rk_id = explode(',', $rk_id);
 
-    // Mengambil realisasi dan mengurutkannya berdasarkan tanggal dibuat
-    $realisasi = RealisasiRenja::where('rk_id', $rk_id)->orderBy('created_at', 'asc')->get();
+    $rencanaKerja = RencanaKerja::findOrFail($rk_id[0]); // Ambil salah satu sebagai contoh
+    $realisasi = RealisasiRenja::whereIn('rk_id', $rk_id)->orderBy('created_at', 'asc')->get();
 
     return view('pages.index-detail-realisasi', [
         'rencanaKerja' => $rencanaKerja,

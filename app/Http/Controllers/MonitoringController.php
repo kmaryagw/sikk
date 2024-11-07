@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Monitoring;
 use App\Models\PeriodeMonitoring;
+use App\Models\RealisasiRenja;
 use App\Models\RencanaKerja;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -95,5 +96,23 @@ public function store(Request $request)
     Alert::success('Berhasil', 'Data monitoring berhasil diisi');
     return redirect()->route('monitoring.index');
 }
+
+
+public function showFormMonitoring($rk_id, $pmo_id)
+{
+    // Mengambil data rencana kerja berdasarkan ID
+    $rencanaKerja = RencanaKerja::find($rk_id);
+
+    // Mengambil data realisasi jika ada
+    $realisasi = RealisasiRenja::where('rk_id', $rk_id)
+        ->where('pm_id', $pmo_id)
+        ->first();
+
+    // Menentukan URL untuk halaman realisasi
+    $realisasiPageUrl = route('realisasi.form', ['rk_id' => $rk_id, 'pmo_id' => $pmo_id]);
+
+    return view('yourview', compact('rencanaKerja', 'realisasi', 'realisasiPageUrl'));
+}
+
 
 }

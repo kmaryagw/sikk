@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/monitoring/{pmo_id}/fill', [MonitoringController::class, 'fill'])->name('monitoring.fill');
 
     Route::get('/monitoring/{pmo_id}', [MonitoringController::class, 'show'])->name('monitoring.show');
+    Route::get('/realisasi/{rk_id}/{pmo_id}', [RealisasiRenjaController::class, 'showForm'])->name('realisasi.form');
 
     Route::resource('monitoring', MonitoringController::class);
     Route::resource('periode-monitoring', PeriodeMonitoringController::class);
@@ -74,6 +75,9 @@ Route::middleware('auth')->group(function () {
         return view('pages.formaudit', ['type_menu' => 'formaudit']);
     });
 });
+// Di bawah grup middleware auth
+Route::post('/realisasirenja/store', [RealisasiRenjaController::class, 'store'])->name('realisasirenja.store');
+Route::post('/monitoring/store', [MonitoringController::class, 'store'])->name('monitoring.store');
 
 // Route::get('/', function () {
 //     return view('welcome');
