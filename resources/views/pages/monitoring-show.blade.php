@@ -6,7 +6,7 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Detail Monitoring Periode: {{ $periodemonitoring->tahunKerja->th_tahun }} - {{ $periodemonitoring->periodes->first()->pm_nama }}</h1>
+                <h1>Detail Monitoring Periode {{ $periodemonitoring->periodes->first()->pm_nama }}</h1>
             </div>
 
             <div class="card mb-3">
