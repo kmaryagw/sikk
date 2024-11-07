@@ -36,7 +36,7 @@ class PeriodeMonitoring extends Model
     // Mendefinisikan relasi dengan tabel periode_monev
     public function periodeMonev()
     {
-        return $this->belongsTo(periode_monev::class, 'pm_id', 'pm_id');
+        return $this->belongsTo(periode_monev::class, 'pm_id', 'pm_id')->orderBy('pm_nama');
     }
     
     public function periodes()

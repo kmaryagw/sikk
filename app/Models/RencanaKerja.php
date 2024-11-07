@@ -31,7 +31,7 @@ class RencanaKerja extends Model
 
     public function periodes()
 {
-    return $this->belongsToMany(periode_monev::class, 'rencana_kerja_pelaksanaan', 'rk_id', 'pm_id')->orderBy('pm_nama');;
+    return $this->belongsToMany(periode_monev::class, 'rencana_kerja_pelaksanaan', 'rk_id', 'pm_id')->orderBy('pm_nama');
 }
 
 

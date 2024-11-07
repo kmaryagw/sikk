@@ -15,7 +15,7 @@ class PeriodeMonitoringController extends Controller
 {
     $title = 'Data Periode Monitoring';
     $q = $request->query('q');
-    $tahunId = $request->query('th_tahun'); // pastikan ini sudah didefinisikan
+    $tahunId = $request->query('th_tahun');
     $query = PeriodeMonitoring::with('tahunKerja', 'periodeMonev');
     
     if ($q) {
@@ -30,11 +30,13 @@ class PeriodeMonitoringController extends Controller
     }
 
     
-    $perides = $query->paginate(10);
+    $perides = $query->join('periode_monev', 'periode_monitoring.pm_id', '=', 'periode_monev.pm_id') 
+        ->orderBy('periode_monev.pm_nama', 'asc') 
+        ->paginate(10);
     $no = $perides->firstItem();
 
-    $th_tahun = tahun_kerja::orderBy('th_tahun')->get(); // definisikan $th_tahun di sini
-    $periodes = periode_monev::orderBy('pm_nama')->get();
+    $th_tahun = tahun_kerja::orderBy('th_tahun')->get();
+    $periodes = periode_monev::orderBy('pm_nama', 'asc')->get();
     
 
     return view('pages.index-periode-monitoring', [
@@ -45,7 +47,8 @@ class PeriodeMonitoringController extends Controller
         'tahunKerja' => tahun_kerja::where('ren_is_aktif', 'y')->get(), 
         'type_menu' => 'periode-monitoring',
         'tahunId' => $tahunId, 
-        'q' => $q, 
+        'q' => $q,
+        'no' => $no,
     ]);
 }
 
@@ -55,9 +58,8 @@ class PeriodeMonitoringController extends Controller
     {
         $title = 'Tambah Periode Monitoring';
         $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
-        $th_tahun = tahun_kerja::all();
-        // $pm_nama = periode_monev::orderBy('pm_nama')->get();
-        $periodes = periode_monev::all();
+        $th_tahun = tahun_kerja::orderBy('th_tahun')->get();
+        $periodes = periode_monev::orderBy('pm_nama', 'asc')->get();
         
 
         return view('pages.create-periodemonitoring', [
@@ -96,7 +98,7 @@ class PeriodeMonitoringController extends Controller
         $title = 'Edit Periode Monitoring';
         $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
         $th_tahun = tahun_kerja::orderBy('th_tahun')->get();
-        $periodes = periode_monev::orderBy('pm_nama')->get();
+        $periodes = periode_monev::orderBy('pm_nama', 'asc')->get();
 
         return view('pages.edit-periodemonitoring', [
             'title' => $title,
