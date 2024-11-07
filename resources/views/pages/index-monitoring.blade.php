@@ -74,7 +74,7 @@
                                             </a>
                                         @else
                                             <!-- Tombol Lihat Monitoring jika selisih > 3 bulan -->
-                                            <a class="btn btn-secondary btn-sm" href="{{ route('monitoring.view', $item->pmo_id) }}">
+                                            <a class="btn btn-secondary btn-sm" href="{{ route('monitoring.show', $item->pmo_id) }}">
                                                 <i class="fa-solid fa-eye"></i> Lihat Monitoring
                                             </a>
                                         @endif
