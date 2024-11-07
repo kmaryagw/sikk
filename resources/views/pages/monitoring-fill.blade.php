@@ -25,6 +25,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Nama Rencana Kerja</th>
+                                    <th>Unit Kerja</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -33,6 +34,7 @@
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
                                         <td>{{ $rencana->rk_nama }}</td>
+                                        <td>{{ $rencana->unitKerja->unit_nama ?? 'N/A' }}</td> <!-- Menampilkan Unit Kerja -->
                                         <td>
                                             <a href="#" onclick="confirmIsiMonitoring(event, '{{ route('monitoring.store', ['rk_id' => $rencana->rk_id, 'pmo_id' => $periodeMonitoring->pmo_id]) }}')" 
                                                class="btn btn-warning btn-sm">
