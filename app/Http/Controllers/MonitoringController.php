@@ -17,23 +17,20 @@ class MonitoringController extends Controller
     $title = 'Data Monitoring ';
     $q = $request->query('q');
 
-    // Ambil data periode monitoring beserta relasinya
     $periodemonitorings = PeriodeMonitoring::with('tahunKerja', 'periodeMonev')
+        ->join('periode_monev', 'periode_monitoring.pm_id', '=', 'periode_monev.pm_id')
+        ->orderBy('periode_monev.pm_nama', 'asc')
         ->where('th_id', 'like', '%' . $q . '%')
-        ->orderBy('th_id', 'asc')
         ->paginate(10);
 
     $no = $periodemonitorings->firstItem();
 
-    // Hitung selisih bulan dan tambahkan property ke setiap item
     foreach ($periodemonitorings as $item) {
         $tanggalMulai = Carbon::parse($item->pmo_tanggal_mulai);
         $tanggalSelesai = Carbon::parse($item->pmo_tanggal_selesai);
 
-        // Hitung selisih antara tanggal mulai dan tanggal selesai
         $selisihBulan = $tanggalMulai->diffInMonths($tanggalSelesai);
 
-        // Jika selisih bulan lebih besar dari 3 bulan, set aksi ke 'Lihat Monitoring'
         $item->is_within_three_months = $selisihBulan <= 3;
     }
 
