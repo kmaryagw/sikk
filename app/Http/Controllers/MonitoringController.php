@@ -43,4 +43,28 @@ class MonitoringController extends Controller
     ]);
 }
 
+// MonitoringController.php
+public function show($pmo_id)
+{
+    $title = 'Detail Monitoring';
+    
+    // Ambil data periode monitoring berdasarkan pmo_id
+    $periodemonitoring = PeriodeMonitoring::with('tahunKerja', 'periodes')->findOrFail($pmo_id);
+
+    // Ambil daftar program kerja yang terkait dengan periode ini melalui tabel pivot
+    $programKerjas = RencanaKerja::whereHas('periodes', function ($query) use ($periodemonitoring) {
+        // Menyaring berdasarkan pm_id yang terkait dengan periode monitoring
+        $query->whereIn('periode_monev.pm_id', $periodemonitoring->periodes->pluck('pm_id'));
+    })->get();
+
+    return view('pages.monitoring-show', [
+        'title' => $title,
+        'periodemonitoring' => $periodemonitoring,
+        'programKerjas' => $programKerjas,
+        'type_menu' => 'monitoring',
+    ]);
+}
+
+
+
 }
