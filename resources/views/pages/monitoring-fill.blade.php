@@ -25,6 +25,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Nama Rencana Kerja</th>
+                                    <th>Unit Kerja</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -33,11 +34,12 @@
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
                                         <td>{{ $rencana->rk_nama }}</td>
+                                        <td>{{ $rencana->unitKerja->unit_nama ?? 'N/A' }}</td>
                                         <td>
-                                            <a href="#" onclick="confirmIsiMonitoring(event, '{{ route('monitoring.store', ['rk_id' => $rencana->rk_id, 'pmo_id' => $periodeMonitoring->pmo_id]) }}')" 
+                                            <button onclick="showMonitoringModal('{{ $rencana->rk_nama }}', '{{ route('realisasi.store') }}', '{{ route('monitoring.store', ['rk_id' => $rencana->rk_id, 'pmo_id' => $periodeMonitoring->pmo_id]) }}')" 
                                                class="btn btn-warning btn-sm">
                                                 <i class="fa-solid fa-pen-to-square"></i> Isi Monitoring
-                                            </a>
+                                            </button>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -60,20 +62,31 @@
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        function confirmIsiMonitoring(event, url) {
-            event.preventDefault();
+        function showMonitoringModal(rencanaKerjaNama, realisasiUrl, monitoringUrl) {
             Swal.fire({
-                title: 'Konfirmasi',
-                text: "Apakah Anda yakin ingin mengisi monitoring untuk rencana kerja ini?",
-                icon: 'question',
+                title: `Isi Monitoring untuk ${rencanaKerjaNama}`,
+                html: `
+                    <form id="monitoringForm" action="${monitoringUrl}" method="POST">
+                        @csrf
+                        <div class="form-group">
+                            <label for="monitoring_data">Data Monitoring:</label>
+                            <input type="text" name="monitoring_data" class="form-control" required>
+                        </div>
+                    </form>
+                    <form id="realisasiForm" action="${realisasiUrl}" method="POST">
+                        @csrf
+                        <div class="form-group">
+                            <label for="realisasi_data">Data Realisasi:</label>
+                            <input type="text" name="realisasi_data" class="form-control" required>
+                        </div>
+                    </form>
+                `,
                 showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, isi monitoring!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = url;
+                confirmButtonText: 'Submit',
+                cancelButtonText: 'Batal',
+                preConfirm: () => {
+                    document.getElementById('monitoringForm').submit();
+                    document.getElementById('realisasiForm').submit();
                 }
             });
         }
