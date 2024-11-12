@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\IndikatorKinerjaUtamaController;
+use App\Http\Controllers\LaporanIkuController;
+use App\Http\Controllers\LaporanRenjaController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\PeriodeMonevController;
 use App\Http\Controllers\PeriodeMonitoringController;
@@ -39,12 +41,13 @@ Route::middleware('auth')->group(function () {
     Route::get('realisasirenja/{rk_id}/realisasi', [RealisasiRenjaController::class, 'showRealisasi'])->name('realisasirenja.showRealisasi');
     Route::get('/monitoring/{pmo_id}/fill', [MonitoringController::class, 'fill'])->name('monitoring.fill');
 
-    Route::get('/monitoring/{pmo_id}', [MonitoringController::class, 'show'])->name('monitoring.show');
+    Route::get('/monitoring/{pmo_id}', [MonitoringController::class, 'show'])->name('monitoring.view');
     Route::get('/realisasi/{rk_id}/{pmo_id}', [RealisasiRenjaController::class, 'showForm'])->name('realisasi.form');
 
     Route::resource('monitoring', MonitoringController::class);
     Route::resource('periode-monitoring', PeriodeMonitoringController::class);
-
+    Route::resource('laporan-renja', LaporanRenjaController::class);
+    Route::resource('laporan-iku', LaporanIkuController::class);
 
     Route::get('/storage/{filename}', function ($filename) {
         $filePath = storage_path('app/public/dokumen/' . $filename);
