@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Monitoring extends Model
 {
-    
-
     use HasFactory;
 
     protected $table = 'monitoring';
@@ -33,9 +31,17 @@ class Monitoring extends Model
         return $this->belongsTo(PeriodeMonitoring::class, 'pmo_id', 'pmo_id');
     }
 
+    public function realisasi()
+    {
+        return $this->belongsTo(RealisasiRenja::class, 'rkr_id', 'rkr_id');
+    }
+
     public function rencanaKerja()
     {
         return $this->belongsTo(RencanaKerja::class, 'rk_id', 'rk_id');
     }
     
+    protected $attributes = [
+        'mtg_capaian' => 0,  // Nilai default jika tidak diisi
+    ];
 }

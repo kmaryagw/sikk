@@ -12,42 +12,44 @@
                         <i class="fa-solid fa-arrow-left"></i> Kembali
                     </a>
                 </div>
-                <div class="table-responsive text-center">
-                    <table class="table table-bordered table-striped">
-                        <thead>
-                            <tr>
-                                <th>Nama Rencana Kerja</th>
-                                <th>Unit Kerja</th>
-                                <th>Tahun</th>
-                                <th>Periode Monev</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>{{ $rencanaKerja->rk_nama }}</td>
-                                <td>{{ $rencanaKerja->UnitKerja->unit_nama ?? '-' }}</td>
-                                <td>{{ $rencanaKerja->tahunKerja->th_tahun ?? '-' }}</td>
-                                <td>
-                                    @if($rencanaKerja->periodes->isNotEmpty())
-                                        @foreach ($rencanaKerja->periodes as $periode)
-                                            <span class="badge badge-info">{{ $periode->pm_nama }}</span>
-                                        @endforeach
-                                    @else
-                                        <span class="text-muted">Tidak ada periode</span>
-                                    @endif
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+
+                @foreach ($rencanaKerja as $rencana)  <!-- Iterasi koleksi rencanaKerja -->
+                    <div class="table-responsive text-center">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nama Rencana Kerja</th>
+                                    <th>Unit Kerja</th>
+                                    <th>Tahun</th>
+                                    <th>Periode Monev</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{{ $rencana->rk_nama }}</td>
+                                    <td>{{ $rencana->UnitKerja->unit_nama ?? '-' }}</td>
+                                    <td>{{ $rencana->tahunKerja->th_tahun ?? '-' }}</td>
+                                    <td>
+                                        @if($rencana->periodes->isNotEmpty())
+                                            @foreach ($rencana->periodes as $periode)
+                                                <span class="badge badge-info">{{ $periode->pm_nama }}</span>
+                                            @endforeach
+                                        @else
+                                            <span class="text-muted">Tidak ada periode</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                @endforeach
             </div>
         </div>
-
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4>Data Realisasi</h4>
                 @if (Auth::user()->role == 'admin')
-                    <a class="btn btn-primary" href="{{ route('realisasirenja.create', ['rk_id' => $rencanaKerja->rk_id]) }}">
+                    <a class="btn btn-primary" href="{{ route('realisasirenja.create', ['rk_id' => $rencana->rk_id]) }}">
                         <i class="fa-solid fa-plus"></i> Tambah Realisasi
                     </a>
                 @endif
@@ -102,7 +104,7 @@
                                         @else
                                             Tidak Ada Dokumen
                                         @endif
-                                    </td>                                    
+                                    </td>
                                     <td>
                                         <a href="{{ route('realisasirenja.edit', $item->rkr_id) }}" class="btn btn-warning">Edit</a>     
                                         <form id="delete-form-{{ $item->rkr_id }}" method="POST" class="d-inline" action="{{ route('realisasirenja.destroy', $item->rkr_id) }}">
@@ -110,7 +112,6 @@
                                             @method('DELETE')
                                             <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $item->rkr_id }}')"><i class="fa-solid fa-trash"></i> Hapus</button>
                                         </form>
-                                                                                                                                                        
                                     </td>
                                 </tr>
                             @endforeach

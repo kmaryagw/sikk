@@ -41,4 +41,9 @@ class RencanaKerja extends Model
     }
 
     public $timestamps = true;
+
+    public function monitoring()
+{
+    return $this->hasMany(Monitoring::class, 'rk_id', 'rk_id'); // pastikan relasi 'rk_id' digunakan untuk menghubungkan kedua tabel
+}
 }

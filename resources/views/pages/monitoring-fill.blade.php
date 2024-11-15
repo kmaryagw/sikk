@@ -21,7 +21,7 @@
                 @else
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover text-center">
-                            <thead>
+                            <thead class="thead-light">
                                 <tr>
                                     <th>No</th>
                                     <th>Nama Rencana Kerja</th>
@@ -36,11 +36,18 @@
                                         <td>{{ $rencana->rk_nama }}</td>
                                         <td>{{ $rencana->unitKerja->unit_nama ?? 'N/A' }}</td>
                                         <td>
-                                            <button onclick="showMonitoringModal('{{ $rencana->rk_nama }}', '{{ route('realisasirenja.store') }}', '{{ route('monitoring.store', ['rk_id' => $rencana->rk_id, 'pmo_id' => $periodeMonitoring->pmo_id]) }}', '{{ $realisasi->rkr_deskripsi ?? '' }}', '{{ $realisasi->rkr_capaian ?? '' }}')" 
-                                               class="btn btn-warning btn-sm">
-                                                <i class="fa-solid fa-pen-to-square"></i> Isi Monitoring
-                                            </button>
-                                        </td>
+                                            @if($rencana->is_submitted)
+                                                <button onclick="showMonitoringModal('{{ $rencana->rk_nama }}', '{{ $periodeMonitoring->pmo_id }}', '{{ $rencana->rk_id }}')" 
+                                                    class="btn btn-success btn-sm">
+                                                    <i class="fa-solid fa-eye"></i> Lihat Data
+                                                </button>
+                                            @else
+                                                <button onclick="showMonitoringModal('{{ $rencana->rk_nama }}', '{{ $periodeMonitoring->pmo_id }}', '{{ $rencana->rk_id }}')" 
+                                                    class="btn btn-warning btn-sm">
+                                                    <i class="fa-solid fa-pen-to-square"></i> Isi Monitoring
+                                                </button>
+                                            @endif
+                                        </td>                                        
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -62,152 +69,80 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    function showMonitoringModal(rencanaKerjaNama, realisasiUrl, monitoringUrl, realisasiPageUrl) {
-        Swal.fire({
-            title: `Isi Monitoring untuk ${rencanaKerjaNama}`,
-            html: `
-                <div class="row">
-                    <!-- Form Monitoring -->
-                    <div class="col-md-6">
-                        <form id="monitoringForm" action="${monitoringUrl}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <div class="form-group input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fa fa-check-circle"></i></span>
-                                </div>
-                                <input type="number" name="mtg_capaian" class="form-control" placeholder="Masukkan capaian (angka)" required>
+    function showMonitoringModal(rencanaKerjaNama, pmo, rk) {
+    // Ambil data monitoring berdasarkan `pmo_id` dan `rk_id`
+    fetch(`/monitoring/${pmo}/${rk}/getData`)
+        .then(response => response.json())
+        .then(data => {
+            const capaian = data?.mtg_capaian || ''; // Jika null, gunakan nilai kosong
+            const kondisi = data?.mtg_kondisi || '';
+            const kendala = data?.mtg_kendala || '';
+            const tindakLanjut = data?.mtg_tindak_lanjut || '';
+            const tindakLanjutTanggal = data?.mtg_tindak_lanjut_tanggal || '';
+            const bukti = data?.mtg_bukti || null; // Cek apakah ada file bukti
+
+            let fileBuktiHTML = ''; // Placeholder untuk elemen preview file bukti
+            if (bukti) {
+                fileBuktiHTML = `
+                    <div class="mb-3">
+                        <p><strong>Bukti Terunggah:</strong> <a href="/storage/${bukti}" target="_blank">Lihat Bukti</a></p>
+                    </div>
+                `;
+            }
+
+            Swal.fire({
+                title: `Isi Monitoring untuk ${rencanaKerjaNama}`,
+                width: '75%',
+                html: `
+                    <div class="container-fluid">
+                        <form id="monitoringForm" action="{{ route('monitoring.store') }}" method="POST" enctype="multipart/form-data">
+                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="pmo_id" value="${pmo}">
+                            <input type="hidden" name="rk_id" value="${rk}">
+                            <div class="form-group text-left">
+                                <label for="mtg_capaian">Capaian</label>
+                                <input type="number" name="mtg_capaian" class="form-control" placeholder="Masukkan capaian (angka)" value="${capaian}" required>
                             </div>
-                            <div class="form-group input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fa fa-tachometer-alt"></i></span>
-                                </div>
-                                <input type="text" name="mtg_kondisi" class="form-control" placeholder="Masukkan kondisi" required>
+                            <div class="form-group text-left">
+                                <label for="mtg_kondisi">Kondisi</label>
+                                <input type="text" name="mtg_kondisi" class="form-control" placeholder="Masukkan kondisi" value="${kondisi}" required>
                             </div>
-                            <div class="form-group input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fa fa-exclamation-triangle"></i></span>
-                                </div>
-                                <input type="text" name="mtg_kendala" class="form-control" placeholder="Masukkan kendala" required>
+                            <div class="form-group text-left">
+                                <label for="mtg_kendala">Kendala</label>
+                                <input type="text" name="mtg_kendala" class="form-control" placeholder="Masukkan kendala" value="${kendala}">
                             </div>
-                            <div class="form-group input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fa fa-arrow-right"></i></span>
-                                </div>
-                                <input type="text" name="mtg_tindak_lanjut" class="form-control" placeholder="Masukkan tindak lanjut" required>
+                            <div class="form-group text-left">
+                                <label for="mtg_tindak_lanjut">Tindak Lanjut</label>
+                                <input type="text" name="mtg_tindak_lanjut" class="form-control" placeholder="Masukkan tindak lanjut" value="${tindakLanjut}">
                             </div>
-                            <!-- Form Tindak Lanjut Tanggal -->
-                            <div class="form-group input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fa fa-calendar-check"></i></span>
-                                </div>
-                                <input type="date" name="mtg_tindak_lanjut_tanggal" class="form-control" required>
+                            <div class="form-group text-left">
+                                <label for="mtg_tindak_lanjut_tanggal">Tanggal Tindak Lanjut</label>
+                                <input type="date" name="mtg_tindak_lanjut_tanggal" class="form-control" value="${tindakLanjutTanggal}">
                             </div>
-                            <!-- Form Bukti -->
-                            <div class="form-group input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fa fa-paperclip"></i></span>
-                                </div>
+                            ${fileBuktiHTML}
+                            <div class="form-group text-left">
+                                <label for="mtg_bukti">Unggah Bukti</label>
                                 <input type="file" name="mtg_bukti" class="form-control">
                             </div>
-                        </form>
-                    </div>
-                    
-                    <!-- Form Realisasi -->
-                    <div class="col-md-6">
-                        <form id="realisasiForm" action="${realisasiUrl}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <div class="form-group input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fa fa-pencil-alt"></i></span>
-                                </div>
-                                <input type="text" name="rkr_deskripsi" class="form-control" placeholder="Masukkan deskripsi realisasi" required>
-                            </div>
-                            <div class="form-group input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fa fa-trophy"></i></span>
-                                </div>
-                                <input type="number" name="rkr_capaian" class="form-control" value="{{ old('rkr_capaian') }}" placeholder="Masukkan capaian (angka)" required />
-                            </div>
-                            <div class="form-group input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fa fa-calendar"></i></span>
-                                </div>
-                                <input type="datetime-local" name="rkr_tanggal" class="form-control" required>
-                            </div>
-                            <div class="form-group input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fa fa-link"></i></span>
-                                </div>
-                                <input type="url" name="rkr_url" class="form-control" placeholder="Masukkan URL" required>
-                            </div>
-                            <div class="form-group input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fa fa-upload"></i></span>
-                                </div>
-                                <input type="file" name="rkr_file" class="form-control">
+                            <div class="mt-4 text-right">
+                                <button type="button" onclick="Swal.close()" class="btn btn-secondary mr-2">
+                                    <i class="fa-solid fa-times"></i> Batal
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa-solid fa-save"></i> Simpan Monitoring
+                                </button>
                             </div>
                         </form>
-                        <a href="${realisasiPageUrl}" class="btn btn-info btn-sm mt-3" target="_blank">
-                            <i class="fa fa-edit"></i> Isi Realisasi
-                        </a>
                     </div>
-                </div>
-            `,
-            showCancelButton: true,
-            confirmButtonText: '<i class="fa fa-check"></i> Submit Monitoring',
-            cancelButtonText: '<i class="fa fa-times"></i> Batal',
-            preConfirm: () => {
-                // Men-submit form monitoring
-                document.getElementById('monitoringForm').submit();
-            },
-            customClass: {
-                popup: 'width-90',
-                content: 'p-4',
-            }
+                `,
+                showConfirmButton: false,
+                showCancelButton: false,
+            });
+        })
+        .catch(error => {
+            console.error("Error fetching monitoring data:", error);
+            Swal.fire('Gagal', 'Tidak dapat mengambil data monitoring.', 'error');
         });
-    }
+}
 </script>
-
-<style>
-    .swal2-popup {
-        width: 80% !important;
-    }
-
-    .swal2-content {
-        padding: 20px;
-    }
-
-    .form-group input-group .input-group-prepend {
-        background-color: #f1f1f1;
-        border-right: 1px solid #ccc;
-    }
-
-    .form-group input-group .input-group-text {
-        font-size: 1.2rem;
-    }
-
-    .form-group .form-control {
-        border-left: none;
-    }
-
-    .swal2-confirm {
-        background-color: #28a745;
-        border-color: #28a745;
-    }
-
-    .swal2-cancel {
-        background-color: #dc3545;
-        border-color: #dc3545;
-    }
-
-    .swal2-cancel i, .swal2-confirm i {
-        margin-right: 5px;
-    }
-
-    .btn-info i {
-        margin-right: 5px;
-    }
-</style>
-
-
 @endpush

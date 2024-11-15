@@ -27,6 +27,11 @@
                                     <th>No</th>
                                     <th>Nama Program Kerja</th>
                                     <th>Unit Kerja</th>
+                                    <th>Capaian</th>
+                                    <th>Kondisi</th>
+                                    <th>Kendala</th>
+                                    <th>Tindak Lanjut</th>
+                                    <th>Tanggal Tindak Lanjut</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -36,11 +41,16 @@
                                         <td>{{ $no++ }}</td>
                                         <td>{{ $program->rk_nama }}</td>
                                         <td>{{ $program->unitKerja->unit_nama }}</td>
-                                        {{-- <td>
-                                            @foreach ($periodemonitoring->periodes as $periode)
-                                                <span class="badge badge-info">{{ $periode->pm_nama }}</span>
-                                            @endforeach
-                                        </td> --}}
+                                        
+                                        @if($program->monitoring)
+                                            <td>{{ $program->monitoring->mtg_capaian }}%</td>
+                                            <td>{{ $program->monitoring->mtg_kondisi }}</td>
+                                            <td>{{ $program->monitoring->mtg_kendala }}</td>
+                                            <td>{{ $program->monitoring->mtg_tindak_lanjut }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($program->monitoring->mtg_tindak_lanjut_tanggal)->format('d-m-Y') }}</td>
+                                        @else
+                                            <td colspan="5" class="text-muted">Tidak ada data monitoring</td>
+                                        @endif
                                     </tr>
                                 @endforeach
                             </tbody>
