@@ -106,7 +106,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <a href="{{ route('realisasirenja.edit', $item->rkr_id) }}" class="btn btn-warning">Edit</a>     
+                                        <a href="{{ route('realisasirenja.edit', $item->rkr_id) }}" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Ubah</a>     
                                         <form id="delete-form-{{ $item->rkr_id }}" method="POST" class="d-inline" action="{{ route('realisasirenja.destroy', $item->rkr_id) }}">
                                             @csrf
                                             @method('DELETE')

@@ -14,9 +14,6 @@ class StandarSeeder extends Seeder
     public function run(): void
     {
         DB::table('standar')->insert([
-            'std_id' => 'STD001',
-            'std_nama' => 'Standar Pendidikan',
-            'std_deskripsi' => 'Deskripsi untuk standar pendidikan.',
         ]);
     }
 }

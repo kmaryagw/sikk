@@ -15,12 +15,6 @@ class RenstraSeeder extends Seeder
     public function run(): void
     {
         DB::table('renstra')->insert([
-            'ren_id' => 'REN001',
-                'ren_nama' => 'Rencana Strategis 2024',
-                'ren_pimpinan' => 'Dr. John Doe',
-                'ren_periode_awal' => 2024,
-                'ren_periode_akhir' => 2028,
-                'ren_is_aktif' => 'y',
 
         ]);
     }

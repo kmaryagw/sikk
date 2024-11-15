@@ -44,8 +44,7 @@
 
                                         <!-- Rencana Kerja (readonly) -->
                                         <div class="form-group">
-                                            <label for="rk_nama">Rencana Kerja</label>
-                                            <input type="text" class="form-control" id="rk_nama" name="rk_nama" value="{{ $rk_nama }}" readonly>
+                                            <h4>Rencana Kerja : {{ $rk_nama }}</h4>
                                             <input type="hidden" name="rk_id" value="{{ $rencanaKerja->rk_id }}">
                                         </div>
                                         
@@ -64,14 +63,28 @@
 
                                         <!-- Capaian -->
                                         <div class="form-group">
-                                            <label for="rkr_capaian">Capaian (angka)</label>
-                                            <input class="form-control" type="number" name="rkr_capaian" value="{{ old('rkr_capaian') }}" required />
+                                            <label>Capaian</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <div class="input-group-text">
+                                                        <i class="fa-solid fa-percent"></i>
+                                                    </div>
+                                                </div>
+                                                <input class="form-control" type="number" name="rkr_capaian" value="{{ old('rkr_capaian') }}" required />
+                                            </div>
                                         </div>
 
                                         <!-- Tanggal Realisasi -->
                                         <div class="form-group">
-                                            <label for="rkr_tanggal">Tanggal Realisasi</label>
-                                            <input class="form-control" type="datetime-local" name="rkr_tanggal" value="{{ old('rkr_tanggal') }}" required />
+                                            <label>Tanggal Realisasi</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <div class="input-group-text">
+                                                        <i class="fa-solid fa-calendar"></i>
+                                                    </div>
+                                                </div>
+                                                <input class="form-control" type="datetime-local" name="rkr_tanggal" value="{{ old('rkr_tanggal') }}" required />
+                                            </div>
                                         </div>
 
                                         <!-- URL Realisasi -->
@@ -89,8 +102,15 @@
 
                                         <!-- File Realisasi -->
                                         <div class="form-group">
-                                            <label for="rkr_file">File Realisasi</label>
-                                            <input class="form-control" type="file" name="rkr_file" />
+                                            <label>File Realisasi</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <div class="input-group-text">
+                                                        <i class="fa-solid fa-file-upload"></i>
+                                                    </div>
+                                                </div>
+                                                <input class="form-control" type="file" name="rkr_file" />
+                                            </div>
                                         </div>
 
                                         <!-- Submit Button -->

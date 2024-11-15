@@ -14,9 +14,6 @@ class Standar_dokumenSeeder extends Seeder
     public function run(): void
     {
         DB::table('Standar_dokumen')->insert([
-            'std_id' => 'STD001',
-            'stdd_id' => 'STDD001',
-            'stdd_file' => 'document1',
         ]);
     }
 }

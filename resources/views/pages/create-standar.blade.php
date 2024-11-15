@@ -62,7 +62,7 @@
                                                     <i class="fa-solid fa-clipboard-list"></i>
                                                 </div>
                                             </div>
-                                            <textarea class="summernote-simple" name="std_deskripsi" required>{{ old('std_deskripsi') }}</textarea>
+                                            <textarea class="form-control" name="std_deskripsi" required>{{ old('std_deskripsi') }}</textarea>
                                         </div>
                                     </div>
 

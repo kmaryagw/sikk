@@ -53,7 +53,7 @@
 
                                 <td>
                                     <a class="btn btn-warning" href="{{ route('periode-monitoring.edit', $periode->pmo_id) }}">
-                                        <i class="fa-solid fa-pen-to-square"></i> Edit
+                                        <i class="fa-solid fa-pen-to-square"></i> Ubah
                                     </a>
                                     
                                     

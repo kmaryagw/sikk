@@ -76,7 +76,7 @@ public function store(Request $request)
 {
     $request->validate([
         'rkr_url' => 'nullable|url',
-        'rkr_file' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
+        'rkr_file' => 'nullable|file|mimes:pdf|max:2048',
         'rkr_deskripsi' => 'nullable|string',
         'rkr_capaian' => 'required|integer',
         'rkr_tanggal' => 'required|date',
@@ -92,12 +92,15 @@ public function store(Request $request)
     $realisasi->rk_id = $request->rk_id;
     $realisasi->rkr_url = $request->rkr_url;
 
-    // Generate rkr_id jika tidak ada
     $realisasi->rkr_id = (string) \Illuminate\Support\Str::uuid();
 
     if ($request->hasFile('rkr_file')) {
         $file = $request->file('rkr_file');
-        $filePath = $file->storeAs('realisasi_files', $file->getClientOriginalName(), 'public');
+        
+        $hashedFileName = Hash::make($file->getClientOriginalName());
+        
+        $filePath = $file->storeAs('realisasi_files', $hashedFileName, 'public');
+        
         $realisasi->rkr_file = $filePath;
     }
 
