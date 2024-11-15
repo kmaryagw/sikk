@@ -6,7 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class Periode_monitoring extends Seeder
+class Periode_monitoringSeeder extends Seeder
 {
     /**
      * Run the database seeds.

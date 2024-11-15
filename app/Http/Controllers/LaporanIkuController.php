@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\program_studi;
 use App\Models\tahun_kerja;
 use App\Models\target_indikator;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LaporanIkuController extends Controller
 {
@@ -47,5 +48,22 @@ class LaporanIkuController extends Controller
             'type_menu' => 'laporan',
             'sub_menu' => 'laporan-iku',
         ]);
+    }
+
+    public function exportExcel()
+    {
+        return Excel::download(new \App\Exports\IkuExport, 'laporan_iku.xlsx');
+    }
+
+    public function exportPdf()
+    {
+        $target_capaians = target_indikator::select('target_indikator.*', 'indikator_kinerja.ik_nama', 'program_studi.nama_prodi', 'tahun_kerja.th_tahun')
+            ->leftjoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
+            ->leftjoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
+            ->leftjoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id')
+            ->where('tahun_kerja.ren_is_aktif', 'y')
+            ->get();
+        $pdf = Pdf::loadView('export.laporan-iku-pdf', compact('target_capaians'));
+        return $pdf->download('laporan_iku.pdf');
     }
 }

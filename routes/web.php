@@ -46,8 +46,14 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('monitoring', MonitoringController::class);
     Route::resource('periode-monitoring', PeriodeMonitoringController::class);
+
     Route::resource('laporan-renja', LaporanRenjaController::class);
+    Route::get('/export-excel-renja', [LaporanRenjaController::class, 'exportExcel'])->name('export-excel.renja');
+    Route::get('/export-pdf-renja', [LaporanRenjaController::class, 'exportPdf'])->name('export-pdf.renja');
+
     Route::resource('laporan-iku', LaporanIkuController::class);
+    Route::get('/export-excel-iku', [LaporanIkuController::class, 'exportExcel'])->name('export-excel.iku');
+    Route::get('/export-pdf-iku', [LaporanIkuController::class, 'exportPdf'])->name('export-pdf.iku');
 
     Route::get('/storage/{filename}', function ($filename) {
         $filePath = storage_path('app/public/dokumen/' . $filename);

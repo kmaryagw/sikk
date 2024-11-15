@@ -38,7 +38,6 @@
                                         </ul>
                                     </div>
                                 @endif
-
                                 <form method="POST" action="{{ route('renstra.store') }}">
                                     @csrf
                                     <div class="form-group">

@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('evaluasi', function (Blueprint $table) {
             $table->string('eval_id', 50)->primary();  
             $table->string('th_id', 50);  
-            $table->string('th_laporan', 255);
-            $table->foreign('th_id')->references('th_id')->on('tahun_kerja')->onDelete('cascade')->onUpdate('cascade');  
+            $table->string('prodi_id', 50);
+            $table->string('status', 1);
+            $table->foreign('th_id')->references('th_id')->on('tahun_kerja')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('prodi_id')->references('prodi_id')->on('program_studi')->onDelete('cascade')->onUpdate('cascade');  
             $table->timestamps();  
         });  
     }

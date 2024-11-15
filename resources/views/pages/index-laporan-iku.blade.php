@@ -12,7 +12,7 @@
 <div class="main-content">
     <section class="section">
         <div class="section-header">
-            <h1>Laporan IKU/IKT</h1>
+            <h1>Laporan Indikator Kinerja Utama/Tambahan</h1>
         </div>
 
         <div class="card mb-3">
@@ -40,10 +40,14 @@
                         <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
                     </div>
                     <div class="col-auto">
-                        <button class="btn btn-success" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
+                        <a href="{{ route('export-excel.iku') }}" class="btn btn-success">
+                            <i class="fa-solid fa-file-excel"></i> Export Excel
+                        </a>
                     </div>
                     <div class="col-auto">
-                        <button class="btn btn-danger" onclick="exportToPDF()"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+                        <a href="{{ route('export-pdf.iku') }}" class="btn btn-danger">
+                            <i class="fa-solid fa-file-pdf"></i> Export PDF
+                        </a>
                     </div>
                 </form>                
             </div>
@@ -65,11 +69,11 @@
                         @foreach ($target_capaians as $targetcapaian)
                             <tr>
                                 <td>{{ $no++ }}</td>
-                                    <td>{{ $targetcapaian->ik_nama }}</td>
-                                    <td>{{ $targetcapaian->ti_target }}</td>
-                                    <td>{{ $targetcapaian->ti_keterangan }}</td>
-                                    <td>{{ $targetcapaian->nama_prodi }}</td>
-                                    <td>{{ $targetcapaian->th_tahun }}</td>
+                                <td>{{ $targetcapaian->ik_nama }}</td>
+                                <td>{{ $targetcapaian->ti_target }}</td>
+                                <td>{{ $targetcapaian->ti_keterangan }}</td>
+                                <td>{{ $targetcapaian->nama_prodi }}</td>
+                                <td>{{ $targetcapaian->th_tahun }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -87,19 +91,15 @@
 @endsection
 
 @push('scripts')
-    <!-- JS Libraries jika diperlukan -->
+    <script src="{{ asset('library/simpleweather/jquery.simpleWeather.min.js') }}"></script>
+    <script src="{{ asset('library/chart.js/dist/Chart.min.js') }}"></script>
+    <script src="{{ asset('library/jqvmap/dist/jquery.vmap.min.js') }}"></script>
+    <script src="{{ asset('library/jqvmap/dist/maps/jquery.vmap.world.js') }}"></script>
     <script src="{{ asset('library/summernote/dist/summernote-bs4.min.js') }}"></script>
     <script src="{{ asset('library/chocolat/dist/js/jquery.chocolat.min.js') }}"></script>
 
-    <script>
-        function exportToExcel() {
-            // Fungsi untuk melakukan export ke Excel
-            window.location.href = "#"; // Pastikan route disesuaikan dengan route yang Anda buat
-        }
+    <!-- Page Specific JS File -->
+    <script src="{{ asset('js/page/index-0.js') }}"></script>
 
-        function exportToPDF() {
-            // Fungsi untuk melakukan export ke PDF
-            window.location.href = "#}"; // Pastikan route disesuaikan dengan route yang Anda buat
-        }
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endpush

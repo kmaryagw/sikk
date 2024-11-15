@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ asset('library/selectric/public/selectric.css') }}">
     <link rel="stylesheet" href="{{ asset('library/bootstrap-timepicker/css/bootstrap-timepicker.min.css') }}">
     <link rel="stylesheet" href="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.css') }}">
+    <link rel="stylesheet" href="{{ asset('library/summernote/dist/summernote-bs4.min.css') }}">
 @endpush
 
 @section('main')
@@ -61,7 +62,7 @@
                                                     <i class="fa-solid fa-clipboard-list"></i>
                                                 </div>
                                             </div>
-                                            <textarea class="form-control" name="std_deskripsi" required>{{ old('std_deskripsi') }}</textarea>
+                                            <textarea class="summernote-simple" name="std_deskripsi" required>{{ old('std_deskripsi') }}</textarea>
                                         </div>
                                     </div>
 
@@ -101,6 +102,7 @@
     <script src="{{ asset('library/bootstrap-timepicker/js/bootstrap-timepicker.min.js') }}"></script>
     <script src="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js') }}"></script>
     <script src="{{ asset('library/select2/dist/js/select2.full.min.js') }}"></script>
+    <script src="{{ asset('library/summernote/dist/summernote-bs4.min.js') }}"></script>
     <script src="{{ asset('library/selectric/public/jquery.selectric.min.js') }}"></script>
 
     @include('sweetalert::alert')

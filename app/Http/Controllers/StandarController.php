@@ -48,7 +48,7 @@ class StandarController extends Controller
             'stdd_file' => 'required|file|mimes:pdf,doc,docx|max:2048',
         ]);
 
-        $customPrefix = 'ST';
+        $customPrefix = 'STD';
         $timestamp = time();
         $md5Hash = md5($timestamp);
         $std_id = $customPrefix . strtoupper($md5Hash);

@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use RealRashid\SweetAlert\Facades\Alert;
 
-class UnitKerjaController extends Controller
+class UnitkerjaController extends Controller
 {
     public function index(Request $request)
     {

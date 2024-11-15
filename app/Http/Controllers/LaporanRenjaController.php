@@ -7,6 +7,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\LaporanExport;
 use App\Models\tahun_kerja;
 use App\Models\UnitKerja;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class LaporanRenjaController extends Controller
@@ -14,7 +15,7 @@ class LaporanRenjaController extends Controller
 
     public function index(Request $request)
     {
-        $units = UnitKerja::all(); // Pastikan Anda sudah membuat model UnitKerja
+        $units = UnitKerja::all();
         $tahuns = tahun_kerja::all();
     
         $title = 'Data Realisasi Renja';
@@ -47,5 +48,17 @@ class LaporanRenjaController extends Controller
             'type_menu' => 'laporan',
             'sub_menu' => 'laporan-renja',
         ]);
+    }
+
+    public function exportExcel()
+    {
+        return Excel::download(new \App\Exports\LaporanExport, 'laporan_renja.xlsx');
+    }
+
+    public function exportPdf()
+    {
+        $rencanaKerjas = RencanaKerja::with('tahunKerja', 'UnitKerja')->get();
+        $pdf = Pdf::loadView('export.laporan-renja-pdf', compact('rencanaKerjas'));
+        return $pdf->download('laporan_renja.pdf');
     }
 }

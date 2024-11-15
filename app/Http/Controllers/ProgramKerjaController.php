@@ -105,7 +105,7 @@ class ProgramKerjaController extends Controller
         }
 
         // Buat ID unik untuk `rk_id`
-        $customPrefix = 'PR';
+        $customPrefix = 'RK';
         $timestamp = time();
         $md5Hash = md5($timestamp);
         $rk_id = $customPrefix . strtoupper($md5Hash);
