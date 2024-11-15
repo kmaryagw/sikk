@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('mtg_kendala', 255);
             $table->string('mtg_tindak_lanjut', 255);
             $table->date('mtg_tindak_lanjut_tanggal');  
-            $table->string('mtg_bukti', 255);
+            $table->string('mtg_bukti', 255)->nullable();
             $table->string('rk_id', 50);
             $table->foreign('pmo_id')->references('pmo_id')->on('periode_monitoring')->onDelete('cascade')->onUpdate('cascade');
             
