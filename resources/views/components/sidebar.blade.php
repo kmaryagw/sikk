@@ -120,10 +120,22 @@
 
             {{-- Laporan --}}
             @if (Auth::user()->role == 'admin')
-            <li class="{{ $type_menu === 'laporan' ? 'active' : '' }}">
-                <a class="nav-link"
-                    href="{{ url('laporan') }}"><i class="fa-solid fa-file-alt"></i> <span>Laporan</span>
-                </a>
+             <li class="nav-item dropdown {{ $type_menu === 'laporan' ? 'active' : '' }}">
+                <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fa-solid fa-file-alt"></i> <span>Laporan</span></a>
+                <ul class="dropdown-menu">
+                    <li class="{{ Request::is('laporan-iku') || (isset($sub_menu) && $sub_menu === 'laporan-iku') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('laporan-iku') }}"><i class="fas fa-bullseye"></i>IKU/IKT</a>
+                    </li>
+                    <li class="{{ Request::is('laporan-renja') || (isset($sub_menu) && $sub_menu === 'laporan-renja') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('laporan-renja') }}"><i class="fas fa-book"></i>Renja</a>
+                    </li>
+                    <li class="{{ Request::is('laporan-monitoring') || (isset($sub_menu) && $sub_menu === 'laporan-monitoring') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('laporan-monitoring') }}"><i class="fas fa-eye"></i>Hasil Monitoring</a>
+                    </li>
+                    <li class="{{ Request::is('laporan-evaluasi') || (isset($sub_menu) && $sub_menu === 'laporan-evaluasi') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('laporan-evaluasi') }}"><i class="fas fa-file-pen"></i>Evaluasi</a>
+                    </li>
+                </ul>
             </li>
             @endif
 
