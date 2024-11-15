@@ -39,10 +39,14 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('realisasirenja', RealisasiRenjaController::class);
     Route::get('realisasirenja/{rk_id}/realisasi', [RealisasiRenjaController::class, 'showRealisasi'])->name('realisasirenja.showRealisasi');
-    Route::get('/monitoring/{pmo_id}/fill', [MonitoringController::class, 'fill'])->name('monitoring.fill');
+    
 
     Route::get('/monitoring/{pmo_id}', [MonitoringController::class, 'show'])->name('monitoring.view');
     Route::get('/realisasi/{rk_id}/{pmo_id}', [RealisasiRenjaController::class, 'showForm'])->name('realisasi.form');
+    Route::get('/monitoring/{pmo_id}/fill', [MonitoringController::class, 'fill'])->name('monitoring.fill');
+    Route::post('/monitoring/store', [MonitoringController::class, 'store'])->name('monitoring.store');
+    Route::get('monitoring/{pmo_id}/{rk_id}/getData', [MonitoringController::class, 'getData']);
+
 
     Route::resource('monitoring', MonitoringController::class);
     Route::resource('periode-monitoring', PeriodeMonitoringController::class);

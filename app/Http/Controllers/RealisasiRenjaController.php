@@ -38,15 +38,21 @@ class RealisasiRenjaController extends Controller
     // Jika rk_id adalah string yang dipisahkan koma, ubah menjadi array
     $rk_id = explode(',', $rk_id);
 
-    $rencanaKerja = RencanaKerja::findOrFail($rk_id[0]); // Ambil salah satu sebagai contoh
+    // Ambil semua RencanaKerja yang memiliki rk_id yang ada dalam array $rk_id
+    $rencanaKerja = RencanaKerja::whereIn('rk_id', $rk_id)->get();
+
+    // Ambil semua RealisasiRenja yang terkait dengan rk_id yang ada dalam array $rk_id
     $realisasi = RealisasiRenja::whereIn('rk_id', $rk_id)->orderBy('created_at', 'asc')->get();
 
+    // Mengirimkan data ke view
     return view('pages.index-detail-realisasi', [
         'rencanaKerja' => $rencanaKerja,
         'realisasi' => $realisasi,
         'type_menu' => 'realisasirenja',
     ]);
 }
+
+
 
 
     public function create(Request $request)
@@ -68,7 +74,6 @@ class RealisasiRenjaController extends Controller
 
 public function store(Request $request)
 {
-    // Validasi input
     $request->validate([
         'rkr_url' => 'nullable|url',
         'rkr_file' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
@@ -78,37 +83,21 @@ public function store(Request $request)
         'pm_id' => 'nullable',
     ]);
 
-    // Validasi bahwa setidaknya rkr_url atau rkr_deskripsi harus diisi
     if (empty($request->rkr_url) && empty($request->rkr_deskripsi)) {
         Alert::error('Error', 'URL atau Deskripsi harus diisi.');
         return back()->withInput();
     }
 
-    // Menghasilkan rkr_id
-    $customPrefix = 'RKR';
-    $timestamp = time();
-    $md5Hash = md5($timestamp);
-    $rkr_id = $customPrefix . strtoupper($md5Hash);
-
-    // Simpan Realisasi
     $realisasi = new RealisasiRenja();
-    $realisasi->rkr_id = $rkr_id;
-    $realisasi->rk_id = is_array($request->rk_id) ? implode(",", $request->rk_id) : $request->rk_id;
+    $realisasi->rk_id = $request->rk_id;
     $realisasi->rkr_url = $request->rkr_url;
 
-    // Simpan file dengan storeAs jika ada
+    // Generate rkr_id jika tidak ada
+    $realisasi->rkr_id = (string) \Illuminate\Support\Str::uuid();
+
     if ($request->hasFile('rkr_file')) {
         $file = $request->file('rkr_file');
-        $hashedFilename = Hash::make($file->getClientOriginalName());
-        $extension = $file->getClientOriginalExtension();
-        $filePath = $file->storeAs('realisasi_files', $hashedFilename . '.' . $extension, 'public');
-
-        // Jika penyimpanan file gagal
-        if (!$filePath) {
-            Alert::error('Error', 'File Gagal Disimpan!');
-            return back()->withInput();
-        }
-
+        $filePath = $file->storeAs('realisasi_files', $file->getClientOriginalName(), 'public');
         $realisasi->rkr_file = $filePath;
     }
 
@@ -120,6 +109,8 @@ public function store(Request $request)
     Alert::success('Sukses', 'Data Berhasil Ditambah');
     return redirect()->route('realisasirenja.showRealisasi', $realisasi->rk_id);
 }
+
+
 
 public function edit($id)
 {

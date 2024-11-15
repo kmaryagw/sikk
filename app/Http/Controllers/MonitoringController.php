@@ -12,70 +12,71 @@ use RealRashid\SweetAlert\Facades\Alert;
 
 class MonitoringController extends Controller
 {
-
     public function index(Request $request)
-{
-    $title = 'Data Monitoring ';
-    $q = $request->query('q');
+    {
+        $title = 'Data Monitoring ';
+        $q = $request->query('q');
 
-    $periodemonitorings = PeriodeMonitoring::with('tahunKerja', 'periodeMonev')
-        ->join('periode_monev', 'periode_monitoring.pm_id', '=', 'periode_monev.pm_id')
-        ->orderBy('periode_monev.pm_nama', 'asc')
-        ->where('th_id', 'like', '%' . $q . '%')
-        ->paginate(10);
+        $periodemonitorings = PeriodeMonitoring::with('tahunKerja', 'periodeMonev')
+            ->join('periode_monev', 'periode_monitoring.pm_id', '=', 'periode_monev.pm_id')
+            ->orderBy('periode_monev.pm_nama', 'asc')
+            ->where('th_id', 'like', '%' . $q . '%')
+            ->paginate(10);
 
-    $no = $periodemonitorings->firstItem();
+        $no = $periodemonitorings->firstItem();
 
-    foreach ($periodemonitorings as $item) {
-        $tanggalMulai = Carbon::parse($item->pmo_tanggal_mulai);
-        $tanggalSelesai = Carbon::parse($item->pmo_tanggal_selesai);
+        foreach ($periodemonitorings as $item) {
+            $tanggalMulai = Carbon::parse($item->pmo_tanggal_mulai);
+            $tanggalSelesai = Carbon::parse($item->pmo_tanggal_selesai);
 
-        $selisihBulan = $tanggalMulai->diffInMonths($tanggalSelesai);
+            $selisihBulan = $tanggalMulai->diffInMonths($tanggalSelesai);
 
-        $item->is_within_three_months = $selisihBulan <= 3;
+            $item->is_within_three_months = $selisihBulan <= 3;
+        }
+
+        return view('pages.index-monitoring', [
+            'title' => $title,
+            'periodemonitorings' => $periodemonitorings,
+            'q' => $q,
+            'no' => $no,
+            'type_menu' => 'monitoring',
+        ]);
     }
 
-    return view('pages.index-monitoring', [
-        'title' => $title,
-        'periodemonitorings' => $periodemonitorings,
-        'q' => $q,
-        'no' => $no,
-        'type_menu' => 'monitoring',
-    ]);
-}
-
-// MonitoringController.php
-public function show($pmo_id)
-{
-    $title = 'Detail Monitoring';
     
-    // Ambil data periode monitoring berdasarkan pmo_id
-    $periodemonitoring = PeriodeMonitoring::with('tahunKerja', 'periodes')->findOrFail($pmo_id);
 
-    // Ambil daftar program kerja yang terkait dengan periode ini melalui tabel pivot
+    public function show($pmo_id)
+{
+    $periodemonitoring = PeriodeMonitoring::with('tahunKerja', 'periodes')
+        ->findOrFail($pmo_id);
+
+    // Mendapatkan program kerja yang terkait dengan periode monitoring
     $programKerjas = RencanaKerja::whereHas('periodes', function ($query) use ($periodemonitoring) {
-        // Menyaring berdasarkan pm_id yang terkait dengan periode monitoring
-        $query->whereIn('periode_monev.pm_id', $periodemonitoring->periodes->pluck('pm_id'));
-    })->get();
+        $query->where('rencana_kerja_pelaksanaan.pm_id', $periodemonitoring->pm_id);
+    })->with(['unitKerja', 'monitoring'])->get();
 
     return view('pages.monitoring-show', [
-        'title' => $title,
         'periodemonitoring' => $periodemonitoring,
         'programKerjas' => $programKerjas,
         'type_menu' => 'monitoring',
     ]);
 }
 
+
 public function fill($pmo_id)
 {
-    // Ambil data periode monitoring beserta relasi tahunKerja dan periodeMonev
-    $periodeMonitoring = PeriodeMonitoring::with('tahunKerja', 'periodeMonev')
-        ->findOrFail($pmo_id);
+    $periodeMonitoring = PeriodeMonitoring::with('tahunKerja', 'periodeMonev')->findOrFail($pmo_id);
 
-    // Dapatkan rencana kerja yang terkait dengan periode monev dari periode monitoring
-    $rencanaKerja = RencanaKerja::whereHas('periodes', function ($query) use ($periodeMonitoring) {
-        $query->where('rencana_kerja_pelaksanaan.pm_id', $periodeMonitoring->pm_id); // Pastikan menggunakan alias tabel
+    $rencanaKerja = RencanaKerja::with(['monitoring' => function ($query) use ($pmo_id) {
+        $query->where('pmo_id', $pmo_id);
+    }, 'unitKerja'])->whereHas('periodes', function ($query) use ($periodeMonitoring) {
+        $query->where('rencana_kerja_pelaksanaan.pm_id', $periodeMonitoring->pm_id);
     })->get();
+
+    // Menentukan apakah data monitoring sudah diisi
+    foreach ($rencanaKerja as $rencana) {
+        $rencana->is_submitted = $rencana->monitoring->isNotEmpty();
+    }
 
     return view('pages.monitoring-fill', [
         'periodeMonitoring' => $periodeMonitoring,
@@ -86,32 +87,65 @@ public function fill($pmo_id)
 
 
 
+
+
 public function store(Request $request)
 {
-    $monitoring = new Monitoring();
-    $monitoring->rk_id = $request->input('rk_id');
-    $monitoring->pmo_id = $request->input('pmo_id');
-    $monitoring->save();
+    // Validasi data yang diterima
+    $validated = $request->validate([
+        'mtg_capaian' => 'required|numeric',
+        'mtg_kondisi' => 'required|string',
+        'mtg_kendala' => 'nullable|string',
+        'mtg_tindak_lanjut' => 'nullable|string',
+        'mtg_tindak_lanjut_tanggal' => 'nullable|date',
+        'mtg_bukti' => 'nullable|file|mimes:pdf,jpg,png,jpeg|max:2048',
+    ]);
 
-    Alert::success('Berhasil', 'Data monitoring berhasil diisi');
-    return redirect()->route('monitoring.index');
+    try {
+        // Proses penyimpanan data monitoring
+        $monitoring = Monitoring::updateOrCreate(
+            ['pmo_id' => $request->pmo_id, 'rk_id' => $request->rk_id],
+            [
+                'mtg_capaian' => $validated['mtg_capaian'],
+                'mtg_kondisi' => $validated['mtg_kondisi'],
+                'mtg_kendala' => $validated['mtg_kendala'],
+                'mtg_tindak_lanjut' => $validated['mtg_tindak_lanjut'],
+                'mtg_tindak_lanjut_tanggal' => $validated['mtg_tindak_lanjut_tanggal'],
+            ]
+        );
+
+        // Simpan file dengan storeAs jika ada file
+        if ($request->hasFile('mtg_bukti')) {
+            $file = $request->file('mtg_bukti');
+            $hashedFilename = md5($file->getClientOriginalName() . time()); // Hash dengan timestamp
+            $extension = $file->getClientOriginalExtension();
+            $filePath = $file->storeAs('monitoring_bukti', $hashedFilename . '.' . $extension, 'public');
+
+            // Update kolom mtg_bukti dengan path file
+            $monitoring->mtg_bukti = $filePath;
+            $monitoring->save();
+
+            // Jika file gagal disimpan
+            if (!$filePath) {
+                Alert::error('Error', 'File Gagal Disimpan!');
+                return back();
+            }
+        }
+
+        Alert::success('Berhasil', 'Data monitoring berhasil disimpan.');
+        return redirect()->route('monitoring.index')->with('success', 'Data monitoring berhasil disimpan.');
+    } catch (\Exception $e) {
+        // Tangkap error dan kembalikan respon gagal
+        Alert::error('Gagal', 'Terjadi kesalahan dalam menyimpan data.');
+        return redirect()->route('monitoring.index')->with('error', 'Terjadi kesalahan dalam menyimpan data.');
+    }
 }
 
-
-public function showFormMonitoring($rk_id, $pmo_id)
+public function getData($pmo_id, $rk_id)
 {
-    // Mengambil data rencana kerja berdasarkan ID
-    $rencanaKerja = RencanaKerja::find($rk_id);
+    $monitoring = Monitoring::where('pmo_id', $pmo_id)->where('rk_id', $rk_id)->first();
 
-    // Mengambil data realisasi jika ada
-    $realisasi = RealisasiRenja::where('rk_id', $rk_id)
-        ->where('pm_id', $pmo_id)
-        ->first();
-
-    // Menentukan URL untuk halaman realisasi
-    $realisasiPageUrl = route('realisasi.form', ['rk_id' => $rk_id, 'pmo_id' => $pmo_id]);
-
-    return view('yourview', compact('rencanaKerja', 'realisasi', 'realisasiPageUrl'));
+    return response()->json($monitoring);
 }
 
 
