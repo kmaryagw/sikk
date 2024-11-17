@@ -8,6 +8,7 @@ use App\Models\RealisasiRenja;
 use App\Models\RencanaKerja;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class MonitoringController extends Controller
@@ -73,12 +74,15 @@ public function fill($pmo_id)
         $query->where('rencana_kerja_pelaksanaan.pm_id', $periodeMonitoring->pm_id);
     })->get();
 
+    $realisasi = RealisasiRenja::whereIn('rk_id', $rencanaKerja->pluck('rk_id'))->get()->keyBy('rk_id');
+
     // Menentukan apakah data monitoring sudah diisi
     foreach ($rencanaKerja as $rencana) {
         $rencana->is_submitted = $rencana->monitoring->isNotEmpty();
     }
 
     return view('pages.monitoring-fill', [
+        'realisasi' => $realisasi,
         'periodeMonitoring' => $periodeMonitoring,
         'rencanaKerja' => $rencanaKerja,
         'type_menu' => 'monitoring',
@@ -102,44 +106,43 @@ public function store(Request $request)
     ]);
 
     try {
-        // Proses penyimpanan data monitoring
-        $monitoring = Monitoring::updateOrCreate(
-            ['pmo_id' => $request->pmo_id, 'rk_id' => $request->rk_id],
-            [
-                'mtg_capaian' => $validated['mtg_capaian'],
-                'mtg_kondisi' => $validated['mtg_kondisi'],
-                'mtg_kendala' => $validated['mtg_kendala'],
-                'mtg_tindak_lanjut' => $validated['mtg_tindak_lanjut'],
-                'mtg_tindak_lanjut_tanggal' => $validated['mtg_tindak_lanjut_tanggal'],
-            ]
-        );
+        // Ambil data monitoring berdasarkan pmo_id dan rk_id, atau buat baru
+        $monitoring = Monitoring::firstOrNew(['pmo_id' => $request->pmo_id, 'rk_id' => $request->rk_id]);
 
-        // Simpan file dengan storeAs jika ada file
+        // Update data monitoring dengan nilai baru
+        $monitoring->mtg_capaian = $validated['mtg_capaian'];
+        $monitoring->mtg_kondisi = $validated['mtg_kondisi'];
+        $monitoring->mtg_kendala = $validated['mtg_kendala'];
+        $monitoring->mtg_tindak_lanjut = $validated['mtg_tindak_lanjut'];
+        $monitoring->mtg_tindak_lanjut_tanggal = $validated['mtg_tindak_lanjut_tanggal'];
+
+        // Update mtg_bukti jika ada file baru yang diunggah
         if ($request->hasFile('mtg_bukti')) {
-            $file = $request->file('mtg_bukti');
-            $hashedFilename = md5($file->getClientOriginalName() . time()); // Hash dengan timestamp
-            $extension = $file->getClientOriginalExtension();
-            $filePath = $file->storeAs('monitoring_bukti', $hashedFilename . '.' . $extension, 'public');
-
-            // Update kolom mtg_bukti dengan path file
-            $monitoring->mtg_bukti = $filePath;
-            $monitoring->save();
-
-            // Jika file gagal disimpan
-            if (!$filePath) {
-                Alert::error('Error', 'File Gagal Disimpan!');
-                return back();
+            // Hapus file lama jika ada
+            if ($monitoring->mtg_bukti) {
+                Storage::disk('public')->delete($monitoring->mtg_bukti);
             }
+            // Simpan file baru
+            $monitoring->mtg_bukti = $request->file('mtg_bukti')->store('monitoring_bukti', 'public');
         }
 
+        // Simpan data monitoring
+        $monitoring->save();
+
         Alert::success('Berhasil', 'Data monitoring berhasil disimpan.');
-        return redirect()->route('monitoring.index')->with('success', 'Data monitoring berhasil disimpan.');
+        return redirect()->route('monitoring.fill', ['pmo_id' => $request->pmo_id])
+            ->with('success', 'Data monitoring berhasil disimpan.');
     } catch (\Exception $e) {
-        // Tangkap error dan kembalikan respon gagal
         Alert::error('Gagal', 'Terjadi kesalahan dalam menyimpan data.');
-        return redirect()->route('monitoring.index')->with('error', 'Terjadi kesalahan dalam menyimpan data.');
+        return redirect()->route('monitoring.fill', ['pmo_id' => $request->pmo_id])
+            ->with('error', 'Terjadi kesalahan dalam menyimpan data: ');
+
     }
 }
+
+
+
+
 
 public function getData($pmo_id, $rk_id)
 {

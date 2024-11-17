@@ -47,7 +47,7 @@
                                                     <i class="fa-solid fa-pen-to-square"></i> Isi Monitoring
                                                 </button>
                                             @endif
-                                        </td>                                        
+                                        </td>                                      
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -70,79 +70,127 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     function showMonitoringModal(rencanaKerjaNama, pmo, rk) {
-    // Ambil data monitoring berdasarkan `pmo_id` dan `rk_id`
-    fetch(`/monitoring/${pmo}/${rk}/getData`)
-        .then(response => response.json())
-        .then(data => {
-            const capaian = data?.mtg_capaian || ''; // Jika null, gunakan nilai kosong
-            const kondisi = data?.mtg_kondisi || '';
-            const kendala = data?.mtg_kendala || '';
-            const tindakLanjut = data?.mtg_tindak_lanjut || '';
-            const tindakLanjutTanggal = data?.mtg_tindak_lanjut_tanggal || '';
-            const bukti = data?.mtg_bukti || null; // Cek apakah ada file bukti
+        fetch(`/monitoring/${pmo}/${rk}/getData`)
+            .then(response => response.json())
+            .then(data => {
+                const capaian = data?.mtg_capaian || '';
+                const kondisi = data?.mtg_kondisi || '';
+                const kendala = data?.mtg_kendala || '';
+                const tindakLanjut = data?.mtg_tindak_lanjut || '';
+                const tindakLanjutTanggal = data?.mtg_tindak_lanjut_tanggal || '';
+                const bukti = data?.mtg_bukti || null;
 
-            let fileBuktiHTML = ''; // Placeholder untuk elemen preview file bukti
-            if (bukti) {
-                fileBuktiHTML = `
-                    <div class="mb-3">
-                        <p><strong>Bukti Terunggah:</strong> <a href="/storage/${bukti}" target="_blank">Lihat Bukti</a></p>
-                    </div>
-                `;
-            }
+                let fileBuktiHTML = '';
+                if (bukti) {
+                    fileBuktiHTML = `<div class="mb-3"><p><strong>Bukti Terunggah:</strong> <a href="/storage/${bukti}" target="_blank">Lihat Bukti</a></p></div>`;
+                }
 
-            Swal.fire({
-                title: `Isi Monitoring untuk ${rencanaKerjaNama}`,
-                width: '75%',
-                html: `
-                    <div class="container-fluid">
+                Swal.fire({
+                    title: `Isi Monitoring untuk ${rencanaKerjaNama}`,
+                    width: '75%',
+                    html: `
                         <form id="monitoringForm" action="{{ route('monitoring.store') }}" method="POST" enctype="multipart/form-data">
-                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                            @csrf
                             <input type="hidden" name="pmo_id" value="${pmo}">
                             <input type="hidden" name="rk_id" value="${rk}">
                             <div class="form-group text-left">
                                 <label for="mtg_capaian">Capaian</label>
-                                <input type="number" name="mtg_capaian" class="form-control" placeholder="Masukkan capaian (angka)" value="${capaian}" required>
+                                <input type="number" name="mtg_capaian" class="form-control" value="${capaian}" required>
                             </div>
                             <div class="form-group text-left">
                                 <label for="mtg_kondisi">Kondisi</label>
-                                <input type="text" name="mtg_kondisi" class="form-control" placeholder="Masukkan kondisi" value="${kondisi}" required>
+                                <input type="text" name="mtg_kondisi" class="form-control" value="${kondisi}" required>
                             </div>
                             <div class="form-group text-left">
                                 <label for="mtg_kendala">Kendala</label>
-                                <input type="text" name="mtg_kendala" class="form-control" placeholder="Masukkan kendala" value="${kendala}">
+                                <input type="text" name="mtg_kendala" class="form-control" value="${kendala}">
                             </div>
                             <div class="form-group text-left">
                                 <label for="mtg_tindak_lanjut">Tindak Lanjut</label>
-                                <input type="text" name="mtg_tindak_lanjut" class="form-control" placeholder="Masukkan tindak lanjut" value="${tindakLanjut}">
+                                <input type="text" name="mtg_tindak_lanjut" class="form-control" value="${tindakLanjut}">
                             </div>
                             <div class="form-group text-left">
                                 <label for="mtg_tindak_lanjut_tanggal">Tanggal Tindak Lanjut</label>
                                 <input type="date" name="mtg_tindak_lanjut_tanggal" class="form-control" value="${tindakLanjutTanggal}">
                             </div>
-                            ${fileBuktiHTML}
                             <div class="form-group text-left">
-                                <label for="mtg_bukti">Unggah Bukti</label>
+                                <label for="mtg_bukti">Bukti</label>
                                 <input type="file" name="mtg_bukti" class="form-control">
                             </div>
-                            <div class="mt-4 text-right">
-                                <button type="button" onclick="Swal.close()" class="btn btn-secondary mr-2">
-                                    <i class="fa-solid fa-times"></i> Batal
-                                </button>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fa-solid fa-save"></i> Simpan Monitoring
-                                </button>
-                            </div>
+                            ${fileBuktiHTML}
                         </form>
-                    </div>
-                `,
-                showConfirmButton: false,
-                showCancelButton: false,
-            });
-        })
-        .catch(error => {
-            console.error("Error fetching monitoring data:", error);
-            Swal.fire('Gagal', 'Tidak dapat mengambil data monitoring.', 'error');
-        });
-}
+
+                        <div class="mt-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Data Realisasi</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-striped table-hover text-center">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th>No</th>
+                                                    <th>Deskripsi</th>
+                                                    <th>Capaian</th>
+                                                    <th>Tanggal</th>
+                                                    <th>URL</th>
+                                                    <th>File</th>
+                                                    
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @php $no = 1; @endphp
+                                                @foreach ($realisasi as $item)
+                                                    <tr>
+                                                        <td>{{ $no++ }}</td>
+                                                        <td class="text-wrap">{{ $item->rkr_deskripsi }}</td>
+                                                        <td>
+                                                            <div class="progress" style="height: 20px;">
+                                                                <div class="progress-bar bg-success" role="progressbar" style="width: {{ $item->rkr_capaian }}%;" aria-valuenow="{{ $item->rkr_capaian }}" aria-valuemin="0" aria-valuemax="100">
+                                                                    {{ $item->rkr_capaian }}%
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td>{{ \Carbon\Carbon::parse($item->rkr_tanggal)->format('d-m-Y') }}</td>
+                                                        <td class="text-wrap">
+                                                            @if($item->rkr_url)
+                                                                <a href="{{ $item->rkr_url }}" target="_blank">{{ $item->rkr_url }}</a>
+                                                            @else
+                                                                Tidak Ada URL
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @if($item->rkr_file)
+                                                                <a class="btn btn-success btn-sm" href="{{ asset('storage/' . $item->rkr_file) }}" target="_blank">Lihat Dokumen</a>
+                                                            @else
+                                                                Tidak Ada Dokumen
+                                                            @endif
+                                                        </td>
+                                                        
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                            <td>
+                                                            <a href="{{ route('realisasirenja.create', ['rk_id' => $item->rk_id]) }}" class="btn btn-warning btn-sm">
+                                                                <i class="fa-solid fa-pen-to-square"></i> Isi Realisasi
+                                                            </a>
+                                                        </td>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Simpan',
+                    cancelButtonText: 'Batal',
+                    preConfirm: () => {
+                        document.getElementById('monitoringForm').submit();
+                    }
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    }
 </script>
 @endpush
