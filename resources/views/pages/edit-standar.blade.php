@@ -72,7 +72,7 @@
                                         <div>
                                             @if($standar->standardokumen->isNotEmpty())
                                                 @foreach($standar->standardokumen as $dokumen)
-                                                    <a href="{{ asset('storage/' . $dokumen->stdd_file) }}" target="_blank" class="btn btn-info mb-2">Lihat Dokumen Sebelumnya</a><br>
+                                                    <a href="{{ asset('storage/' . $dokumen->stdd_file) }}" target="_blank" class="btn btn-info mb-2"> <i class="fa-solid fa-eye"></i> Lihat Dokumen</a><br>
                                                 @endforeach
                                             @else
                                                 Tidak Ada Dokumen

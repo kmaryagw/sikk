@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EvaluasiController;
 use App\Http\Controllers\IndikatorKinerjaUtamaController;
 use App\Http\Controllers\LaporanIkuController;
 use App\Http\Controllers\LaporanRenjaController;
@@ -47,9 +48,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/monitoring/store', [MonitoringController::class, 'store'])->name('monitoring.store');
     Route::get('monitoring/{pmo_id}/{rk_id}/getData', [MonitoringController::class, 'getData']);
 
-
     Route::resource('monitoring', MonitoringController::class);
     Route::resource('periode-monitoring', PeriodeMonitoringController::class);
+    Route::resource('evaluasi', EvaluasiController::class);
 
     Route::resource('laporan-renja', LaporanRenjaController::class);
     Route::get('/export-excel-renja', [LaporanRenjaController::class, 'exportExcel'])->name('export-excel.renja');

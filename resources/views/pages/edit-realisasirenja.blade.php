@@ -64,14 +64,28 @@
 
                                         <!-- Capaian -->
                                         <div class="form-group">
-                                            <label for="rkr_capaian">Capaian (angka)</label>
-                                            <input class="form-control" type="number" name="rkr_capaian" value="{{ old('rkr_capaian', $realisasi->rkr_capaian) }}" required />
+                                            <label>Capaian</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <div class="input-group-text">
+                                                        <i class="fa-solid fa-percent"></i>
+                                                    </div>
+                                                </div>
+                                                <input class="form-control" type="number" name="rkr_capaian" value="{{ old('rkr_capaian', $realisasi->rkr_capaian) }}" required />
+                                            </div>
                                         </div>
 
                                         <!-- Tanggal Realisasi -->
                                         <div class="form-group">
-                                            <label for="rkr_tanggal">Tanggal Realisasi</label>
-                                            <input class="form-control" type="date" name="rkr_tanggal" value="{{ old('rkr_tanggal', $realisasi->rkr_tanggal) }}" required />
+                                            <label>Tanggal Realisasi</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <div class="input-group-text">
+                                                        <i class="fa-solid fa-calendar"></i>
+                                                    </div>
+                                                </div>
+                                                <input class="form-control" type="datetime-local" name="rkr_tanggal" value="{{ old('rkr_tanggal', $realisasi->rkr_tanggal)  }}" required />
+                                            </div>
                                         </div>
 
                                         <!-- URL Realisasi -->
@@ -91,7 +105,7 @@
                                             <label>Dokumen yang Sudah Diunggah</label>
                                             <div>
                                                 @if($realisasi->rkr_file)
-                                                    <a class="btn btn-success" href="{{ asset('storage/' . $realisasi->rkr_file) }}" target="_blank">Lihat Dokumen</a><br>
+                                                    <a class="btn btn-success" href="{{ asset('storage/' . $realisasi->rkr_file) }}" target="_blank"><i class="fa-solid fa-eye"></i> Lihat Dokumen</a><br>
                                                 @else
                                                     <span class="text-muted">Tidak Ada Dokumen</span>
                                                 @endif
@@ -100,8 +114,16 @@
 
                                         <!-- File Realisasi -->
                                         <div class="form-group">
-                                            <label for="rkr_file">File Realisasi (Kosongkan jika tidak ingin mengganti)</label>
-                                            <input class="form-control" type="file" name="rkr_file" />
+                                            <label for="rkr_file">File Realisasi (Opsional)</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <div class="input-group-text">
+                                                        <i class="fa-solid fa-file-upload"></i>
+                                                    </div>
+                                                </div>
+                                                <input class="form-control" type="file" name="rkr_file" />
+                                            </div>
+                                            <small class="text-muted">Biarkan kosong jika tidak ingin mengganti dokumen.</small>
                                         </div>
 
                                         <!-- Submit Button -->

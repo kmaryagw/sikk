@@ -82,8 +82,15 @@
 
                 let fileBuktiHTML = '';
                 if (bukti) {
-                    fileBuktiHTML = `<div class="mb-3"><p><strong>Bukti Terunggah:</strong> <a href="/storage/${bukti}" target="_blank">Lihat Bukti</a></p></div>`;
+                    fileBuktiHTML = `
+                        <div class="form-group">
+                            <p><strong>Bukti Terunggah</strong></p>
+                            <a href="/storage/${bukti}" target="_blank" class="btn btn-success btn-sm">
+                                <i class="fa-solid fa-eye"></i> Lihat Bukti
+                            </a>
+                        </div>`;
                 }
+
 
                 Swal.fire({
                     title: `Isi Monitoring untuk ${rencanaKerjaNama}`,
@@ -95,29 +102,74 @@
                             <input type="hidden" name="rk_id" value="${rk}">
                             <div class="form-group text-left">
                                 <label for="mtg_capaian">Capaian</label>
-                                <input type="number" name="mtg_capaian" class="form-control" value="${capaian}" required>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="fa-solid fa-percent"></i>
+                                        </div>
+                                    </div>
+                                    <input type="number" name="mtg_capaian" class="form-control" value="${capaian}" required>
+                                </div>
                             </div>
                             <div class="form-group text-left">
                                 <label for="mtg_kondisi">Kondisi</label>
-                                <input type="text" name="mtg_kondisi" class="form-control" value="${kondisi}" required>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="fa-solid fa-info-circle"></i>
+                                        </div>
+                                    </div>
+                                    <input type="text" name="mtg_kondisi" class="form-control" value="${kondisi}" required>
+                                </div>
                             </div>
                             <div class="form-group text-left">
                                 <label for="mtg_kendala">Kendala</label>
-                                <input type="text" name="mtg_kendala" class="form-control" value="${kendala}">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="fa-solid fa-exclamation-triangle"></i>
+                                        </div>
+                                    </div>
+                                    <input type="text" name="mtg_kendala" class="form-control" value="${kendala}">
+                                </div> 
                             </div>
                             <div class="form-group text-left">
                                 <label for="mtg_tindak_lanjut">Tindak Lanjut</label>
-                                <input type="text" name="mtg_tindak_lanjut" class="form-control" value="${tindakLanjut}">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="fa-solid fa-tasks"></i>
+                                        </div>
+                                    </div>
+                                    <input type="text" name="mtg_tindak_lanjut" class="form-control" value="${tindakLanjut}">
+                                </div>
                             </div>
                             <div class="form-group text-left">
                                 <label for="mtg_tindak_lanjut_tanggal">Tanggal Tindak Lanjut</label>
-                                <input type="date" name="mtg_tindak_lanjut_tanggal" class="form-control" value="${tindakLanjutTanggal}">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="fa-solid fa-calendar"></i>
+                                        </div>
+                                    </div>
+                                    <input type="date" name="mtg_tindak_lanjut_tanggal" class="form-control" value="${tindakLanjutTanggal}">
+                                </div> 
                             </div>
                             <div class="form-group text-left">
                                 <label for="mtg_bukti">Bukti</label>
-                                <input type="file" name="mtg_bukti" class="form-control">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="fa-solid fa-file-upload"></i>
+                                        </div>
+                                    </div>
+                                    <input class="form-control" type="file" name="mtg_bukti" />
+                                </div>
                             </div>
-                            ${fileBuktiHTML}
+                            
+                            <div class="form-group">
+                                ${fileBuktiHTML}
+                            </div>
                         </form>
 
                         <div class="mt-4">
@@ -147,7 +199,7 @@
                                                         <td class="text-wrap">{{ $item->rkr_deskripsi }}</td>
                                                         <td>
                                                             <div class="progress" style="height: 20px;">
-                                                                <div class="progress-bar bg-success" role="progressbar" style="width: {{ $item->rkr_capaian }}%;" aria-valuenow="{{ $item->rkr_capaian }}" aria-valuemin="0" aria-valuemax="100">
+                                                                <div class="progress-bar bg-danger" role="progressbar" style="width: {{ $item->rkr_capaian }}%;" aria-valuenow="{{ $item->rkr_capaian }}" aria-valuemin="0" aria-valuemax="100">
                                                                     {{ $item->rkr_capaian }}%
                                                                 </div>
                                                             </div>
@@ -184,7 +236,11 @@
                     `,
                     showCancelButton: true,
                     confirmButtonText: 'Simpan',
-                    cancelButtonText: 'Batal',
+                    cancelButtonText: 'Kembali',
+                    customClass: {
+                        confirmButton: 'btn btn-primary',
+                        cancelButton: 'btn btn-danger'
+                    },
                     preConfirm: () => {
                         document.getElementById('monitoringForm').submit();
                     }

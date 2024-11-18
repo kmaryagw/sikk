@@ -14,13 +14,18 @@ class Evaluasi extends Model
     public $incrementing = false;
     protected $fillable = [
         'eval_id',
-        'th_laporan',
         'th_id',
+        'prodi_id',
     ];
 
     public function tahun_kerja()
     {
         return $this->belongsTo(tahun_kerja::class, 'th_id', 'th_id');
+    }
+
+    public function prodi()
+    {
+        return $this->belongsTo(program_studi::class, 'prodi_id', 'prodi_id');
     }
 
     public $timestamps = true;
