@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use RealRashid\SweetAlert\Facades\Alert;
-use Illuminate\Support\Str;
 
 class UserController extends Controller
 {

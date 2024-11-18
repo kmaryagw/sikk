@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\RencanaKerja;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\LaporanExport;
 use App\Models\tahun_kerja;
 use App\Models\UnitKerja;
 use Barryvdh\DomPDF\Facade\Pdf;

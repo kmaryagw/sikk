@@ -43,21 +43,16 @@ class PeriodeMonevController extends Controller
     public function store(Request $request)
 {
     $request->validate([
-        'pm_nama' => 'required|string|max:255',  // Validasi untuk pm_nama
+        'pm_nama' => 'required|string|max:255',
     ]);
 
-    // Generate custom ID
     $customPrefix = 'PM';
-    $timestamp = time(); // Ambil timestamp sebagai basis untuk ID
-    $md5Hash = md5($timestamp);  // Hash dari timestamp
-    $pm_id = $customPrefix . strtoupper($md5Hash);  // ID yang di-generate
+    $timestamp = time();
+    $md5Hash = md5($timestamp);
+    $pm_id = $customPrefix . strtoupper($md5Hash);
 
-    // Cek apakah ID sudah benar
-      // Debug log untuk memeriksa pm_id
-
-    // Create new instance and assign values
     $pm = new periode_monev();
-    $pm->pm_id = $pm_id;  // Set custom ID
+    $pm->pm_id = $pm_id;
     $pm->pm_nama = $request->pm_nama;
     
     $pm->save();

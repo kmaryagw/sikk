@@ -3,14 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\periode_monev;
-use App\Models\ProgramKerja;
 use App\Models\RencanaKerja;
-use App\Models\RencanaKerjaPelaksanaan;
 use App\Models\tahun_kerja;
 use App\Models\UnitKerja;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class ProgramKerjaController extends Controller
@@ -92,10 +89,9 @@ class ProgramKerjaController extends Controller
             'rk_nama' => 'required|string|max:255',
             'unit_id' => 'required|exists:unit_kerja,unit_id',
             'th_id' => 'required|exists:tahun_kerja,th_id',
-            'pm_id' => 'array', // Validasi untuk checkbox periode
+            'pm_id' => 'array',
         ]);
 
-        // Cek keaktifan unit dan tahun
         $unitAktif = UnitKerja::where('unit_id', $request->unit_id)->where('unit_kerja', 'y')->exists();
         $tahunAktif = tahun_kerja::where('th_id', $request->th_id)->where('ren_is_aktif', 'y')->exists();
 
@@ -104,13 +100,11 @@ class ProgramKerjaController extends Controller
             return redirect()->back()->withInput();
         }
 
-        // Buat ID unik untuk `rk_id`
         $customPrefix = 'RK';
         $timestamp = time();
         $md5Hash = md5($timestamp);
         $rk_id = $customPrefix . strtoupper($md5Hash);
 
-        // Simpan data ke `rencana_kerja`
         $programkerja = new RencanaKerja();
         $programkerja->rk_id = $rk_id;
         $programkerja->rk_nama = $request->rk_nama;
@@ -118,9 +112,8 @@ class ProgramKerjaController extends Controller
         $programkerja->th_id = $request->th_id;
         $programkerja->save();
 
-        // Menyimpan `pm_id` di tabel pivot `rencana_kerja_pelaksanaan`
         if ($request->has('pm_id')) {
-            $programkerja->periodes()->sync($request->pm_id); // Simpan data ke tabel pivot
+            $programkerja->periodes()->sync($request->pm_id);
         }
 
         Alert::success('Sukses', 'Data Berhasil Ditambah');
@@ -134,7 +127,6 @@ class ProgramKerjaController extends Controller
         $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
         $periode = periode_monev::all();
 
-        // Mendapatkan ID periode yang terkait dengan program kerja ini
         $selectedPeriodes = $programkerja->periodes->pluck('pm_id')->toArray();
 
         return view('pages.edit-programkerja', [
@@ -170,7 +162,6 @@ class ProgramKerjaController extends Controller
         $programkerja->th_id = $request->th_id;
         $programkerja->save();
 
-        // Menyimpan periode_ids yang dipilih ke tabel pivot
         if ($request->has('pm_id')) {
             $programkerja->periodes()->sync($request->pm_id);
         }

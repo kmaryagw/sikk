@@ -6,9 +6,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\IndikatorKinerjaUtama;
 use App\Models\Standar;
 use App\Models\tahun_kerja;
-use App\Models\TahunKerja; // Model untuk tahun kerja
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB as FacadesDB;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class IndikatorKinerjaUtamaController extends Controller
