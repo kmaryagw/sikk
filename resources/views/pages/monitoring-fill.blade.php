@@ -36,17 +36,11 @@
                                         <td>{{ $rencana->rk_nama }}</td>
                                         <td>{{ $rencana->unitKerja->unit_nama ?? 'N/A' }}</td>
                                         <td>
-                                            @if($rencana->is_submitted)
-                                                <button onclick="showMonitoringModal('{{ $rencana->rk_nama }}', '{{ $periodeMonitoring->pmo_id }}', '{{ $rencana->rk_id }}')" 
-                                                    class="btn btn-success btn-sm">
-                                                    <i class="fa-solid fa-eye"></i> Lihat Data
-                                                </button>
-                                            @else
-                                                <button onclick="showMonitoringModal('{{ $rencana->rk_nama }}', '{{ $periodeMonitoring->pmo_id }}', '{{ $rencana->rk_id }}')" 
-                                                    class="btn btn-warning btn-sm">
-                                                    <i class="fa-solid fa-pen-to-square"></i> Isi Monitoring
-                                                </button>
-                                            @endif
+                                            <button onclick="showMonitoringModal('{{ $rencana->rk_nama }}', '{{ $periodeMonitoring->pmo_id }}', '{{ $rencana->rk_id }}')" 
+                                                class="btn btn-{{ $rencana->is_submitted ? 'success' : 'warning' }} btn-sm">
+                                                <i class="fa-solid {{ $rencana->is_submitted ? 'fa-eye' : 'fa-pen-to-square' }}"></i> 
+                                                {{ $rencana->is_submitted ? 'Lihat Data' : 'Isi Monitoring' }}
+                                            </button>
                                         </td>                                      
                                     </tr>
                                 @endforeach
@@ -71,30 +65,56 @@
 <script>
     function showMonitoringModal(rencanaKerjaNama, pmo, rk) {
         fetch(`/monitoring/${pmo}/${rk}/getData`)
-            .then(response => response.json())
-            .then(data => {
-                const capaian = data?.mtg_capaian || '';
-                const kondisi = data?.mtg_kondisi || '';
-                const kendala = data?.mtg_kendala || '';
-                const tindakLanjut = data?.mtg_tindak_lanjut || '';
-                const tindakLanjutTanggal = data?.mtg_tindak_lanjut_tanggal || '';
-                const bukti = data?.mtg_bukti || null;
-
-                let fileBuktiHTML = '';
-                if (bukti) {
-                    fileBuktiHTML = `
-                        <div class="form-group">
-                            <p><strong>Bukti Terunggah</strong></p>
-                            <a href="/storage/${bukti}" target="_blank" class="btn btn-success btn-sm">
-                                <i class="fa-solid fa-eye"></i> Lihat Bukti
-                            </a>
-                        </div>`;
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
                 }
+                return response.json();
+            })
+            .then(data => {
+                const capaian = data[0]?.mtg_capaian || '';
+                const kondisi = data[0]?.mtg_kondisi || '';
+                const kendala = data[0]?.mtg_kendala || '';
+                const tindakLanjut = data[0]?.mtg_tindak_lanjut || '';
+                const tindakLanjutTanggal = data[0]?.mtg_tindak_lanjut_tanggal || '';
+                const bukti = data[0]?.mtg_bukti || null;
 
+                let fileBuktiHTML = bukti ? `
+                    <div class="form-group">
+                        <p><strong>Bukti Terunggah</strong></p>
+                        <a href="/storage/${bukti}" target="_blank" class="btn btn-success btn-sm">
+                            <i class="fa-solid fa-eye"></i> Lihat Bukti
+                        </a>
+                    </div>` : '';
+
+                const realisasi = data[1].filter(rl => rl.rk_id === rk);
+
+                let viewRealisasi = '';
+                realisasi.forEach((rl, index) => {
+                    viewRealisasi += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td class="text-wrap">${rl.rkr_deskripsi}</td>
+                            <td>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-danger" role="progressbar" style="width: ${rl.rkr_capaian}%" aria-valuenow="${rl.rkr_capaian}" aria-valuemin="0" aria-valuemax="100">
+                                        ${rl.rkr_capaian}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td>${rl.rkr_tanggal ? new Date(rl.rkr_tanggal).toLocaleDateString('id-ID') : 'N/A'}</td>
+                            <td class="text-wrap">
+                                ${rl.rkr_url ? `<a href="${rl.rkr_url}" target="_blank">${rl.rkr_url}</a>` : 'Tidak Ada URL'}
+                            </td>
+                            <td>
+                                ${rl.rkr_file ? `<a class="btn btn-success btn-sm" href="/storage/${rl.rkr_file}" target="_blank">Lihat Dokumen</a>` : 'Tidak Ada Dokumen'}
+                            </td>
+                        </tr>`;
+                });
 
                 Swal.fire({
                     title: `Isi Monitoring untuk ${rencanaKerjaNama}`,
-                    width: '75%',
+                    width: '90%',
                     html: `
                         <form id="monitoringForm" action="{{ route('monitoring.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
@@ -175,59 +195,24 @@
                         <div class="mt-4">
                             <div class="card">
                                 <div class="card-header">
-                                    <h4>Data Realisasi</h4>
+                                    <h4>Data Realisasi ${rencanaKerjaNama}</h4>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
-                                        <table class="table table-bordered table-striped table-hover text-center">
-                                            <thead class="thead-light">
+                                        <table class="table table-bordered">
+                                            <thead>
                                                 <tr>
                                                     <th>No</th>
-                                                    <th>Deskripsi</th>
+                                                    <th>Deskripsi Realisasi</th>
                                                     <th>Capaian</th>
-                                                    <th>Tanggal</th>
+                                                    <th>Tanggal Realisasi</th>
                                                     <th>URL</th>
-                                                    <th>File</th>
-                                                    
+                                                    <th>Dokumen</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @php $no = 1; @endphp
-                                                @foreach ($realisasi as $item)
-                                                    <tr>
-                                                        <td>{{ $no++ }}</td>
-                                                        <td class="text-wrap">{{ $item->rkr_deskripsi }}</td>
-                                                        <td>
-                                                            <div class="progress" style="height: 20px;">
-                                                                <div class="progress-bar bg-danger" role="progressbar" style="width: {{ $item->rkr_capaian }}%;" aria-valuenow="{{ $item->rkr_capaian }}" aria-valuemin="0" aria-valuemax="100">
-                                                                    {{ $item->rkr_capaian }}%
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>{{ \Carbon\Carbon::parse($item->rkr_tanggal)->format('d-m-Y') }}</td>
-                                                        <td class="text-wrap">
-                                                            @if($item->rkr_url)
-                                                                <a href="{{ $item->rkr_url }}" target="_blank">{{ $item->rkr_url }}</a>
-                                                            @else
-                                                                Tidak Ada URL
-                                                            @endif
-                                                        </td>
-                                                        <td>
-                                                            @if($item->rkr_file)
-                                                                <a class="btn btn-success btn-sm" href="{{ asset('storage/' . $item->rkr_file) }}" target="_blank">Lihat Dokumen</a>
-                                                            @else
-                                                                Tidak Ada Dokumen
-                                                            @endif
-                                                        </td>
-                                                        
-                                                    </tr>
-                                                @endforeach
+                                                ${viewRealisasi}
                                             </tbody>
-                                            <td>
-                                                            <a href="{{ route('realisasirenja.create', ['rk_id' => $item->rk_id]) }}" class="btn btn-warning btn-sm">
-                                                                <i class="fa-solid fa-pen-to-square"></i> Isi Realisasi
-                                                            </a>
-                                                        </td>
                                         </table>
                                     </div>
                                 </div>
@@ -235,18 +220,17 @@
                         </div>
                     `,
                     showCancelButton: true,
-                    confirmButtonText: 'Simpan',
-                    cancelButtonText: 'Kembali',
-                    customClass: {
-                        confirmButton: 'btn btn-primary',
-                        cancelButton: 'btn btn-danger'
-                    },
+                    confirmButtonText: 'Submit',
+                    cancelButtonText: 'Batal',
                     preConfirm: () => {
-                        document.getElementById('monitoringForm').submit();
+                        document.querySelector("#monitoringForm").submit();
                     }
                 });
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Terjadi kesalahan:', error);
+                Swal.fire('Error', 'Terjadi kesalahan saat memuat data', 'error');
+            });
     }
 </script>
 @endpush

@@ -70,16 +70,18 @@ class MonitoringController extends Controller
             $query->where('rencana_kerja_pelaksanaan.pm_id', $periodeMonitoring->pm_id);
         })->get();
 
-        $realisasi = RealisasiRenja::whereIn('rk_id', $rencanaKerja->pluck('rk_id'))
-            ->orderBy('rkr_capaian', 'asc')
-            ->get();
+        // $realisasi = RealisasiRenja::whereIn('rk_id', $rencanaKerja->pluck('rk_id'))
+        //     ->orderBy('rkr_capaian', 'asc')
+        //     ->get();
+
+        // dd($realisasi);
 
         foreach ($rencanaKerja as $rencana) {
             $rencana->is_submitted = $rencana->monitoring->isNotEmpty();
         }
 
         return view('pages.monitoring-fill', [
-            'realisasi' => $realisasi,
+            // 'realisasi' => $realisasi,
             'periodeMonitoring' => $periodeMonitoring,
             'rencanaKerja' => $rencanaKerja,
             'type_menu' => 'monitoring',
@@ -128,7 +130,12 @@ class MonitoringController extends Controller
     public function getData($pmo_id, $rk_id)
     {
         $monitoring = Monitoring::where('pmo_id', $pmo_id)->where('rk_id', $rk_id)->first();
+        $realisasi = RealisasiRenja::where('rk_id', $rk_id)
+            ->orderBy('rkr_capaian', 'asc')
+            ->get();
 
-        return response()->json($monitoring);
+        $data = [$monitoring, $realisasi];
+
+        return response()->json($data);
     }
 }
