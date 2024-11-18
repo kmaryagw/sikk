@@ -30,4 +30,22 @@ class EvaluasiController extends Controller
             'type_menu' => 'evaluasi',
         ]);
     }
+
+    // EvaluasiController.php
+public function store(Request $request)
+{
+    $request->validate([
+        'th_id' => 'required',
+        'prodi_id' => 'required',
+    ]);
+
+    Evaluasi::create([
+        'eval_id' => Str::uuid(),
+        'th_id' => $request->th_id,
+        'prodi_id' => $request->prodi_id,
+    ]);
+
+    return redirect()->route('evaluasi.index')->with('success', 'Evaluasi berhasil ditambahkan');
+}
+
 }
