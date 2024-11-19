@@ -227,6 +227,7 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
                     `,
                     showCancelButton: true,
                     confirmButtonText: 'Submit',
