@@ -227,14 +227,22 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'Submit',
-                cancelButtonText: 'Batal',
-                preConfirm: () => {
-                    document.querySelector("#monitoringForm").submit();
-                }
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Submit',
+                    cancelButtonText: 'Kembali',
+                    customClass: {
+                        confirmButton: 'btn btn-primary',
+                        cancelButton: 'btn btn-danger'
+                    },
+                    preConfirm: () => {
+                        document.querySelector("#monitoringForm").submit();
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Terjadi kesalahan:', error);
+                Swal.fire('Error', 'Terjadi kesalahan saat memuat data', 'error');
             });
         })
         .catch(error => {

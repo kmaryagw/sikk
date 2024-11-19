@@ -50,12 +50,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('periode-monitoring', PeriodeMonitoringController::class);
     Route::resource('evaluasi', EvaluasiController::class);
 
+    // Route::post('/evaluasi/store', [EvaluasiController::class, 'store'])->name('evaluasi.store');
+    Route::post('/evaluasi/{id}/final', [EvaluasiController::class, 'final'])->name('evaluasi.final');
+    Route::post('/evaluasi/{id}/fill', [EvaluasiController::class, 'fill'])->name('evaluasi.fill');
 
 
-    // web.php
-Route::post('/evaluasi/store', [EvaluasiController::class, 'store'])->name('evaluasi.store');
-
-    // Routes Laporan Renja dan IKU
     Route::resource('laporan-renja', LaporanRenjaController::class);
     Route::get('/export-excel-renja', [LaporanRenjaController::class, 'exportExcel'])->name('export-excel.renja');
     Route::get('/export-pdf-renja', [LaporanRenjaController::class, 'exportPdf'])->name('export-pdf.renja');

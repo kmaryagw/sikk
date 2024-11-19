@@ -16,6 +16,7 @@ class Evaluasi extends Model
         'eval_id',
         'th_id',
         'prodi_id',
+        'status',
     ];
 
     public function tahun_kerja()
@@ -27,6 +28,14 @@ class Evaluasi extends Model
     {
         return $this->belongsTo(program_studi::class, 'prodi_id', 'prodi_id');
     }
+
+    // Model Evaluasi
+    public function isFilled()
+    {
+        // Misalnya cek apakah ada field tertentu yang terisi
+        return !empty($this->field_name); // Sesuaikan dengan field yang ingin diperiksa
+    }
+
 
     public $timestamps = true;
 }
