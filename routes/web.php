@@ -52,7 +52,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('periode-monitoring', PeriodeMonitoringController::class);
     Route::resource('evaluasi', EvaluasiController::class);
 
-    Route::post('/evaluasi/store', [EvaluasiController::class, 'store'])->name('evaluasi.store');
+    // Route::post('/evaluasi/store', [EvaluasiController::class, 'store'])->name('evaluasi.store');
     Route::post('/evaluasi/{id}/final', [EvaluasiController::class, 'final'])->name('evaluasi.final');
     Route::post('/evaluasi/{id}/fill', [EvaluasiController::class, 'fill'])->name('evaluasi.fill');
 
