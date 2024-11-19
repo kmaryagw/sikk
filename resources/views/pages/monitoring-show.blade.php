@@ -1,67 +1,64 @@
 @extends('layouts.app')
-
-@section('title', 'Detail Monitoring')
+@section('title', 'Lihat Monitoring')
 
 @section('main')
 <div class="main-content">
     <section class="section">
         <div class="section-header">
-            <h1>Detail Monitoring</h1>
+            <!-- Mengambil nama rencana kerja dari elemen pertama koleksi -->
+            <h1>Lihat Data Realisasi 
+                
+            </h1>
         </div>
-
-        <div class="card">
-            <div class="card-header">
-                <h4>Tahun: <span class="badge badge-primary">{{ $periodemonitoring->tahunKerja->th_tahun }}</span></h4>
-                <h4>Periode: <span class="badge badge-info">{{ $periodemonitoring->periodes->first()->pm_nama }}</span></h4>
-            </div>
-
-            <div class="card-body">
-                @if($programKerjas->isEmpty())
-                    <p class="text-center text-muted">Tidak ada program kerja yang tersedia untuk periode ini.</p>
-                @else
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-hover text-center">
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Nama Program Kerja</th>
-                                    <th>Unit Kerja</th>
-                                    <th>Capaian</th>
-                                    <th>Kondisi</th>
-                                    <th>Kendala</th>
-                                    <th>Tindak Lanjut</th>
-                                    <th>Tanggal Tindak Lanjut</th>
+        <div class="section-body">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Tahun: <span class="badge badge-primary">{{ $periodeMonitoring->tahunKerja->th_tahun }}</span></h4>
+                    <h4 class="mb-0">Periode: <span class="badge badge-info">{{ $periodeMonitoring->periodeMonev->pm_nama }}</span></h4>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr class="text-center">
+                                <th>Nama Rencana Kerja</th>
+                                <th>Unit Kerja</th>
+                                <th>Capaian</th>
+                                <th>Kondisi</th>
+                                <th>Kendala</th>
+                                <th>Tindak Lanjut</th>
+                                <th>Bukti</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($rencanaKerja as $rencana)
+                                <tr class="text-center">
+                                    <td>{{ $rencana->rk_nama }}</td>
+                                    <td>{{ $rencana->unitKerja->unit_nama ?? 'Tidak Ada' }}</td>
+                                    @if ($rencana->is_monitored)
+                                        <td>{{ $rencana->monitoring->first()->mtg_capaian }}</td>
+                                        <td>{{ $rencana->monitoring->first()->mtg_kondisi }}</td>
+                                        <td>{{ $rencana->monitoring->first()->mtg_kendala }}</td>
+                                        <td>{{ $rencana->monitoring->first()->mtg_tindak_lanjut }}</td>
+                                        <td>
+                                            @if ($rencana->monitoring->first()->mtg_bukti)
+                                                <a href="{{ Storage::url($rencana->monitoring->first()->mtg_bukti) }}" target="_blank" class="btn btn-info btn-sm">Lihat Bukti</a>
+                                            @else
+                                                Tidak ada bukti
+                                            @endif
+                                        </td>
+                                    @else
+                                        <td colspan="6" class="text-center text-warning">Belum melakukan monitoring</td>
+                                    @endif
                                 </tr>
-                            </thead>
-                            <tbody>
-                                @php $no = 1; @endphp
-                                @foreach ($programKerjas as $program)
-                                    <tr>
-                                        <td>{{ $no++ }}</td>
-                                        <td>{{ $program->rk_nama }}</td>
-                                        <td>{{ $program->unitKerja->unit_nama }}</td>
-                                        
-                                        @if($program->monitoring)
-                                            <td>{{ $program->monitoring->mtg_capaian }}%</td>
-                                            <td>{{ $program->monitoring->mtg_kondisi }}</td>
-                                            <td>{{ $program->monitoring->mtg_kendala }}</td>
-                                            <td>{{ $program->monitoring->mtg_tindak_lanjut }}</td>
-                                            <td>{{ \Carbon\Carbon::parse($program->monitoring->mtg_tindak_lanjut_tanggal)->format('d-m-Y') }}</td>
-                                        @else
-                                            <td colspan="5" class="text-muted">Tidak ada data monitoring</td>
-                                        @endif
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    <div class="card-footer text-right">
+                        <a class="btn btn-danger" href="{{ route('monitoring.index') }}">
+                            <i class="fa-solid fa-arrow-left"></i> Kembali
+                        </a>
                     </div>
-                @endif
-            </div>
-
-            <div class="card-footer text-right">
-                <a class="btn btn-danger" href="{{ route('monitoring.index') }}">
-                    <i class="fa-solid fa-arrow-left"></i> Kembali
-                </a>
+                </div>
             </div>
         </div>
     </section>

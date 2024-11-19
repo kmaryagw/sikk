@@ -16,17 +16,14 @@ use App\Http\Controllers\StandarController;
 use App\Http\Controllers\TahunController;
 use App\Http\Controllers\TargetCapaianController;
 use App\Http\Controllers\UserController;
-use App\Models\Monitoring;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 
 Route::get('/', [UserController::class, 'login'])->name('login');
 Route::post('/', [UserController::class, 'loginAction'])->name('login.action');
 Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 
-
 Route::middleware('auth')->group(function () {
-
+    
     Route::resource('user', UserController::class);
     Route::resource('unit', UnitKerjaController::class);
     Route::resource('prodi', ProdiController::class);
@@ -41,14 +38,15 @@ Route::middleware('auth')->group(function () {
     Route::resource('realisasirenja', RealisasiRenjaController::class);
     Route::get('realisasirenja/{rk_id}/realisasi', [RealisasiRenjaController::class, 'showRealisasi'])->name('realisasirenja.showRealisasi');
     
-
+    // Route Monitoring
     Route::get('/monitoring/{pmo_id}', [MonitoringController::class, 'show'])->name('monitoring.view');
-    Route::get('/realisasi/{rk_id}/{pmo_id}', [RealisasiRenjaController::class, 'showForm'])->name('realisasi.form');
     Route::get('/monitoring/{pmo_id}/fill', [MonitoringController::class, 'fill'])->name('monitoring.fill');
-    Route::post('/monitoring/store', [MonitoringController::class, 'store'])->name('monitoring.store');
-    Route::get('monitoring/{pmo_id}/{rk_id}/getData', [MonitoringController::class, 'getData']);
+    Route::post('/monitoring/{pmo_id}/store', [MonitoringController::class, 'store'])->name('monitoring.fillStore'); // Ubah dari 'monitoring.store' agar tidak duplikat
+    Route::get('monitoring/{pmo_id}/{rk_id}/getData', [MonitoringController::class, 'getData'])->name('monitoring.getData');
 
-    Route::resource('monitoring', MonitoringController::class);
+    Route::get('/realisasi/create', [RealisasiRenjaController::class, 'create'])->name('realisasi.create');
+
+    Route::resource('monitoring', MonitoringController::class); // Diletakkan terakhir agar route di atas tidak tertimpa
     Route::resource('periode-monitoring', PeriodeMonitoringController::class);
     Route::resource('evaluasi', EvaluasiController::class);
 
@@ -65,6 +63,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/export-excel-iku', [LaporanIkuController::class, 'exportExcel'])->name('export-excel.iku');
     Route::get('/export-pdf-iku', [LaporanIkuController::class, 'exportPdf'])->name('export-pdf.iku');
 
+    // Routes untuk Akses File
     Route::get('/storage/{filename}', function ($filename) {
         $filePath = storage_path('app/public/dokumen/' . $filename);
         if (!file_exists($filePath)) {
@@ -81,10 +80,10 @@ Route::middleware('auth')->group(function () {
         return response()->file($filePath);
     })->where('filename', '.*');    
 
+    // Dashboard & Audit Forms
     Route::get('/dashboard', function () {
         return view('pages.dashboard', ['type_menu' => 'dashboard']);
     })->name('pages.dashboard');
-    
     
     Route::get('/auditor', function () {
         return view('pages.auditor', ['type_menu' => 'auditor']);
@@ -94,10 +93,6 @@ Route::middleware('auth')->group(function () {
         return view('pages.formaudit', ['type_menu' => 'formaudit']);
     });
 });
-// Di bawah grup middleware auth
-Route::post('/realisasirenja/store', [RealisasiRenjaController::class, 'store'])->name('realisasirenja.store');
-Route::post('/monitoring/store', [MonitoringController::class, 'store'])->name('monitoring.store');
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+// Route untuk menyimpan Realisasi Renja
+// Route::post('/realisasirenja/store', [RealisasiRenjaController::class, 'store'])->name('realisasirenja.store');
