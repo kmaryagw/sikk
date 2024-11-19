@@ -45,48 +45,59 @@ class MonitoringController extends Controller
     }
 
     public function show($pmo_id)
-    {
-        $periodemonitoring = PeriodeMonitoring::with('tahunKerja', 'periodes')
-            ->findOrFail($pmo_id);
+{
+    $periodeMonitoring = PeriodeMonitoring::with('tahunKerja', 'periodeMonev')
+        ->findOrFail($pmo_id);
 
-        $programKerjas = RencanaKerja::whereHas('periodes', function ($query) use ($periodemonitoring) {
-            $query->where('rencana_kerja_pelaksanaan.pm_id', $periodemonitoring->pm_id);
-        })->with(['unitKerja', 'monitoring'])->get();
+    $rencanaKerja = RencanaKerja::with(['monitoring' => function ($query) use ($pmo_id) {
+        $query->where('pmo_id', $pmo_id);
+    }, 'unitKerja'])
+    ->whereHas('periodes', function ($query) use ($periodeMonitoring) {
+        $query->where('rencana_kerja_pelaksanaan.pm_id', $periodeMonitoring->pm_id);
+    })->get();
 
-        return view('pages.monitoring-show', [
-            'periodemonitoring' => $periodemonitoring,
-            'programKerjas' => $programKerjas,
-            'type_menu' => 'monitoring',
-        ]);
+    // Menandai apakah data monitoring sudah diisi atau belum untuk setiap rencana kerja
+    foreach ($rencanaKerja as $rencana) {
+        $rencana->is_monitored = $rencana->monitoring->isNotEmpty();
     }
+
+    return view('pages.monitoring-show', [
+        'periodeMonitoring' => $periodeMonitoring,
+        'rencanaKerja' => $rencanaKerja,
+        'type_menu' => 'monitoring',
+    ]);
+}
+
 
     public function fill($pmo_id)
-    {
-        $periodeMonitoring = PeriodeMonitoring::with('tahunKerja', 'periodeMonev')->findOrFail($pmo_id);
+{
+    $periodeMonitoring = PeriodeMonitoring::with('tahunKerja', 'periodeMonev')->findOrFail($pmo_id);
 
-        $rencanaKerja = RencanaKerja::with(['monitoring' => function ($query) use ($pmo_id) {
-            $query->where('pmo_id', $pmo_id);
-        }, 'unitKerja'])->whereHas('periodes', function ($query) use ($periodeMonitoring) {
-            $query->where('rencana_kerja_pelaksanaan.pm_id', $periodeMonitoring->pm_id);
-        })->get();
+    // Cek jika selisih lebih dari tiga bulan, redirect ke halaman 'monitoring-show'
+    $tanggalMulai = Carbon::parse($periodeMonitoring->pmo_tanggal_mulai);
+    $tanggalSelesai = Carbon::parse($periodeMonitoring->pmo_tanggal_selesai);
+    $selisihBulan = $tanggalMulai->diffInMonths($tanggalSelesai);
 
-        // $realisasi = RealisasiRenja::whereIn('rk_id', $rencanaKerja->pluck('rk_id'))
-        //     ->orderBy('rkr_capaian', 'asc')
-        //     ->get();
-
-        // dd($realisasi);
-
-        foreach ($rencanaKerja as $rencana) {
-            $rencana->is_submitted = $rencana->monitoring->isNotEmpty();
-        }
-
-        return view('pages.monitoring-fill', [
-            // 'realisasi' => $realisasi,
-            'periodeMonitoring' => $periodeMonitoring,
-            'rencanaKerja' => $rencanaKerja,
-            'type_menu' => 'monitoring',
-        ]);
+    if ($selisihBulan > 3) {
+        return redirect()->route('monitoring.show', ['pmo_id' => $pmo_id]);
     }
+
+    $rencanaKerja = RencanaKerja::with(['monitoring' => function ($query) use ($pmo_id) {
+        $query->where('pmo_id', $pmo_id);
+    }, 'unitKerja'])->whereHas('periodes', function ($query) use ($periodeMonitoring) {
+        $query->where('rencana_kerja_pelaksanaan.pm_id', $periodeMonitoring->pm_id);
+    })->get();
+
+    foreach ($rencanaKerja as $rencana) {
+        $rencana->is_submitted = $rencana->monitoring->isNotEmpty();
+    }
+
+    return view('pages.monitoring-fill', [
+        'periodeMonitoring' => $periodeMonitoring,
+        'rencanaKerja' => $rencanaKerja,
+        'type_menu' => 'monitoring',
+    ]);
+}
 
     public function store(Request $request)
     {

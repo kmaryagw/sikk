@@ -44,6 +44,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/monitoring/{pmo_id}/store', [MonitoringController::class, 'store'])->name('monitoring.fillStore'); // Ubah dari 'monitoring.store' agar tidak duplikat
     Route::get('monitoring/{pmo_id}/{rk_id}/getData', [MonitoringController::class, 'getData'])->name('monitoring.getData');
 
+    Route::get('/realisasi/create', [RealisasiRenjaController::class, 'create'])->name('realisasi.create');
+
     Route::resource('monitoring', MonitoringController::class); // Diletakkan terakhir agar route di atas tidak tertimpa
     Route::resource('periode-monitoring', PeriodeMonitoringController::class);
     Route::resource('evaluasi', EvaluasiController::class);

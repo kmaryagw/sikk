@@ -65,8 +65,7 @@
                                     <td>{{ \Carbon\Carbon::parse($item->pmo_tanggal_selesai)->format('Y-m-d H:i:s') }}</td>
 
                                     
-                                     <td class="text-center">
-                                        
+                                    <td class="text-center">
                                         @if ($item->is_within_three_months)
                                             <!-- Tombol Isi Monitoring jika selisih <= 3 bulan -->
                                             <a class="btn btn-warning btn-sm" href="{{ route('monitoring.fill', $item->pmo_id) }}">
@@ -79,6 +78,7 @@
                                             </a>
                                         @endif
                                     </td>
+                                    
                                 </tr>
                             @endforeach
                         </tbody>
