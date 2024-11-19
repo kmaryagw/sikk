@@ -221,7 +221,11 @@
                     `,
                     showCancelButton: true,
                     confirmButtonText: 'Submit',
-                    cancelButtonText: 'Batal',
+                    cancelButtonText: 'Kembali',
+                    customClass: {
+                        confirmButton: 'btn btn-primary',
+                        cancelButton: 'btn btn-danger'
+                    },
                     preConfirm: () => {
                         document.querySelector("#monitoringForm").submit();
                     }

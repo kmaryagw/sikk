@@ -42,6 +42,6 @@ class Monitoring extends Model
     }
     
     protected $attributes = [
-        'mtg_capaian' => 0,  // Nilai default jika tidak diisi
+        'mtg_capaian' => 0,
     ];
 }

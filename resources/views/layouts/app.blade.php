@@ -7,6 +7,8 @@
         name="viewport">
     <title>@yield('title') &mdash; Instiki</title>
 
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <!-- General CSS Files -->
     <link rel="stylesheet"
         href="{{ asset('library/bootstrap/dist/css/bootstrap.min.css') }}">
