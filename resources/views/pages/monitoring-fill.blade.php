@@ -89,8 +89,11 @@
                     viewRealisasi = `
                         <tr>
                             <td colspan="6" class="text-center">
+                                <p>Belum direalisasikan, silakan melakukan realisasi.</p>
+                                <div class="mt-2">
                                 <a href="{{ route('realisasirenja.create', ['rk_id' => $rencana->rk_id]) }}" class="btn btn-primary">Isi Realisasi</a>
-                            </td>
+                            </div>
+                                </td>
                         </tr>`;
                 } else {
                     realisasi.forEach((rl, index) => {
@@ -216,7 +219,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div>
 
                         </form>
                     `,
