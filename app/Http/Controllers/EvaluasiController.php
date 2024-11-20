@@ -5,45 +5,78 @@ namespace App\Http\Controllers;
 use App\Models\Evaluasi;
 use App\Models\program_studi;
 use App\Models\tahun_kerja;
+use App\Models\target_indikator;
 use Illuminate\Http\Request;
 
 class EvaluasiController extends Controller
 {
-    public function index(Request $request)
-    {
-        $title = 'Data Evaluasi';
-        $q = $request->query('q');
+    // public function index(Request $request)
+    // {
+    //     $title = 'Data Evaluasi';
+    //     $q = $request->query('q');
 
-        $evaluasis = Evaluasi::with(['prodi', 'tahun_kerja'])
-            ->whereHas('prodi', function($query) use ($q) {
-                $query->where('nama_prodi', 'like', '%' . $q . '%');
-            })
-            ->join('program_studi', 'evaluasi.prodi_id', '=', 'program_studi.prodi_id')
-            ->orderBy('program_studi.nama_prodi', 'asc')
-            ->paginate(10)
-            ->withQueryString();
+    //     $evaluasis = Evaluasi::with(['prodi', 'tahun_kerja'])
+    //         ->whereHas('prodi', function($query) use ($q) {
+    //             $query->where('nama_prodi', 'like', '%' . $q . '%');
+    //         })
+    //         ->join('program_studi', 'evaluasi.prodi_id', '=', 'program_studi.prodi_id')
+    //         ->orderBy('program_studi.nama_prodi', 'asc')
+    //         ->paginate(10)
+    //         ->withQueryString();
 
-        $prodis = program_studi::all();
-        $tahuns = tahun_kerja::all();
+    //     $prodis = program_studi::all();
+    //     $tahuns = tahun_kerja::all();
 
-        $no = $evaluasis->firstItem();
+    //     $no = $evaluasis->firstItem();
         
-        return view('pages.index-evaluasi', [
-            'title' => $title,
-            'evaluasis' => $evaluasis,
-            'prodis' => $prodis,
-            'tahuns' => $tahuns,
-            'q' => $q,
-            'no' => $no,
-            'type_menu' => 'evaluasi',
-        ]);
-    }
+    //     return view('pages.index-evaluasi', [
+    //         'title' => $title,
+    //         'evaluasis' => $evaluasis,
+    //         'prodis' => $prodis,
+    //         'tahuns' => $tahuns,
+    //         'q' => $q,
+    //         'no' => $no,
+    //         'type_menu' => 'evaluasi',
+    //     ]);
+    // }
+
+    public function index(Request $request)
+{
+    $title = 'Data Evaluasi';
+    $q = $request->query('q');
+
+    // Ubah relasi untuk hanya menggunakan targetIndikator
+    $evaluasis = Evaluasi::with(['targetIndikator'])
+        ->whereHas('targetIndikator', function ($query) use ($q) {
+            // Filter berdasarkan prodi yang ada di targetIndikator
+            $query->whereHas('prodi', function ($query) use ($q) {
+                $query->where('nama_prodi', 'like', '%' . $q . '%');
+            });
+        })
+        ->paginate(10);
+
+    $no = $evaluasis->firstItem();
+
+    $prodis = program_studi::all();
+    $tahuns = tahun_kerja::all();
+
+    return view('pages.index-evaluasi', [
+        'title' => $title,
+        'evaluasis' => $evaluasis,
+        'prodis' => $prodis,
+        'tahuns' => $tahuns,
+        'q' => $q,
+        'no' => $no,
+        'type_menu' => 'evaluasi',
+    ]);
+}
+
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'prodi_id' => 'required|exists:program_studi,prodi_id',
-            'th_id' => 'required|exists:tahun_kerja,th_id',
+            'prodi_id' => 'required|exists:target_indikator,prodi_id',
+            'th_id' => 'required|exists:target_indikator,th_id',
         ]);
 
         try {

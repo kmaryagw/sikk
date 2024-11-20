@@ -64,128 +64,122 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     function showMonitoringModal(rencanaKerjaNama, pmo, rk) {
-    fetch(`/monitoring/${pmo}/${rk}/getData`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            const capaian = data[0]?.mtg_capaian || '';
-            const kondisi = data[0]?.mtg_kondisi || '';
-            const kendala = data[0]?.mtg_kendala || '';
-            const tindakLanjut = data[0]?.mtg_tindak_lanjut || '';
-            const tindakLanjutTanggal = data[0]?.mtg_tindak_lanjut_tanggal || '';
-            const bukti = data[0]?.mtg_bukti || null;
+        fetch(`/monitoring/${pmo}/${rk}/getData`)
+            .then(response => response.json())
+            .then(data => {
+                const capaian = data[0]?.mtg_capaian || '';
+                const kondisi = data[0]?.mtg_kondisi || '';
+                const kendala = data[0]?.mtg_kendala || '';
+                const tindakLanjut = data[0]?.mtg_tindak_lanjut || '';
+                const tindakLanjutTanggal = data[0]?.mtg_tindak_lanjut_tanggal || '';
+                const bukti = data[0]?.mtg_bukti || null;
 
-            let fileBuktiHTML = bukti ? `
-                <div class="form-group">
-                    <p><strong>Bukti Terunggah</strong></p>
-                    <a href="/storage/${bukti}" target="_blank" class="btn btn-success btn-sm">
-                        <i class="fa-solid fa-eye"></i> Lihat Bukti
-                    </a>
-                </div>` : '';
+                let fileBuktiHTML = bukti ? `
+                    <div class="form-group">
+                        <p><strong>Bukti Terunggah</strong></p>
+                        <a href="/storage/${bukti}" target="_blank" class="btn btn-success btn-sm">
+                            <i class="fa-solid fa-eye"></i> Lihat Bukti
+                        </a>
+                    </div>` : '';
 
-            const realisasi = data[1].filter(rl => rl.rk_id === rk);
+                const realisasi = data[1].filter(rl => rl.rk_id === rk);
 
-            let viewRealisasi = '';
-            if (realisasi.length === 0) {
-                viewRealisasi = `
-                    <tr>
-                        <td colspan="6" class="text-center">
-                            <a href="{{ route('realisasirenja.create', ['rk_id' => $rencana->rk_id]) }}" class="btn btn-primary">Isi Realisasi</a>
-
-                        </td>
-                    </tr>`;
-            } else {
-                realisasi.forEach((rl, index) => {
-                    viewRealisasi += `
+                let viewRealisasi = '';
+                if (realisasi.length === 0) {
+                    viewRealisasi = `
                         <tr>
-                            <td>${index + 1}</td>
-                            <td class="text-wrap">${rl.rkr_deskripsi}</td>
-                            <td>
-                                <div class="progress" style="height: 20px;">
-                                    <div class="progress-bar bg-danger" role="progressbar" style="width: ${rl.rkr_capaian}%" aria-valuenow="${rl.rkr_capaian}" aria-valuemin="0" aria-valuemax="100">
-                                        ${rl.rkr_capaian}%
-                                    </div>
-                                </div>
-                            </td>
-                            <td>${rl.rkr_tanggal ? new Date(rl.rkr_tanggal).toLocaleDateString('id-ID') : 'N/A'}</td>
-                            <td class="text-wrap">
-                                ${rl.rkr_url ? `<a href="${rl.rkr_url}" target="_blank">${rl.rkr_url}</a>` : 'Tidak Ada URL'}
-                            </td>
-                            <td>
-                                ${rl.rkr_file ? `<a class="btn btn-success btn-sm" href="/storage/${rl.rkr_file}" target="_blank">Lihat Dokumen</a>` : 'Tidak Ada Dokumen'}
+                            <td colspan="6" class="text-center">
+                                <a href="{{ route('realisasirenja.create', ['rk_id' => $rencana->rk_id]) }}" class="btn btn-primary">Isi Realisasi</a>
                             </td>
                         </tr>`;
-                });
-            }
+                } else {
+                    realisasi.forEach((rl, index) => {
+                        viewRealisasi += `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td class="text-wrap">${rl.rkr_deskripsi}</td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar bg-danger" role="progressbar" style="width: ${rl.rkr_capaian}%" aria-valuenow="${rl.rkr_capaian}" aria-valuemin="0" aria-valuemax="100">
+                                            ${rl.rkr_capaian}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>${rl.rkr_tanggal ? new Date(rl.rkr_tanggal).toLocaleDateString('id-ID') : 'N/A'}</td>
+                                <td class="text-wrap">
+                                    ${rl.rkr_url ? `<a href="${rl.rkr_url}" target="_blank">${rl.rkr_url}</a>` : 'Tidak Ada URL'}
+                                </td>
+                                <td>
+                                    ${rl.rkr_file ? `<a class="btn btn-success btn-sm" href="/storage/${rl.rkr_file}" target="_blank">Lihat Dokumen</a>` : 'Tidak Ada Dokumen'}
+                                </td>
+                            </tr>`;
+                    });
+                }
 
-            Swal.fire({
-                title: `Isi Monitoring untuk ${rencanaKerjaNama}`,
-                width: '90%',
-                html: `
-                    <form id="monitoringForm" action="{{ route('monitoring.store') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        <input type="hidden" name="pmo_id" value="${pmo}">
-                        <input type="hidden" name="rk_id" value="${rk}">
-                        <div class="form-group text-left">
-                            <label for="mtg_capaian">Capaian</label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text">
-                                        <i class="fa-solid fa-percent"></i>
+                Swal.fire({
+                    title: `Isi Monitoring untuk ${rencanaKerjaNama}`,
+                    width: '90%',
+                    html: `
+                        <form id="monitoringForm" action="{{ route('monitoring.store') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="pmo_id" value="${pmo}">
+                            <input type="hidden" name="rk_id" value="${rk}">
+                            <div class="form-group text-left">
+                                <label for="mtg_capaian">Capaian</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="fa-solid fa-percent"></i>
+                                        </div>
                                     </div>
+                                    <input type="number" name="mtg_capaian" class="form-control" value="${capaian}" required>
                                 </div>
-                                <input type="number" name="mtg_capaian" class="form-control" value="${capaian}" required>
                             </div>
-                        </div>
-                        <div class="form-group text-left">
-                            <label for="mtg_kondisi">Kondisi</label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text">
-                                        <i class="fa-solid fa-info-circle"></i>
+                            <div class="form-group text-left">
+                                <label for="mtg_kondisi">Kondisi</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="fa-solid fa-info-circle"></i>
+                                        </div>
                                     </div>
+                                    <input type="text" name="mtg_kondisi" class="form-control" value="${kondisi}" required>
                                 </div>
-                                <input type="text" name="mtg_kondisi" class="form-control" value="${kondisi}" required>
                             </div>
-                        </div>
-                        <div class="form-group text-left">
-                            <label for="mtg_kendala">Kendala</label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text">
-                                        <i class="fa-solid fa-exclamation-triangle"></i>
+                            <div class="form-group text-left">
+                                <label for="mtg_kendala">Kendala</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="fa-solid fa-exclamation-triangle"></i>
+                                        </div>
                                     </div>
+                                    <input type="text" name="mtg_kendala" class="form-control" value="${kendala}">
                                 </div>
-                                <input type="text" name="mtg_kendala" class="form-control" value="${kendala}">
                             </div> 
-                        </div>
-                        <div class="form-group text-left">
-                            <label for="mtg_tindak_lanjut">Tindak Lanjut</label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text">
-                                        <i class="fa-solid fa-tasks"></i>
+                            <div class="form-group text-left">
+                                <label for="mtg_tindak_lanjut">Tindak Lanjut</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="fa-solid fa-tasks"></i>
+                                        </div>
                                     </div>
+                                    <input type="text" name="mtg_tindak_lanjut" class="form-control" value="${tindakLanjut}">
                                 </div>
-                                <input type="text" name="mtg_tindak_lanjut" class="form-control" value="${tindakLanjut}">
                             </div>
-                        </div>
-                        <div class="form-group text-left">
-                            <label for="mtg_tindak_lanjut_tanggal">Tanggal Tindak Lanjut</label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text">
-                                        <i class="fa-solid fa-calendar"></i>
+                            <div class="form-group text-left">
+                                <label for="mtg_tindak_lanjut_tanggal">Tanggal Tindak Lanjut</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="fa-solid fa-calendar"></i>
+                                        </div>
                                     </div>
+                                    <input type="date" name="mtg_tindak_lanjut_tanggal" class="form-control" value="${tindakLanjutTanggal}">
                                 </div>
-                                <input type="date" name="mtg_tindak_lanjut_tanggal" class="form-control" value="${tindakLanjutTanggal}">
-                            </div> 
-                        </div>
-                        <div class="form-group text-left">
+                            </div>
+                            <div class="form-group text-left">
                             <label for="mtg_bukti">Bukti</label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
@@ -195,62 +189,54 @@
                                 </div>
                                 <input class="form-control" type="file" name="mtg_bukti" />
                             </div>
-                        </div>
-                        
-                        <div class="form-group">
+                        </div>
                             ${fileBuktiHTML}
-                        </div>
-                    </form>
-
-                    <div class="mt-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4>Data Realisasi ${rencanaKerjaNama}</h4>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <th>No</th>
-                                                <th>Deskripsi Realisasi</th>
-                                                <th>Capaian</th>
-                                                <th>Tanggal Realisasi</th>
-                                                <th>URL</th>
-                                                <th>Dokumen</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            ${viewRealisasi}
-                                        </tbody>
-                                    </table>
+                            <div class="mt-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Data Realisasi ${rencanaKerjaNama}</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>No</th>
+                                                    <th>Deskripsi Realisasi</th>
+                                                    <th>Capaian</th>
+                                                    <th>Tanggal Realisasi</th>
+                                                    <th>URL</th>
+                                                    <th>Dokumen</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${viewRealisasi}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                        </div>
+
+                        </form>
                     `,
                     showCancelButton: true,
-                    confirmButtonText: 'Submit',
-                    cancelButtonText: 'Kembali',
-                    customClass: {
-                        confirmButton: 'btn btn-primary',
-                        cancelButton: 'btn btn-danger'
-                    },
+                    cancelButtonText: 'Tutup',
+                    confirmButtonText: 'Simpan Monitoring',
                     preConfirm: () => {
-                        document.querySelector("#monitoringForm").submit();
+                        const form = document.getElementById('monitoringForm');
+                        form.submit();
                     }
                 });
             })
             .catch(error => {
-                console.error('Terjadi kesalahan:', error);
-                Swal.fire('Error', 'Terjadi kesalahan saat memuat data', 'error');
+                console.error(error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Terjadi kesalahan saat memuat data monitoring.'
+                });
             });
-        })
-        .catch(error => {
-            console.error('Terjadi kesalahan:', error);
-            Swal.fire('Error', 'Terjadi kesalahan saat memuat data', 'error');
-        });
-}
-
+    }
 </script>
 @endpush
