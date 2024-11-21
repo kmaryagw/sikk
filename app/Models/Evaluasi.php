@@ -19,21 +19,38 @@ class Evaluasi extends Model
         'status',
     ];
 
-    public function tahun_kerja()
+    public function targetIndikator()
     {
-        return $this->belongsTo(tahun_kerja::class, 'th_id', 'th_id');
+        return $this->belongsTo(target_indikator::class, 'th_id', 'th_id');
     }
 
     public function prodi()
     {
-        return $this->belongsTo(program_studi::class, 'prodi_id', 'prodi_id');
+        return $this->belongsToThrough(program_studi::class, target_indikator::class);
     }
+
+    public function tahunKerja()
+    {
+        return $this->belongsToThrough(tahun_kerja::class, target_indikator::class);
+    }
+
+    public function indikatorKinerja()
+    {
+        return $this->belongsToThrough(IndikatorKinerjaUtama::class, target_indikator::class);
+    }
+
+    public function evaluasiDetails()
+    {
+        return $this->hasMany(Evaluasi_Detail::class, 'eval_id', 'eval_id');
+    }
+
+
 
     // Model Evaluasi
     public function isFilled()
     {
         // Misalnya cek apakah ada field tertentu yang terisi
-        return !empty($this->field_name); // Sesuaikan dengan field yang ingin diperiksa
+        return !empty($this->field_name);
     }
 
 
