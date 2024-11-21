@@ -24,17 +24,27 @@ class Evaluasi extends Model
         return $this->belongsTo(target_indikator::class, 'th_id', 'th_id');
     }
 
-    // Jika masih membutuhkan relasi ke Prodi melalui TargetIndikator
     public function prodi()
     {
         return $this->belongsToThrough(program_studi::class, target_indikator::class);
     }
 
-    // Relasi ke TahunKerja melalui TargetIndikator
     public function tahunKerja()
     {
         return $this->belongsToThrough(tahun_kerja::class, target_indikator::class);
     }
+
+    public function indikatorKinerja()
+    {
+        return $this->belongsToThrough(IndikatorKinerjaUtama::class, target_indikator::class);
+    }
+
+    public function evaluasiDetails()
+    {
+        return $this->hasMany(Evaluasi_Detail::class, 'eval_id', 'eval_id');
+    }
+
+
 
     // Model Evaluasi
     public function isFilled()

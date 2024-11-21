@@ -35,8 +35,8 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Nama Prodi</th>
                                 <th>Tahun</th>
+                                <th>Nama Prodi</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -45,11 +45,11 @@
                             @foreach ($evaluasis as $evaluasi)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $evaluasi->targetIndikator->prodi->nama_prodi }}</td>
                                     <td>{{ $evaluasi->targetIndikator->tahunKerja->th_tahun }}</td>
+                                    <td>{{ $evaluasi->targetIndikator->prodi->nama_prodi }}</td>
                                     <td>
                                         @if($evaluasi->status == 0)
-                                            <a class="btn btn-warning" href="{{ route('evaluasi.fill', $evaluasi->eval_id) }}"><i class="fa-solid fa-pen"></i> Isi/Ubah</a>
+                                            <a class="btn btn-warning" href="{{ route('evaluasi.index-detail', $evaluasi->eval_id) }}"><i class="fa-solid fa-pen"></i> Isi/Ubah</a>
                                             @if($evaluasi->isFilled())
                                                 <button class="btn btn-info finalBtn" data-id="{{ $evaluasi->eval_id }}"><i class="fa-solid fa-check"></i> Final</button>
                                             @else
