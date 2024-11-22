@@ -8,6 +8,7 @@ use App\Models\program_studi;
 use App\Models\tahun_kerja;
 use App\Models\target_indikator;
 use Illuminate\Http\Request;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class EvaluasiController extends Controller
 {
@@ -101,11 +102,9 @@ class EvaluasiController extends Controller
 
     public function indexDetail($eval_id)
     {
-        $eval_id = explode(',', $eval_id);
-
         $Evaluasi = Evaluasi::with('targetIndikator.prodi', 'targetIndikator.tahunKerja')->findOrFail($eval_id);
 
-        $Evaluasis = Evaluasi_Detail::whereIn('eval_id', $eval_id)->get();
+        $Evaluasis = Evaluasi_Detail::where('eval_id', $eval_id)->get();
 
         return view('pages.index-detail-evaluasi', [
             'Evaluasi' => $Evaluasi,
@@ -117,6 +116,7 @@ class EvaluasiController extends Controller
     public function createDetail($eval_id)
 {
     $evaluasi = Evaluasi::with('targetIndikator.prodi', 'targetIndikator.tahunKerja',  'targetIndikator.indikatorKinerja')->findOrFail($eval_id);
+    
 
     if ($evaluasi->status == 1) {
         return redirect()->route('evaluasi.index')->with('error', 'Evaluasi ini sudah final dan tidak dapat diubah.');
@@ -135,7 +135,7 @@ public function storeDetail(Request $request, $eval_id)
 {
     $validated = $request->validate([
         'ti_id' => 'required|exists:target_indikator,ti_id',
-        'evald_target' => 'required|numeric',
+        'evald_target' => 'required|string',
         'evald_keterangan' => 'nullable|string',
     ]);
 
@@ -154,11 +154,73 @@ public function storeDetail(Request $request, $eval_id)
             'evald_keterangan' => $request->evald_keterangan,
         ]);
 
-        return redirect()->route('evaluasi.index-detail', $eval_id)->with('success', 'Detail evaluasi berhasil ditambahkan!');
+        Alert::success('Sukses', 'Data Berhasil Ditambah');
+
+        return redirect()->route('evaluasi.index-detail', $eval_id);
     } catch (\Exception $e) {
         return redirect()->route('evaluasi.index-detail', $eval_id)->with('error', 'Terjadi kesalahan saat menyimpan data.');
     }
 }
+
+public function editDetail($evald_id)
+{
+    // Mencari Evaluasi Detail berdasarkan ID
+    $evaluasiDetail = Evaluasi_Detail::with('targetIndikator.prodi', 'targetIndikator.tahunKerja')->findOrFail($evald_id);
+    
+    // Cari evaluasi terkait dengan evaluasi detail
+    $evaluasi = Evaluasi::with('targetIndikator.prodi', 'targetIndikator.tahunKerja')->findOrFail($evaluasiDetail->eval_id);
+
+    // Pastikan status evaluasi belum final
+    if ($evaluasi->status == 1) {
+        return redirect()->route('evaluasi.index')->with('error', 'Evaluasi ini sudah final dan tidak dapat diubah.');
+    }
+
+    $targetIndikators = target_indikator::all();
+
+    return view('pages.edit-detail-evaluasi', [
+        'evaluasi' => $evaluasi,
+        'evaluasiDetail' => $evaluasiDetail,
+        'targetIndikators' => $targetIndikators,
+        'type_menu' => 'evaluasi',
+    ]);
+}
+
+public function updateDetail(Request $request, $evald_id)
+{
+    // Validasi input
+    $validated = $request->validate([
+        'ti_id' => 'required|exists:target_indikator,ti_id',
+        'evald_target' => 'required|string',
+        'evald_keterangan' => 'nullable|string',
+    ]);
+
+    try {
+        // Cari Evaluasi Detail dan Evaluasi terkait
+        $evaluasiDetail = Evaluasi_Detail::findOrFail($evald_id);
+        $evaluasi = Evaluasi::findOrFail($evaluasiDetail->eval_id);
+
+        // Pastikan status evaluasi belum final
+        if ($evaluasi->status == 1) {
+            return redirect()->route('evaluasi.index')->with('error', 'Evaluasi ini sudah final dan tidak dapat diubah.');
+        }
+
+        // Update detail evaluasi
+        $evaluasiDetail->update([
+            'ti_id' => $request->ti_id,
+            'evald_target' => $request->evald_target,
+            'evald_keterangan' => $request->evald_keterangan,
+        ]);
+
+        // Redirect ke halaman index detail evaluasi
+        Alert::success('Sukses', 'Data Berhasil Diperbarui');
+        return redirect()->route('evaluasi.index-detail', $evaluasi->eval_id);
+    } catch (\Exception $e) {
+        // Jika terjadi kesalahan, redirect dengan pesan error
+        return redirect()->route('evaluasi.index-detail', $evaluasi->eval_id)
+                         ->with('error', 'Terjadi kesalahan saat memperbarui data.');
+    }
+}
+
 
     public function final($id)
     {
