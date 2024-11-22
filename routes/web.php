@@ -55,6 +55,9 @@ Route::middleware('auth')->group(function () {
     Route::get('evaluasi/{eval_id}/index-detail', [ EvaluasiController::class, 'indexDetail'])->name('evaluasi.index-detail');
     Route::get('evaluasi/{eval_id}/create-detail', [EvaluasiController::class, 'createDetail'])->name('evaluasi.create-detail');
     Route::post('/evaluasi/{eval_id}/store-detail', [EvaluasiController::class, 'storeDetail'])->name('evaluasi.store-detail');
+    Route::get('evaluasi/{evald_id}/edit-detail', [EvaluasiController::class, 'editDetail'])->name('evaluasi.edit-detail');
+    Route::put('evaluasi/{evald_id}/update-detail', [EvaluasiController::class, 'updateDetail'])->name('evaluasi.update-detail');
+
 
     Route::resource('laporan-renja', LaporanRenjaController::class);
     Route::get('/export-excel-renja', [LaporanRenjaController::class, 'exportExcel'])->name('export-excel.renja');

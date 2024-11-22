@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Tambah Detail Evaluasi')
+@section('title', 'Edit Detail Evaluasi')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -15,10 +15,10 @@
 <div class="main-content">
     <section class="section">
         <div class="section-header">
-            <h1>Tambah Detail Evaluasi</h1>
+            <h1>Edit Detail Evaluasi</h1>
             <div class="section-header-breadcrumb">
                 <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
-                <div class="breadcrumb-item">Tambah Detail Evaluasi</div>
+                <div class="breadcrumb-item">Edit Detail Evaluasi</div>
             </div>
         </div>
 
@@ -39,8 +39,10 @@
                             @endif
 
                             <!-- Form -->
-                            <form action="{{ route('evaluasi.store-detail', $evaluasi->eval_id) }}" method="POST">
+                            <form action="{{ route('evaluasi.update-detail', [$evaluasi->eval_id, $evaluasiDetail->evald_id]) }}" method="POST">
                                 @csrf
+                                @method('PUT')
+                                
                                 <div class="form-group">
                                     <label for="ti_id">Target Indikator</label>
                                     <div class="input-group">
@@ -50,14 +52,16 @@
                                             </div>
                                         </div>
                                         <select class="form-control" name="ti_id" required>
-                                            <option value="">Pilih Indikator Kinerja</option>
-                                            @foreach ($targetIndikators as $indikator)
-                                                <option value="{{ $indikator->ti_id }}">{{ $indikator->indikatorKinerja->ik_nama }}</option>
+                                            @foreach ($targetIndikators as $targetIndikator)
+                                                <option value="{{ $targetIndikator->ti_id }}" 
+                                                    @if ($targetIndikator->ti_id == $evaluasiDetail->ti_id) selected @endif>
+                                                    {{ $targetIndikator->indikatorKinerja->ik_nama }}
+                                                </option>
                                             @endforeach
                                         </select>
                                     </div>
-                                </div>
-                            
+                                </div>                                
+
                                 <div class="form-group">
                                     <label for="evald_target">Target</label>
                                     <div class="input-group">
@@ -66,10 +70,11 @@
                                                 <i class="fa-solid fa-bullseye"></i>
                                             </div>
                                         </div>
-                                        <input type="text" class="form-control" name="evald_target" placeholder="Masukkan target" required>
+                                        <input type="text" class="form-control" name="evald_target" value="{{ $evaluasiDetail->evald_target }}" readonly>
                                     </div>
                                 </div>
                                 
+
                                 <div class="form-group">
                                     <label for="evald_keterangan">Keterangan</label>
                                     <div class="input-group">
@@ -78,10 +83,11 @@
                                                 <i class="fa-solid fa-info-circle"></i>
                                             </div>
                                         </div>
-                                        <textarea class="form-control" name="evald_keterangan" placeholder="Masukkan keterangan"></textarea>
+                                        <textarea class="form-control" name="evald_keterangan">{{ old('evald_keterangan', $evaluasiDetail->evald_keterangan) }}</textarea>
                                     </div>
                                 </div>
                             
+
                                 <div class="form-group">
                                     <button type="submit" class="btn btn-primary">Simpan</button>
                                     <a href="{{ route('evaluasi.index-detail', $evaluasi->eval_id) }}" class="btn btn-danger">Kembali</a>
@@ -107,9 +113,4 @@
     <script src="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js') }}"></script>
     <script src="{{ asset('library/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ asset('library/selectric/public/jquery.selectric.min.js') }}"></script>
-
-    @include('sweetalert::alert')
-
-    <!-- Page Specific JS File -->
-    <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>
 @endpush
