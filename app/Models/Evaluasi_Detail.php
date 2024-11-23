@@ -22,6 +22,7 @@ class Evaluasi_Detail extends Model
         'eval_id',
         'ti_id',
         'evald_target',
+        'evald_capaian',
         'evald_keterangan',
     ];
 
