@@ -57,7 +57,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/evaluasi/{eval_id}/store-detail', [EvaluasiController::class, 'storeDetail'])->name('evaluasi.store-detail');
     Route::get('evaluasi/{evald_id}/edit-detail', [EvaluasiController::class, 'editDetail'])->name('evaluasi.edit-detail');
     Route::put('evaluasi/{evald_id}/update-detail', [EvaluasiController::class, 'updateDetail'])->name('evaluasi.update-detail');
-    
+    Route::delete('/evaluasi/{eval_id}/detail/{evald_id}', [EvaluasiController::class, 'destroyDetail'])->name('evaluasi.destroy-detail');
+
     // Rute untuk laporan
     Route::resource('laporan-renja', LaporanRenjaController::class);
     Route::get('/export-excel-renja', [LaporanRenjaController::class, 'exportExcel'])->name('export-excel.renja');

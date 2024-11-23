@@ -50,11 +50,16 @@
                                     <td>{{ $item->evald_keterangan }}</td>
                                     <td class="text-center">
                                         <a href="{{ route('evaluasi.edit-detail', ['evald_id' => $item->evald_id]) }}" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Ubah</a>     
-                                        <form id="delete-form-{{ $item->evald_id }}" method="POST" class="d-inline" action="#">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $item->evald_id }}')"><i class="fa-solid fa-trash"></i> Hapus</button>
-                                        </form>
+                                        <form id="delete-form-{{ $item->evald_id }}" method="POST" 
+                                            action="{{ route('evaluasi.destroy-detail', ['eval_id' => $Evaluasi->eval_id, 'evald_id' => $item->evald_id]) }}" 
+                                            class="d-inline">
+                                          @csrf
+                                          @method('DELETE')
+                                          <button class="btn btn-danger" type="submit" onclick="confirmDelete(event, '{{ $item->evald_id }}')">
+                                              <i class="fa-solid fa-trash"></i> Hapus
+                                          </button>
+                                      </form>
+                                      
                                     </td>
                                 </tr>
                             @endforeach

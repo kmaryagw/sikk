@@ -254,4 +254,25 @@ public function updateDetail(Request $request, $evald_id)
     
         return view('evaluasi.show', compact('evaluasi'));
     }
+
+    public function destroyDetail($eval_id, $evald_id)
+{
+    try {
+        $evaluasiDetail = Evaluasi_Detail::findOrFail($evald_id);
+
+        // Pastikan status evaluasi belum final
+        $evaluasi = Evaluasi::findOrFail($eval_id);
+        if ($evaluasi->status == 1) {
+            return redirect()->route('evaluasi.index-detail', $eval_id)->with('error', 'Evaluasi ini sudah final dan tidak dapat diubah.');
+        }
+
+        // Hapus data
+        $evaluasiDetail->delete();
+        Alert::success('Sukses', 'Data Berhasil Dihapus');
+        return redirect()->route('evaluasi.index-detail', $eval_id)->with('success', 'Detail Evaluasi berhasil dihapus.');
+    } catch (\Exception $e) {
+        return redirect()->route('evaluasi.index-detail', $eval_id)->with('error', 'Terjadi kesalahan saat menghapus data.');
+    }
+}
+
 }
