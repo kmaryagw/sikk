@@ -69,6 +69,18 @@
                                         <input type="text" class="form-control" name="evald_target" placeholder="Masukkan target" required>
                                     </div>
                                 </div>
+
+                                <div class="form-group">
+                                    <label for="evald_capaian">Capaian</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text">
+                                                <i class="fa-solid fa-percent"></i>
+                                            </div>
+                                        </div>
+                                        <input type="text" class="form-control" name="evald_capaian" placeholder="Masukkan capaian" required>
+                                    </div>
+                                </div>
                                 
                                 <div class="form-group">
                                     <label for="evald_keterangan">Keterangan</label>

@@ -36,6 +36,7 @@
                                 <th>No</th>
                                 <th>Indikator Kinerja</th>
                                 <th>Target</th>
+                                <th>Capaian</th>
                                 <th>Keterangan</th>
                                 <th class="text-center">Aksi</th>
                             </tr>
@@ -47,6 +48,7 @@
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $item->targetIndikator->indikatorKinerja->ik_nama }}</td>
                                     <td>{{ $item->evald_target }}</td>
+                                    <td>{{ $item->evald_capaian }}</td>
                                     <td>{{ $item->evald_keterangan }}</td>
                                     <td class="text-center">
                                         <a href="{{ route('evaluasi.edit-detail', ['evald_id' => $item->evald_id]) }}" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Ubah</a>     

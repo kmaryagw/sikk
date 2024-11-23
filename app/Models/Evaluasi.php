@@ -44,11 +44,10 @@ class Evaluasi extends Model
         return $this->hasMany(Evaluasi_Detail::class, 'eval_id', 'eval_id');
     }
 
-    // Model Evaluasi
     public function isFilled()
     {
-        // Misalnya cek apakah ada field tertentu yang terisi
-        return !empty($this->field_name);
+        // Cek apakah semua detail evaluasi sudah terisi
+        return $this->evaluasiDetails()->exists();
     }
 
 

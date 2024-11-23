@@ -40,7 +40,13 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="ti_id">Target Indikator</label>
-                                            <select class="form-control select2" name="ti_id" disabled>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <div class="input-group-text">
+                                                        <i class="fa-solid fa-award"></i>
+                                                    </div>
+                                                </div>
+                                            <select class="form-control" name="ti_id" disabled>
                                                 @foreach ($targetIndikators as $targetIndikator)
                                                     <option value="{{ $targetIndikator->ti_id }}" 
                                                         @if ($targetIndikator->ti_id == $evaluasiDetail->ti_id) selected @endif>
@@ -48,20 +54,51 @@
                                                     </option>
                                                 @endforeach
                                             </select>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="evald_target">Target</label>
-                                            <input type="text" class="form-control" name="evald_target" value="{{ $evaluasiDetail->evald_target }}" readonly>
+                                            <input type="hidden" name="ti_id" value="{{ $evaluasiDetail->ti_id }}">
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div class="col-md-12">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="evald_target">Target</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">
+                                                        <i class="fa-solid fa-bullseye"></i>
+                                                    </span>
+                                                </div>
+                                                <input type="text" id="evald_target" class="form-control" name="evald_target" value="{{ $evaluasiDetail->evald_target }}" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="evald_capaian">Capaian</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">
+                                                        <i class="fa-solid fa-percent"></i>
+                                                    </span>
+                                                </div>
+                                            <input type="text" class="form-control" name="evald_capaian" value="{{ $evaluasiDetail->evald_capaian }}" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="evald_keterangan">Keterangan</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">
+                                                        <i class="fa-solid fa-info-circle"></i>
+                                                    </span>
+                                                </div>
                                             <textarea class="form-control" name="evald_keterangan" rows="4">{{ old('evald_keterangan', $evaluasiDetail->evald_keterangan) }}</textarea>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

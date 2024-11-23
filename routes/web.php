@@ -51,7 +51,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('periode-monitoring', PeriodeMonitoringController::class);
     Route::resource('evaluasi', EvaluasiController::class);
 
-    Route::post('/evaluasi/{id}/final', [EvaluasiController::class, 'final'])->name('evaluasi.final');
+    Route::post('/evaluasi/final/{id}', [EvaluasiController::class, 'final'])->name('evaluasi.final');
     Route::get('evaluasi/{eval_id}/index-detail', [EvaluasiController::class, 'indexDetail'])->name('evaluasi.index-detail');
     Route::get('evaluasi/{eval_id}/create-detail', [EvaluasiController::class, 'createDetail'])->name('evaluasi.create-detail');
     Route::post('/evaluasi/{eval_id}/store-detail', [EvaluasiController::class, 'storeDetail'])->name('evaluasi.store-detail');

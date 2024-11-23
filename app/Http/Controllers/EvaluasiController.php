@@ -136,6 +136,7 @@ public function storeDetail(Request $request, $eval_id)
     $validated = $request->validate([
         'ti_id' => 'required|exists:target_indikator,ti_id',
         'evald_target' => 'required|string',
+        'evald_capaian' => 'required|string',
         'evald_keterangan' => 'nullable|string',
     ]);
 
@@ -151,6 +152,7 @@ public function storeDetail(Request $request, $eval_id)
             'eval_id' => $eval_id,
             'ti_id' => $request->ti_id,
             'evald_target' => $request->evald_target,
+            'evald_capaian' => $request->evald_capaian,
             'evald_keterangan' => $request->evald_keterangan,
         ]);
 
@@ -199,6 +201,7 @@ public function updateDetail(Request $request, $evald_id)
     $validated = $request->validate([
         'ti_id' => 'required|exists:target_indikator,ti_id',
         'evald_target' => 'required|string',
+        'evald_capaian' => 'required|string',
         'evald_keterangan' => 'nullable|string',
     ]);
 
@@ -216,6 +219,7 @@ public function updateDetail(Request $request, $evald_id)
         $evaluasiDetail->update([
             'ti_id' => $request->ti_id,
             'evald_target' => $request->evald_target,
+            'evald_capaian' => $request->evald_capaian,
             'evald_keterangan' => $request->evald_keterangan,
         ]);
 
@@ -230,23 +234,23 @@ public function updateDetail(Request $request, $evald_id)
 }
 
 
-    public function final($id)
-    {
-        $evaluasi = Evaluasi::findOrFail($id);
+public function final($id)
+{
+    $evaluasi = Evaluasi::findOrFail($id);
 
-        if ($evaluasi->status == 1) {
-            return redirect()->route('evaluasi.index')->with('error', 'Evaluasi ini sudah final dan tidak dapat diubah.');
-        }
-
-        if (!$evaluasi->isFilled()) {
-            return redirect()->route('evaluasi.index')->with('error', 'Data harus diisi terlebih dahulu sebelum final.');
-        }
-
-        $evaluasi->status = 1;
-        $evaluasi->save();
-
-        return redirect()->route('evaluasi.index')->with('success', 'Evaluasi berhasil diselesaikan.');
+    if ($evaluasi->status == 1) {
+        return response()->json(['success' => false, 'message' => 'Evaluasi ini sudah final dan tidak dapat diubah.']);
     }
+
+    if (!$evaluasi->isFilled()) {
+        return response()->json(['success' => false, 'message' => 'Data harus diisi terlebih dahulu sebelum final.']);
+    }
+
+    $evaluasi->status = 1;
+    $evaluasi->save();
+
+    return response()->json(['success' => true, 'message' => 'Evaluasi berhasil diselesaikan.']);
+}
 
     public function show($id)
     {

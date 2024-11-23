@@ -151,38 +151,37 @@
     });
 });
 
-        // Konfirmasi Finalisasi
-        document.querySelectorAll('.finalBtn').forEach(button => {
-            button.addEventListener('click', function () {
-                const evaluasiId = this.getAttribute('data-id');
+document.querySelectorAll('.finalBtn').forEach(button => {
+    button.addEventListener('click', function () {
+        const evaluasiId = this.getAttribute('data-id');
 
-                Swal.fire({
-                    title: 'Finalisasi?',
-                    text: 'Pastikan data sudah benar.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Ya, finalisasi!',
-                    cancelButtonText: 'Batal',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        fetch(`/evaluasi/final/${evaluasiId}`, {
-                            method: 'POST',
-                            headers: { 
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content 
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire('Sukses', data.message, 'success').then(() => location.reload());
-                            } else {
-                                Swal.fire('Gagal', data.message, 'error');
-                            }
-                        })
-                        .catch(() => Swal.fire('Gagal', 'Terjadi kesalahan.', 'error'));
+        Swal.fire({
+            title: 'Finalisasi?',
+            text: 'Pastikan data sudah benar.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, finalisasi!',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/evaluasi/final/${evaluasiId}`, {
+                    method: 'POST',
+                    headers: { 
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content 
                     }
-                });
-            });
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Sukses', data.message, 'success').then(() => location.reload());
+                    } else {
+                        Swal.fire('Gagal', data.message, 'error');
+                    }
+                })
+                .catch(() => Swal.fire('Gagal', 'Terjadi kesalahan.', 'error'));
+            }
         });
+    });
+});
     </script>
 @endpush
