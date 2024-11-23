@@ -46,4 +46,6 @@ class RencanaKerja extends Model
 {
     return $this->hasMany(Monitoring::class, 'rk_id', 'rk_id'); // pastikan relasi 'rk_id' digunakan untuk menghubungkan kedua tabel
 }
+
+
 }

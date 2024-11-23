@@ -23,4 +23,9 @@ class UnitKerja extends Model
         'unit_nama',
         'unit_kerja',
     ];
+
+    public function evaluasiDetails()
+    {
+        return $this->hasMany(Evaluasi_Detail::class, 'unit_id', 'unit_id');
+    }
 }

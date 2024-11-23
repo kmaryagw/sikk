@@ -24,6 +24,7 @@ Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->group(function () {
     
+    // Resource routes untuk berbagai entitas
     Route::resource('user', UserController::class);
     Route::resource('unit', UnitKerjaController::class);
     Route::resource('prodi', ProdiController::class);
@@ -38,27 +39,26 @@ Route::middleware('auth')->group(function () {
     Route::resource('realisasirenja', RealisasiRenjaController::class);
     Route::get('realisasirenja/{rk_id}/realisasi', [RealisasiRenjaController::class, 'showRealisasi'])->name('realisasirenja.showRealisasi');
     
-    // Route Monitoring
+    // Route untuk Monitoring
     Route::get('/monitoring/{pmo_id}', [MonitoringController::class, 'show'])->name('monitoring.view');
     Route::get('/monitoring/{pmo_id}/fill', [MonitoringController::class, 'fill'])->name('monitoring.fill');
-    Route::post('/monitoring/{pmo_id}/store', [MonitoringController::class, 'store'])->name('monitoring.fillStore'); // Ubah dari 'monitoring.store' agar tidak duplikat
+    Route::post('/monitoring/{pmo_id}/store', [MonitoringController::class, 'store'])->name('monitoring.fillStore');
     Route::get('monitoring/{pmo_id}/{rk_id}/getData', [MonitoringController::class, 'getData'])->name('monitoring.getData');
-
     Route::get('/realisasi/create', [RealisasiRenjaController::class, 'create'])->name('realisasi.create');
-
-    Route::resource('monitoring', MonitoringController::class); // Diletakkan terakhir agar route di atas tidak tertimpa
+    
+    // Rute untuk Evaluasi
+    Route::resource('monitoring', MonitoringController::class);
     Route::resource('periode-monitoring', PeriodeMonitoringController::class);
     Route::resource('evaluasi', EvaluasiController::class);
 
-    // Route::post('/evaluasi/store', [EvaluasiController::class, 'store'])->name('evaluasi.store');
     Route::post('/evaluasi/{id}/final', [EvaluasiController::class, 'final'])->name('evaluasi.final');
-    Route::get('evaluasi/{eval_id}/index-detail', [ EvaluasiController::class, 'indexDetail'])->name('evaluasi.index-detail');
+    Route::get('evaluasi/{eval_id}/index-detail', [EvaluasiController::class, 'indexDetail'])->name('evaluasi.index-detail');
     Route::get('evaluasi/{eval_id}/create-detail', [EvaluasiController::class, 'createDetail'])->name('evaluasi.create-detail');
     Route::post('/evaluasi/{eval_id}/store-detail', [EvaluasiController::class, 'storeDetail'])->name('evaluasi.store-detail');
     Route::get('evaluasi/{evald_id}/edit-detail', [EvaluasiController::class, 'editDetail'])->name('evaluasi.edit-detail');
     Route::put('evaluasi/{evald_id}/update-detail', [EvaluasiController::class, 'updateDetail'])->name('evaluasi.update-detail');
-
-
+    
+    // Rute untuk laporan
     Route::resource('laporan-renja', LaporanRenjaController::class);
     Route::get('/export-excel-renja', [LaporanRenjaController::class, 'exportExcel'])->name('export-excel.renja');
     Route::get('/export-pdf-renja', [LaporanRenjaController::class, 'exportPdf'])->name('export-pdf.renja');
@@ -97,6 +97,8 @@ Route::middleware('auth')->group(function () {
         return view('pages.formaudit', ['type_menu' => 'formaudit']);
     });
 });
+
+
 
 // Route untuk menyimpan Realisasi Renja
 // Route::post('/realisasirenja/store', [RealisasiRenjaController::class, 'store'])->name('realisasirenja.store');
