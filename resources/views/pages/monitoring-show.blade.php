@@ -6,7 +6,7 @@
     <section class="section">
         <div class="section-header">
             <!-- Mengambil nama rencana kerja dari elemen pertama koleksi -->
-            <h1>Lihat Data Realisasi 
+            <h1>Lihat Data Monitoring 
                 
             </h1>
         </div>

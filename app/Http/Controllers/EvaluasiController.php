@@ -164,26 +164,34 @@ public function storeDetail(Request $request, $eval_id)
 
 public function editDetail($evald_id)
 {
-    // Mencari Evaluasi Detail berdasarkan ID
-    $evaluasiDetail = Evaluasi_Detail::with('targetIndikator.prodi', 'targetIndikator.tahunKerja')->findOrFail($evald_id);
-    
-    // Cari evaluasi terkait dengan evaluasi detail
-    $evaluasi = Evaluasi::with('targetIndikator.prodi', 'targetIndikator.tahunKerja')->findOrFail($evaluasiDetail->eval_id);
+    $evaluasiDetail = Evaluasi_Detail::with([
+        'targetIndikator.prodi', 
+        'targetIndikator.tahunKerja',
+        'unitKerja' // Relasi unit kerja
+    ])->findOrFail($evald_id);
 
-    // Pastikan status evaluasi belum final
+    $evaluasi = Evaluasi::findOrFail($evaluasiDetail->eval_id);
+
     if ($evaluasi->status == 1) {
         return redirect()->route('evaluasi.index')->with('error', 'Evaluasi ini sudah final dan tidak dapat diubah.');
     }
 
-    $targetIndikators = target_indikator::all();
+    // Tambahkan relasi atau data target indikator
+    $targetIndikators = $evaluasiDetail->targetIndikator()->get(); // Mengambil data terkait
+
+    $unitKerja = $evaluasiDetail->unitKerja; // Ambil unit kerja terkait
+    $rencanaKerja = $unitKerja ? $unitKerja->rencanaKerja()->with('monitoring')->get() : [];
 
     return view('pages.edit-detail-evaluasi', [
         'evaluasi' => $evaluasi,
         'evaluasiDetail' => $evaluasiDetail,
-        'targetIndikators' => $targetIndikators,
+        'targetIndikators' => $targetIndikators, // Pastikan ini ada
+        'rencanaKerja' => $rencanaKerja, // Data monitoring terkait
         'type_menu' => 'evaluasi',
     ]);
 }
+
+
 
 public function updateDetail(Request $request, $evald_id)
 {
@@ -213,10 +221,10 @@ public function updateDetail(Request $request, $evald_id)
 
         // Redirect ke halaman index detail evaluasi
         Alert::success('Sukses', 'Data Berhasil Diperbarui');
-        return redirect()->route('evaluasi.index-detail', $evaluasi->eval_id);
+        return redirect()->route('evaluasi.index-detail', $evaluasiDetail->eval_id);
     } catch (\Exception $e) {
         // Jika terjadi kesalahan, redirect dengan pesan error
-        return redirect()->route('evaluasi.index-detail', $evaluasi->eval_id)
+        return redirect()->route('evaluasi.index-detail', $evaluasiDetail->eval_id)
                          ->with('error', 'Terjadi kesalahan saat memperbarui data.');
     }
 }

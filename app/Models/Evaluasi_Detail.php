@@ -35,4 +35,10 @@ class Evaluasi_Detail extends Model
     {
         return $this->belongsTo(target_indikator::class, 'ti_id', 'ti_id');
     }
+
+    public function unitKerja()
+{
+    return $this->belongsTo(UnitKerja::class, 'unit_id', 'unit_id'); // Sesuaikan kolomnya
+}
+
 }

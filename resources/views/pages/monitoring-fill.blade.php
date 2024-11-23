@@ -8,7 +8,6 @@
         <div class="section-header">
             <h1>Isi Monitoring</h1>
         </div>
-
         <div class="card">
             <div class="card-header">
                 <h4>Tahun: <span class="badge badge-primary">{{ $periodeMonitoring->tahunKerja->th_tahun }}</span></h4>
