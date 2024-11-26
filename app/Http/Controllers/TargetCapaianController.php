@@ -23,7 +23,6 @@ class TargetCapaianController extends Controller
         $prodis = program_studi::all();
 
         $query = target_indikator::where('ti_target', 'like', '%' . $q . '%')
-            ->orderBy('ti_target', 'asc')
             ->leftjoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
             ->leftjoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
             ->leftjoin('tahun_kerja as aktif_tahun', function($join) {
@@ -46,6 +45,8 @@ class TargetCapaianController extends Controller
         if ($prodiId) {
             $query->where('program_studi.prodi_id', $prodiId);
         }
+
+        $query->orderBy('indikator_kinerja.ik_nama', 'asc');
 
         $target_capaians = $query->paginate(10)->withQueryString();
         $no = $target_capaians->firstItem();

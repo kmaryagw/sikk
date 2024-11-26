@@ -58,6 +58,7 @@ Route::middleware('auth')->group(function () {
     Route::get('evaluasi/{evald_id}/edit-detail', [EvaluasiController::class, 'editDetail'])->name('evaluasi.edit-detail');
     Route::put('evaluasi/{evald_id}/update-detail', [EvaluasiController::class, 'updateDetail'])->name('evaluasi.update-detail');
     Route::delete('/evaluasi/{eval_id}/detail/{evald_id}', [EvaluasiController::class, 'destroyDetail'])->name('evaluasi.destroy-detail');
+    Route::get('evaluasi/{eval_id}/show-evaluasi', [EvaluasiController::class, 'show'])->name('evaluasi.show-evaluasi');
 
     // Rute untuk laporan
     Route::resource('laporan-renja', LaporanRenjaController::class);
