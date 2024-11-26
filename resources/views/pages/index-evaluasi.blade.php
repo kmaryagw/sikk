@@ -56,7 +56,7 @@
                                                 <button class="btn btn-secondary" disabled><i class="fa-solid fa-lock"></i> Final</button>
                                             @endif
                                         @else
-                                            <a class="btn btn-info" href="{{ route('evaluasi.show', $evaluasi->eval_id) }}"><i class="fa-solid fa-eye"></i> Lihat Data</a>
+                                            <a class="btn btn-success" href="{{ route('evaluasi.show-evaluasi', $evaluasi->eval_id) }}"><i class="fa-solid fa-eye"></i> Lihat Data</a>
                                         @endif
                                     </td>
                                 </tr>

@@ -184,6 +184,8 @@ public function editDetail($evald_id)
     $unitKerja = $evaluasiDetail->unitKerja; // Ambil unit kerja terkait
     $rencanaKerja = $unitKerja ? $unitKerja->rencanaKerja()->with('monitoring')->get() : [];
 
+    // $rencanaKerjas = Evaluasi::with(['rencanaKerja.monitoring'])->findOrFail($evald_id);
+
     return view('pages.edit-detail-evaluasi', [
         'evaluasi' => $evaluasi,
         'evaluasiDetail' => $evaluasiDetail,
@@ -252,11 +254,17 @@ public function final($id)
     return response()->json(['success' => true, 'message' => 'Evaluasi berhasil diselesaikan.']);
 }
 
-    public function show($id)
+    public function show($eval_id)
     {
-        $evaluasi = Evaluasi::findOrFail($id);
-    
-        return view('evaluasi.show', compact('evaluasi'));
+        $Evaluasi = Evaluasi::with('targetIndikator.prodi', 'targetIndikator.tahunKerja')->findOrFail($eval_id);
+
+        $Evaluasis = Evaluasi_Detail::where('eval_id', $eval_id)->get();
+
+        return view('pages.index-show-evaluasi', [
+            'Evaluasi' => $Evaluasi,
+            'Evaluasis' => $Evaluasis,
+            'type_menu' => 'evaluasi',
+        ]);
     }
 
     public function destroyDetail($eval_id, $evald_id)
