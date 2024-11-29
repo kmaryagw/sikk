@@ -83,7 +83,7 @@
                                                         <i class="fa-solid fa-percent"></i>
                                                     </span>
                                                 </div>
-                                            <input type="text" class="form-control" name="evald_capaian" value="{{ $evaluasiDetail->evald_capaian }}" readonly>
+                                            <input type="text" class="form-control" name="evald_capaian" value="{{ $evaluasiDetail->evald_capaian }}" >
                                             </div>
                                         </div>
                                     </div>
