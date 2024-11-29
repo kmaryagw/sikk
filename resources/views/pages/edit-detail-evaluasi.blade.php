@@ -46,15 +46,15 @@
                                                         <i class="fa-solid fa-award"></i>
                                                     </div>
                                                 </div>
-                                            <select class="form-control" name="ti_id" disabled>
-                                                @foreach ($targetIndikators as $targetIndikator)
-                                                    <option value="{{ $targetIndikator->ti_id }}" 
-                                                        @if ($targetIndikator->ti_id == $evaluasiDetail->ti_id) selected @endif>
-                                                        {{ $targetIndikator->indikatorKinerja->ik_nama }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            <input type="hidden" name="ti_id" value="{{ $evaluasiDetail->ti_id }}">
+                                                <select class="form-control" name="ti_id" disabled>
+                                                    @foreach ($targetIndikators as $targetIndikator)
+                                                        <option value="{{ $targetIndikator->ti_id }}" 
+                                                            @if ($targetIndikator->ti_id == $evaluasiDetail->ti_id) selected @endif>
+                                                            {{ $targetIndikator->indikatorKinerja->ik_nama }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                <input type="hidden" name="ti_id" value="{{ $evaluasiDetail->ti_id }}">
                                             </div>
                                         </div>
                                     </div>
@@ -72,7 +72,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
 
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -83,7 +82,7 @@
                                                         <i class="fa-solid fa-percent"></i>
                                                     </span>
                                                 </div>
-                                            <input type="text" class="form-control" name="evald_capaian" value="{{ $evaluasiDetail->evald_capaian }}" >
+                                                <input type="text" class="form-control" name="evald_capaian" value="{{ $evaluasiDetail->evald_capaian }}">
                                             </div>
                                         </div>
                                     </div>
@@ -97,7 +96,7 @@
                                                         <i class="fa-solid fa-info-circle"></i>
                                                     </span>
                                                 </div>
-                                            <textarea class="form-control" name="evald_keterangan" rows="4">{{ old('evald_keterangan', $evaluasiDetail->evald_keterangan) }}</textarea>
+                                                <textarea class="form-control" name="evald_keterangan" rows="4">{{ old('evald_keterangan', $evaluasiDetail->evald_keterangan) }}</textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -107,7 +106,7 @@
                                     <button type="submit" class="btn btn-primary">Simpan</button>
                                     <a href="{{ route('evaluasi.index-detail', $evaluasi->eval_id) }}" class="btn btn-danger">Kembali</a>
                                 </div>
-                            </form>
+                            </form>                          
 
                             <!-- Tabel Data Monitoring -->
                             <h5 class="mt-4">Data Monitoring Terkait</h5>
@@ -115,6 +114,7 @@
                                 <table class="table table-bordered table-hover">
                                     <thead class="thead-light">
                                         <tr class="text-center">
+                                            <th>No</th>
                                             <th>Nama Rencana Kerja</th>
                                             <th>Unit Kerja</th>
                                             <th>Capaian</th>
@@ -125,31 +125,29 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @forelse($rencanaKerja as $rencana)
+                                        @foreach($rencanaKerja as $index => $rencana)
                                             <tr>
+                                                <td>{{ $index + 1 }}</td>
                                                 <td>{{ $rencana->rk_nama }}</td>
                                                 <td>{{ $rencana->unitKerja->unit_nama ?? 'Tidak Ada' }}</td>
-                                                @if ($rencana->is_monitored)
-                                                    <td>{{ $rencana->monitoring->first()->mtg_capaian }}</td>
-                                                    <td>{{ $rencana->monitoring->first()->mtg_kondisi }}</td>
-                                                    <td>{{ $rencana->monitoring->first()->mtg_kendala }}</td>
-                                                    <td>{{ $rencana->monitoring->first()->mtg_tindak_lanjut }}</td>
+
+                                                @forelse($rencana->monitoring as $monitoring)
+                                                    <td>{{ $monitoring->mtg_capaian }}</td>
+                                                    <td>{{ $monitoring->mtg_kondisi }}</td>
+                                                    <td>{{ $monitoring->mtg_kendala }}</td>
+                                                    <td>{{ $monitoring->mtg_tindak_lanjut }}</td>
                                                     <td>
-                                                        @if ($rencana->monitoring->first()->mtg_bukti)
-                                                            <a href="{{ Storage::url($rencana->monitoring->first()->mtg_bukti) }}" target="_blank" class="btn btn-info btn-sm">Lihat Bukti</a>
+                                                        @if ($monitoring->mtg_bukti)
+                                                            <a href="{{ Storage::url($monitoring->mtg_bukti) }}" target="_blank" class="btn btn-info btn-sm">Lihat Bukti</a>
                                                         @else
                                                             <span class="text-danger">Tidak ada bukti</span>
                                                         @endif
                                                     </td>
-                                                @else
+                                                @empty
                                                     <td colspan="6" class="text-center text-warning">Belum melakukan monitoring</td>
-                                                @endif
+                                                @endforelse
                                             </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="7" class="text-center">Tidak ada data rencana kerja terkait.</td>
-                                            </tr>
-                                        @endforelse
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>
@@ -162,16 +160,14 @@
 </div>
 @endsection
 
-
 @push('scripts')
-<!-- JS Libraries -->
-<script src="{{ asset('library/cleave.js/dist/cleave.min.js') }}"></script>
-<script src="{{ asset('library/cleave.js/dist/addons/cleave-phone.us.js') }}"></script>
-<script src="{{ asset('library/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
-<script src="{{ asset('library/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js') }}"></script>
-<script src="{{ asset('library/bootstrap-timepicker/js/bootstrap-timepicker.min.js') }}"></script>
-<script src="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js') }}"></script>
-<script src="{{ asset('library/select2/dist/js/select2.full.min.js') }}"></script>
-<script src="{{ asset('library/selectric/public/jquery.selectric.min.js') }}"></script>
+    <!-- JS Libraries -->
+    <script src="{{ asset('library/cleave.js/dist/cleave.min.js') }}"></script>
+    <script src="{{ asset('library/cleave.js/dist/addons/cleave-phone.us.js') }}"></script>
+    <script src="{{ asset('library/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
+    <script src="{{ asset('library/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js') }}"></script>
+    <script src="{{ asset('library/bootstrap-timepicker/js/bootstrap-timepicker.min.js') }}"></script>
+    <script src="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js') }}"></script>
+    <script src="{{ asset('library/select2/dist/js/select2.full.min.js') }}"></script>
+    <script src="{{ asset('library/selectric/public/jquery.selectric.min.js') }}"></script>
 @endpush
-

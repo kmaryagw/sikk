@@ -40,6 +40,11 @@ class Monitoring extends Model
     {
         return $this->belongsTo(RencanaKerja::class, 'rk_id', 'rk_id');
     }
+
+    public function targetIndikator()
+    {
+        return $this->belongsTo(target_indikator::class, 'rk_id', 'rk_id');
+    }
     
     protected $attributes = [
         'mtg_capaian' => 0,

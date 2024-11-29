@@ -37,20 +37,18 @@ class Evaluasi_Detail extends Model
     }
 
     public function unitKerja()
-{
-    return $this->belongsTo(UnitKerja::class, 'unit_id', 'unit_id'); // Sesuaikan kolomnya
-}
+    {
+        return $this->belongsTo(UnitKerja::class, 'unit_id', 'unit_id');
+    }
 
-// public function rencanaKerja()
-// {
-//     return $this->hasManyThrough(
-//         RencanaKerja::class,
-//         RencanaKerjaTargetIndikator::class,
-//         'ti_id', // Foreign key di RencanaKerjaTargetIndikator
-//         'rk_id', // Foreign key di RencanaKerja
-//         'ti_id', // Local key di Evaluasi (melalui target_indikator)
-//         'rk_id'  // Local key di RencanaKerjaTargetIndikator
-//     );
-// }
+    public function monitoring()
+    {
+        return $this->hasMany(Monitoring::class, 'rk_id', 'rk_id');
+    }
 
+    public function rencanaKerja()
+    {
+        return $this->belongsTo(RencanaKerja::class, 'rk_id', 'rk_id');
+    }
+    
 }

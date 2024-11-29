@@ -157,7 +157,7 @@ document.querySelectorAll('.finalBtn').forEach(button => {
 
         Swal.fire({
             title: 'Finalisasi?',
-            text: 'Pastikan data sudah benar.',
+            text: 'Pastikan data sudah benar. Data Final tidak akan bisa dirubah kembali',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Ya, finalisasi!',

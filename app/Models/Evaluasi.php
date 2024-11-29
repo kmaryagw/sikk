@@ -36,7 +36,7 @@ class Evaluasi extends Model
 
     public function indikatorKinerja()
     {
-        return $this->belongsTo(IndikatorKinerjaUtama::class, 'ik_id', 'ik_id'); // Sesuaikan dengan relasi Anda
+        return $this->belongsTo(IndikatorKinerjaUtama::class, 'ik_id', 'ik_id');
     }
 
     public function evaluasiDetails()
@@ -46,8 +46,12 @@ class Evaluasi extends Model
 
     public function isFilled()
     {
-        // Cek apakah semua detail evaluasi sudah terisi
         return $this->evaluasiDetails()->exists();
+    }
+
+    public function monitorings()
+    {
+        return $this->hasManyThrough(Monitoring::class, Evaluasi_Detail::class, 'eval_id', 'rk_id', 'eval_id', 'rk_id');
     }
 
 
