@@ -9,10 +9,12 @@
         <ul class="sidebar-menu">
             <li class="menu-header">Menu</li>
             <li class="nav-item dropdown {{ $type_menu === 'dashboard' ? 'active' : '' }}">
-                <a href="{{ url('dashboard') }}"
-                    class="nav-link"><i class="fas fa-fire"></i><span>Dashboard</span></a>
-                
+                <a href="{{ url('dashboard') }}" class="nav-link">
+                    <i class="fas fa-fire"></i>
+                    <span>Dashboard</span>
+                </a>
             </li>
+            
             
 
             {{-- Master Data --}}
