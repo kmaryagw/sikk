@@ -93,6 +93,7 @@
                                                 </div>
                                             </div>
                                             <select class="form-control" name="role" id="role" required>
+                                                <option value="" disabled selected>Pilih Role</option>
                                                 @foreach ($roles as $role)
                                                     <option value="{{ $role }}" {{ old('role') == $role ? 'selected' : '' }}>{{ $role }}</option>
                                                 @endforeach

@@ -43,7 +43,7 @@ class PeriodeMonitoringController extends Controller
         'perides' => $perides,
         'th_tahun' => $th_tahun,
         'periodes' => $periodes,
-        'tahunKerja' => tahun_kerja::where('ren_is_aktif', 'y')->get(), 
+        'tahunKerja' => tahun_kerja::where('th_is_aktif', 'y')->get(), 
         'type_menu' => 'periode-monitoring',
         'tahunId' => $tahunId, 
         'q' => $q,
@@ -56,7 +56,7 @@ class PeriodeMonitoringController extends Controller
     public function create()
     {
         $title = 'Tambah Periode Monitoring';
-        $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
+        $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
         $th_tahun = tahun_kerja::orderBy('th_tahun')->get();
         $periodes = periode_monev::orderBy('pm_nama', 'asc')->get();
         
@@ -95,7 +95,7 @@ class PeriodeMonitoringController extends Controller
     public function edit(PeriodeMonitoring $periodeMonitoring)
     {
         $title = 'Edit Periode Monitoring';
-        $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
+        $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
         $th_tahun = tahun_kerja::orderBy('th_tahun')->get();
         $periodes = periode_monev::orderBy('pm_nama', 'asc')->get();
 

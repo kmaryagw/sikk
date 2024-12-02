@@ -35,13 +35,13 @@ class TahunController extends Controller
     {
         $title = 'Tambah Tahun';
         
-        $ren_is_aktifs = ['y', 'n'];
+        $th_is_aktifs = ['y', 'n'];
         $renstras = Renstra::orderBy('ren_nama')->get();
         $renstras = Renstra::all();
 
         return view('pages.create-tahun', [
             'title' => $title,
-            'ren_is_aktifs' => $ren_is_aktifs,
+            'th_is_aktifs' => $th_is_aktifs,
             'renstras' => $renstras,
             'type_menu' => 'masterdata',
             'sub_menu' => 'tahun',
@@ -52,7 +52,7 @@ class TahunController extends Controller
     {
         $request->validate([
             'th_tahun' => 'required|integer|min:1900|max:2100',
-            'ren_is_aktif' => 'required|in:y,n',
+            'th_is_aktif' => 'required|in:y,n',
             'ren_id' => 'required',
             
         ]);
@@ -66,7 +66,7 @@ class TahunController extends Controller
         $tahun->th_id = $th_id;
         $tahun->th_tahun = $request->th_tahun;
         $tahun->ren_id = $request->ren_id;
-        $tahun->ren_is_aktif = $request->ren_is_aktif;
+        $tahun->th_is_aktif = $request->th_is_aktif;
         $tahun->save();
     
         Alert::success('Sukses', 'Data Berhasil Ditambah');
@@ -77,13 +77,13 @@ class TahunController extends Controller
     public function edit(tahun_kerja $tahun)
     {
         $title = 'Ubah tahun';
-        $ren_is_aktifs = ['y', 'n'];
+        $th_is_aktifs = ['y', 'n'];
         $renstras = Renstra::orderBy('ren_nama')->get();
         $renstras = Renstra::all();
     
         return view('pages.edit-tahun', [
             'title' => $title,
-            'ren_is_aktifs' => $ren_is_aktifs,
+            'th_is_aktifs' => $th_is_aktifs,
             'renstras' => $renstras,
             'tahun' => $tahun,
             'type_menu' => 'masterdata',
@@ -99,7 +99,7 @@ class TahunController extends Controller
     
         $tahun->th_tahun = $request->th_tahun; 
         $tahun->ren_id = $request->ren_id;
-        $tahun->ren_is_aktif = $request->ren_is_aktif;
+        $tahun->th_is_aktif = $request->th_is_aktif;
         $tahun->save();
 
     Alert::success('Sukses', 'Data Berhasil Diubah');

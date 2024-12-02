@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'create-indikatorkinerjautama')
+@section('title', 'create-indikatorkinerja')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -39,11 +39,26 @@
                                         </div>
                                     @endif
 
-                                    <form method="POST" action="{{ route('indikatorkinerjautama.store') }}">
+                                    <form method="POST" action="{{ route('indikatorkinerja.store') }}">
                                         @csrf
 
                                         <div class="form-group">
-                                            <label>Nama Indikator Kinerja Utama</label>
+                                            <label>Kode Indikator Kinerja</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <div class="input-group-text">
+                                                        <i class="fa-solid fa-code"></i>
+                                                    </div>
+                                                </div>
+                                                <input class="form-control @error('ik_kode') is-invalid @enderror" type="text" name="ik_kode" value="{{ old('ik_kode') }}"/>
+                                                @error('ik_kode')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Nama Indikator Kinerja</label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <div class="input-group-text">
@@ -95,8 +110,43 @@
                                         </div>
 
                                         <div class="form-group">
+                                            <label>Jenis Indikator Kinerja</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <div class="input-group-text">
+                                                        <i class="fa-solid fa-list-alt"></i>
+                                                    </div>
+                                                </div>
+                                                <select class="form-control" name="ik_jenis" id="ik_jenis" required>
+                                                    <option value="" disabled selected>Pilih Jenis</option>
+                                                    @foreach ($jeniss as $jenis)
+                                                        <option value="{{ $jenis }}" {{ old('ik_jenis') == $jenis ? 'selected' : '' }}>{{ $jenis }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Pengukur Ketercapaian</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <div class="input-group-text">
+                                                        <i class="fa-solid fa-chart-line"></i>
+                                                    </div>
+                                                </div>
+                                                <select class="form-control" name="ik_ketercapaian" id="ik_ketercapaian" required>
+                                                    <option value="" disabled selected>Pilih Ketercapaian</option>
+                                                    @foreach ($ketercapaians as $ketercapaian)
+                                                        <option value="{{ $ketercapaian }}" {{ old('ik_ketercapaian') == $ketercapaian ? 'selected' : '' }}>{{ $ketercapaian }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+
+                                        <div class="form-group">
                                             <button type="submit" class="btn btn-primary">Simpan</button>
-                                            <a href="{{ url('indikatorkinerjautama') }}" class="btn btn-danger">Kembali</a>
+                                            <a href="{{ url('indikatorkinerja') }}" class="btn btn-danger">Kembali</a>
                                         </div>
                                     </form>
                                 </div>

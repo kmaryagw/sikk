@@ -55,16 +55,16 @@
                                     
 
                                     <div class="form-group">
-                                        <label>Renstra is Active</label>
+                                        <label>Tahun is Active</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
                                                     <i class="fa-solid fa-check"></i>
                                                 </div>
                                             </div>
-                                            <select class="form-control" name="ren_is_aktif">
-                                                @foreach ($ren_is_aktifs as $ren_is_aktif)
-                                                    <option value="{{ $ren_is_aktif }}" {{ old('ren_is_aktif') == $ren_is_aktif ? 'selected' : '' }}>{{ $ren_is_aktif }}</option>
+                                            <select class="form-control" name="th_is_aktif">
+                                                @foreach ($th_is_aktifs as $th_is_aktif)
+                                                    <option value="{{ $th_is_aktif }}" {{ old('th_is_aktif') == $th_is_aktif ? 'selected' : '' }}>{{ $th_is_aktif }}</option>
                                                 @endforeach
                                             </select>
                                         </div>

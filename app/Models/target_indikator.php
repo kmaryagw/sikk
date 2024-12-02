@@ -29,7 +29,7 @@ class target_indikator extends Model
 
     public function indikatorKinerja()
     {
-        return $this->belongsTo(IndikatorKinerjaUtama::class, 'ik_id', 'ik_id');
+        return $this->belongsTo(IndikatorKinerja::class, 'ik_id', 'ik_id');
     }
 
     public function prodi()

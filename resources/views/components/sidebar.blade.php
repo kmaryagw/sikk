@@ -66,8 +66,8 @@
             {{-- Indikator Kinerja Utama/Tambahan --}}
             
             @if (Auth::user()->role== 'admin'|| Auth::user()->role == 'prodi')
-            <li class="{{ $type_menu === 'indikatorkinerjautama' ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('indikatorkinerjautama') }}">
+            <li class="{{ $type_menu === 'indikatorkinerja' ? 'active' : '' }}">
+                <a class="nav-link" href="{{ url('indikatorkinerja') }}">
                     <i class="fa fa-bullseye" aria-hidden="true"></i>
                     <span>Indikator Kinerja Utama/Tambahan</span>
                 </a>

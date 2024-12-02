@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\IndikatorKinerjaUtama;
+use App\Models\IndikatorKinerja;
 use App\Models\program_studi;
 use App\Models\tahun_kerja;
 use App\Models\target_indikator;
@@ -19,7 +19,7 @@ class TargetCapaianController extends Controller
         $tahunId = $request->query('tahun');
         $prodiId = $request->query('prodi');
 
-        $tahun = tahun_kerja::where('ren_is_aktif', 'y')->get();
+        $tahun = tahun_kerja::where('th_is_aktif', 'y')->get();
         $prodis = program_studi::all();
 
         $query = target_indikator::where('ti_target', 'like', '%' . $q . '%')
@@ -27,7 +27,7 @@ class TargetCapaianController extends Controller
             ->leftjoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
             ->leftjoin('tahun_kerja as aktif_tahun', function($join) {
                 $join->on('aktif_tahun.th_id', '=', 'target_indikator.th_id')
-                    ->where('aktif_tahun.ren_is_aktif', 'y');
+                    ->where('aktif_tahun.th_is_aktif', 'y');
             });
 
         if (Auth::user()->role == 'prodi') {
@@ -68,9 +68,9 @@ class TargetCapaianController extends Controller
     {
         $title = 'Tambah Target Capaian';
         
-        $indikatorkinerjautamas = IndikatorKinerjaUtama::orderBy('ik_nama')->get();
+        $indikatorkinerjautamas = IndikatorKinerja::orderBy('ik_nama')->get();
         $prodis = program_studi::orderBy('nama_prodi')->get();
-        $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
+        $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
 
         return view('pages.create-targetcapaian', [
             'title' => $title,
@@ -114,9 +114,9 @@ class TargetCapaianController extends Controller
     {
         $title = 'Edit Target Capaian';
         
-        $indikatorkinerjautamas = IndikatorKinerjaUtama::orderBy('ik_nama')->get();
+        $indikatorkinerjautamas = IndikatorKinerja::orderBy('ik_nama')->get();
         $prodis = program_studi::orderBy('nama_prodi')->get();
-        $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
+        $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
 
         return view('pages.edit-targetcapaian', [
             'title' => $title,

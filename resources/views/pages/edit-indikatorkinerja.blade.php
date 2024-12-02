@@ -39,9 +39,21 @@
                                     </div>
                                 @endif
 
-                                <form action="{{ route('indikatorkinerjautama.update', $indikatorkinerjautama->ik_id) }}" method="POST">
+                                <form action="{{ route('indikatorkinerja.update', $indikatorkinerja->ik_id) }}" method="POST">
                                     @csrf
                                     @method('put')
+                                    <div class="form-group">
+                                        <label>Kode Indikator Kinerja Utama</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-code"></i>
+                                                </div>
+                                            </div>
+                                            <input class="form-control" type="text" name="ik_kode" value="{{ old('ik_kode', $indikatorkinerja->ik_kode) }}"/>
+                                        </div>
+                                    </div>
+
                                     <div class="form-group">
                                         <label>Nama Indikator Kinerja Utama</label>
                                         <div class="input-group">
@@ -50,7 +62,7 @@
                                                     <i class="fa-solid fa-user"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="ik_nama" value="{{ old('ik_nama', $indikatorkinerjautama->ik_nama) }}"/>
+                                            <input class="form-control" type="text" name="ik_nama" value="{{ old('ik_nama', $indikatorkinerja->ik_nama) }}"/>
                                         </div>
                                     </div>
 
@@ -65,7 +77,7 @@
                                             <select class="form-control" name="std_id" id="std_id" required>
                                                 <option value="" disabled selected>Pilih Standar</option>
                                                 @foreach ($standar as $s)
-                                                    <option value="{{ $s->std_id }}" {{ old('std_id', $indikatorkinerjautama->std_id ?? '') == $s->std_id ? 'selected' : '' }}>{{ $s->std_nama }}</option>
+                                                    <option value="{{ $s->std_id }}" {{ old('std_id', $indikatorkinerja->std_id ?? '') == $s->std_id ? 'selected' : '' }}>{{ $s->std_nama }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -82,7 +94,39 @@
                                             <select class="form-control" name="th_id" id="th_id" required>
                                                 <option value="" disabled selected>Pilih Tahun</option>
                                                 @foreach ($tahunKerja as $th)
-                                                    <option value="{{ $th->th_id }}" {{ old('th_id', $indikatorkinerjautama->th_id ?? '') == $th->th_id ? 'selected' : '' }}>{{ $th->th_tahun }}</option>
+                                                    <option value="{{ $th->th_id }}" {{ old('th_id', $indikatorkinerja->th_id ?? '') == $th->th_id ? 'selected' : '' }}>{{ $th->th_tahun }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Jenis Indikator Kinerja</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-list-alt"></i>
+                                                </div>
+                                            </div>
+                                            <select class="form-control" name="ik_jenis" id="ik_jenis" required>
+                                                @foreach ($jeniss as $jenis)
+                                                    <option value="{{ $jenis }}" {{ old('ik_jenis', $indikatorkinerja->ik_jenis) == $jenis ? 'selected' : '' }}>{{ $jenis }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Pengukur Ketercapaian</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-list-alt"></i>
+                                                </div>
+                                            </div>
+                                            <select class="form-control" name="ik_ketercapaian" id="ik_ketercapaian" required>
+                                                @foreach ($ketercapaians as $ketercapaian)
+                                                    <option value="{{ $ketercapaian }}" {{ old('ik_ketercapaian', $indikatorkinerja->ik_ketercapaian) == $ketercapaian ? 'selected' : '' }}>{{ $ketercapaian }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -90,7 +134,7 @@
 
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Simpan</button>
-                                        <a href="{{ url('indikatorkinerjautama') }}" class="btn btn-danger">Kembali</a>
+                                        <a href="{{ url('indikatorkinerja') }}" class="btn btn-danger">Kembali</a>
                                     </div>
                                 </form>
                                 </div>

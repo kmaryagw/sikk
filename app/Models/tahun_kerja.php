@@ -16,7 +16,7 @@ class tahun_kerja extends Model
     protected $fillable = [
         'th_id',
         'th_tahun',
-        'ren_is_aktif',
+        'th_is_aktif',
         'ren_id',
     ];
 

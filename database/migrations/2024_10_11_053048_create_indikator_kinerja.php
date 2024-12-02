@@ -13,7 +13,10 @@ return new class extends Migration
     {
         Schema::create('indikator_kinerja', function (Blueprint $table) {
             $table->string('ik_id', 50)->primary();
+            $table->string('ik_kode', 255);
             $table->string('ik_nama', 255);
+            $table->enum('ik_jenis', ['IKU', 'IKT']);
+            $table->enum('ik_ketercapaian', ['nilai', 'persentase', 'ketersediaan']);
             $table->string('std_id', 50);
             $table->string('th_id', 50);
             $table->foreign('std_id')->references('std_id')->on('standar')->onDelete('cascade')->onUpdate('cascade');

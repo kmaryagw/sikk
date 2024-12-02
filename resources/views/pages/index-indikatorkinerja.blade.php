@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'IKU')
+@section('title', 'IKU/IKT')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -35,7 +35,7 @@
                         </div>
                         @if (Auth::user()->role== 'admin')
                         <div class="col-auto">
-                            <a class="btn btn-primary" href="{{ route('indikatorkinerjautama.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
+                            <a class="btn btn-primary" href="{{ route('indikatorkinerja.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
                         </div>
                         @endif
                     </form>
@@ -46,34 +46,44 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Nama Indikator Kinerja Utama/Tambahan</th>
+                                <th>Kode IKU/IKT</th>
+                                <th>Nama IKU/IKT</th>
                                 <th>Standar</th>
-                                <th>Tahun</th> <!-- Tambahkan kolom tahun -->
+                                <th>Tahun</th>
+                                <th>Jenis</th>
+                                <th>Pengukur Ketercapaian</th>
                                 @if (Auth::user()->role== 'admin')
                                 <th>Aksi</th>
                                 @endif
                             </tr>
                         </thead>
                         <tbody>
-                            @php $no = $indikatorkinerjautamas->firstItem(); @endphp
-                            @foreach ($indikatorkinerjautamas as $indikatorkinerjautama)
+                            @php $no = $indikatorkinerjas->firstItem(); @endphp
+                            @foreach ($indikatorkinerjas as $indikatorkinerja)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $indikatorkinerjautama->ik_nama }}</td>
-                                    <td>{{ $indikatorkinerjautama->std_nama ?? '-' }}</td>
-                                    <td>{{ $indikatorkinerjautama->th_tahun ?? '-' }}</td> <!-- Tampilkan data tahun -->
+                                    <td>{{ $indikatorkinerja->ik_kode }}</td>
+                                    <td>{{ $indikatorkinerja->ik_nama }}</td>
+                                    <td>{{ $indikatorkinerja->std_nama ?? '-' }}</td>
+                                    <td>{{ $indikatorkinerja->th_tahun ?? '-' }}</td>
+                                    <td>{{ $indikatorkinerja->ik_jenis }}</td>
+                                    <td>{{ $indikatorkinerja->ik_ketercapaian }}</td>
 
                                     @if (Auth::user()->role== 'admin')
-                                    <td>
-                                        <a class="btn btn-warning" href="{{ route('indikatorkinerjautama.edit', $indikatorkinerjautama->ik_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
-                                        <form id="delete-form-{{ $indikatorkinerjautama->ik_id }}" method="POST" class="d-inline" action="{{ route('indikatorkinerjautama.destroy', $indikatorkinerjautama->ik_id) }}">
-
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $indikatorkinerjautama->ik_id }}' )"><i class="fa-solid fa-trash"></i> Hapus</button>
-
-                                        </form>
-                                    </td>
+                                    <td class="text-nowrap">
+                                        <div class="d-flex justify-content-center">
+                                            <a class="btn btn-warning me-2" href="{{ route('indikatorkinerja.edit', $indikatorkinerja->ik_id) }}">
+                                                <i class="fa-solid fa-pen-to-square"></i> Ubah
+                                            </a>
+                                            <form id="delete-form-{{ $indikatorkinerja->ik_id }}" method="POST" class="d-inline" action="{{ route('indikatorkinerja.destroy', $indikatorkinerja->ik_id) }}">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $indikatorkinerja->ik_id }}' )">
+                                                    <i class="fa-solid fa-trash"></i> Hapus
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>                                    
                                     @endif
                                 </tr>
                             @endforeach
@@ -81,9 +91,9 @@
                     </table>
                 </div>
 
-                @if ($indikatorkinerjautamas->hasPages())
+                @if ($indikatorkinerjas->hasPages())
                     <div class="card-footer">
-                        {{ $indikatorkinerjautamas->links('pagination::bootstrap-5') }}
+                        {{ $indikatorkinerjas->links('pagination::bootstrap-5') }}
                     </div>
                 @endif
             </div>

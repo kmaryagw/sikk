@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class IndikatorKinerjaUtama extends Model
+class IndikatorKinerja extends Model
 {
     use HasFactory;
 
@@ -15,6 +15,9 @@ class IndikatorKinerjaUtama extends Model
    protected $fillable = [
         'ik_id',
         'ik_nama',
+        'ik_jenis',
+        'ik_kode',
+        'ik_ketercapaian',
         'std_id',
         'th_id',
     ];

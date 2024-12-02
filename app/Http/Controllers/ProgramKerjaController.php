@@ -20,7 +20,7 @@ class ProgramKerjaController extends Controller
         $tahunId = $request->query('tahun');
 
         $units = UnitKerja::where('unit_kerja', 'y')->get();
-        $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
+        $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
         $periodes = periode_monev::orderBy('pm_nama')->get();
 
         $query = RencanaKerja::where('rk_nama', 'like', '%' . $q . '%')
@@ -31,7 +31,7 @@ class ProgramKerjaController extends Controller
             })
             ->leftJoin('tahun_kerja', function($join) {
                 $join->on('tahun_kerja.th_id', '=', 'rencana_kerja.th_id')
-                    ->where('tahun_kerja.ren_is_aktif', 'y');
+                    ->where('tahun_kerja.th_is_aktif', 'y');
             });
 
         if (Auth::user()->role == 'unit kerja') {
@@ -71,7 +71,7 @@ class ProgramKerjaController extends Controller
     {
         $title = 'Tambah Program Kerja';
         $units = UnitKerja::where('unit_kerja', 'y')->get();
-        $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
+        $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
         $periodes = periode_monev::orderBy('pm_nama')->get();
 
         return view('pages.create-programkerja', [
@@ -93,7 +93,7 @@ class ProgramKerjaController extends Controller
         ]);
 
         $unitAktif = UnitKerja::where('unit_id', $request->unit_id)->where('unit_kerja', 'y')->exists();
-        $tahunAktif = tahun_kerja::where('th_id', $request->th_id)->where('ren_is_aktif', 'y')->exists();
+        $tahunAktif = tahun_kerja::where('th_id', $request->th_id)->where('th_is_aktif', 'y')->exists();
 
         if (!$unitAktif || !$tahunAktif) {
             Alert::error('Gagal', 'Unit kerja atau tahun kerja tidak aktif.');
@@ -124,7 +124,7 @@ class ProgramKerjaController extends Controller
     {
         $title = 'Ubah Program Kerja';
         $units = UnitKerja::where('unit_kerja', 'y')->get();
-        $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
+        $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
         $periode = periode_monev::all();
 
         $selectedPeriodes = $programkerja->periodes->pluck('pm_id')->toArray();
@@ -150,7 +150,7 @@ class ProgramKerjaController extends Controller
         ]);
 
         $unitAktif = UnitKerja::where('unit_id', $request->unit_id)->where('unit_kerja', 'y')->exists();
-        $tahunAktif = tahun_kerja::where('th_id', $request->th_id)->where('ren_is_aktif', 'y')->exists();
+        $tahunAktif = tahun_kerja::where('th_id', $request->th_id)->where('th_is_aktif', 'y')->exists();
 
         if (!$unitAktif || !$tahunAktif) {
             Alert::error('Gagal', 'Unit kerja atau tahun kerja tidak aktif.');

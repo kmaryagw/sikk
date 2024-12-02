@@ -16,14 +16,14 @@ class LaporanIkuController extends Controller
         $q = $request->query('q');
         $tahunId = $request->query('tahun');
 
-        $tahuns = tahun_kerja::where('ren_is_aktif', 'y')->get();
+        $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
 
         $query = target_indikator::select('target_indikator.*', 'indikator_kinerja.ik_nama', 'program_studi.nama_prodi', 'aktif_tahun.th_tahun')
             ->leftjoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
             ->leftjoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
             ->leftjoin('tahun_kerja as aktif_tahun', function ($join) {
                 $join->on('aktif_tahun.th_id', '=', 'target_indikator.th_id')
-                    ->where('aktif_tahun.ren_is_aktif', 'y');
+                    ->where('aktif_tahun.th_is_aktif', 'y');
             })
             ->orderBy('ti_target', 'asc');
 
@@ -61,7 +61,7 @@ class LaporanIkuController extends Controller
             ->leftjoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
             ->leftjoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
             ->leftjoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id')
-            ->where('tahun_kerja.ren_is_aktif', 'y')
+            ->where('tahun_kerja.th_is_aktif', 'y')
             ->get();
         $pdf = Pdf::loadView('export.laporan-iku-pdf', compact('target_capaians'));
         return $pdf->download('laporan_iku.pdf');

@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\EvaluasiController;
-use App\Http\Controllers\IndikatorKinerjaUtamaController;
+use App\Http\Controllers\IndikatorKinerjaController;
 use App\Http\Controllers\LaporanIkuController;
 use App\Http\Controllers\LaporanRenjaController;
 use App\Http\Controllers\MonitoringController;
@@ -31,7 +31,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('renstra', RenstraController::class);
     Route::resource('tahun', TahunController::class);
     Route::resource('periodemonev', PeriodeMonevController::class);
-    Route::resource('indikatorkinerjautama', IndikatorKinerjaUtamaController::class);
+    Route::resource('indikatorkinerja', IndikatorKinerjaController::class);
     Route::resource('targetcapaian', TargetCapaianController::class);
     Route::resource('programkerja', ProgramKerjaController::class);
     Route::resource('standar', StandarController::class);
