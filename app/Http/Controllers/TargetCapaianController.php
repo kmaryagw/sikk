@@ -68,13 +68,13 @@ class TargetCapaianController extends Controller
     {
         $title = 'Tambah Target Capaian';
         
-        $indikatorkinerjautamas = IndikatorKinerja::orderBy('ik_nama')->get();
+        $indikatorkinerjas = IndikatorKinerja::orderBy('ik_nama')->get();
         $prodis = program_studi::orderBy('nama_prodi')->get();
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
 
         return view('pages.create-targetcapaian', [
             'title' => $title,
-            'indikatorkinerjautamas' => $indikatorkinerjautamas,
+            'indikatorkinerjas' => $indikatorkinerjas,
             'prodis' => $prodis,
             'tahuns' => $tahuns,
             'type_menu' => 'targetcapaian',
@@ -83,19 +83,33 @@ class TargetCapaianController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $indikatorKinerja = IndikatorKinerja::find($request->ik_id);
+
+        $validationRules = [
             'ik_id' => 'required|string',
             'ti_target' => 'required',
             'ti_keterangan' => 'required',
             'prodi_id' => 'required|string',
             'th_id' => 'required|string',
-        ]);
-    
+        ];
+
+        if ($indikatorKinerja) {
+            if ($indikatorKinerja->ik_ketercapaian == 'nilai') {
+                $validationRules['ti_target'] = 'required|numeric|min:0';
+            } elseif ($indikatorKinerja->ik_ketercapaian == 'persentase') {
+                $validationRules['ti_target'] = 'required|numeric|min:0|max:100';
+            } elseif ($indikatorKinerja->ik_ketercapaian == 'ketersediaan') {
+                $validationRules['ti_target'] = 'required|string';
+            }
+        }
+
+        $request->validate($validationRules);
+
         $customPrefix = 'TC';
         $timestamp = time();
         $md5Hash = md5($timestamp);
         $ti_id = $customPrefix . strtoupper($md5Hash);
-    
+
         $targetcapaian = new target_indikator();
         $targetcapaian->ti_id = $ti_id;
         $targetcapaian->ik_id = $request->ik_id;
@@ -104,9 +118,9 @@ class TargetCapaianController extends Controller
         $targetcapaian->prodi_id = $request->prodi_id;
         $targetcapaian->th_id = $request->th_id;
         $targetcapaian->save();
-    
+
         Alert::success('Sukses', 'Data Berhasil Ditambah');
-    
+
         return redirect()->route('targetcapaian.index');
     }
 

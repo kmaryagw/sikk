@@ -52,7 +52,16 @@
                                     <td>{{ $renstra->ren_pimpinan }}</td>
                                     <td>{{ $renstra->ren_periode_awal }}</td>
                                     <td>{{ $renstra->ren_periode_akhir }}</td>
-                                    <td>{{ $renstra->ren_is_aktif }}</td>
+                                    <td>
+                                        @if (strtolower($renstra->ren_is_aktif) === 'y')
+                                            <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ya</span>
+                                        @elseif (strtolower($renstra->ren_is_aktif) === 'n')
+                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak</span>
+                                        @else
+                                            {{ $renstra->ren_is_aktif }}
+                                        @endif
+                                    </td>
+                                    
                                     <td>
                                         <a class="btn btn-warning" href="{{ route('renstra.edit', $renstra->ren_id) }}">
                                             <i class="fa-solid fa-pen-to-square"></i> Ubah

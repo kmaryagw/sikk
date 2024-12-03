@@ -50,11 +50,12 @@
                                                     <i class="fa-solid fa-bullseye"></i>
                                                 </div>
                                             </div>
-                                            <select class="form-control" name="ik_id">
+                                            <select class="form-control" name="ik_id" id="ik_id" required>
                                                 <option value="" disabled selected>Pilih Indikator Kinerja</option>
-                                                @foreach ($indikatorkinerjautamas as $indikatorkinerjautama)
-                                                    <option value="{{ $indikatorkinerjautama->ik_id }}" {{ old('ik_id') == $indikatorkinerjautama->ik_id ? 'selected' : '' }}>
-                                                        {{ $indikatorkinerjautama->ik_nama }}
+                                                @foreach ($indikatorkinerjas as $indikatorkinerja)
+                                                    <option value="{{ $indikatorkinerja->ik_id }}" 
+                                                        data-jenis="{{ $indikatorkinerja->ik_ketercapaian }}">
+                                                        {{ $indikatorkinerja->ik_nama }}
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -69,8 +70,9 @@
                                                     <i class="fa-solid fa-award"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="ti_target" value="{{ old('ti_target') }}"/>
+                                            <input type="text" id="ti_target" name="ti_target" class="form-control" placeholder="Isi Target Capaian" required>
                                         </div>
+                                        <small id="ti_target_hint" class="form-text text-muted">Isi sesuai dengan jenis ketercapaian.</small>
                                     </div>
 
                                     <div class="form-group">
@@ -151,4 +153,31 @@
 
     <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const ikSelect = document.getElementById("ik_id");
+            const tiTargetInput = document.getElementById("ti_target");
+            const tiTargetHint = document.getElementById("ti_target_hint");
+
+            ikSelect.addEventListener("change", function () {
+                const selectedOption = this.options[this.selectedIndex];
+                const jenis = selectedOption.getAttribute("data-jenis");
+
+                if (jenis === "nilai") {
+                    tiTargetInput.placeholder = "Indikator ini menggunakan ketercapaian nilai";
+                    tiTargetHint.textContent = "Isi nilai ketercapaian seperti 1.2 atau 1.3.";
+                } else if (jenis === "persentase") {
+                    tiTargetInput.placeholder = "Indikator ini menggunakan ketercapaian persentase";
+                    tiTargetHint.textContent = "Isi angka dalam rentang 0 hingga 100.";
+                } else if (jenis === "ketersediaan") {
+                    tiTargetInput.placeholder = "Indikator ini menggunakan ketercapaian ketersediaan";
+                    tiTargetHint.textContent = "Isi dengan 'Ada' atau 'Tidak'.";
+                } else {
+                    tiTargetInput.placeholder = "Isi Target Capaian";
+                    tiTargetHint.textContent = "Isi sesuai dengan jenis ketercapaian.";
+                }
+            });
+        });
+    </script>
 @endpush
