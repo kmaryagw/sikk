@@ -11,7 +11,7 @@ class RencanaKerjaPelaksanaan extends Model
 
     protected $table = 'rencana_kerja_pelaksanaan';
     protected $primaryKey = 'rkp_id';
-    public $incrementing = false;
+    
 
     protected $fillable = [
         'rkp_id',
@@ -20,4 +20,9 @@ class RencanaKerjaPelaksanaan extends Model
     ];
 
     public $timestamps = true;
+    public function rencanaKerja()
+{
+    return $this->belongsTo(RencanaKerja::class, 'rk_id', 'rk_id');
+}
+
 }

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('rencana_kerja_realisasi', function (Blueprint $table) {
             $table->uuid('rkr_id')->primary();  // Menggunakan UUID sebagai primary key
-            $table->string('rk_id', 50); // Tipe data sesuai dengan panjang yang digunakan di tabel 'rencana_kerja'
+            $table->unsignedBigInteger('rk_id'); // Tipe data sesuai dengan panjang yang digunakan di tabel 'rencana_kerja'
             $table->string('pm_id', 255)->nullable();
             $table->string('rkr_url', 255)->nullable();
             $table->string('rkr_file', 255)->nullable();

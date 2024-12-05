@@ -11,7 +11,7 @@ class RencanaKerja extends Model
 
     protected $table = 'rencana_kerja';
     protected $primaryKey = 'rk_id';
-    public $incrementing = false;
+    
     protected $fillable = [
         'rk_id',
         'rk_nama',
@@ -19,6 +19,11 @@ class RencanaKerja extends Model
         'unit_id',
     ];
 
+    
+    public function indikatorKinerja()
+{
+    return $this->belongsToMany(IndikatorKinerja::class, 'rencana_kerja_target_indikator', 'rk_id', 'ik_id');
+}
     public function tahunKerja()
     {
         return $this->belongsTo(tahun_kerja::class, 'th_id', 'th_id');
@@ -45,6 +50,16 @@ class RencanaKerja extends Model
     public function monitoring()
 {
     return $this->hasMany(Monitoring::class, 'rk_id', 'rk_id'); // pastikan relasi 'rk_id' digunakan untuk menghubungkan kedua tabel
+}
+
+public function pelaksanaan()
+{
+    return $this->hasMany(RencanaKerjaPelaksanaan::class, 'rk_id', 'rk_id');
+}
+
+public function targetIndikators()
+{
+    return $this->hasMany(RencanaKerjaTargetIndikator::class, 'rk_id', 'rk_id');
 }
 
 

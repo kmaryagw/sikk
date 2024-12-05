@@ -26,8 +26,9 @@ class IndikatorKinerja extends Model
         return $this->belongsTo(standar::class, 'std_id', 'std_id');
     }
     public function tahun_kerja()
-    {
-        return $this->belongsTo(standar::class, 'th_id', 'th_id');
-    }
+{
+    return $this->belongsTo(tahun_kerja::class, 'th_id', 'th_id');
+}
+
     public $timestamps = true;
 }

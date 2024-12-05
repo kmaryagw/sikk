@@ -4,12 +4,7 @@
 
 @push('style')
     <!-- CSS Libraries -->
-    <link rel="stylesheet" href="{{ asset('library/bootstrap-daterangepicker/daterangepicker.css') }}">
-    <link rel="stylesheet" href="{{ asset('library/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css') }}">
     <link rel="stylesheet" href="{{ asset('library/select2/dist/css/select2.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('library/selectric/public/selectric.css') }}">
-    <link rel="stylesheet" href="{{ asset('library/bootstrap-timepicker/css/bootstrap-timepicker.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.css') }}">
 @endpush
 
 @section('main')
@@ -49,61 +44,57 @@
                                                         <i class="fa-solid fa-briefcase"></i>
                                                     </div>
                                                 </div>
-                                                <input class="form-control" type="text" name="rk_nama" value="{{ old('rk_nama') }}" required/>
+                                                <input class="form-control" type="text" name="rk_nama" value="{{ old('rk_nama') }}" required />
                                             </div>
                                         </div>
 
-                                        <div class="mb-3">
+                                        <div class="form-group">
                                             <label>Unit Kerja</label>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text">
-                                                        <i class="fa-solid fa-sitemap"></i>
-                                                    </span>
-                                                </div>
-                                                <select class="form-control @error('unit_id') is-invalid @enderror" name="unit_id" id="unit_id" required>
-                                                    <option value="" disabled selected>Pilih Unit Kerja</option>
-                                                    @foreach ($units as $unit)
-                                                        @if ($unit->unit_kerja == 'y') <!-- Menampilkan hanya unit kerja yang aktif -->
-                                                            <option value="{{ $unit->unit_id }}" {{ old('unit_id') == $unit->unit_id ? 'selected' : '' }}>{{ $unit->unit_nama }}</option>
-                                                        @endif
-                                                    @endforeach
-                                                </select>
-                                                @error('unit_id')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
+                                            <select class="form-control select2" name="unit_id" required>
+                                                <option value="" disabled selected>Pilih Unit Kerja</option>
+                                                @foreach ($units as $unit)
+                                                    @if ($unit->unit_kerja == 'y')
+                                                        <option value="{{ $unit->unit_id }}" {{ old('unit_id') == $unit->unit_id ? 'selected' : '' }}>
+                                                            {{ $unit->unit_nama }}
+                                                        </option>
+                                                    @endif
+                                                @endforeach
+                                            </select>
                                         </div>
 
-                                        <div class="mb-3">
-                                            <label for="th_id">Tahun</label>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <div class="input-group-text">
-                                                        <i class="fa-solid fa-calendar-alt"></i>
-                                                    </div>
-                                                </div>
-                                                <select class="form-control" name="th_id" id="th_id" required>
-                                                    <option value="" disabled selected>Pilih Tahun</option>
-                                                    @foreach ($tahuns as $tahun)
-                                                        @if ($tahun->ren_is_aktif == 'y') <!-- Menampilkan hanya tahun yang aktif -->
-                                                            <option value="{{ $tahun->th_id }}" {{ old('th_id') == $tahun->th_id ? 'selected' : '' }}>{{ $tahun->th_tahun }}</option>
-                                                        @endif
-                                                    @endforeach
-                                                </select>
-                                            </div>
+                                        <div class="form-group">
+                                            <label for="th_id">Pilih Tahun</label>
+                                            <select name="th_id" id="th_id" class="form-control" required>
+                                                @foreach($tahunAktif as $tahun)
+                                                    <option value="{{ $tahun->th_id }}">{{ $tahun->th_tahun }}</option>
+                                                @endforeach
+                                            </select>
                                         </div>
 
+                                        <!-- Pilih Indikator Kinerja -->
+                                        <div class="form-group">
+                                            <label for="ik_id">Pilih Indikator Kinerja</label>
+                                            <select id="ik_id" name="ik_id[]" class="form-control select2" multiple>
+                                            
+                                                @foreach($indikatorKinerja as $indikator)
+                                                    <option value="{{ $indikator->ik_id }}">{{ $indikator->ik_nama }}</option>
+                                                @endforeach
+                                            </select>
+                                         </div>
 
                                         <div class="form-group">
                                             <label>Pilih Periode Monev</label>
                                             <div class="form-check">
                                                 @foreach ($periodes as $periode)
-                                                    <input type="checkbox" class="form-check-input" name="pm_id[]" value="{{ $periode->pm_id }}">
+                                                    <input type="checkbox" class="form-check-input" name="pm_id[]" 
+                                                        value="{{ $periode->pm_id }}" 
+                                                        {{ in_array($periode->pm_id, old('pm_id', [])) ? 'checked' : '' }}>
                                                     <label class="form-check-label">{{ $periode->pm_nama }}</label><br>
                                                 @endforeach
                                             </div>
                                         </div>
+                                        
+                                        
 
                                         <div class="form-group">
                                             <button type="submit" class="btn btn-primary">Simpan</button>
@@ -122,17 +113,18 @@
 
 @push('scripts')
     <!-- JS Libraries -->
-    <script src="{{ asset('library/cleave.js/dist/cleave.min.js') }}"></script>
-    <script src="{{ asset('library/cleave.js/dist/addons/cleave-phone.us.js') }}"></script>
-    <script src="{{ asset('library/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
-    <script src="{{ asset('library/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js') }}"></script>
-    <script src="{{ asset('library/bootstrap-timepicker/js/bootstrap-timepicker.min.js') }}"></script>
-    <script src="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js') }}"></script>
     <script src="{{ asset('library/select2/dist/js/select2.full.min.js') }}"></script>
-    <script src="{{ asset('library/selectric/public/jquery.selectric.min.js') }}"></script>
 
-    @include('sweetalert::alert')
-
-    <!-- Page Specific JS File -->
-    <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                placeholder: "Pilih Opsi",
+                allowClear: true
+            });
+            $('.select2-multiple').select2({
+                placeholder: "Pilih Indikator Kinerja (IKU/IKT)",
+                allowClear: true
+            });
+        });
+    </script>
 @endpush

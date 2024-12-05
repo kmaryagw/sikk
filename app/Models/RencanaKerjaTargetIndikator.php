@@ -11,21 +11,22 @@ class RencanaKerjaTargetIndikator extends Model
 
     protected $table = 'rencana_kerja_target_indikator';
     protected $primaryKey = 'rkti_id';
-    public $incrementing = false;
+    
     protected $fillable = [
         'rkti_id',
         'rk_id',
         'ti_id',
     ];
 
-    public function RencanaKerja()
+    public function rencanaKerja()
     {
         return $this->belongsTo(RencanaKerja::class, 'rk_id', 'rk_id');
     }
-    public function target_indikator()
+    public function targetIndikator()  // Perbaikan di nama model, pastikan TargetIndikator ada
     {
         return $this->belongsTo(target_indikator::class, 'ti_id', 'ti_id');
     }
+    
 
     public $timestamps = true;
 }

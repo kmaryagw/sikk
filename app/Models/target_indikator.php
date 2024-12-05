@@ -42,4 +42,9 @@ class target_indikator extends Model
         return $this->belongsTo(tahun_kerja::class, 'th_id', 'th_id');
     }
 
+    public function rencanaKerjaTargetIndikator()
+    {
+        return $this->hasMany(RencanaKerjaTargetIndikator::class, 'ti_id', 'ti_id');
+    }
+
 }
