@@ -47,7 +47,15 @@
                             <tr>
                                 <td>{{ $no++ }}</td>
                                 <td>{{ $periode->tahunKerja->th_tahun ?? '-' }}</td>
-                                <td><span class="badge badge-info">{{ $periode->periodeMonev->pm_nama ?? '-' }}</span></td>
+                                <td>
+                                    @if($periode->periodeMonev->isNotEmpty())
+                                        @foreach ($periode->periodeMonev as $periodes)
+                                            <span class="badge badge-info">{{ $periodes->pm_nama }}</span>
+                                        @endforeach
+                                    @else
+                                        <span class="text-muted">Tidak ada periode</span>
+                                    @endif
+                                </td>                                    
                                 <td>{{ \Carbon\Carbon::parse($periode->pmo_tanggal_mulai)->format('d-m-Y ( H:i )') }}</td>
                                 <td>{{ \Carbon\Carbon::parse($periode->pmo_tanggal_selesai)->format('d-m-Y ( H:i )') }}</td>
 

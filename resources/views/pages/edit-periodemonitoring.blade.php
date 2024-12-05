@@ -62,24 +62,18 @@
                                         </div>
                                     </div>
 
-                                    <div class="mb-3">
-                                        <label for="pm_id">Periode Monev</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <i class="fa-solid fa-clock"></i>
+                                    <div class="form-group">
+                                        <label>Pilih Periode Monev</label>
+                                        <div>
+                                            @foreach ($periodes as $periode)
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" id="pm_id" name="pm_id[]" value="{{ $periode->pm_id }}"
+                                                    @if(in_array($periode->pm_id, old('pm_id', $selectedPeriodes))) checked @endif>
+                                                    <label class="form-check-label">{{ $periode->pm_nama }}</label>
                                                 </div>
-                                            </div>
-                                            <select class="form-control" name="pm_id" id="pm_id" required>
-                                                <option value="" disabled selected>Pilih Periode</option>
-                                                @foreach ($periodes as $periode)
-                                                    <option value="{{ $periode->pm_id }}" {{ old('pm_id', $periodeMonitoring->pm_id) == $periode->pm_id ? 'selected' : '' }}>
-                                                        {{ $periode->pm_nama }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
+                                            @endforeach
                                         </div>
-                                    </div>
+                                    </div>                                    
 
                                     <div class="form-group">
                                         <label for="pmo_tanggal_mulai">Tanggal Mulai</label>
