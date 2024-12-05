@@ -53,7 +53,7 @@
                                                 <select class="form-control" name="th_id" id="th_id" required>
                                                     <option value="" disabled selected>Pilih Tahun</option>
                                                     @foreach ($tahuns as $tahun)
-                                                        @if ($tahun->ren_is_aktif == 'y') <!-- Menampilkan hanya tahun yang aktif -->
+                                                        @if ($tahun->th_is_aktif == 'y') <!-- Menampilkan hanya tahun yang aktif -->
                                                             <option value="{{ $tahun->th_id }}" {{ old('th_id') == $tahun->th_id ? 'selected' : '' }}>{{ $tahun->th_tahun }}</option>
                                                         @endif
                                                     @endforeach
@@ -61,22 +61,15 @@
                                             </div>
                                         </div>
 
-                                        <div class="mb-3">
-                                            <label for="th_id">Periode Monev</label>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <div class="input-group-text">
-                                                        <i class="fa-solid fa-clock"></i>
+                                        <div class="form-group">
+                                            <label>Pilih Periode Monev</label>
+                                            <div>
+                                                @foreach ($periodes as $periode)
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="checkbox" id='pm_id' name="pm_id[]" value="{{ $periode->pm_id }}">
+                                                        <label class="form-check-label">{{ $periode->pm_nama }}</label>
                                                     </div>
-                                                </div>
-                                                <select class="form-control" name="pm_id" id="pm_id" required>
-                                                    <option value="" disabled selected>Pilih Periode</option>
-                                                    @foreach ($periodes as $periode)
-                                                        <option value="{{ $periode->pm_id }}" {{ old('pm_id') == $periode->pm_id ? 'selected' : '' }}>
-                                                            {{ $periode->pm_nama }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
+                                                @endforeach
                                             </div>
                                         </div>
 

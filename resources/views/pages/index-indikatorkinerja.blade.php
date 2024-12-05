@@ -66,7 +66,15 @@
                                     <td>{{ $indikatorkinerja->ik_nama }}</td>
                                     <td>{{ $indikatorkinerja->std_nama ?? '-' }}</td>
                                     <td>{{ $indikatorkinerja->th_tahun ?? '-' }}</td>
-                                    <td>{{ $indikatorkinerja->ik_jenis }}</td>
+                                    <td>
+                                        @if (strtolower($indikatorkinerja->ik_jenis) === 'iku')
+                                            <span class="badge badge-success">IKU</span>
+                                        @elseif (strtolower($indikatorkinerja->ik_jenis) === 'ikt')
+                                            <span class="badge badge-primary">IKT</span>
+                                        @else
+                                            {{ $indikatorkinerja->ik_jenis }}
+                                        @endif
+                                    </td>                                    
                                     <td>{{ $indikatorkinerja->ik_ketercapaian }}</td>
 
                                     @if (Auth::user()->role== 'admin')

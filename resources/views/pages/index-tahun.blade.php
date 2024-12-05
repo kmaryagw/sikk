@@ -47,7 +47,15 @@
                                     <tr>
                                         <td>{{ $no++ }}</td>
                                         <td>{{ $tahun_kerja->th_tahun }}</td>
-                                        <td>{{ $tahun_kerja->th_is_aktif }}</td>
+                                        <td>
+                                            @if (strtolower($tahun_kerja->th_is_aktif) === 'y')
+                                                <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ya</span>
+                                            @elseif (strtolower($tahun_kerja->th_is_aktif) === 'n')
+                                                <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak</span>
+                                            @else
+                                                {{ $tahun_kerja->th_is_aktif }}
+                                            @endif
+                                        </td>                                        
                                         <td>{{ $tahun_kerja->ren_nama }}</td>
                                         <td>
                                             <a class="btn btn-warning" href="{{ route('tahun.edit', $tahun_kerja->th_id) }}">

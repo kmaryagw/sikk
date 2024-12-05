@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('rencana_kerja_realisasi', function (Blueprint $table) {
-            $table->uuid('rkr_id')->primary();  // Menggunakan UUID sebagai primary key
-            $table->unsignedBigInteger('rk_id'); // Tipe data sesuai dengan panjang yang digunakan di tabel 'rencana_kerja'
+            $table->uuid('rkr_id')->primary(); 
+            $table->string('rk_id', 50);
             $table->string('pm_id', 255)->nullable();
             $table->string('rkr_url', 255)->nullable();
             $table->string('rkr_file', 255)->nullable();
-            $table->text('rkr_deskripsi'); // Menggunakan text untuk deskripsi yang lebih panjang
+            $table->text('rkr_deskripsi');
             $table->integer('rkr_capaian');
             $table->datetime('rkr_tanggal');
             

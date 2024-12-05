@@ -22,7 +22,6 @@ class PeriodeMonitoring extends Model
     protected $fillable = [
         'pmo_id',
         'th_id',
-        'pm_id',
         'pmo_tanggal_mulai',
         'pmo_tanggal_selesai',
     ];
@@ -33,14 +32,14 @@ class PeriodeMonitoring extends Model
         return $this->belongsTo(tahun_kerja::class, 'th_id', 'th_id');
     }
 
-    // Mendefinisikan relasi dengan tabel periode_monev
     public function periodeMonev()
     {
-        return $this->belongsTo(periode_monev::class, 'pm_id', 'pm_id')->orderBy('pm_nama');
+        return $this->belongsToMany(periode_monev::class, 'periode_monitoring_periode_monev', 'pmo_id', 'pm_id');
     }
+
     
     public function periodes()
-{
-    return $this->hasMany(periode_monev::class, 'pm_id', 'pm_id');
-}
+    {
+        return $this->hasMany(periode_monev::class, 'pm_id', 'pm_id');
+    }
 }
