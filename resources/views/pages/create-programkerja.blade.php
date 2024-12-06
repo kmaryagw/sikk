@@ -86,7 +86,7 @@
                                                 <select class="form-control" name="th_id" id="th_id" required>
                                                     <option value="" disabled selected>Pilih Tahun</option>
                                                     @foreach ($tahuns as $tahun)
-                                                        @if ($tahun->th_is_aktif == 'y') <!-- Menampilkan hanya tahun yang aktif -->
+                                                        @if ($tahun->th_is_aktif == 'y')
                                                             <option value="{{ $tahun->th_id }}" {{ old('th_id') == $tahun->th_id ? 'selected' : '' }}>{{ $tahun->th_tahun }}</option>
                                                         @endif
                                                     @endforeach
@@ -94,13 +94,23 @@
                                             </div>
                                         </div>
 
+                                        <div class="form-group">
+                                            <label for="ti_id">Indikator Kinerja</label>
+                                            <select name="ti_id[]" id="ti_id" class="form-control select2" multiple>
+                                                @foreach($targetindikators as $ti_id => $ik_nama)
+                                                    <option value="{{ $ti_id }}">{{ $ik_nama }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
 
                                         <div class="form-group">
                                             <label>Pilih Periode Monev</label>
-                                            <div class="form-check">
+                                            <div>
                                                 @foreach ($periodes as $periode)
-                                                    <input type="checkbox" class="form-check-input" name="pm_id[]" value="{{ $periode->pm_id }}">
-                                                    <label class="form-check-label">{{ $periode->pm_nama }}</label><br>
+                                                    <div class="form-check form-check-inline">
+                                                        <input type="checkbox" class="form-check-input" name="pm_id[]" value="{{ $periode->pm_id }}">
+                                                        <label class="form-check-label">{{ $periode->pm_nama }}</label><br>
+                                                    </div>
                                                 @endforeach
                                             </div>
                                         </div>

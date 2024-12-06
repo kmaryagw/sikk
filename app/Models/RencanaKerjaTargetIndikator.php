@@ -18,15 +18,5 @@ class RencanaKerjaTargetIndikator extends Model
         'ti_id',
     ];
 
-    public function rencanaKerja()
-    {
-        return $this->belongsTo(RencanaKerja::class, 'rk_id', 'rk_id');
-    }
-    public function targetIndikator()  // Perbaikan di nama model, pastikan TargetIndikator ada
-    {
-        return $this->belongsTo(target_indikator::class, 'ti_id', 'ti_id');
-    }
-    
-
     public $timestamps = true;
 }

@@ -64,8 +64,7 @@
                                 <th>Nama Program Kerja</th>
                                 <th>Unit Kerja</th>
                                 <th>Tahun</th>
-                                <th>Periode Monev</th>
-                                <th>Indikator Kinerja</th>
+                                <th>Periode</th> <!-- Kolom baru untuk periode -->
                                 @if (Auth::user()->role == 'admin')
                                     <th>Aksi</th>
                                 @endif
@@ -78,8 +77,9 @@
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $programkerja->rk_nama }}</td>
                                     <td>{{ $programkerja->unit_nama }}</td>
-                                    <td>{{ $programkerja->tahun->th_tahun ?? 'N/A' }}</td>
+                                    <td>{{ $programkerja->th_tahun }}</td>
                                     
+                                    <!-- Menampilkan daftar periode terkait -->
                                     <td>
                                         @if ($programkerja->periodes->isNotEmpty())
                                             @foreach ($programkerja->periodes as $periode)

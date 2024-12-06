@@ -18,9 +18,9 @@ class periode_monev extends Model
     ];
 
     public function rencanaKerjas()
-{
-    return $this->belongsToMany(RencanaKerja::class, 'rencana_kerja_pelaksanaan', 'pm_id', 'rk_id');
-}
+    {
+        return $this->belongsToMany(RencanaKerja::class, 'rencana_kerja_pelaksanaan', 'pm_id', 'rk_id');
+    }
 
 
     public $timestamps = true;

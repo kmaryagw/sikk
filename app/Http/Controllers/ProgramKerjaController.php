@@ -13,6 +13,8 @@ use App\Models\UnitKerja;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class ProgramKerjaController extends Controller
 {
@@ -27,15 +29,16 @@ class ProgramKerjaController extends Controller
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
         $periodes = periode_monev::orderBy('pm_nama')->get();
         $targetindikators = target_indikator::with('indikatorKinerja') // Eager load indikatorKinerja
-            ->orderBy('ti_id') // Sesuaikan dengan kolom yang Anda inginkan untuk sorting
-            ->get();
-        $query = RencanaKerja::where('rk_nama', 'like', '%' . $q . '%')
+        ->orderBy('ti_id') // Sesuaikan dengan kolom yang Anda inginkan untuk sorting
+        ->get();
+        $query = RencanaKerja::with(['targetindikators.indikatorKinerja', 'periodes'])
+            ->where('rk_nama', 'like', '%' . $q . '%')
             ->orderBy('rk_nama', 'asc')
-            ->leftJoin('unit_kerja', function($join) {
+            ->leftJoin('unit_kerja', function ($join) {
                 $join->on('unit_kerja.unit_id', '=', 'rencana_kerja.unit_id')
                     ->where('unit_kerja.unit_kerja', 'y');
             })
-            ->leftJoin('tahun_kerja', function($join) {
+            ->leftJoin('tahun_kerja', function ($join) {
                 $join->on('tahun_kerja.th_id', '=', 'rencana_kerja.th_id')
                     ->where('tahun_kerja.th_is_aktif', 'y');
             });
@@ -85,11 +88,17 @@ class ProgramKerjaController extends Controller
             ->get();
 
 
+        $targetindikators = target_indikator::with('indikatorKinerja')
+            ->join('indikator_kinerja', 'target_indikator.ik_id', '=', 'indikator_kinerja.ik_id')
+            ->orderBy('indikator_kinerja.ik_nama', 'asc')
+            ->pluck('indikator_kinerja.ik_nama', 'target_indikator.ti_id');
+
         return view('pages.create-programkerja', [
             'title' => $title,
             'units' => $units,
             'tahuns' => $tahuns,
             'periodes' => $periodes,
+            'targetindikators' => $targetindikators,
             'type_menu' => 'programkerja',
             'targetindikators' => $targetindikators,
         ]);
@@ -126,24 +135,33 @@ class ProgramKerjaController extends Controller
         $programkerja->save();
 
         if ($request->has('pm_id')) {
-            $programkerja->periodes()->sync($request->pm_id);
+            $pm_ids = $request->pm_id;
+        
+            $dataToInsert = [];
+            foreach ($pm_ids as $pm_id) {
+                $dataToInsert[] = [
+                    'rkp_id' => Str::uuid()->toString(),
+                    'rk_id' => $programkerja->rk_id,
+                    'pm_id' => $pm_id,
+                ];
+            }
+            DB::table('rencana_kerja_pelaksanaan')->insert($dataToInsert);
         }
 
         if ($request->has('ti_id')) {
-            // Sync ti_id dengan targetIndikators
-            $programkerja->targetIndikators()->sync($request->ti_id);
-    
-            // Ambil nama indikator dari relasi target_indikator
-            $targetIndikators = target_indikator::whereIn('ti_id', $request->ti_id)
-                ->with('indikatorKinerja') // Eager load relasi indikatorKinerja
-                ->get();
-    
-            // Menampilkan nama indikator
-            foreach ($targetIndikators as $target) {
-                $ik_nama = $target->indikatorKinerja->ik_nama; // Mengakses nama indikator dari relasi
-                // Proses sesuai kebutuhan Anda, misalnya menyimpan ke log atau menampilkan di UI
+            $ti_ids = $request->ti_id;
+        
+            $dataToInsert = [];
+            foreach ($ti_ids as $ti_id) {
+                $dataToInsert[] = [
+                    'rkti_id' => Str::uuid()->toString(),
+                    'rk_id' => $programkerja->rk_id,
+                    'ti_id' => $ti_id,
+                ];
             }
+            DB::table('rencana_kerja_target_indikator')->insert($dataToInsert);
         }
+        
 
         Alert::success('Sukses', 'Data Berhasil Ditambah');
         return redirect()->route('programkerja.index');
@@ -154,17 +172,24 @@ class ProgramKerjaController extends Controller
         $title = 'Ubah Program Kerja';
         $units = UnitKerja::where('unit_kerja', 'y')->get();
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
-        $periode = periode_monev::all();
+        $periodes = periode_monev::orderBy('pm_nama')->get();
+        $targetindikators = target_indikator::with('indikatorKinerja')
+            ->join('indikator_kinerja', 'target_indikator.ik_id', '=', 'indikator_kinerja.ik_id')
+            ->orderBy('indikator_kinerja.ik_nama', 'asc')
+            ->pluck('indikator_kinerja.ik_nama', 'target_indikator.ti_id');
 
         $selectedPeriodes = $programkerja->periodes->pluck('pm_id')->toArray();
+        $selectedIndikators = $programkerja->targetindikators()->pluck('target_indikator.ti_id')->toArray();
 
         return view('pages.edit-programkerja', [
             'title' => $title,
             'programkerja' => $programkerja,
             'units' => $units,
             'tahuns' => $tahuns,
-            'periode' => $periode,
+            'periodes' => $periodes,
             'selectedPeriodes' => $selectedPeriodes,
+            'selectedIndikators' => $selectedIndikators,
+            'targetindikators' => $targetindikators,
             'type_menu' => 'programkerja',
         ]);
     }
@@ -176,6 +201,7 @@ class ProgramKerjaController extends Controller
             'unit_id' => 'required|exists:unit_kerja,unit_id',
             'th_id' => 'required|exists:tahun_kerja,th_id',
             'pm_id' => 'array',
+            'ti_id' => 'array',
         ]);
 
         $unitAktif = UnitKerja::where('unit_id', $request->unit_id)->where('unit_kerja', 'y')->exists();
@@ -191,8 +217,40 @@ class ProgramKerjaController extends Controller
         $programkerja->th_id = $request->th_id;
         $programkerja->save();
 
+        DB::table('rencana_kerja_pelaksanaan')
+            ->where('rk_id', $programkerja->rk_id)
+            ->delete();
+
         if ($request->has('pm_id')) {
-            $programkerja->periodes()->sync($request->pm_id);
+            $pm_ids = $request->pm_id;
+        
+            $dataToInsert = [];
+            foreach ($pm_ids as $pm_id) {
+                $dataToInsert[] = [
+                    'rkp_id' => Str::uuid()->toString(),
+                    'rk_id' => $programkerja->rk_id,
+                    'pm_id' => $pm_id,
+                ];
+            }
+            DB::table('rencana_kerja_pelaksanaan')->insert($dataToInsert);
+        }
+
+        DB::table('rencana_kerja_target_indikator')
+            ->where('rk_id', $programkerja->rk_id)
+            ->delete();
+
+        if ($request->has('ti_id')) {
+            $ti_ids = $request->ti_id;
+        
+            $dataToInsert = [];
+            foreach ($ti_ids as $ti_id) {
+                $dataToInsert[] = [
+                    'rkti_id' => Str::uuid()->toString(),
+                    'rk_id' => $programkerja->rk_id,
+                    'ti_id' => $ti_id,
+                ];
+            }
+            DB::table('rencana_kerja_target_indikator')->insert($dataToInsert);
         }
 
         Alert::success('Sukses', 'Data Berhasil Diubah');
