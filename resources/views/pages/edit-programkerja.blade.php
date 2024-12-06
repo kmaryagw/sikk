@@ -90,7 +90,7 @@
                                                 <select class="form-control" name="th_id" required>
                                                     <option value="" disabled>Pilih Tahun</option>
                                                     @foreach ($tahuns as $tahun)
-                                                        @if ($tahun->ren_is_aktif == 'y')
+                                                        @if ($tahun->th_is_aktif == 'y')
                                                             <option value="{{ $tahun->th_id }}" {{ old('th_id', $programkerja->th_id) == $tahun->th_id ? 'selected' : '' }}>{{ $tahun->th_tahun }}</option>
                                                         @endif
                                                     @endforeach
@@ -98,18 +98,31 @@
                                             </div>
                                         </div>
 
-                                        <!-- Checkbox Periode Monev -->
+                                        <div class="form-group">
+                                            <label for="ti_id">Indikator Kinerja</label>
+                                            <select name="ti_id[]" id="ti_id" class="form-control select2" multiple>
+                                                @foreach($targetindikators as $ti_id => $ik_nama)
+                                                    <option value="{{ $ti_id }}" 
+                                                        @if(in_array($ti_id, $selectedIndikators)) selected @endif>
+                                                        {{ $ik_nama }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>                                        
+
                                         <div class="form-group">
                                             <label>Periode Monev</label>
-                                            @foreach  ($periode as $periode)
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" name="pm_id[]" value="{{ $periode->pm_id }}" 
-                                                    {{ in_array($periode->pm_id, $selectedPeriodes) ? 'checked' : '' }}>
-                                                    <label class="form-check-label">
-                                                        {{ $periode->pm_nama }}
-                                                    </label>
-                                                </div>
-                                            @endforeach
+                                            <div>
+                                                @foreach  ($periodes as $periode)
+                                                    <div class="form-check  form-check-inline">
+                                                        <input class="form-check-input" type="checkbox" name="pm_id[]" value="{{ $periode->pm_id }}" 
+                                                        {{ in_array($periode->pm_id, $selectedPeriodes) ? 'checked' : '' }}>
+                                                        <label class="form-check-label">
+                                                            {{ $periode->pm_nama }}
+                                                        </label>
+                                                    </div>
+                                                @endforeach
+                                            </div>
                                         </div>
 
                                         <div class="form-group">

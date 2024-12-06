@@ -62,6 +62,7 @@
                                 <th>Nama Program Kerja</th>
                                 <th>Unit Kerja</th>
                                 <th>Tahun</th>
+                                <th>Indikator Kinerja</th>
                                 <th>Periode</th> <!-- Kolom baru untuk periode -->
                                 @if (Auth::user()->role == 'admin')
                                     <th>Aksi</th>
@@ -76,8 +77,15 @@
                                     <td>{{ $programkerja->rk_nama }}</td>
                                     <td>{{ $programkerja->unit_nama }}</td>
                                     <td>{{ $programkerja->th_tahun }}</td>
-                                    
-                                    <!-- Menampilkan daftar periode terkait -->
+                                    <td>
+                                        @if($programkerja->targetindikators->isNotEmpty())
+                                            @foreach ($programkerja->targetindikators as $iku)
+                                                <span class="badge badge-success">{{ $iku->indikatorKinerja->ik_nama }}</span>
+                                            @endforeach
+                                        @else
+                                            <span class="text-muted">Tidak ada Indikator Kinerja</span>
+                                        @endif
+                                    </td> 
                                     <td>
                                         @if($programkerja->periodes->isNotEmpty())
                                             @foreach ($programkerja->periodes as $periode)

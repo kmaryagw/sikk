@@ -30,10 +30,14 @@ class RencanaKerja extends Model
     }
 
     public function periodes()
-{
-    return $this->belongsToMany(periode_monev::class, 'rencana_kerja_pelaksanaan', 'rk_id', 'pm_id')->orderBy('pm_nama');
-}
+    {
+        return $this->belongsToMany(periode_monev::class, 'rencana_kerja_pelaksanaan', 'rk_id', 'pm_id')->orderBy('pm_nama');
+    }
 
+    public function targetindikators()
+    {
+        return $this->belongsToMany(target_indikator::class, 'rencana_kerja_target_indikator', 'rk_id', 'ti_id')->with('indikatorKinerja');
+    }
 
     public function periodeMonitoring()
     {
@@ -43,9 +47,7 @@ class RencanaKerja extends Model
     public $timestamps = true;
 
     public function monitoring()
-{
-    return $this->hasMany(Monitoring::class, 'rk_id', 'rk_id'); // pastikan relasi 'rk_id' digunakan untuk menghubungkan kedua tabel
-}
-
-
+    {
+        return $this->hasMany(Monitoring::class, 'rk_id', 'rk_id');
+    }
 }
