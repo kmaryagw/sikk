@@ -78,67 +78,131 @@ class ProgramKerjaController extends Controller
     {
         $title = 'Tambah Program Kerja';
         $units = UnitKerja::where('unit_kerja', 'y')->get();
-        $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->get();
+        $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
         $periodes = periode_monev::orderBy('pm_nama')->get();
-        $indikatorKinerja = IndikatorKinerja::all();
+        $targetindikators = target_indikator::join('indikator_kinerja', 'target_indikator.ik_id', '=', 'indikator_kinerja.ik_id')
+            ->orderBy('indikator_kinerja.ik_nama', 'asc')
+            ->get();
+
 
         return view('pages.create-programkerja', [
             'title' => $title,
             'units' => $units,
-            'tahunAktif' => $tahunAktif,
+            'tahuns' => $tahuns,
             'periodes' => $periodes,
             'type_menu' => 'programkerja',
-            'indikatorKinerja' => $indikatorKinerja,
+            'targetindikators' => $targetindikators,
         ]);
     }
 
     public function store(Request $request)
     {
-        // Validasi input
         $request->validate([
             'rk_nama' => 'required|string|max:255',
             'unit_id' => 'required|exists:unit_kerja,unit_id',
             'th_id' => 'required|exists:tahun_kerja,th_id',
-            'pm_id' => 'required|array',
-            'pm_id.*' => 'exists:periode_monev,pm_id',
-            'ik_id' => 'required|array',
-            'ik_id.*' => 'exists:indikator_kinerja,ik_id',
+            'pm_id' => 'array',
+            'ti_id' => 'array',
         ]);
 
-        // Cek apakah unit dan tahun aktif
-        $unitAktif = UnitKerja::where('unit_id', $request->unit_id)
-            ->where('unit_kerja', 'y')
-            ->exists();
+        $unitAktif = UnitKerja::where('unit_id', $request->unit_id)->where('unit_kerja', 'y')->exists();
+        $tahunAktif = tahun_kerja::where('th_id', $request->th_id)->where('th_is_aktif', 'y')->exists();
 
-        $tahunAktif = tahun_kerja::where('th_id', $request->th_id)
-            ->where('th_is_aktif', 'y')
-            ->exists();
-
-        if (!$unitAktif) {
-            return back()->withErrors(['unit_id' => 'Unit kerja tidak aktif.']);
+        if (!$unitAktif || !$tahunAktif) {
+            Alert::error('Gagal', 'Unit kerja atau tahun kerja tidak aktif.');
+            return redirect()->back()->withInput();
         }
 
-        if (!$tahunAktif) {
-            return back()->withErrors(['th_id' => 'Tahun tidak aktif.']);
-        }
+        $customPrefix = 'RK';
+        $timestamp = time();
+        $md5Hash = md5($timestamp);
+        $rk_id = $customPrefix . strtoupper($md5Hash);
 
-        // Simpan Program Kerja
-        $programkerja = RencanaKerja::create([
-            'rk_nama' => $request->rk_nama,
-            'unit_id' => $request->unit_id,
-            'th_id' => $request->th_id,
-        ]);
+        $programkerja = new RencanaKerja();
+        $programkerja->rk_id = $rk_id;
+        $programkerja->rk_nama = $request->rk_nama;
+        $programkerja->unit_id = $request->unit_id;
+        $programkerja->th_id = $request->th_id;
+        $programkerja->save();
 
-        // Menyimpan indikator kinerja utama
-        $programkerja->indikatorKinerja()->sync($request->ik_id);
-
-        // Menyimpan periode monev
         if ($request->has('pm_id')) {
             $programkerja->periodes()->sync($request->pm_id);
         }
 
-        Alert::success('Sukses', 'Program kerja berhasil disimpan.');
+        if ($request->has('ti_id')) {
+            // Sync ti_id dengan targetIndikators
+            $programkerja->targetIndikators()->sync($request->ti_id);
+    
+            // Ambil nama indikator dari relasi target_indikator
+            $targetIndikators = target_indikator::whereIn('ti_id', $request->ti_id)
+                ->with('indikatorKinerja') // Eager load relasi indikatorKinerja
+                ->get();
+    
+            // Menampilkan nama indikator
+            foreach ($targetIndikators as $target) {
+                $ik_nama = $target->indikatorKinerja->ik_nama; // Mengakses nama indikator dari relasi
+                // Proses sesuai kebutuhan Anda, misalnya menyimpan ke log atau menampilkan di UI
+            }
+        }
 
+        Alert::success('Sukses', 'Data Berhasil Ditambah');
+        return redirect()->route('programkerja.index');
+    }
+
+    public function edit(RencanaKerja $programkerja)
+    {
+        $title = 'Ubah Program Kerja';
+        $units = UnitKerja::where('unit_kerja', 'y')->get();
+        $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
+        $periode = periode_monev::all();
+
+        $selectedPeriodes = $programkerja->periodes->pluck('pm_id')->toArray();
+
+        return view('pages.edit-programkerja', [
+            'title' => $title,
+            'programkerja' => $programkerja,
+            'units' => $units,
+            'tahuns' => $tahuns,
+            'periode' => $periode,
+            'selectedPeriodes' => $selectedPeriodes,
+            'type_menu' => 'programkerja',
+        ]);
+    }
+
+    public function update(RencanaKerja $programkerja, Request $request)
+    {
+        $request->validate([
+            'rk_nama' => 'required|string|max:255',
+            'unit_id' => 'required|exists:unit_kerja,unit_id',
+            'th_id' => 'required|exists:tahun_kerja,th_id',
+            'pm_id' => 'array',
+        ]);
+
+        $unitAktif = UnitKerja::where('unit_id', $request->unit_id)->where('unit_kerja', 'y')->exists();
+        $tahunAktif = tahun_kerja::where('th_id', $request->th_id)->where('th_is_aktif', 'y')->exists();
+
+        if (!$unitAktif || !$tahunAktif) {
+            Alert::error('Gagal', 'Unit kerja atau tahun kerja tidak aktif.');
+            return redirect()->back()->withInput();
+        }
+
+        $programkerja->rk_nama = $request->rk_nama;
+        $programkerja->unit_id = $request->unit_id;
+        $programkerja->th_id = $request->th_id;
+        $programkerja->save();
+
+        if ($request->has('pm_id')) {
+            $programkerja->periodes()->sync($request->pm_id);
+        }
+
+        Alert::success('Sukses', 'Data Berhasil Diubah');
+        return redirect()->route('programkerja.index');
+    }
+
+    public function destroy(RencanaKerja $programkerja)
+    {
+        $programkerja->delete();
+        Alert::success('Sukses', 'Data Berhasil Dihapus');
         return redirect()->route('programkerja.index');
     }
 }

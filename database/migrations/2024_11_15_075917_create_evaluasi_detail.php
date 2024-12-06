@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('evaluasi_detail', function (Blueprint $table) {
             $table->string('evald_id', 50)->primary();  
             $table->string('eval_id', 50);  
-            $table->unsignedBigInteger('ti_id');
+            $table->string('ti_id', 50);
             $table->string('evald_target', 100);
             $table->string('evald_capaian', 100);
             $table->string('evald_keterangan');

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('target_indikator', function (Blueprint $table) {
-            $table->id('ti_id');
+            $table->string('ti_id', 50)->primary();
             $table->string('ik_id', 50);
             $table->string('ti_target', 100);
             $table->text('ti_keterangan');
