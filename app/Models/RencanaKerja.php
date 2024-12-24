@@ -50,4 +50,15 @@ class RencanaKerja extends Model
     {
         return $this->hasMany(Monitoring::class, 'rk_id', 'rk_id');
     }
+
+    public function indikatorKinerja()
+    {
+        return $this->hasMany(IndikatorKinerja::class, 'rk_id', 'rk_id');
+    }
+
+    public function realisasi()
+    {
+        return $this->hasMany(RealisasiRenja::class, 'rk_id', 'rk_id');
+    }
+
 }

@@ -18,9 +18,10 @@ return new class extends Migration
             $table->string('evald_target', 100);
             $table->string('evald_capaian', 100);
             $table->string('evald_keterangan');
+            $table->enum('evald_status', ['tercapai', 'tidak tercapai', 'tidak terlaksana']);
             $table->foreign('eval_id')->references('eval_id')->on('evaluasi')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('ti_id')->references('ti_id')->on('target_indikator')->onDelete('cascade')->onUpdate('cascade');  
-            $table->timestamps(); 
+            $table->timestamps();
         });
     }
 

@@ -62,7 +62,7 @@
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <div class="input-group-text">
-                                                        <i class="fa-solid fa-user"></i>
+                                                        <i class="fa-solid fa-bullseye"></i>
                                                     </div>
                                                 </div>
                                                 <input class="form-control @error('ik_nama') is-invalid @enderror" type="text" name="ik_nama" value="{{ old('ik_nama') }}"/>

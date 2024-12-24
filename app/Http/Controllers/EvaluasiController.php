@@ -10,6 +10,7 @@ use App\Models\tahun_kerja;
 use App\Models\target_indikator;
 use Illuminate\Http\Request;
 use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Str;
 
 class EvaluasiController extends Controller
 {
@@ -101,16 +102,28 @@ class EvaluasiController extends Controller
 
     public function indexDetail($eval_id)
     {
-        $Evaluasi = Evaluasi::with('targetIndikator.prodi', 'targetIndikator.tahunKerja')->findOrFail($eval_id);
-
         $Evaluasis = Evaluasi_Detail::where('eval_id', $eval_id)->get();
+
+        $Evaluasi = Evaluasi::find($eval_id);
+        $prodi_id = $Evaluasi->prodi_id;
+        $th_id = $Evaluasi->th_id;
+
+        $targetIndikators = target_indikator::with('indikatorKinerja')
+            ->where('prodi_id', $prodi_id)
+            ->where('th_id', $th_id)
+            ->get();
+        
+        $evaluasiDetail = Evaluasi_Detail::where('eval_id', $eval_id)->first() ?? new Evaluasi_Detail();
 
         return view('pages.index-detail-evaluasi', [
             'Evaluasi' => $Evaluasi,
             'Evaluasis' => $Evaluasis,
+            'targetIndikators' => $targetIndikators,
+            'evaluasiDetail' => $evaluasiDetail,
             'type_menu' => 'evaluasi',
         ]);
     }
+
 
     public function createDetail($eval_id)
     {
@@ -163,75 +176,76 @@ class EvaluasiController extends Controller
         }
     }
 
-
-    public function editDetail($evald_id)
+    public function editDetail($eval_id)
     {
-        $evaluasiDetail = Evaluasi_Detail::with([
-            'targetIndikator.prodi', 
-            'targetIndikator.tahunKerja',
-            'targetIndikator.indikatorKinerja'
-        ])->findOrFail($evald_id);
+        $evaluasi = Evaluasi::with(['prodi', 'tahunKerja'])->findOrFail($eval_id);
+        $status = ['tercapai','tidak tercapai','tidak terlaksana'];
+        $targetIndikator = target_indikator::where('prodi_id', $evaluasi->prodi_id)
+            ->where('th_id', $evaluasi->th_id)
+            ->with('indikatorKinerja')
+            ->first();
 
-        $evaluasi = Evaluasi::findOrFail($evaluasiDetail->eval_id);
+        $evaluasiDetail = Evaluasi_Detail::where('eval_id', $eval_id)->first() ?? new Evaluasi_Detail();
 
-        if ($evaluasi->status == 1) {
-            return redirect()->route('evaluasi.index')->with('error', 'Evaluasi ini sudah final dan tidak dapat diubah.');
-        }
-
-        $indikatorKinerja = $evaluasiDetail->targetIndikator->indikatorKinerja;
-        if (!$indikatorKinerja) {
-            return redirect()->route('evaluasi.index')->with('error', 'Indikator Kinerja tidak ditemukan.');
-        }
-
-        $targetIndikators = $evaluasiDetail->targetIndikator()->get();
-
-        $rencanaKerja = RencanaKerja::with('monitoring')
+        $indikatorKinerja = $targetIndikator->indikatorKinerja;
+            if (!$indikatorKinerja) {
+                return redirect()->route('evaluasi.index')->with('error', 'Indikator Kinerja tidak ditemukan.');
+            }
+        
+        $programKerja = RencanaKerja::with(['periodes', 'tahunKerja', 'monitoring', 'realisasi'])
             ->join('rencana_kerja_target_indikator', 'rencana_kerja.rk_id', '=', 'rencana_kerja_target_indikator.rk_id')
             ->join('target_indikator', 'rencana_kerja_target_indikator.ti_id', '=', 'target_indikator.ti_id')
             ->where('target_indikator.ik_id', optional($indikatorKinerja)->ik_id)
+            ->select('rencana_kerja.*')
+            ->orderBy('rk_nama', 'asc')
             ->get();
 
         return view('pages.edit-detail-evaluasi', [
             'evaluasi' => $evaluasi,
+            'targetIndikator' => $targetIndikator,
+            'status' => $status,
+            'programKerja' => $programKerja,
             'evaluasiDetail' => $evaluasiDetail,
-            'targetIndikators' => $targetIndikators,
-            'rencanaKerja' => $rencanaKerja,
             'type_menu' => 'evaluasi',
         ]);
     }
 
-    public function updateDetail(Request $request, $evald_id)
+    public function updateDetail(Request $request, $eval_id)
     {
         $validated = $request->validate([
-            'ti_id' => 'required|exists:target_indikator,ti_id',
-            'evald_target' => 'required|string',
             'evald_capaian' => 'required|string',
             'evald_keterangan' => 'nullable|string',
+            'evald_status' => 'required|in:tercapai,tidak tercapai,tidak terlaksana',
         ]);
 
         try {
-            $evaluasiDetail = Evaluasi_Detail::findOrFail($evald_id);
-            $evaluasi = Evaluasi::findOrFail($evaluasiDetail->eval_id);
+            $evaluasi = Evaluasi::findOrFail($eval_id);
+            $targetIndikator = target_indikator::where('prodi_id', $evaluasi->prodi_id)
+                ->where('th_id', $evaluasi->th_id)
+                ->first();
 
             if ($evaluasi->status == 1) {
                 return redirect()->route('evaluasi.index')->with('error', 'Evaluasi ini sudah final dan tidak dapat diubah.');
             }
 
-            $evaluasiDetail->update([
-                'ti_id' => $request->ti_id,
-                'evald_target' => $request->evald_target,
-                'evald_capaian' => $request->evald_capaian,
-                'evald_keterangan' => $request->evald_keterangan,
+            Evaluasi_Detail::create([
+                'evald_id' => Str::uuid(),
+                'eval_id' => $eval_id,
+                'ti_id' => $targetIndikator->ti_id,
+                'evald_target' => $targetIndikator->ti_target,
+                'evald_capaian' => $validated['evald_capaian'],
+                'evald_keterangan' => $validated['evald_keterangan'],
+                'evald_status' => $validated['evald_status'],
             ]);
 
-            Alert::success('Sukses', 'Data Berhasil Diperbarui');
-            return redirect()->route('evaluasi.index-detail', $evaluasiDetail->eval_id);
+            Alert::success('Sukses', 'Data Berhasil Ditambah');
+
+            return redirect()->route('evaluasi.index-detail', $eval_id);
         } catch (\Exception $e) {
-            return redirect()->route('evaluasi.index-detail', $evaluasiDetail->eval_id)
-                ->with('error', 'Terjadi kesalahan saat memperbarui data.');
+            Alert::error('Error', 'Terjadi Kesalahan!');
+            return redirect()->route('evaluasi.index-detail', $eval_id);
         }
     }
-
 
     public function final($id)
     {
@@ -253,33 +267,42 @@ class EvaluasiController extends Controller
 
     public function show($eval_id)
     {
-        $Evaluasi = Evaluasi::with('targetIndikator.prodi', 'targetIndikator.tahunKerja')->findOrFail($eval_id);
-
         $Evaluasis = Evaluasi_Detail::where('eval_id', $eval_id)->get();
+
+        $Evaluasi = Evaluasi::find($eval_id);
+        $prodi_id = $Evaluasi->prodi_id;
+        $th_id = $Evaluasi->th_id;
+
+        $targetIndikators = target_indikator::with('indikatorKinerja')
+            ->where('prodi_id', $prodi_id)
+            ->where('th_id', $th_id)
+            ->get();
+        
+        $evaluasiDetail = Evaluasi_Detail::where('eval_id', $eval_id)->first() ?? new Evaluasi_Detail();
 
         return view('pages.index-show-evaluasi', [
             'Evaluasi' => $Evaluasi,
             'Evaluasis' => $Evaluasis,
+            'targetIndikators' => $targetIndikators,
+            'evaluasiDetail' => $evaluasiDetail,
             'type_menu' => 'evaluasi',
         ]);
     }
 
-    public function destroyDetail($eval_id, $evald_id)
+    public function destroyDetail($eval_id)
     {
-        try {
-            $evaluasiDetail = Evaluasi_Detail::findOrFail($evald_id);
+        $evaluasi = Evaluasi::find($eval_id);
 
-            $evaluasi = Evaluasi::findOrFail($eval_id);
-            if ($evaluasi->status == 1) {
-                return redirect()->route('evaluasi.index-detail', $eval_id)->with('error', 'Evaluasi ini sudah final dan tidak dapat diubah.');
-            }
+        if ($evaluasi) {
+            $evaluasi->evaluasiDetails()->delete();
+            $evaluasi->status = 0;
+            $evaluasi->save();
 
-            $evaluasiDetail->delete();
             Alert::success('Sukses', 'Data Berhasil Dihapus');
-            return redirect()->route('evaluasi.index-detail', $eval_id)->with('success', 'Detail Evaluasi berhasil dihapus.');
-        } catch (\Exception $e) {
-            return redirect()->route('evaluasi.index-detail', $eval_id)->with('error', 'Terjadi kesalahan saat menghapus data.');
+            return redirect()->route('evaluasi.index-detail', $eval_id);
         }
+        Alert::error('Error', 'Terjadi Kesalahan!');
+        return redirect()->route('evaluasi.index-detail', $eval_id);
     }
 
 }

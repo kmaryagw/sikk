@@ -24,14 +24,25 @@ class Evaluasi extends Model
         return $this->belongsTo(target_indikator::class, 'prodi_id', 'prodi_id');
     }
 
+    // public function prodi()
+    // {
+    //     return $this->belongsToThrough(program_studi::class, target_indikator::class);
+    // }
+
+    // public function tahunKerja()
+    // {
+    //     return $this->belongsToThrough(tahun_kerja::class, target_indikator::class);
+    // }
+
     public function prodi()
     {
-        return $this->belongsToThrough(program_studi::class, target_indikator::class);
+        return $this->belongsTo(program_studi::class, 'prodi_id', 'prodi_id');
     }
 
+    // Relasi ke Tahun Kerja
     public function tahunKerja()
     {
-        return $this->belongsToThrough(tahun_kerja::class, target_indikator::class);
+        return $this->belongsTo(tahun_kerja::class, 'th_id', 'th_id');
     }
 
     public function indikatorKinerja()

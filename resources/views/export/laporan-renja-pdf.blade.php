@@ -13,13 +13,16 @@
             width: 100%;
             border-collapse: collapse;
         }
-        th, td {
+        th {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: center;
+            background-color: #f2f2f2;
+        }
+        td {
             border: 1px solid #000;
             padding: 8px;
             text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
         }
     </style>
 </head>

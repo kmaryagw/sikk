@@ -100,7 +100,7 @@ class StandarController extends Controller
         $request->validate([
             'std_nama' => 'required|string|max:20',
             'std_deskripsi' => 'required',
-            'stdd_file' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
+            'stdd_file' => 'nullable|file|mimes:pdf|max:2048',
         ]);
 
         $standar->std_nama = $request->std_nama;

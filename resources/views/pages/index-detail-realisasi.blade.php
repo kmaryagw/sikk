@@ -21,6 +21,7 @@
                                     <th>Nama Rencana Kerja</th>
                                     <th>Unit Kerja</th>
                                     <th>Tahun</th>
+                                    <th>Indikator Kinerja</th>
                                     <th>Periode Monev</th>
                                 </tr>
                             </thead>
@@ -29,6 +30,15 @@
                                     <td>{{ $rencana->rk_nama }}</td>
                                     <td>{{ $rencana->UnitKerja->unit_nama ?? '-' }}</td>
                                     <td>{{ $rencana->tahunKerja->th_tahun ?? '-' }}</td>
+                                    <td>
+                                        @if($rencana->targetindikators->isNotEmpty())
+                                            @foreach ($rencana->targetindikators as $iku)
+                                                <span class="badge badge-success">{{ $iku->indikatorKinerja->ik_nama }}</span>
+                                            @endforeach
+                                        @else
+                                            <span class="text-muted">Tidak ada Indikator Kinerja</span>
+                                        @endif
+                                    </td> 
                                     <td>
                                         @if($rencana->periodes->isNotEmpty())
                                             @foreach ($rencana->periodes as $periode)
