@@ -14,9 +14,11 @@ return new class extends Migration
         Schema::create('periode_monitoring', function (Blueprint $table) {
             $table->string('pmo_id', 50)->primary();  
             $table->string('th_id', 50);
+            
             $table->datetime('pmo_tanggal_mulai');
             $table->datetime('pmo_tanggal_selesai');
             $table->foreign('th_id')->references('th_id')->on('tahun_kerja')->onDelete('cascade')->onUpdate('cascade');
+            
             $table->timestamps();
         });
     }
@@ -25,6 +27,7 @@ return new class extends Migration
     {
         Schema::table('periode_monitoring', function (Blueprint $table) {
             $table->dropForeign(['th_id']);
+            
         });
         Schema::dropIfExists('periode_monitoring');
     }

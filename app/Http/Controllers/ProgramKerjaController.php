@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\IndikatorKinerja;
 use App\Models\periode_monev;
 use App\Models\RencanaKerja;
-use App\Models\RencanaKerjaPelaksanaan;
-use App\Models\RencanaKerjaTargetIndikator;
 use App\Models\tahun_kerja;
 use App\Models\target_indikator;
 use App\Models\UnitKerja;
@@ -28,9 +25,7 @@ class ProgramKerjaController extends Controller
         $units = UnitKerja::where('unit_kerja', 'y')->get();
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
         $periodes = periode_monev::orderBy('pm_nama')->get();
-        $targetindikators = target_indikator::with('indikatorKinerja') // Eager load indikatorKinerja
-        ->orderBy('ti_id') // Sesuaikan dengan kolom yang Anda inginkan untuk sorting
-        ->get();
+
         $query = RencanaKerja::with(['targetindikators.indikatorKinerja', 'periodes'])
             ->where('rk_nama', 'like', '%' . $q . '%')
             ->orderBy('rk_nama', 'asc')
@@ -68,7 +63,6 @@ class ProgramKerjaController extends Controller
             'units' => $units,
             'tahuns' => $tahuns,
             'periodes' => $periodes,
-            'targetindikators' => $targetindikators,
             'q' => $q,
             'unit_id' => $unit_id,
             'tahun' => $tahunId,
@@ -83,10 +77,6 @@ class ProgramKerjaController extends Controller
         $units = UnitKerja::where('unit_kerja', 'y')->get();
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
         $periodes = periode_monev::orderBy('pm_nama')->get();
-        $targetindikators = target_indikator::join('indikator_kinerja', 'target_indikator.ik_id', '=', 'indikator_kinerja.ik_id')
-            ->orderBy('indikator_kinerja.ik_nama', 'asc')
-            ->get();
-
 
         $targetindikators = target_indikator::with('indikatorKinerja')
             ->join('indikator_kinerja', 'target_indikator.ik_id', '=', 'indikator_kinerja.ik_id')
@@ -100,7 +90,6 @@ class ProgramKerjaController extends Controller
             'periodes' => $periodes,
             'targetindikators' => $targetindikators,
             'type_menu' => 'programkerja',
-            'targetindikators' => $targetindikators,
         ]);
     }
 

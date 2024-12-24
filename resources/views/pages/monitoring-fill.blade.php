@@ -11,7 +11,16 @@
             <div class="card">
                 <div class="card-header">
                     <h4>Tahun: <span class="badge badge-primary">{{ $periodeMonitoring->tahunKerja->th_tahun }}</span></h4>
-                    <h4>Periode: <span class="badge badge-info">{{ $periodeMonitoring->periodeMonev->pm_nama }}</span></h4>
+                    <h4>Periode: 
+                        @if($periodeMonitoring->periodeMonev->isNotEmpty())
+                            @foreach($periodeMonitoring->periodeMonev as $monev)
+                                <span class="badge badge-info">{{ $monev->pm_nama }}</span>
+                            @endforeach
+                        @else
+                            <span class="text-muted">Tidak ada periode</span>
+                        @endif
+                    </h4>
+                    
                 </div>
 
                 <div class="card-body">
@@ -25,6 +34,7 @@
                                         <th>No</th>
                                         <th>Nama Rencana Kerja</th>
                                         <th>Unit Kerja</th>
+                                        <th>Periode</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -34,6 +44,15 @@
                                             <td>{{ $index + 1 }}</td>
                                             <td>{{ $rencana->rk_nama }}</td>
                                             <td>{{ $rencana->unitKerja->unit_nama ?? 'N/A' }}</td>
+                                            <td>
+                                                @if ($rencana->periodes->isNotEmpty())
+                                                    @foreach ($rencana->periodes as $periode)
+                                                        <span class="badge badge-info">{{ $periode->pm_nama }}</span>
+                                                    @endforeach
+                                                @else
+                                                    <span class="text-muted">Tidak ada periode</span>
+                                                @endif
+                                            </td>
                                             <td>
                                                 <button
                                                     onclick="showMonitoringModal('{{ $rencana->rk_nama }}', '{{ $periodeMonitoring->pmo_id }}', '{{ $rencana->rk_id }}')"
@@ -50,6 +69,7 @@
                         </div>
                     @endif
                 </div>
+                
 
                 <div class="card-footer text-right">
                     <a class="btn btn-danger" href="{{ route('monitoring.index') }}">
@@ -74,6 +94,8 @@
                     const tindakLanjut = data[0]?.mtg_tindak_lanjut || '';
                     const tindakLanjutTanggal = data[0]?.mtg_tindak_lanjut_tanggal || '';
                     const bukti = data[0]?.mtg_bukti || null;
+                    const status = data[0]?.mtg_status || 'n'; // Default ke 'y'
+                    const periodes = data[0]?.periodes || [];
 
                     let fileBuktiHTML = bukti ? `
                     <div class="form-group">
@@ -84,7 +106,6 @@
                     </div>` : '';
 
                     const realisasi = data[1].filter(rl => rl.rk_id === rk);
-
 
                     let viewRealisasi = '';
 
@@ -129,6 +150,20 @@
                         });
                     }
 
+                    let periodeFieldHTML = '';
+                    if (periodes.length > 0) {
+                        periodes.forEach(periode => {
+                            periodeFieldHTML += `
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="periodes[]" value="${periode.id}" id="periode-${periode.id}">
+                                    <label class="form-check-label" for="periode-${periode.id}">
+                                        ${periode.pm_nama}
+                                    </label>
+                                </div>`;
+                        });
+                    } else {
+                        periodeFieldHTML = `<span class="text-muted">Tidak ada periode</span>`;
+                    }
 
                     Swal.fire({
                         title: `Isi Monitoring untuk ${rencanaKerjaNama}`,
@@ -138,6 +173,20 @@
                             @csrf
                             <input type="hidden" name="pmo_id" value="${pmo}">
                             <input type="hidden" name="rk_id" value="${rk}">
+                            <div class="form-group text-left">
+                                <label for="mtg_status">Status</label>
+                                <select name="mtg_status" id="mtg_status" class="form-control" required>
+                                    <option value="y" ${status === 'y' ? 'selected' : ''}>Selesai</option>
+                                    <option value="n" ${status === 'n' ? 'selected' : ''}>Belum Selesai</option>
+                                    <option value="n" ${status === 't' ? 'selected' : ''}>Tidak Tercapai</option>
+                                </select>
+                            </div>
+                            <div id="periodeField" class="form-group text-left" style="display: none;">
+                                <label for="periodes">Periode</label>
+                                <div id="periodeList">
+                                    ${periodeFieldHTML}
+                                </div>
+                            </div>
                             <div class="form-group text-left">
                                 <label for="mtg_capaian">Capaian</label>
                                 <div class="input-group">
@@ -194,16 +243,16 @@
                                 </div>
                             </div>
                             <div class="form-group text-left">
-                            <label for="mtg_bukti">Bukti</label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text">
-                                        <i class="fa-solid fa-file-upload"></i>
+                                <label for="mtg_bukti">Bukti</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="fa-solid fa-file-upload"></i>
+                                        </div>
                                     </div>
+                                    <input class="form-control" type="file" name="mtg_bukti" />
                                 </div>
-                                <input class="form-control" type="file" name="mtg_bukti" />
                             </div>
-                        </div>
                             ${fileBuktiHTML}
                             <div class="mt-4">
                             <div class="card">
@@ -238,17 +287,32 @@
                         cancelButtonText: '<i class="fa-solid fa-times"></i> Batal',
                         cancelButtonColor: '#d33',
                         confirmButtonText: '<i class="fa-solid fa-save"></i> Simpan Monitoring',
-                        confirmButtonColor: '#28a745', // Warna hijau untuk tombol simpan
-                        buttonsStyling: false, // Untuk kustomisasi lebih lanjut pada tombol
+                        confirmButtonColor: '#28a745',
+                        buttonsStyling: false,
                         customClass: {
-                            confirmButton: 'btn btn-success btn-lg mx-2', // Kelas kustom untuk tombol konfirmasi
-                            cancelButton: 'btn btn-danger btn-lg mx-2' // Kelas kustom untuk tombol batal
+                            confirmButton: 'btn btn-success btn-lg mx-2',
+                            cancelButton: 'btn btn-danger btn-lg mx-2'
                         },
                         preConfirm: () => {
                             const form = document.getElementById('monitoringForm');
                             form.submit();
                         }
                     });
+
+                    // Tambahkan event listener untuk status
+                    document.getElementById('mtg_status').addEventListener('change', function () {
+                        const periodeField = document.getElementById('periodeField');
+                        if (this.value === 'n') {
+                            periodeField.style.display = 'block';
+                        } else {
+                            periodeField.style.display = 'none';
+                        }
+                    });
+
+                    // Setel tampilan awal untuk periode
+                    if (status === 'n') {
+                        document.getElementById('periodeField').style.display = 'block';
+                    }
                 })
                 .catch(error => {
                     console.error(error);
@@ -261,3 +325,4 @@
         }
     </script>
 @endpush
+

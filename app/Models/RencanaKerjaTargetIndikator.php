@@ -11,7 +11,7 @@ class RencanaKerjaTargetIndikator extends Model
 
     protected $table = 'rencana_kerja_target_indikator';
     protected $primaryKey = 'rkti_id';
-    
+    public $incrementing = false;
     protected $fillable = [
         'rkti_id',
         'rk_id',

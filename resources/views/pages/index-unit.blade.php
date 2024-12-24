@@ -46,7 +46,16 @@
                                 <tr>
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $unit->unit_nama }}</td>
-                                    <td>{{ $unit->unit_kerja }}</td>
+                                    <td>
+                                        @if (strtolower($unit->unit_kerja) === 'y')
+                                            <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ya</span>
+                                        @elseif (strtolower($unit->unit_kerja) === 'n')
+                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak</span>
+                                        @else
+                                            {{ $renstra->ren_is_aktif }}
+                                        @endif
+                                    </td>
+                                    
                                     
                                     <td>
                                         <a class="btn btn-warning" href="{{ route('unit.edit', $unit->unit_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>

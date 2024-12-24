@@ -20,6 +20,7 @@ class Monitoring extends Model
         'mtg_capaian',
         'mtg_kondisi',
         'mtg_kendala',
+        'mtg_status',
         'mtg_tindak_lanjut',
         'mtg_tindak_lanjut_tanggal',
         'mtg_bukti',
