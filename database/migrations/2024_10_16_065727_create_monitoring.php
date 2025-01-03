@@ -15,19 +15,20 @@ return new class extends Migration
         Schema::create('monitoring', function (Blueprint $table) {
             $table->string('mtg_id', 50)->primary()->default(DB::raw('(UUID())'));  
             $table->string('pmo_id', 50);
-           
-            
             $table->string('mtg_capaian', 255);
             $table->string('mtg_kondisi', 255);
             $table->string('mtg_kendala', 255);
             $table->string('mtg_tindak_lanjut', 255);
+            $table->enum('mtg_status', ['y', 'n', 't', 'p']);
+            $table->boolean('mtg_flag')->default(false); // Tambahkan kolom mtg_flag
             $table->date('mtg_tindak_lanjut_tanggal');  
             $table->string('mtg_bukti', 255)->nullable();
             $table->string('rk_id', 50);
+
+            // Foreign keys
             $table->foreign('pmo_id')->references('pmo_id')->on('periode_monitoring')->onDelete('cascade')->onUpdate('cascade');
-            
-            
             $table->foreign('rk_id')->references('rk_id')->on('rencana_kerja')->onDelete('cascade')->onUpdate('cascade');
+            
             $table->timestamps();
         });
     }
@@ -37,12 +38,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-
         Schema::table('monitoring', function (Blueprint $table) {
             $table->dropForeign(['pmo_id']);
-            
             $table->dropForeign(['rk_id']);
-            
         });
         Schema::dropIfExists('monitoring');
     }

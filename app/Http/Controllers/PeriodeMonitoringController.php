@@ -15,7 +15,7 @@ class PeriodeMonitoringController extends Controller
         $title = 'Data Periode Monitoring';
         $q = $request->query('q');
         $tahunId = $request->query('th_tahun');
-        $query = PeriodeMonitoring::with('tahunKerja', 'periodes'); // Memuat relasi 'tahunKerja' dan 'periodes'
+        $query = PeriodeMonitoring::with('tahunKerja', 'periodeMonev'); // Memuat relasi 'tahunKerja' dan 'periodes'
         
         if ($q) {
             $query->whereHas('periodeMonev', function ($subQuery) use ($q) {

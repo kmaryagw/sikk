@@ -27,100 +27,111 @@
                 <div class="row">
                     <div class="col-12 col-lg-12">
                         <div class="card">
+                            
                             <div class="card-body">
-                                <div class="col-6 col-lg-6">
-                                    @if ($errors->any())
-                                        <div class="alert alert-danger">
-                                            <ul>
-                                                @foreach ($errors->all() as $err)
-                                                    <li>{{ $err }}</li>
-                                                @endforeach
-                                            </ul>
-                                        </div>
-                                    @endif
+                                @if ($errors->any())
+                                    <div class="alert alert-danger">
+                                        <ul>
+                                            @foreach ($errors->all() as $err)
+                                                <li>{{ $err }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
 
-                                    <form method="POST" action="{{ route('programkerja.store') }}">
-                                        @csrf
-                                        <div class="form-group">
-                                            <label>Nama Program Kerja</label>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <div class="input-group-text">
-                                                        <i class="fa-solid fa-briefcase"></i>
+                                <form method="POST" action="{{ route('programkerja.store') }}">
+                                    @csrf
+                                    <div class="row">
+                                        <!-- Kolom Kiri -->
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Nama Program Kerja</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fa-solid fa-briefcase"></i>
+                                                        </div>
                                                     </div>
+                                                    <input class="form-control" type="text" name="rk_nama" value="{{ old('rk_nama') }}" required/>
                                                 </div>
-                                                <input class="form-control" type="text" name="rk_nama" value="{{ old('rk_nama') }}" required/>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label>Unit Kerja</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fa-solid fa-sitemap"></i>
+                                                        </div>
+                                                    </div>
+                                                    <select class="form-control" name="unit_id" id="unit_id" required>
+                                                        <option value="" disabled selected>Pilih Unit Kerja</option>
+                                                        @foreach ($units as $unit)
+                                                            @if ($unit->unit_kerja == 'y') <!-- Menampilkan hanya unit kerja yang aktif -->
+                                                                <option value="{{ $unit->unit_id }}" {{ old('unit_id') == $unit->unit_id ? 'selected' : '' }}>{{ $unit->unit_nama }}</option>
+                                                            @endif
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label>Tahun</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fa-solid fa-calendar-alt"></i>
+                                                        </div>
+                                                    </div>
+                                                    <select class="form-control" name="th_id" id="th_id" required>
+                                                        <option value="" disabled selected>Pilih Tahun</option>
+                                                        @foreach ($tahuns as $tahun)
+                                                            @if ($tahun->th_is_aktif == 'y')
+                                                                <option value="{{ $tahun->th_id }}" {{ old('th_id') == $tahun->th_id ? 'selected' : '' }}>{{ $tahun->th_tahun }}</option>
+                                                            @endif
+                                                        @endforeach
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <div class="mb-3">
-                                            <label>Unit Kerja</label>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text">
-                                                        <i class="fa-solid fa-sitemap"></i>
-                                                    </span>
+                                        <!-- Kolom Kanan -->
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Indikator Kinerja</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        
+                                                    </div>
+                                                    <select name="ti_id[]" id="ti_id" class="form-control select2" multiple="multiple" data-placeholder="Pilih Indikator Kinerja" required>
+                                                        @foreach($targetindikators as $ti_id => $ik_nama)
+                                                            <option value="{{ $ti_id }}" {{ collect(old('ti_id'))->contains($ti_id) ? 'selected' : '' }}>
+                                                                {{ $ik_nama }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
                                                 </div>
-                                                <select class="form-control @error('unit_id') is-invalid @enderror" name="unit_id" id="unit_id" required>
-                                                    <option value="" disabled selected>Pilih Unit Kerja</option>
-                                                    @foreach ($units as $unit)
-                                                        @if ($unit->unit_kerja == 'y') <!-- Menampilkan hanya unit kerja yang aktif -->
-                                                            <option value="{{ $unit->unit_id }}" {{ old('unit_id') == $unit->unit_id ? 'selected' : '' }}>{{ $unit->unit_nama }}</option>
-                                                        @endif
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label>Pilih Periode Monev</label>
+                                                <div>
+                                                    @foreach ($periodes as $periode)
+                                                        <div class="form-check form-check-inline">
+                                                            <input type="checkbox" class="form-check-input" name="pm_id[]" value="{{ $periode->pm_id }}">
+                                                            <label class="form-check-label">{{ $periode->pm_nama }}</label><br>
+                                                        </div>
                                                     @endforeach
-                                                </select>
-                                                @error('unit_id')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="th_id">Tahun</label>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <div class="input-group-text">
-                                                        <i class="fa-solid fa-calendar-alt"></i>
-                                                    </div>
                                                 </div>
-                                                <select class="form-control" name="th_id" id="th_id" required>
-                                                    <option value="" disabled selected>Pilih Tahun</option>
-                                                    @foreach ($tahuns as $tahun)
-                                                        @if ($tahun->th_is_aktif == 'y')
-                                                            <option value="{{ $tahun->th_id }}" {{ old('th_id') == $tahun->th_id ? 'selected' : '' }}>{{ $tahun->th_tahun }}</option>
-                                                        @endif
-                                                    @endforeach
-                                                </select>
                                             </div>
                                         </div>
+                                    </div>
 
-                                        <div class="form-group">
-                                            <label for="ti_id">Indikator Kinerja</label>
-                                            <select name="ti_id[]" id="ti_id" class="form-control select2" multiple>
-                                                @foreach($targetindikators as $ti_id => $ik_nama)
-                                                    <option value="{{ $ti_id }}">{{ $ik_nama }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label>Pilih Periode Monev</label>
-                                            <div>
-                                                @foreach ($periodes as $periode)
-                                                    <div class="form-check form-check-inline">
-                                                        <input type="checkbox" class="form-check-input" name="pm_id[]" value="{{ $periode->pm_id }}">
-                                                        <label class="form-check-label">{{ $periode->pm_nama }}</label><br>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <button type="submit" class="btn btn-primary">Simpan</button>
-                                            <a href="{{ route('programkerja.index') }}" class="btn btn-danger">Kembali</a>
-                                        </div>
-                                    </form>
-                                </div>
+                                    <div class="form-footer text-right">
+                                        <button type="submit" class="btn btn-primary">Simpan</button>
+                                        <a href="{{ route('programkerja.index') }}" class="btn btn-danger">Kembali</a>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>

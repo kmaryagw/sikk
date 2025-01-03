@@ -27,12 +27,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('rencana_kerja_target_indikator', function (Blueprint $table) {
-            // Hapus foreign key sebelum tabel di-drop
-            $table->dropForeign(['rk_id']);
-            $table->dropForeign(['ti_id']);
+        // Schema::table('rencana_kerja_target_indikator', function (Blueprint $table) {
+        //     // Hapus foreign key sebelum tabel di-drop
+        //     $table->dropForeign(['rk_id']);
+        //     $table->dropForeign(['ti_id']);
             
-        });
+        // });
     
         // Hapus tabel setelah foreign key dihapus
         

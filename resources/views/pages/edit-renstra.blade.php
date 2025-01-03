@@ -1,15 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'edit-renstra')
+@section('title', 'Edit Renstra')
 
 @push('style')
     <!-- CSS Libraries -->
     <link rel="stylesheet" href="{{ asset('library/bootstrap-daterangepicker/daterangepicker.css') }}">
-    <link rel="stylesheet" href="{{ asset('library/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css') }}">
     <link rel="stylesheet" href="{{ asset('library/select2/dist/css/select2.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('library/selectric/public/selectric.css') }}">
-    <link rel="stylesheet" href="{{ asset('library/bootstrap-timepicker/css/bootstrap-timepicker.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.css') }}">
 @endpush
 
 @section('main')
@@ -18,85 +14,114 @@
             <div class="section-header">
                 <h1>Edit Renstra</h1>
                 <div class="section-header-breadcrumb">
-                    <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
-                    <div class="breadcrumb-item">Form Renstra</div>
+                    <div class="breadcrumb-item"><a href="#">Dashboard</a></div>
+                    <div class="breadcrumb-item"><a href="{{ route('renstra.index') }}">Daftar Renstra</a></div>
+                    <div class="breadcrumb-item active">Edit Renstra</div>
                 </div>
             </div>
 
             <div class="section-body">
-                <div class="row">
-                    <div class="col-12 col-lg-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="col-6 col-lg-6">
-                                @if ($errors->any())
-                                    <div class="alert alert-danger">
-                                        <ul>
-                                            @foreach ($errors->all() as $err)
-                                                <li>{{ $err }}</li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                @endif
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Form Edit Renstra</h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- Menampilkan Error -->
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul>
+                                    @foreach ($errors->all() as $err)
+                                        <li>{{ $err }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
 
-                                <form method="POST" action="{{ route('renstra.update', $renstra) }}">
-                                    @csrf
-                                    @method('put')
-
+                        <!-- Form -->
+                        <form method="POST" action="{{ route('renstra.update', $renstra) }}">
+                            @csrf
+                            @method('PUT')
+                            <div class="row">
+                                <!-- Kolom Kiri -->
+                                <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Nama Renstra</label>
+                                        <label for="ren_nama">Nama Renstra</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
-                                                    <i class="fa-solid fa-file-alt"></i>
+                                                    <i class="fas fa-file-alt"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="ren_nama" value="{{ old('ren_nama', $renstra->ren_nama) }}" required/>
+                                            <input type="text" id="ren_nama" name="ren_nama" 
+                                                class="form-control" 
+                                                value="{{ old('ren_nama', $renstra->ren_nama) }}" 
+                                                placeholder="Masukkan nama Renstra" 
+                                                required>
                                         </div>
                                     </div>
 
                                     <div class="form-group">
-                                        <label>Pimpinan Renstra</label>
+                                        <label for="ren_pimpinan">Pimpinan Renstra</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
-                                                    <i class="fa-solid fa-user-tie"></i>
+                                                    <i class="fas fa-user-tie"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="ren_pimpinan" value="{{ old('ren_pimpinan', $renstra->ren_pimpinan) }}" required/>
+                                            <input type="text" id="ren_pimpinan" name="ren_pimpinan" 
+                                                class="form-control" 
+                                                value="{{ old('ren_pimpinan', $renstra->ren_pimpinan) }}" 
+                                                placeholder="Masukkan nama pimpinan" 
+                                                required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Kolom Kanan -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="ren_periode_awal">Periode Awal</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fas fa-calendar-alt"></i>
+                                                </div>
+                                            </div>
+                                            <input type="number" id="ren_periode_awal" name="ren_periode_awal" 
+                                                class="form-control" 
+                                                value="{{ old('ren_periode_awal', $renstra->ren_periode_awal) }}" 
+                                                placeholder="Masukkan tahun awal" 
+                                                required>
                                         </div>
                                     </div>
 
                                     <div class="form-group">
-                                        <label>Periode Awal</label>
+                                        <label for="ren_periode_akhir">Periode Akhir</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
-                                                    <i class="fa-solid fa-calendar-alt"></i>
+                                                    <i class="fas fa-calendar-check"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="number" name="ren_periode_awal" value="{{ old('ren_periode_awal', $renstra->ren_periode_awal) }}" required/>
+                                            <input type="number" id="ren_periode_akhir" name="ren_periode_akhir" 
+                                                class="form-control" 
+                                                value="{{ old('ren_periode_akhir', $renstra->ren_periode_akhir) }}" 
+                                                placeholder="Masukkan tahun akhir" 
+                                                required>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
 
+                            <!-- Status dan Tombol -->
+                            <div class="row">
+                                <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Periode Akhir</label>
+                                        <label for="ren_is_aktif">Status Aktif</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
-                                                    <i class="fa-solid fa-calendar-alt"></i>
-                                                </div>
-                                            </div>
-                                            <input class="form-control" type="number" name="ren_periode_akhir" value="{{ old('ren_periode_akhir', $renstra->ren_periode_akhir) }}" required/>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label>Status Aktif</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <i class="fa-solid fa-check"></i>
+                                                    <i class="fas fa-toggle-on"></i>
                                                 </div>
                                             </div>
                                             <select class="form-control" name="ren_is_aktif">
@@ -109,15 +134,19 @@
                                             </select>
                                         </div>
                                     </div>
-
-                                    <div class="form-group">
-                                        <button type="submit" class="btn btn-primary">Simpan</button>
-                                        <a href="{{ route('renstra.index') }}" class="btn btn-danger">Kembali</a>
-                                    </div>
-                                </form>
                                 </div>
                             </div>
-                        </div>
+
+                            <!-- Tombol Aksi -->
+                            <div class="form-group text-right">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Simpan
+                                </button>
+                                <a href="{{ route('renstra.index') }}" class="btn btn-danger">
+                                    <i class="fas fa-arrow-left"></i> Kembali
+                                </a>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

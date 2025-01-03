@@ -77,10 +77,14 @@
                                     </td>                                    
                                     <td>{{ $indikatorkinerja->ik_ketercapaian }}</td>
 
+
+                        
+                         
+
                                     @if (Auth::user()->role== 'admin')
-                                    <td class="text-nowrap">
-                                        <div class="d-flex justify-content-center">
-                                            <a class="btn btn-warning me-2" href="{{ route('indikatorkinerja.edit', $indikatorkinerja->ik_id) }}">
+                                    <td>
+                                        
+                                            <a class="btn btn-warning" href="{{ route('indikatorkinerja.edit', $indikatorkinerja->ik_id) }}">
                                                 <i class="fa-solid fa-pen-to-square"></i> Ubah
                                             </a>
                                             <form id="delete-form-{{ $indikatorkinerja->ik_id }}" method="POST" class="d-inline" action="{{ route('indikatorkinerja.destroy', $indikatorkinerja->ik_id) }}">
@@ -90,7 +94,7 @@
                                                     <i class="fa-solid fa-trash"></i> Hapus
                                                 </button>
                                             </form>
-                                        </div>
+                                        
                                     </td>                                    
                                     @endif
                                 </tr>

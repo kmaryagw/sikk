@@ -10,7 +10,7 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Daftar Periode Monitoring</h1>
+                <h1>Daftar  Monitoring</h1>
             </div>
 
             <div class="card mb-3">
@@ -22,7 +22,6 @@
                         <div class="col-auto">
                             <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
                         </div>
-                        
                     </form>
                 </div>
 
@@ -34,39 +33,35 @@
                                 <th>Tahun</th>
                                 <th>Periode Monev (Kuartal)</th>
                                 <th>Tanggal Mulai</th>
-                                <th>Tanggal selesai </th> 
+                                <th>Tanggal Selesai</th> 
                                 <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @php $no = 1; @endphp
-                            @foreach ($periodemonitorings as $item )
+                            @foreach ($periodemonitorings as $item)
                                 <tr>
-
-
-                                    
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $item->tahunKerja->th_tahun }}</td>
                                     <td>
-                                        @if($item->periodes->isNotEmpty())
-                                            @foreach ($item->periodes as $periode)
-                                                <span class="badge badge-info">{{ $periode->pm_nama }}</span>
+                                        @if($item->periodeMonev && $item->periodeMonev->isNotEmpty()) 
+                                            @foreach ($item->periodeMonev as $periodes)
+                                                <span class="badge badge-info">{{ $periodes->pm_nama }}</span>
                                             @endforeach
                                         @else
                                             <span class="text-muted">Tidak ada periode</span>
                                         @endif
                                     </td>
                                     
-                                    
-
-                                    
-                                    
                                     <td>{{ \Carbon\Carbon::parse($item->pmo_tanggal_mulai)->format('Y-m-d H:i:s') }}</td>
                                     <td>{{ \Carbon\Carbon::parse($item->pmo_tanggal_selesai)->format('Y-m-d H:i:s') }}</td>
-
-                                    
                                     <td class="text-center">
-                                        @if ($item->is_within_three_months)
+                                        @php
+                                            $tanggalMulai = \Carbon\Carbon::parse($item->pmo_tanggal_mulai);
+                                            $tanggalSelesai = \Carbon\Carbon::parse($item->pmo_tanggal_selesai);
+                                            $selisihBulan = $tanggalMulai->diffInMonths($tanggalSelesai);
+                                        @endphp
+                                        @if ($selisihBulan <= 3)
                                             <!-- Tombol Isi Monitoring jika selisih <= 3 bulan -->
                                             <a class="btn btn-warning btn-sm" href="{{ route('monitoring.fill', $item->pmo_id) }}">
                                                 <i class="fa-solid fa-pen-to-square"></i> Isi Monitoring
@@ -78,7 +73,6 @@
                                             </a>
                                         @endif
                                     </td>
-                                    
                                 </tr>
                             @endforeach
                         </tbody>
