@@ -10,7 +10,7 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Daftar Periode Monitoring</h1>
+                <h1>Daftar  Monitoring</h1>
             </div>
 
             <div class="card mb-3">

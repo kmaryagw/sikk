@@ -32,7 +32,7 @@ return new class extends Migration
         Schema::table('rencana_kerja', function (Blueprint $table) {
             
             $table->dropForeign(['th_id']);
-            $table->dropForeign(['ik_id']);
+            
             $table->dropForeign(['unit_id']);
             
             

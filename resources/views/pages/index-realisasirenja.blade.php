@@ -28,6 +28,7 @@
                             <th>Program Kerja</th>
                             <th>Unit Kerja</th>
                             <th>Tahun</th>
+                            <th>Indikator Kinerja</th>
                             <th>Periode Monev</th>
                             <th>Aksi</th>
                         </tr>
@@ -40,6 +41,15 @@
                                 <td>{{ $rencanaKerja->rk_nama }}</td>
                                 <td>{{ $rencanaKerja->UnitKerja->unit_nama ?? '-' }}</td>
                                 <td>{{ $rencanaKerja->tahunKerja->th_tahun ?? '-' }}</td>
+                                <td>
+                                    @if($rencanaKerja->targetindikators->isNotEmpty())
+                                        @foreach ($rencanaKerja->targetindikators as $iku)
+                                            <span class="badge badge-success">{{ $iku->indikatorKinerja->ik_nama }}</span>
+                                        @endforeach
+                                    @else
+                                        <span class="text-muted">Tidak ada Indikator Kinerja</span>
+                                    @endif
+                                </td> 
                                 <td>
                                     @if($rencanaKerja->periodes->isNotEmpty())
                                         @foreach ($rencanaKerja->periodes as $periode)

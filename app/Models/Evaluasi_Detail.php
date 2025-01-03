@@ -24,6 +24,7 @@ class Evaluasi_Detail extends Model
         'evald_target',
         'evald_capaian',
         'evald_keterangan',
+        'evald_status',
     ];
 
     public function evaluasi()

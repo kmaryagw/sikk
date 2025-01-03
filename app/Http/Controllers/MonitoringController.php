@@ -17,27 +17,30 @@ class MonitoringController extends Controller
     public function index(Request $request)
 {
     $title = 'Data Monitoring';
-    $q = $request->query('q');
+    $q = $request->query('q', '');
 
-    // Query hanya menggunakan relasi Eloquent
-    $periodemonitorings = PeriodeMonitoring::with(['tahunKerja', 'periodeMonev']) // Memuat relasi
-        ->when($q, function ($query, $q) {
-            $query->whereHas('periodeMonev', function ($subQuery) use ($q) {
-                $subQuery->where('pm_nama', 'like', '%' . $q . '%');
-            });
-        })
-        ->paginate(10);
+    $periodemonitorings = PeriodeMonitoring::with(['tahunKerja', 'periodeMonev'])
+    ->whereHas('periodeMonev', function ($query) use ($q) {
+        if ($q) {
+            $query->where('th_id', 'like', '%' . $q . '%');
+        }
+    })
+    ->join('periode_monitoring_periode_monev', 'periode_monitoring.pmo_id', '=', 'periode_monitoring_periode_monev.pmo_id')
+    ->join('periode_monev', 'periode_monitoring_periode_monev.pm_id', '=', 'periode_monev.pm_id')
+    ->select('periode_monitoring.*') 
+    ->distinct() 
+    ->orderBy('periode_monev.pm_nama', 'asc') 
+    ->paginate(10);
 
+    // Periksa apakah data sudah dimuat
     $no = $periodemonitorings->firstItem();
 
-    // Menambahkan atribut untuk selisih bulan
+    // Tambahkan logika pengecekan durasi periode
     foreach ($periodemonitorings as $item) {
         $tanggalMulai = Carbon::parse($item->pmo_tanggal_mulai);
         $tanggalSelesai = Carbon::parse($item->pmo_tanggal_selesai);
 
-        $selisihBulan = $tanggalMulai->diffInMonths($tanggalSelesai);
-
-        $item->is_within_three_months = $selisihBulan <= 3;
+        $item->is_within_three_months = $tanggalMulai->diffInMonths($tanggalSelesai) <= 3;
     }
 
     return view('pages.index-monitoring', [
@@ -50,10 +53,9 @@ class MonitoringController extends Controller
 }
 
 
-public function show($pmo_id)
+    public function show($pmo_id)
     {
-        $periodeMonitoring = PeriodeMonitoring::with('tahunKerja', 'periodeMonev')
-            ->findOrFail($pmo_id);
+        $periodeMonitoring = PeriodeMonitoring::with('tahunKerja', 'periodeMonev')->findOrFail($pmo_id);
 
         $rencanaKerja = RencanaKerja::with(['monitoring' => function ($query) use ($pmo_id) {
             $query->where('pmo_id', $pmo_id);
@@ -62,7 +64,6 @@ public function show($pmo_id)
                 $query->where('rencana_kerja_pelaksanaan.pm_id', $periodeMonitoring->pm_id);
             })->get();
 
-        // Menandai apakah data monitoring sudah diisi atau belum untuk setiap rencana kerja
         foreach ($rencanaKerja as $rencana) {
             $rencana->is_monitored = $rencana->monitoring->isNotEmpty();
         }
@@ -74,112 +75,110 @@ public function show($pmo_id)
         ]);
     }
 
-
-
-public function fill($pmo_id)
+    public function fill($pmo_id)
 {
-    // Ambil data periode monitoring berdasarkan ID
+    $periodes = periode_monev::orderBy('pm_nama')->get();
     $periodeMonitoring = PeriodeMonitoring::with('tahunKerja', 'periodeMonev')->findOrFail($pmo_id);
 
-    // Cek selisih waktu antara tanggal mulai dan tanggal selesai
-    $tanggalMulai = Carbon::parse($periodeMonitoring->pmo_tanggal_mulai);
-    $tanggalSelesai = Carbon::parse($periodeMonitoring->pmo_tanggal_selesai);
-    $selisihBulan = $tanggalMulai->diffInMonths($tanggalSelesai);
+    $rencanaKerja = RencanaKerja::with(['periodes', 'monitoring' => function ($query) use ($pmo_id) {
+        $query->where('pmo_id', $pmo_id);
+    }, 'unitKerja', 'realisasi'])
+    ->whereHas('periodes', function ($query) use ($periodeMonitoring) {
+        $query->whereIn('rencana_kerja_pelaksanaan.pm_id', $periodeMonitoring->periodeMonev->pluck('pm_id')->toArray());
+    })
+    ->get();
 
-    // Jika lebih dari 3 bulan, redirect ke halaman 'monitoring-show'
-    if ($selisihBulan > 3) {
-        return redirect()->route('monitoring.show', ['pmo_id' => $pmo_id]);
-    }
+    // Tandai apakah rencana kerja sudah diisi monitoring-nya
+    $rencanaKerja->each(function ($rencana) {
+        $rencana->is_submitted = $rencana->monitoring->isNotEmpty();
+    });
 
-    // Query untuk mendapatkan Rencana Kerja yang terkait dengan periode monitoring ini
-    $rencanaKerja = RencanaKerja::with([
-        'monitoring' => function ($query) use ($pmo_id) {
-            $query->where('pmo_id', $pmo_id);
-        },
-        'unitKerja'
-    ])->whereHas('periodes', function ($query) use ($periodeMonitoring) {
-        // Gunakan tabel pivot untuk mencocokkan periode monitoring dengan periode monev
-        $query->join('periode_monitoring_periode_monev', 'periode_monitoring_periode_monev.pm_id', '=', 'rencana_kerja_pelaksanaan.pm_id')
-              ->where('periode_monitoring_periode_monev.pmo_id', $periodeMonitoring->pmo_id);
-    })->get();
+    // Ambil data realisasi
+    $realisasi = RealisasiRenja::whereIn('rk_id', $rencanaKerja->pluck('rk_id'))->get();
 
-    // Tandai apakah data monitoring sudah diisi atau belum
-    foreach ($rencanaKerja as $rencana) {
-        $monitoring = $rencana->monitoring->first();
-
-        $rencana->is_submitted = $monitoring ? true : false; // Tandai jika monitoring diisi
-        $rencana->mtg_status = $monitoring->mtg_status ?? 'n'; // Default ke 'n'
-        $rencana->periode = $monitoring->periode ?? ''; // Default kosong jika belum ada
-    }
-
-    // Kembalikan view 'monitoring-fill' dengan data yang telah diproses
     return view('pages.monitoring-fill', [
+        'periodes' => $periodes,
         'periodeMonitoring' => $periodeMonitoring,
         'rencanaKerja' => $rencanaKerja,
+        'realisasi' => $realisasi,
         'type_menu' => 'monitoring',
     ]);
 }
 
+
+
+
 public function store(Request $request)
 {
-    $validated = $request->validate([
-        'pmo_id' => 'required|exists:periode_monitoring,pmo_id',
-        'rk_id' => 'required|exists:rencana_kerja,rk_id',
-        'mtg_status' => 'required|in:y,n', // Validasi status
-        'periode' => 'nullable|string|required_if:mtg_status,y', // Periode wajib jika status 'y'
+    // Validasi input
+    $validatedData = $request->validate([
         'mtg_capaian' => 'required|numeric',
         'mtg_kondisi' => 'required|string',
         'mtg_kendala' => 'nullable|string',
-        'mtg_tindak_lanjut' => 'nullable|string',
-        'mtg_tindak_lanjut_tanggal' => 'nullable|date',
+        'mtg_tindak_lanjut' => 'required|string',
+        'mtg_tindak_lanjut_tanggal' => 'required|date',
+        'mtg_status' => 'required|in:y,n,t,p',
         'mtg_bukti' => 'nullable|file|mimes:pdf,jpg,png,jpeg|max:2048',
+        'mtg_flag' => 'required|boolean', 
+        'pmo_id' => 'required|exists:periode_monitoring,pmo_id',
+        'rk_id' => 'required|exists:rencana_kerja,rk_id',
     ]);
 
     try {
-        $monitoring = Monitoring::updateOrCreate(
-            ['pmo_id' => $request->pmo_id, 'rk_id' => $request->rk_id],
+        // Menggunakan firstOrCreate untuk mencari atau membuat data baru
+        $monitoring = Monitoring::firstOrCreate(
             [
-                'mtg_status' => $validated['mtg_status'],
-                'periode' => $validated['periode'], // Simpan periode
-                'mtg_capaian' => $validated['mtg_capaian'],
-                'mtg_kondisi' => $validated['mtg_kondisi'],
-                'mtg_kendala' => $validated['mtg_kendala'],
-                'mtg_tindak_lanjut' => $validated['mtg_tindak_lanjut'],
-                'mtg_tindak_lanjut_tanggal' => $validated['mtg_tindak_lanjut_tanggal'],
-            ]
+                'pmo_id' => $request->pmo_id,
+                'rk_id' => $request->rk_id,
+            ],
+            $validatedData // Jika tidak ditemukan, data akan diisi dengan nilai yang divalidasi
         );
 
-        // Upload file jika ada
+        // Mengelola file bukti jika ada
         if ($request->hasFile('mtg_bukti')) {
+            // Jika ada file bukti sebelumnya, hapus file yang lama
             if ($monitoring->mtg_bukti) {
                 Storage::disk('public')->delete($monitoring->mtg_bukti);
             }
+            // Menyimpan file baru
             $monitoring->mtg_bukti = $request->file('mtg_bukti')->store('monitoring_bukti', 'public');
         }
 
+        // Simpan perubahan jika ada file yang diubah atau data lain yang perlu diperbarui
+        $monitoring->fill($validatedData);
         $monitoring->save();
 
-        Alert::success('Berhasil', 'Data monitoring berhasil disimpan.');
-        return redirect()->route('monitoring.fill', ['pmo_id' => $request->pmo_id])
-            ->with('success', 'Data monitoring berhasil disimpan.');
+        // Mengembalikan respons dalam format JSON
+        return response()->json([
+            'success' => true,
+            'message' => 'Data berhasil disimpan',
+            'monitoring' => $monitoring
+        ], 200); // Status code 200 untuk sukses
+
     } catch (\Exception $e) {
-        Alert::error('Gagal', 'Terjadi kesalahan dalam menyimpan data.');
-        return redirect()->route('monitoring.fill', ['pmo_id' => $request->pmo_id])
-            ->with('error', 'Terjadi kesalahan dalam menyimpan data: ' . $e->getMessage());
+        // Log error untuk debugging
+        \Log::error('Error saat menyimpan monitoring data: ' . $e->getMessage());
+
+        // Mengembalikan respons JSON jika terjadi error
+        return response()->json([
+            'success' => false,
+            'message' => 'Terjadi kesalahan dalam menyimpan data.',
+            'error' => $e->getMessage()
+        ], 500); // Status code 500 untuk kesalahan server
     }
 }
+
 
 
 
     public function getData($pmo_id, $rk_id)
     {
         $monitoring = Monitoring::where('pmo_id', $pmo_id)->where('rk_id', $rk_id)->first();
-        $realisasi = RealisasiRenja::where('rk_id', $rk_id)
-            ->orderBy('rkr_capaian', 'asc')
-            ->get();
+        $realisasi = RealisasiRenja::where('rk_id', $rk_id)->orderBy('rkr_capaian', 'asc')->get();
 
-        $data = [$monitoring, $realisasi];
-
-        return response()->json($data);
+        return response()->json([
+            'monitoring' => $monitoring,
+            'realisasi' => $realisasi,
+        ]);
     }
 }

@@ -23,6 +23,7 @@ class Monitoring extends Model
         'mtg_status',
         'mtg_tindak_lanjut',
         'mtg_tindak_lanjut_tanggal',
+        'mtg_flag',
         'mtg_bukti',
         'rk_id',
     ];
@@ -38,9 +39,9 @@ class Monitoring extends Model
     }
 
     public function rencanaKerja()
-    {
-        return $this->belongsTo(RencanaKerja::class, 'rk_id', 'rk_id');
-    }
+{
+    return $this->belongsTo(RencanaKerja::class, 'rk_id', 'rk_id');
+}
 
     public function targetIndikator()
     {

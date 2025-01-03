@@ -17,7 +17,7 @@ class RealisasiRenjaController extends Controller
         $title = 'Data Realisasi Renja';
         $q = $request->query('q');
 
-        $rencanaKerjas = RencanaKerja::with('tahunKerja', 'UnitKerja')
+        $rencanaKerjas = RencanaKerja::with('tahunKerja', 'UnitKerja','targetIndikators.indikatorKinerja')
             ->where('rk_nama', 'like', '%' . $q . '%')
             ->orderBy('rk_nama', 'asc')
             ->paginate(10);
@@ -129,7 +129,7 @@ class RealisasiRenjaController extends Controller
     {
         $request->validate([
             'rkr_url' => 'nullable|url',
-            'rkr_file' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
+            'rkr_file' => 'nullable|file|mimes:pdf|max:2048',
             'rkr_deskripsi' => 'nullable|string',
             'rkr_capaian' => 'required|integer',
             'rkr_tanggal' => 'required|date',

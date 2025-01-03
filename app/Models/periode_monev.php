@@ -22,11 +22,6 @@ class periode_monev extends Model
         return $this->belongsToMany(RencanaKerja::class, 'rencana_kerja_pelaksanaan', 'pm_id', 'rk_id');
     }
 
-    public function periodeMonitorings()
-{
-    return $this->belongsToMany(PeriodeMonitoring::class, 'periode_monitoring_periode_monev', 'pm_id', 'pmo_id');
-}
-
 
     public $timestamps = true;
 

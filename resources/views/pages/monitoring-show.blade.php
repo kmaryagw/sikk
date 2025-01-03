@@ -14,7 +14,16 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">Tahun: <span class="badge badge-primary">{{ $periodeMonitoring->tahunKerja->th_tahun }}</span></h4>
-                    <h4 class="mb-0">Periode: <span class="badge badge-info">{{ $periodeMonitoring->periodeMonev->pm_nama }}</span></h4>
+                    <h4>
+                        Periode:
+                        @if ($periodeMonitoring->periodeMonev && $periodeMonitoring->periodeMonev->isNotEmpty())
+                            @foreach ($periodeMonitoring->periodeMonev as $periode)
+                                <span class="badge badge-info">{{ $periode->pm_nama }}</span>
+                            @endforeach
+                        @else
+                            <span class="text-muted">Tidak ada periode</span>
+                        @endif
+                    </h4>
                 </div>
                 <div class="card-body">
                     <table class="table table-bordered table-hover">

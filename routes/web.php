@@ -55,9 +55,9 @@ Route::middleware('auth')->group(function () {
     Route::get('evaluasi/{eval_id}/index-detail', [EvaluasiController::class, 'indexDetail'])->name('evaluasi.index-detail');
     Route::get('evaluasi/{eval_id}/create-detail', [EvaluasiController::class, 'createDetail'])->name('evaluasi.create-detail');
     Route::post('/evaluasi/{eval_id}/store-detail', [EvaluasiController::class, 'storeDetail'])->name('evaluasi.store-detail');
-    Route::get('evaluasi/{evald_id}/edit-detail', [EvaluasiController::class, 'editDetail'])->name('evaluasi.edit-detail');
-    Route::put('evaluasi/{evald_id}/update-detail', [EvaluasiController::class, 'updateDetail'])->name('evaluasi.update-detail');
-    Route::delete('/evaluasi/{eval_id}/detail/{evald_id}', [EvaluasiController::class, 'destroyDetail'])->name('evaluasi.destroy-detail');
+    Route::get('evaluasi/{eval_id}/edit-detail', [EvaluasiController::class, 'editDetail'])->name('evaluasi.edit-detail');
+    Route::put('evaluasi/{eval_id}/update-detail', [EvaluasiController::class, 'updateDetail'])->name('evaluasi.update-detail');
+    Route::delete('evaluasi/destroy-detail/{eval_id}', [EvaluasiController::class, 'destroyDetail'])->name('evaluasi.destroy-detail');
     Route::get('evaluasi/{eval_id}/show-evaluasi', [EvaluasiController::class, 'show'])->name('evaluasi.show-evaluasi');
 
     // Rute untuk laporan

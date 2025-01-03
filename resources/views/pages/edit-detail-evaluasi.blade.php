@@ -9,10 +9,10 @@
 <div class="main-content">
     <section class="section">
         <div class="section-header">
-            <h1>Edit Detail Evaluasi</h1>
+            <h1>Tambah Evaluasi</h1>
             <div class="section-header-breadcrumb">
                 <div class="breadcrumb-item"><a href="#">Dashboard</a></div>
-                <div class="breadcrumb-item">Edit Detail Evaluasi</div>
+                <div class="breadcrumb-item">Tambah Evaluasi</div>
             </div>
         </div>
 
@@ -32,43 +32,73 @@
                             @endif
 
                             <!-- Form -->
-                            <form action="{{ route('evaluasi.update-detail', $evaluasiDetail->evald_id) }}" method="POST">
+                            <form action="{{ route('evaluasi.update-detail', $evaluasi->eval_id) }}" method="POST">
                                 @csrf
                                 @method('PUT')
-
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="ti_id">Target Indikator</label>
+                                            <label for="prodi">Program Studi</label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
-                                                    <div class="input-group-text">
-                                                        <i class="fa-solid fa-award"></i>
-                                                    </div>
+                                                    <span class="input-group-text">
+                                                        <i class="fa-solid fa-building-columns"></i>
+                                                    </span>
                                                 </div>
-                                                <select class="form-control" name="ti_id" disabled>
-                                                    @foreach ($targetIndikators as $targetIndikator)
-                                                        <option value="{{ $targetIndikator->ti_id }}" 
-                                                            @if ($targetIndikator->ti_id == $evaluasiDetail->ti_id) selected @endif>
-                                                            {{ $targetIndikator->indikatorKinerja->ik_nama }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                <input type="hidden" name="ti_id" value="{{ $evaluasiDetail->ti_id }}">
+                                                <input type="text" id="prodi" class="form-control" value="{{ $evaluasi->prodi->nama_prodi }}" readonly>
                                             </div>
                                         </div>
                                     </div>
-
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="evald_target">Target</label>
+                                            <label for="tahun">Tahun Kerja</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">
+                                                        <i class="fa-solid fa-calendar"></i>
+                                                    </span>
+                                                </div>
+                                                <input type="text" id="tahun" class="form-control" value="{{ $evaluasi->tahunKerja->th_tahun }}" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="ik_nama">Indikator Kinerja</label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text">
                                                         <i class="fa-solid fa-bullseye"></i>
                                                     </span>
                                                 </div>
-                                                <input type="text" id="evald_target" class="form-control" name="evald_target" value="{{ $evaluasiDetail->evald_target }}" readonly>
+                                                <input type="text" id="ik_nama" class="form-control" value="{{ $targetIndikator->indikatorKinerja->ik_nama }}" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="ti_target">Target</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">
+                                                        <i class="fa-solid fa-award"></i>
+                                                    </span>
+                                                </div>
+                                                <input type="text" id="ti_target" class="form-control" value="{{ $targetIndikator->ti_target }}" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="ti_keterangan">Keterangan Indikator</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">
+                                                        <i class="fa-solid fa-info-circle"></i>
+                                                    </span>
+                                                </div>
+                                                <input class="form-control" name="ti_keterangan" value="{{ $targetIndikator->ti_keterangan }}" readonly>
                                             </div>
                                         </div>
                                     </div>
@@ -89,14 +119,33 @@
 
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="evald_keterangan">Keterangan</label>
+                                            <label for="evald_keterangan">Keterangan Tambahan</label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text">
-                                                        <i class="fa-solid fa-info-circle"></i>
+                                                        <i class="fa-solid fa-plus-circle"></i>
                                                     </span>
                                                 </div>
-                                                <textarea class="form-control" name="evald_keterangan" rows="4">{{ old('evald_keterangan', $evaluasiDetail->evald_keterangan) }}</textarea>
+                                                <textarea class="form-control" name="evald_keterangan" rows="4">{{ $evaluasiDetail->evald_keterangan }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="evald_keterangan">Status</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">
+                                                        <i class="fa-solid fa-check-circle"></i>
+                                                    </span>
+                                                </div>
+                                                <select class="form-control" name="evald_status" rows="4" required>
+                                                    <option value="" disabled selected>Pilih Status</option>
+                                                    @foreach ($status as $statuses)
+                                                        <option value="{{ $statuses }}" {{ old('evald_status') == $statuses ? 'selected' : '' }}>{{ $statuses }}</option>
+                                                    @endforeach
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
@@ -107,52 +156,121 @@
                                     <a href="{{ route('evaluasi.index-detail', $evaluasi->eval_id) }}" class="btn btn-danger">Kembali</a>
                                 </div>
                             </form>                          
-
-                            <!-- Tabel Data Monitoring -->
-                            <h5 class="mt-4">Data Monitoring Terkait</h5>
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-hover">
-                                    <thead class="thead-light">
-                                        <tr class="text-center">
-                                            <th>No</th>
-                                            <th>Nama Rencana Kerja</th>
-                                            <th>Unit Kerja</th>
-                                            <th>Capaian</th>
-                                            <th>Kondisi</th>
-                                            <th>Kendala</th>
-                                            <th>Tindak Lanjut</th>
-                                            <th>Bukti</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($rencanaKerja as $index => $rencana)
-                                            <tr>
-                                                <td>{{ $index + 1 }}</td>
-                                                <td>{{ $rencana->rk_nama }}</td>
-                                                <td>{{ $rencana->unitKerja->unit_nama ?? 'Tidak Ada' }}</td>
-
-                                                @forelse($rencana->monitoring as $monitoring)
-                                                    <td>{{ $monitoring->mtg_capaian }}</td>
-                                                    <td>{{ $monitoring->mtg_kondisi }}</td>
-                                                    <td>{{ $monitoring->mtg_kendala }}</td>
-                                                    <td>{{ $monitoring->mtg_tindak_lanjut }}</td>
-                                                    <td>
-                                                        @if ($monitoring->mtg_bukti)
-                                                            <a href="{{ Storage::url($monitoring->mtg_bukti) }}" target="_blank" class="btn btn-info btn-sm">Lihat Bukti</a>
-                                                        @else
-                                                            <span class="text-danger">Tidak ada bukti</span>
-                                                        @endif
-                                                    </td>
-                                                @empty
-                                                    <td colspan="6" class="text-center text-warning">Belum melakukan monitoring</td>
-                                                @endforelse
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
                         </div>
                     </div>
+                    
+                    {{-- Data program kerja, monitoring, realisasi --}}
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="text-danger mt-3 mb-4">Data Program Kerja yang Terkait dengan 
+                                <span class="badge badge-success">{{ $targetIndikator->indikatorKinerja->ik_nama }}</span>
+                            </h4>
+                            <div class="table-responsive">
+                                @foreach($programKerja as $index => $program)
+                                    <div class="mb-4 p-3" style="background-color: #f4f4f4; border-radius: 8px;">
+                                        <!-- Program Kerja Header -->
+                                        <h6 class="bg-secondary text-dark p-2 rounded">{{ $index + 1 }}. {{ $program->rk_nama }}</h6>
+                                        <p class="mb-1"><strong>Unit Kerja:</strong> {{ $program->unitKerja->unit_nama ?? '-' }}</p>
+                                        <p class="mb-1"><strong>Tahun:</strong> {{ $program->tahunKerja->th_tahun }}</p>
+                                        <p class="mb-3"><strong>Periode:</strong> 
+                                            @if($program->periodes->isNotEmpty())
+                                                @foreach ($program->periodes as $periode)
+                                                    <span class="badge badge-info">{{ $periode->pm_nama }}</span>
+                                                @endforeach
+                                            @else
+                                                <span class="text-muted">Tidak ada periode</span>
+                                            @endif
+                                        </p>
+                    
+                                        <!-- Sub Monitoring -->
+                                        <h6 class="mt-3 mb-2 text-danger">Monitoring</h6>
+                                        @if($program->monitoring->isNotEmpty())
+                                            <div class="table-wrapper" style="background-color: #ffffff; padding: 1em; border-radius: 8px;">
+                                                <table class="table table-bordered table-hover table-striped text-center">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Capaian</th>
+                                                            <th>Kondisi</th>
+                                                            <th>Kendala</th>
+                                                            <th>Tindak Lanjut</th>
+                                                            <th>Bukti</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach ($program->monitoring as $monitoring)
+                                                            <tr>
+                                                                <td>{{ $monitoring->mtg_capaian }}</td>
+                                                                <td>{{ $monitoring->mtg_kondisi }}</td>
+                                                                <td>{{ $monitoring->mtg_kendala }}</td>
+                                                                <td>{{ $monitoring->mtg_tindak_lanjut }}</td>
+                                                                <td>
+                                                                    @if ($monitoring->mtg_bukti)
+                                                                        <a href="{{ Storage::url($monitoring->mtg_bukti) }}" target="_blank" class="btn btn-info btn-sm">Lihat Bukti</a>
+                                                                    @else
+                                                                        <span class="text-danger">Tidak ada bukti</span>
+                                                                    @endif
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        @else
+                                            <p class="text-muted">Belum ada data monitoring.</p>
+                                        @endif
+                    
+                                        <!-- Sub Realisasi -->
+                                        <h6 class="mt-3 mb-2 text-danger">Realisasi</h6>
+                                        @if($program->realisasi->isNotEmpty())
+                                            <div style="background-color: #ffffff; padding: 1em; border-radius: 8px;">
+                                                <table class="table table-bordered table-hover table-striped text-center">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Deskripsi</th>
+                                                            <th>Capaian</th>
+                                                            <th>Tanggal</th>
+                                                            <th>URL</th>
+                                                            <th>Bukti</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach ($program->realisasi as $real)
+                                                            <tr>
+                                                                <td>{{ $real->rkr_deskripsi }}</td>
+                                                                <td>
+                                                                    <div class="progress" style="height: 20px;">
+                                                                        <div class="progress-bar" role="progressbar" style="width: {{ $real->rkr_capaian }}%;" aria-valuenow="{{ $real->rkr_capaian }}" aria-valuemin="0" aria-valuemax="100">{{ $real->rkr_capaian }}%</div>
+                                                                    </div>
+                                                                </td>
+                                                                <td>{{ $real->rkr_tanggal ? \Carbon\Carbon::parse($real->rkr_tanggal)->format('d-m-Y') : '-' }}</td>
+                                                                <td>
+                                                                    @if($real->rkr_url)
+                                                                        <a href="{{ $real->rkr_url }}" target="_blank">{{ $real->rkr_url }}</a>
+                                                                    @else
+                                                                        Tidak Ada URL
+                                                                    @endif
+                                                                </td>
+                                                                <td>
+                                                                    @if($real->rkr_file)
+                                                                        <a class="btn btn-success" href="{{ asset('storage/' . $real->rkr_file) }}" target="_blank">Lihat Dokumen</a>
+                                                                    @else
+                                                                        Tidak Ada Dokumen
+                                                                    @endif
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        @else
+                                            <p class="text-muted">Belum ada data realisasi.</p>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>                                                                                                                     
+
                 </div>
             </div>
         </div>

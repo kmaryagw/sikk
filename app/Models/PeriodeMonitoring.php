@@ -27,19 +27,22 @@ class PeriodeMonitoring extends Model
     ];
 
     // Mendefinisikan relasi dengan tabel tahun_kerja
+
+    public function rencanaKerjas()
+{
+    return $this->belongsToMany(RencanaKerja::class, 'rencana_kerja_pelaksanaan', 'pm_id', 'rk_id');
+}
     public function tahunKerja()
     {
         return $this->belongsTo(tahun_kerja::class, 'th_id', 'th_id');
     }
 
     public function periodeMonev()
-    {
-        return $this->belongsToMany(periode_monev::class, 'periode_monitoring_periode_monev', 'pmo_id', 'pm_id');
-    }
+{
+    return $this->belongsToMany(periode_monev::class, 'periode_monitoring_periode_monev', 'pmo_id', 'pm_id');
+}
+
 
     
-    public function periodes()
-    {
-        return $this->hasMany(periode_monev::class, 'pm_id', 'pm_id');
-    }
+
 }

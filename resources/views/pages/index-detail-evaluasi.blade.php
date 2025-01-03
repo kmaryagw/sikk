@@ -24,9 +24,9 @@
                 @endif
             </div>
         
-            @if($Evaluasi->evaluasiDetails->isEmpty())
+            @if($targetIndikators->isEmpty())
                 <div class="card-body text-center">
-                    <p>Tidak ada data evaluasi untuk prodi ini.</p>
+                    <p>Tidak ada target untuk prodi ini.</p>
                 </div>
             @else
                 <div class="table-responsive text-center">
@@ -36,32 +36,64 @@
                                 <th>No</th>
                                 <th>Indikator Kinerja</th>
                                 <th>Target</th>
+                                <th>Keterangan Indikator</th>
                                 <th>Capaian</th>
-                                <th>Keterangan</th>
+                                <th>Status</th>
                                 <th class="text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @php $no = 1; @endphp
-                            @foreach ($Evaluasi->evaluasiDetails as $item)
+                            @foreach ($targetIndikators as $target)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $item->targetIndikator->indikatorKinerja->ik_nama }}</td>
-                                    <td>{{ $item->evald_target }}</td>
-                                    <td>{{ $item->evald_capaian }}</td>
-                                    <td>{{ $item->evald_keterangan }}</td>
+                                    <td>{{ $target->indikatorKinerja->ik_nama }}</td>
+                                    <td>
+                                        @if ($target->indikatorKinerja->ik_ketercapaian == 'persentase' && is_numeric($target->ti_target))
+                                            <div class="progress">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     style="width: {{ intval($target->ti_target) }}%;" 
+                                                     aria-valuenow="{{ intval($target->ti_target) }}" 
+                                                     aria-valuemin="0" aria-valuemax="100">
+                                                    {{ $target->ti_target }}%
+                                                </div>
+                                            </div>
+                                        @elseif ($target->indikatorKinerja->ik_ketercapaian == 'nilai' && is_numeric($target->ti_target))
+                                            <span class="badge badge-primary">{{ $target->ti_target }}</span>
+                                        @elseif (in_array(strtolower($target->ti_target), ['ada', 'tidak']))
+                                            @if (strtolower($target->ti_target) === 'ada')
+                                                <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
+                                            @else
+                                                <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak</span>
+                                            @endif
+                                        @else
+                                            {{ $target->ti_target }}
+                                        @endif
+                                    </td> 
+                                    <td>{{ $target->ti_keterangan }}                                                                      
+                                    <td>
+                                        @if (strtolower($evaluasiDetail->evald_status) === 'tercapai')
+                                            <span class="text-success"><i class="fa-solid fa-check-circle"></i> Tercapai</span>
+                                        @elseif (strtolower($evaluasiDetail->evald_status) === 'tidak tercapai')
+                                            <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Tidak Tercapai</span>
+                                        @elseif (strtolower($evaluasiDetail->evald_status) === 'tidak terlaksana')
+                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak Tercapai</span>
+                                        @else
+                                            <span></i>Belum ada capaian</span>
+                                        @endif
+                                    </td>                                        
+                                    <td>{{ $evaluasiDetail->evald_status ?? 'Belum ada status' }}</td>
                                     <td class="text-center">
-                                        <a href="{{ route('evaluasi.edit-detail', ['evald_id' => $item->evald_id]) }}" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Ubah</a>     
-                                        <form id="delete-form-{{ $item->evald_id }}" method="POST" 
-                                            action="{{ route('evaluasi.destroy-detail', ['eval_id' => $Evaluasi->eval_id, 'evald_id' => $item->evald_id]) }}" 
-                                            class="d-inline">
-                                          @csrf
-                                          @method('DELETE')
-                                          <button class="btn btn-danger" type="submit" onclick="confirmDelete(event, '{{ $item->evald_id }}')">
-                                              <i class="fa-solid fa-trash"></i> Hapus
-                                          </button>
-                                      </form>
-                                      
+                                        <a href="{{ route('evaluasi.edit-detail', ['eval_id' => $Evaluasi->eval_id]) }}" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Isi/Ubah</a>
+                                        @if($Evaluasis->isNotEmpty())
+                                            <form id="delete-form-{{ $evaluasiDetail->evald_id }}" method="POST" class="d-inline" action="{{ route('evaluasi.destroy-detail', ['eval_id' => $Evaluasi->eval_id]) }}">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $evaluasiDetail->evald_id }}')"><i class="fa-solid fa-trash"></i> Hapus</button>
+                                            </form>
+                                        @else
+                                            <button class="btn btn-secondary" disabled><i class="fa-solid fa-trash"></i> Hapus</button>
+                                        @endif                                       
                                     </td>
                                 </tr>
                             @endforeach
@@ -81,7 +113,7 @@
         function confirmDelete(event, formid) {
             event.preventDefault();
             Swal.fire({
-                title: 'Apakah Anda yakin?',
+                title: 'Yakin menghapus Evaluasi ini?',
                 text: "Data yang dihapus tidak bisa dikembalikan!",
                 icon: 'warning',
                 showCancelButton: true,

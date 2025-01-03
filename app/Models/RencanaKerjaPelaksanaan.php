@@ -20,4 +20,15 @@ class RencanaKerjaPelaksanaan extends Model
     ];
 
     public $timestamps = true;
+
+    public function rencanaKerja()
+    {
+        return $this->belongsTo(RencanaKerja::class, 'rk_id', 'rk_id');
+    }
+
+    // Relasi ke PeriodeMonev
+    public function periodeMonev()
+    {
+        return $this->belongsTo(periode_monev::class, 'pm_id', 'pm_id');
+    }
 }
