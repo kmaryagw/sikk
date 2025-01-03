@@ -49,9 +49,9 @@
                                     <td>{{ $evaluasi->targetIndikator->prodi->nama_prodi }}</td>
                                     <td>
                                         @if($evaluasi->status == 0)
-                                            <a class="btn btn-warning" href="{{ route('evaluasi.index-detail', $evaluasi->eval_id) }}"><i class="fa-solid fa-pen"></i> Isi/Ubah</a>
+                                            <a class="btn btn-warning" href="{{ route('evaluasi.index-detail', $evaluasi->eval_id) }}"><i class="fa-solid fa-pen-to-square"></i> Isi/Ubah</a>
                                             @if($evaluasi->isFilled())
-                                                <button class="btn btn-info finalBtn" data-id="{{ $evaluasi->eval_id }}"><i class="fa-solid fa-check"></i> Final</button>
+                                                <button class="btn btn-info finalBtn" data-id="{{ $evaluasi->eval_id }}"><i class="fa-solid fa-lock"></i> Final</button>
                                             @else
                                                 <button class="btn btn-secondary" disabled><i class="fa-solid fa-lock"></i> Final</button>
                                             @endif

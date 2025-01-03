@@ -89,7 +89,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <label>Renstra is Active</label>
+                                        <label>Status Aktif</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
@@ -98,7 +98,9 @@
                                             </div>
                                             <select class="form-control" name="ren_is_aktif">
                                                 @foreach ($ren_is_aktifs as $ren_is_aktif)
-                                                    <option value="{{ $ren_is_aktif }}" {{ old('ren_is_aktif') == $ren_is_aktif ? 'selected' : '' }}>{{ $ren_is_aktif }}</option>
+                                                    <option value="{{ $ren_is_aktif }}" {{ old('ren_is_aktif', 'y') == $ren_is_aktif ? 'selected' : '' }}>
+                                                        {{ $ren_is_aktif == 'y' ? 'Ya' : 'Tidak' }}
+                                                    </option>
                                                 @endforeach
                                             </select>
                                         </div>

@@ -15,6 +15,16 @@
                         <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
                     </div>
                     <div class="col-auto">
+                        <select class="form-control" name="tahun">
+                            <option value="">Pilih Tahun</option>
+                            @foreach ($tahuns as $tahun)
+                                <option value="{{ $tahun->th_id }}" {{ request('tahun') == $tahun->th_id ? 'selected' : '' }}>
+                                    {{ $tahun->th_tahun }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-auto">
                         <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
                     </div>
                 </form>

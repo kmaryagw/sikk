@@ -21,6 +21,7 @@ class Monitoring extends Model
         'mtg_kondisi',
         'mtg_kendala',
         'mtg_tindak_lanjut',
+        'mtg_status',
         'mtg_tindak_lanjut_tanggal',
         'mtg_bukti',
         'rk_id',

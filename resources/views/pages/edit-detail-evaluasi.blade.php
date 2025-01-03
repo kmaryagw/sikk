@@ -62,7 +62,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    {{-- <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="ik_nama">Indikator Kinerja</label>
                                             <div class="input-group">
@@ -74,7 +74,23 @@
                                                 <input type="text" id="ik_nama" class="form-control" value="{{ $targetIndikator->indikatorKinerja->ik_nama }}" readonly>
                                             </div>
                                         </div>
+                                    </div> --}}
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="ik_nama">Indikator Kinerja</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">
+                                                        <i class="fa-solid fa-bullseye"></i>
+                                                    </span>
+                                                </div>
+                                                <input type="text" id="ik_nama" class="form-control" 
+                                                    value="{{ $targetIndikator->indikatorKinerja->ik_nama }}" readonly>
+                                            </div>
+                                        </div>
                                     </div>
+
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="ti_target">Target</label>
@@ -103,7 +119,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6">
+                                    {{-- <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="evald_capaian">Capaian</label>
                                             <div class="input-group">
@@ -114,6 +130,22 @@
                                                 </div>
                                                 <input type="text" class="form-control" name="evald_capaian" value="{{ $evaluasiDetail->evald_capaian }}">
                                             </div>
+                                        </div>
+                                    </div> --}}
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="evald_capaian">Capaian</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">
+                                                        <i class="fa-solid fa-award"></i>
+                                                    </span>
+                                                </div>
+                                                <input type="text" class="form-control" name="evald_capaian" id="evald_capaian"
+                                                    placeholder="Isi Capaian" value="{{ old('evald_capaian', $evaluasiDetail->evald_capaian) }}" required>
+                                            </div>
+                                            <small id="evald_capaian_hint" class="form-text text-muted">Isi sesuai dengan jenis ketercapaian.</small>
                                         </div>
                                     </div>
 
@@ -140,20 +172,23 @@
                                                         <i class="fa-solid fa-check-circle"></i>
                                                     </span>
                                                 </div>
-                                                <select class="form-control" name="evald_status" rows="4" required>
-                                                    <option value="" disabled selected>Pilih Status</option>
+                                                <select class="form-control" name="evald_status" required>
+                                                    <option value="" disabled {{ is_null($evaluasiDetail->evald_status) ? 'selected' : '' }}>Pilih Status</option>
                                                     @foreach ($status as $statuses)
-                                                        <option value="{{ $statuses }}" {{ old('evald_status') == $statuses ? 'selected' : '' }}>{{ $statuses }}</option>
+                                                        <option value="{{ $statuses }}" 
+                                                            {{ old('evald_status', $evaluasiDetail->evald_status) == $statuses ? 'selected' : '' }}>
+                                                            {{ $statuses }}
+                                                        </option>
                                                     @endforeach
                                                 </select>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div>                                    
                                 </div>
 
                                 <div class="form-group text-right">
-                                    <button type="submit" class="btn btn-primary">Simpan</button>
-                                    <a href="{{ route('evaluasi.index-detail', $evaluasi->eval_id) }}" class="btn btn-danger">Kembali</a>
+                                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Simpan</button>
+                                    <a href="{{ route('evaluasi.index-detail', $evaluasi->eval_id) }}" class="btn btn-danger"><i class="fa-solid fa-arrow-left"></i> Kembali</a>
                                 </div>
                             </form>                          
                         </div>
@@ -205,7 +240,7 @@
                                                                 <td>{{ $monitoring->mtg_tindak_lanjut }}</td>
                                                                 <td>
                                                                     @if ($monitoring->mtg_bukti)
-                                                                        <a href="{{ Storage::url($monitoring->mtg_bukti) }}" target="_blank" class="btn btn-info btn-sm">Lihat Bukti</a>
+                                                                        <a href="{{ Storage::url($monitoring->mtg_bukti) }}" target="_blank" class="btn btn-success btn-sm"><i class="fa-solid fa-eye"></i> Lihat Bukti</a>
                                                                     @else
                                                                         <span class="text-danger">Tidak ada bukti</span>
                                                                     @endif
@@ -252,7 +287,7 @@
                                                                 </td>
                                                                 <td>
                                                                     @if($real->rkr_file)
-                                                                        <a class="btn btn-success" href="{{ asset('storage/' . $real->rkr_file) }}" target="_blank">Lihat Dokumen</a>
+                                                                        <a class="btn btn-success" href="{{ asset('storage/' . $real->rkr_file) }}" target="_blank"><i class="fa-solid fa-eye"></i> Lihat Dokumen</a>
                                                                     @else
                                                                         Tidak Ada Dokumen
                                                                     @endif
@@ -288,4 +323,30 @@
     <script src="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js') }}"></script>
     <script src="{{ asset('library/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ asset('library/selectric/public/jquery.selectric.min.js') }}"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const ikNamaInput = document.getElementById("ik_nama");
+            const evaldCapaianInput = document.getElementById("evald_capaian");
+            const evaldCapaianHint = document.getElementById("evald_capaian_hint");
+    
+            // Menambahkan event listener untuk perubahan pada input Indikator Kinerja
+            // Karena input hanya dibaca saja (readonly), jenis ketercapaian ditentukan berdasarkan data yang sudah ada
+            const jenis = "{{ $targetIndikator->indikatorKinerja->ik_ketercapaian }}";
+    
+            if (jenis === "nilai") {
+                evaldCapaianInput.placeholder = "Indikator ini menggunakan ketercapaian nilai";
+                evaldCapaianHint.textContent = "Isi nilai ketercapaian seperti 1.2 atau 1.3.";
+            } else if (jenis === "persentase") {
+                evaldCapaianInput.placeholder = "Indikator ini menggunakan ketercapaian persentase";
+                evaldCapaianHint.textContent = "Isi angka dalam rentang 0 hingga 100.";
+            } else if (jenis === "ketersediaan") {
+                evaldCapaianInput.placeholder = "Indikator ini menggunakan ketercapaian ketersediaan";
+                evaldCapaianHint.textContent = "Isi dengan 'Ada' atau 'Tidak'.";
+            } else {
+                evaldCapaianInput.placeholder = "Isi Capaian";
+                evaldCapaianHint.textContent = "Isi sesuai dengan jenis ketercapaian.";
+            }
+        });
+    </script>
 @endpush

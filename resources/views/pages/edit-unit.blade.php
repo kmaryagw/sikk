@@ -65,7 +65,10 @@
                                             </div>
                                             <select class="form-control" name="unit_kerja">
                                                 @foreach ($unit_kerjas as $unit_kerja)
-                                                    <option value="{{ $unit_kerja }}" {{ old('unit_kerja', $unit->unit_kerja) == $unit_kerja ? 'selected' : '' }}>{{ $unit_kerja }}</option>
+                                                    <option value="{{ $unit_kerja }}" 
+                                                        {{ old('th_is_aktif', $unit->unit_kerja) == $unit_kerja ? 'selected' : '' }}>
+                                                        {{ $unit_kerja == 'y' ? 'Ya' : 'Tidak' }}
+                                                    </option>
                                                 @endforeach
                                             </select>
                                         </div>

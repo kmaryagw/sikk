@@ -49,4 +49,20 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    /**
+     * Relasi ke tabel program_kerja
+     */
+    public function programStudi()
+    {
+        return $this->belongsTo(program_studi::class, 'prodi_id', 'prodi_id');
+    }
+
+    /**
+     * Relasi ke tabel unit_kerja
+     */
+    public function unitKerja()
+    {
+        return $this->belongsTo(UnitKerja::class, 'unit_id', 'unit_id');
+    }
 }

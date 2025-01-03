@@ -17,11 +17,6 @@
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4>Data Evaluasi dari Prodi: <span class="badge badge-info">{{ $Evaluasi->targetIndikator->prodi->nama_prodi }}</span> Tahun: <span class="badge badge-primary">{{ $Evaluasi->targetIndikator->tahunKerja->th_tahun }}</span></h4>
-                @if (Auth::user()->role == 'admin')
-                    <a class="btn btn-primary" href="{{ route('evaluasi.create-detail', ['eval_id' => $Evaluasi->eval_id]) }}">
-                        <i class="fa-solid fa-plus"></i> Tambah Evaluasi
-                    </a>
-                @endif
             </div>
         
             @if($targetIndikators->isEmpty())
@@ -70,19 +65,19 @@
                                             {{ $target->ti_target }}
                                         @endif
                                     </td> 
-                                    <td>{{ $target->ti_keterangan }}                                                                      
+                                    <td>{{ $target->ti_keterangan }}</td>  
+                                    <td>{{ $evaluasiDetail->evald_capaian ?? 'Belum ada capaian' }}</td>                                                                 
                                     <td>
                                         @if (strtolower($evaluasiDetail->evald_status) === 'tercapai')
                                             <span class="text-success"><i class="fa-solid fa-check-circle"></i> Tercapai</span>
                                         @elseif (strtolower($evaluasiDetail->evald_status) === 'tidak tercapai')
                                             <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Tidak Tercapai</span>
                                         @elseif (strtolower($evaluasiDetail->evald_status) === 'tidak terlaksana')
-                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak Tercapai</span>
+                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak Terlaksana</span>
                                         @else
-                                            <span></i>Belum ada capaian</span>
+                                            <span></i>Belum ada status</span>
                                         @endif
                                     </td>                                        
-                                    <td>{{ $evaluasiDetail->evald_status ?? 'Belum ada status' }}</td>
                                     <td class="text-center">
                                         <a href="{{ route('evaluasi.edit-detail', ['eval_id' => $Evaluasi->eval_id]) }}" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Isi/Ubah</a>
                                         @if($Evaluasis->isNotEmpty())

@@ -45,8 +45,8 @@ class RenstraController extends Controller
         $request->validate([
             'ren_nama' => 'required|string|max:100',
             'ren_pimpinan' => 'required|string|max:100',
-            'ren_periode_awal' => 'required|integer|min:1900|max:' . date('Y'),
-            'ren_periode_akhir' => 'required|integer|min:1900|max:2027',
+            'ren_periode_awal' => 'required|integer|min:1900|max:2100',
+            'ren_periode_akhir' => 'required|integer|min:1900|max:2100',
             'ren_is_aktif' => 'required|in:y,n',
         ]);
 
@@ -79,8 +79,8 @@ class RenstraController extends Controller
     $request->validate([
         'ren_nama' => 'required|string|max:100',
         'ren_pimpinan' => 'required|string|max:100',
-        'ren_periode_awal' => 'required|integer|min:1900|max:' . date('Y'),
-        'ren_periode_akhir' => 'required|integer|min:1900|max:2027',
+        'ren_periode_awal' => 'required|integer|min:1900|max:2100',
+        'ren_periode_akhir' => 'required|integer|min:1900|max:2100',
         'ren_is_aktif' => 'required|in:y,n',
     ]);
 

@@ -101,7 +101,10 @@
                                             </div>
                                             <select class="form-control" name="ren_is_aktif">
                                                 @foreach ($ren_is_aktifs as $ren_is_aktif)
-                                                    <option value="{{ $ren_is_aktif }}" {{ old('ren_is_aktif', $renstra->ren_is_aktif) == $ren_is_aktif ? 'selected' : '' }}>{{ $ren_is_aktif }}</option>
+                                                    <option value="{{ $ren_is_aktif }}" 
+                                                        {{ old('th_is_aktif', $renstra->ren_is_aktif) == $ren_is_aktif ? 'selected' : '' }}>
+                                                        {{ $ren_is_aktif == 'y' ? 'Ya' : 'Tidak' }}
+                                                    </option>
                                                 @endforeach
                                             </select>
                                         </div>

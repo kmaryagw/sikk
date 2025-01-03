@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             Program_studiSeeder::class,
             UnitKerjaSeeder::class,
             UserSeeder::class,
+            RenstraSeeder::class,
             Tahun_kerjaSeeder::class,
             StandarSeeder::class,
             Indikator_kinerjaSeeder::class,
@@ -36,7 +37,6 @@ class DatabaseSeeder extends Seeder
             RencanaKerjaSeeder::class,
             MonitoringSeeder::class,
             RencanaKerjaPelaksanaanSeeder::class,
-            Periode_monevSeeder::class,
         ]);
     }
 

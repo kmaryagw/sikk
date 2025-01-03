@@ -116,7 +116,7 @@
                                         <!-- Submit Button -->
                                         <div class="form-group">
                                             <button type="submit" class="btn btn-primary">Simpan</button>
-                                                <a href="{{ route('realisasirenja.showRealisasi', $rencanaKerja->rk_id) }}" class="btn btn-danger">Kembali</a>
+                                            <a href="{{ route('realisasirenja.showRealisasi', $rencanaKerja->rk_id) }}" class="btn btn-danger">Kembali</a>
                                         </div>
                                     </form>
                                 </div>

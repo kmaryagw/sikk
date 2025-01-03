@@ -34,9 +34,12 @@ class ProgramKerjaController extends Controller
                     ->where('unit_kerja.unit_kerja', 'y');
             })
             ->leftJoin('tahun_kerja', function ($join) {
-                $join->on('tahun_kerja.th_id', '=', 'rencana_kerja.th_id')
-                    ->where('tahun_kerja.th_is_aktif', 'y');
+                $join->on('tahun_kerja.th_id', '=', 'rencana_kerja.th_id');
             });
+
+        $query->where(function ($query) {
+            $query->where('tahun_kerja.th_is_aktif', 'y');
+        });
 
         if (Auth::user()->role == 'unit kerja') {
             $query->where('rencana_kerja.unit_id', Auth::user()->unit_id);

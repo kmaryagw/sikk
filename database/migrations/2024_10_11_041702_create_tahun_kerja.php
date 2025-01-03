@@ -15,9 +15,9 @@ return new class extends Migration
             $table->string('th_id', 50)->primary();
             $table->year('th_tahun');
             $table->enum('th_is_aktif', ['y', 'n']);
-            $table->string('ren_id', 50)->nullable();
+            $table->string('ren_id', 50);
 
-            $table->foreign('ren_id')->references('ren_id')->on('renstra')->onDelete('set null');
+            $table->foreign('ren_id')->references('ren_id')->on('renstra')->onDelete('cascade');
 
             $table->timestamps();
         });

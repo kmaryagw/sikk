@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Routing\Controller;
 use App\Models\RealisasiRenja;
 use App\Models\RencanaKerja;
+use App\Models\tahun_kerja;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Storage;
@@ -16,22 +18,35 @@ class RealisasiRenjaController extends Controller
     {
         $title = 'Data Realisasi Renja';
         $q = $request->query('q');
+        $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
 
-        $rencanaKerjas = RencanaKerja::with('tahunKerja', 'UnitKerja','targetIndikators.indikatorKinerja')
+        // Menyaring data berdasarkan tahun yang aktif
+        $query = RencanaKerja::with('tahunKerja', 'UnitKerja', 'targetIndikators.indikatorKinerja')
             ->where('rk_nama', 'like', '%' . $q . '%')
-            ->orderBy('rk_nama', 'asc')
-            ->paginate(10);
+            ->whereHas('tahunKerja', function ($subQuery) {
+                $subQuery->where('th_is_aktif', 'y');
+            })
+            ->orderBy('rk_nama', 'asc');
+
+        if (Auth::user()->role == 'unit kerja') {
+            $query->whereHas('UnitKerja', function ($subQuery) {
+                $subQuery->where('unit_id', Auth::user()->unit_id);
+            });
+        }
+
+        $rencanaKerjas = $query->paginate(10);
         $no = $rencanaKerjas->firstItem();
 
         return view('pages.index-realisasirenja', [
             'title' => $title,
             'rencanaKerjas' => $rencanaKerjas,
             'q' => $q,
+            'tahuns' => $tahuns,
             'no' => $no,
             'type_menu' => 'realisasirenja',
-        ]);
+        ]); 
     }
-
+    
     public function showRealisasi($rk_id)
     {
         $rk_id = explode(',', $rk_id);

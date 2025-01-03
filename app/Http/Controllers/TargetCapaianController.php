@@ -125,44 +125,58 @@ class TargetCapaianController extends Controller
     }
 
     public function edit(target_indikator $targetcapaian)
-    {
-        $title = 'Edit Target Capaian';
-        
-        $indikatorkinerjautamas = IndikatorKinerja::orderBy('ik_nama')->get();
-        $prodis = program_studi::orderBy('nama_prodi')->get();
-        $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
+{
+    $title = 'Edit Target Capaian';
 
-        return view('pages.edit-targetcapaian', [
-            'title' => $title,
-            'targetcapaian' => $targetcapaian,
-            'indikatorkinerjautamas' => $indikatorkinerjautamas,
-            'prodis' => $prodis,
-            'tahuns' => $tahuns,
-            'type_menu' => 'targetcapaian',
-        ]);
+    $indikatorkinerjas = IndikatorKinerja::orderBy('ik_nama')->get();
+    $prodis = program_studi::orderBy('nama_prodi')->get();
+    $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
+
+    return view('pages.edit-targetcapaian', [
+        'title' => $title,
+        'targetcapaian' => $targetcapaian,
+        'indikatorkinerjas' => $indikatorkinerjas,
+        'prodis' => $prodis,
+        'tahuns' => $tahuns,
+        'type_menu' => 'targetcapaian',
+    ]);
+}
+
+public function update(target_indikator $targetcapaian, Request $request)
+{
+    $indikatorKinerja = IndikatorKinerja::find($request->ik_id);
+
+    $validationRules = [
+        'ik_id' => 'required|string',
+        'ti_target' => 'required',
+        'ti_keterangan' => 'required',
+        'prodi_id' => 'required|string',
+        'th_id' => 'required|string',
+    ];
+
+    if ($indikatorKinerja) {
+        if ($indikatorKinerja->ik_ketercapaian == 'nilai') {
+            $validationRules['ti_target'] = 'required|numeric|min:0';
+        } elseif ($indikatorKinerja->ik_ketercapaian == 'persentase') {
+            $validationRules['ti_target'] = 'required|numeric|min:0|max:100';
+        } elseif ($indikatorKinerja->ik_ketercapaian == 'ketersediaan') {
+            $validationRules['ti_target'] = 'required|string';
+        }
     }
 
-    public function update(target_indikator $targetcapaian, Request $request)
-    {
-        $request->validate([
-            'ik_id' => 'required|string',
-            'ti_target' => 'required',
-            'ti_keterangan' => 'required',
-            'prodi_id' => 'required|string',
-            'th_id' => 'required|string',
-        ]);
+    $request->validate($validationRules);
 
-        $targetcapaian->ik_id = $request->ik_id;
-        $targetcapaian->ti_target = $request->ti_target;
-        $targetcapaian->ti_keterangan = $request->ti_keterangan;
-        $targetcapaian->prodi_id = $request->prodi_id;
-        $targetcapaian->th_id = $request->th_id;
-        $targetcapaian->save();
+    $targetcapaian->ik_id = $request->ik_id;
+    $targetcapaian->ti_target = $request->ti_target;
+    $targetcapaian->ti_keterangan = $request->ti_keterangan;
+    $targetcapaian->prodi_id = $request->prodi_id;
+    $targetcapaian->th_id = $request->th_id;
+    $targetcapaian->save();
 
-        Alert::success('Sukses', 'Data Berhasil Diperbarui');
+    Alert::success('Sukses', 'Data Berhasil Diperbarui');
 
-        return redirect()->route('targetcapaian.index');
-    }
+    return redirect()->route('targetcapaian.index');
+}
 
     public function destroy(target_indikator $targetcapaian)
     {

@@ -56,6 +56,10 @@ class TahunController extends Controller
             'ren_id' => 'required',
             
         ]);
+
+        if ($request->th_is_aktif == 'y') {
+            tahun_kerja::where('th_is_aktif', 'y')->update(['th_is_aktif' => 'n']);
+        }
     
         $customPrefix = 'TH';
         $timestamp = time();
@@ -95,7 +99,13 @@ class TahunController extends Controller
     {
         $request->validate([
             'th_tahun' => 'required',
+            'th_is_aktif' => 'required|in:y,n',
+            'ren_id' => 'required',
         ]);
+
+        if ($request->th_is_aktif == 'y') {
+            tahun_kerja::where('th_is_aktif', 'y')->update(['th_is_aktif' => 'n']);
+        }
     
         $tahun->th_tahun = $request->th_tahun; 
         $tahun->ren_id = $request->ren_id;

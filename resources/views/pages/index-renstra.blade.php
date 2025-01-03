@@ -39,7 +39,7 @@
                                 <th>Pimpinan Renstra</th>
                                 <th>Periode Awal Renstra</th>
                                 <th>Periode Akhir Renstra</th>
-                                <th>Renstra is Active</th>
+                                <th>Status Aktif</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>

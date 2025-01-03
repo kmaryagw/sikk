@@ -51,11 +51,13 @@
                                                     <i class="fa-solid fa-bullseye"></i>
                                                 </div>
                                             </div>
-                                            <select class="form-control" name="ik_id">
+                                            <select class="form-control" name="ik_id" id="ik_id" required>
                                                 <option value="" disabled>Pilih Indikator Kinerja</option>
-                                                @foreach ($indikatorkinerjautamas as $indikatorkinerjautama)
-                                                    <option value="{{ $indikatorkinerjautama->ik_id }}" {{ $indikatorkinerjautama->ik_id == $targetcapaian->ik_id ? 'selected' : '' }}>
-                                                        {{ $indikatorkinerjautama->ik_nama }}
+                                                @foreach ($indikatorkinerjas as $indikatorkinerja)
+                                                    <option value="{{ $indikatorkinerja->ik_id }}" 
+                                                        data-jenis="{{ $indikatorkinerja->ik_ketercapaian }}"
+                                                        {{ $indikatorkinerja->ik_id == $targetcapaian->ik_id ? 'selected' : '' }}>
+                                                        {{ $indikatorkinerja->ik_nama }}
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -70,8 +72,11 @@
                                                     <i class="fa-solid fa-award"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="ti_target" value="{{ old('ti_target', $targetcapaian->ti_target) }}"/>
+                                            <input type="text" id="ti_target" name="ti_target" class="form-control" 
+                                                placeholder="Isi Target Capaian" 
+                                                value="{{ old('ti_target', $targetcapaian->ti_target) }}" required>
                                         </div>
+                                        <small id="ti_target_hint" class="form-text text-muted">Isi sesuai dengan jenis ketercapaian.</small>
                                     </div>
 
                                     <div class="form-group">
@@ -97,7 +102,8 @@
                                             <select class="form-control" name="prodi_id">
                                                 <option value="" disabled>Pilih Prodi</option>
                                                 @foreach ($prodis as $prodi)
-                                                    <option value="{{ $prodi->prodi_id }}" {{ $prodi->prodi_id == $targetcapaian->prodi_id ? 'selected' : '' }}>
+                                                    <option value="{{ $prodi->prodi_id }}" 
+                                                        {{ old('prodi_id', $targetcapaian->prodi_id) == $prodi->prodi_id ? 'selected' : '' }}>
                                                         {{ $prodi->nama_prodi }}
                                                     </option>
                                                 @endforeach
@@ -116,7 +122,8 @@
                                             <select class="form-control" name="th_id" id="th_id" required>
                                                 <option value="" disabled>Pilih Tahun</option>
                                                 @foreach ($tahuns as $tahun)
-                                                    <option value="{{ $tahun->th_id }}" {{ $tahun->th_id == $targetcapaian->th_id ? 'selected' : '' }}>
+                                                    <option value="{{ $tahun->th_id }}" 
+                                                        {{ old('th_id', $targetcapaian->th_id) == $tahun->th_id ? 'selected' : '' }}>
                                                         {{ $tahun->th_tahun }}
                                                     </option>
                                                 @endforeach
@@ -125,7 +132,7 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <button type="submit" class="btn btn-primary">Update</button>
+                                        <button type="submit" class="btn btn-primary">Simpan</button>
                                         <a href="{{ url('targetcapaian') }}" class="btn btn-danger">Kembali</a>
                                     </div>
                                 </form>
@@ -141,17 +148,31 @@
 
 @push('scripts')
     <!-- JS Libraries -->
-    <script src="{{ asset('library/cleave.js/dist/cleave.min.js') }}"></script>
-    <script src="{{ asset('library/cleave.js/dist/addons/cleave-phone.us.js') }}"></script>
-    <script src="{{ asset('library/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
-    <script src="{{ asset('library/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js') }}"></script>
-    <script src="{{ asset('library/bootstrap-timepicker/js/bootstrap-timepicker.min.js') }}"></script>
-    <script src="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js') }}"></script>
-    <script src="{{ asset('library/select2/dist/js/select2.full.min.js') }}"></script>
-    <script src="{{ asset('library/selectric/public/jquery.selectric.min.js') }}"></script>
-
     @include('sweetalert::alert')
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const ikSelect = document.getElementById("ik_id");
+            const tiTargetInput = document.getElementById("ti_target");
+            const tiTargetHint = document.getElementById("ti_target_hint");
 
-    <!-- Page Specific JS File -->
-    <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>
+            ikSelect.addEventListener("change", function () {
+                const selectedOption = this.options[this.selectedIndex];
+                const jenis = selectedOption.getAttribute("data-jenis");
+
+                if (jenis === "nilai") {
+                    tiTargetInput.placeholder = "Indikator ini menggunakan ketercapaian nilai";
+                    tiTargetHint.textContent = "Isi nilai ketercapaian seperti 1.2 atau 1.3.";
+                } else if (jenis === "persentase") {
+                    tiTargetInput.placeholder = "Indikator ini menggunakan ketercapaian persentase";
+                    tiTargetHint.textContent = "Isi angka dalam rentang 0 hingga 100.";
+                } else if (jenis === "ketersediaan") {
+                    tiTargetInput.placeholder = "Indikator ini menggunakan ketercapaian ketersediaan";
+                    tiTargetHint.textContent = "Isi dengan 'Ada' atau 'Tidak'.";
+                } else {
+                    tiTargetInput.placeholder = "Isi Target Capaian";
+                    tiTargetHint.textContent = "Isi sesuai dengan jenis ketercapaian.";
+                }
+            });
+        });
+    </script>
 @endpush

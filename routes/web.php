@@ -53,8 +53,8 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/evaluasi/final/{id}', [EvaluasiController::class, 'final'])->name('evaluasi.final');
     Route::get('evaluasi/{eval_id}/index-detail', [EvaluasiController::class, 'indexDetail'])->name('evaluasi.index-detail');
-    Route::get('evaluasi/{eval_id}/create-detail', [EvaluasiController::class, 'createDetail'])->name('evaluasi.create-detail');
-    Route::post('/evaluasi/{eval_id}/store-detail', [EvaluasiController::class, 'storeDetail'])->name('evaluasi.store-detail');
+    // Route::get('evaluasi/{eval_id}/create-detail', [EvaluasiController::class, 'createDetail'])->name('evaluasi.create-detail');
+    // Route::post('/evaluasi/{eval_id}/store-detail', [EvaluasiController::class, 'storeDetail'])->name('evaluasi.store-detail');
     Route::get('evaluasi/{eval_id}/edit-detail', [EvaluasiController::class, 'editDetail'])->name('evaluasi.edit-detail');
     Route::put('evaluasi/{eval_id}/update-detail', [EvaluasiController::class, 'updateDetail'])->name('evaluasi.update-detail');
     Route::delete('evaluasi/destroy-detail/{eval_id}', [EvaluasiController::class, 'destroyDetail'])->name('evaluasi.destroy-detail');
@@ -99,8 +99,6 @@ Route::middleware('auth')->group(function () {
         return view('pages.formaudit', ['type_menu' => 'formaudit']);
     });
 });
-
-
 
 // Route untuk menyimpan Realisasi Renja
 // Route::post('/realisasirenja/store', [RealisasiRenjaController::class, 'store'])->name('realisasirenja.store');

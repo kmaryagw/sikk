@@ -20,7 +20,7 @@
                         <div class="col-auto">
                             <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>
-                        @if (Auth::user()->role == 'admin' || Auth::user()->role == 'prodi')
+            
                         <div class="col-auto">
                             <select class="form-control" name="unit_id">
                                 <option value="">Semua Unit Kerja</option>
@@ -42,7 +42,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        @endif
+                        
                         <div class="col-auto">
                             <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
                         </div>
