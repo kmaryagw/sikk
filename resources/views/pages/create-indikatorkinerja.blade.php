@@ -117,13 +117,12 @@
                                         </div>
                                     </div>
 
-                                        <div class="form-group">
-                                            <label>Nama Indikator Kinerja</label>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <div class="input-group-text">
-                                                        <i class="fa-solid fa-bullseye"></i>
-                                                    </div>
+                                    <div class="form-group">
+                                        <label for="ik_jenis">Jenis Indikator Kinerja</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-bullseye"></i>
                                                 </div>
                                             </div>
                                             <select id="ik_jenis" name="ik_jenis" 

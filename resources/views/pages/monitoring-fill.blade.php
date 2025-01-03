@@ -126,7 +126,7 @@
                                 <td class="text-wrap">${rl.rkr_deskripsi}</td>
                                 <td>
                                     <div class="progress" style="height: 20px;">
-                                        <div class="progress-bar bg-success" role="progressbar" style="width: ${rl.rkr_capaian}%;" 
+                                        <div class="progress-bar bg-danger" role="progressbar" style="width: ${rl.rkr_capaian}%;" 
                                             aria-valuenow="${rl.rkr_capaian}" aria-valuemin="0" aria-valuemax="100">
                                             ${rl.rkr_capaian}%
                                         </div>
@@ -138,7 +138,7 @@
                                 </td>
                                 <td>
                                     ${rl.rkr_file ? `<a class="btn btn-success btn-sm" href="/storage/${rl.rkr_file}" target="_blank">
-                                                    <i class="fa-solid fa-file"></i> Lihat Dokumen
+                                                    <i class="fa-solid fa-eye"></i> Lihat Dokumen
                                                 </a>` : 'Tidak Ada Dokumen'}
                                 </td>
                             </tr>`;
@@ -155,32 +155,74 @@
                             <input type="hidden" name="rk_id" value="${rk}">
                             <div class="form-group text-left">
                                 <label for="mtg_capaian">Capaian</label>
-                                <input type="number" name="mtg_capaian" class="form-control" value="${capaian}" required>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="fa-solid fa-percent"></i>
+                                        </div>
+                                    </div>
+                                    <input type="number" name="mtg_capaian" class="form-control" value="${capaian}" required>
+                                </div>
                             </div>
                             <div class="form-group text-left">
                                 <label for="mtg_kondisi">Kondisi</label>
-                                <input type="text" name="mtg_kondisi" class="form-control" value="${kondisi}" required>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="fa-solid fa-info-circle"></i>
+                                        </div>
+                                    </div>
+                                    <input type="text" name="mtg_kondisi" class="form-control" value="${kondisi}" required>
+                                </div>
                             </div>
                             <div class="form-group text-left">
                                 <label for="mtg_kendala">Kendala</label>
-                                <input type="text" name="mtg_kendala" class="form-control" value="${kendala}">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="fa-solid fa-exclamation-triangle"></i>
+                                        </div>
+                                    </div>
+                                    <input type="text" name="mtg_kendala" class="form-control" value="${kendala}">
+                                </div>
                             </div>
                             <div class="form-group text-left">
                                 <label for="mtg_tindak_lanjut">Tindak Lanjut</label>
-                                <input type="text" name="mtg_tindak_lanjut" class="form-control" value="${tindakLanjut}">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="fa-solid fa-tasks"></i>
+                                        </div>
+                                    </div>
+                                    <input type="text" name="mtg_tindak_lanjut" class="form-control" value="${tindakLanjut}">
+                                </div>
                             </div>
                             <div class="form-group text-left">
                                 <label for="mtg_tindak_lanjut_tanggal">Tanggal Tindak Lanjut</label>
-                                <input type="date" name="mtg_tindak_lanjut_tanggal" class="form-control" value="${tindakLanjutTanggal}">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="fa-solid fa-calendar"></i>
+                                        </div>
+                                    </div>
+                                    <input type="date" name="mtg_tindak_lanjut_tanggal" class="form-control" value="${tindakLanjutTanggal}">
+                                </div>
                             </div>
                             <div class="form-group text-left">
                                 <label for="mtg_status">Status</label>
-                                <select class="form-control" name="mtg_status" id="mtg_status" required>
-                                    <option value="y" ${status === 'y' ? 'selected' : ''}>Tercapai</option>
-                                    <option value="n" ${status === 'n' ? 'selected' : ''}>Belum Tercapai</option>
-                                    <option value="t" ${status === 't' ? 'selected' : ''}>Tidak Terlaksana</option>
-                                    <option value="p" ${status === 'p' ? 'selected' : ''}>Perlu tindak lanjut</option>
-                                </select>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="fa-solid fa-calendar"></i>
+                                        </div>
+                                    </div>
+                                    <select class="form-control" name="mtg_status" id="mtg_status" required>
+                                        <option value="y" ${status === 'y' ? 'selected' : ''}>Tercapai</option>
+                                        <option value="n" ${status === 'n' ? 'selected' : ''}>Belum Tercapai</option>
+                                        <option value="t" ${status === 't' ? 'selected' : ''}>Tidak Terlaksana</option>
+                                        <option value="p" ${status === 'p' ? 'selected' : ''}>Perlu tindak lanjut</option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="form-group text-left" id="periodeContainer" style="display: none;">
                                 <label>Pilih Periode Monev</label>
@@ -195,14 +237,27 @@
                             </div>
                             <div class="form-group text-left" id="flagContainer" style="display: none;">
                                 <label for="mtg_flag">Tandai Monitoring</label>
-                                <select name="mtg_flag" id="mtg_flag" class="form-control">
-                                    <option value="0" ${flag === '0' ? 'selected' : ''}>Belum Ditandai</option>
-                                    <option value="1" ${flag === '1' ? 'selected' : ''}>Sudah Ditandai</option>
-                                </select>
+                                <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="fa-solid fa-flag"></i>
+                                        </div>
+                                    </div>
+                                    <select name="mtg_flag" id="mtg_flag" class="form-control">
+                                        <option value="0" ${flag === '0' ? 'selected' : ''}>Belum Ditandai</option>
+                                        <option value="1" ${flag === '1' ? 'selected' : ''}>Sudah Ditandai</option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="form-group text-left">
                                 <label for="mtg_bukti">Bukti</label>
-                                <input class="form-control" type="file" name="mtg_bukti" />
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="fa-solid fa-file"></i>
+                                        </div>
+                                    </div>
+                                    <input class="form-control" type="file" name="mtg_bukti" />
+                                </div>
                             </div>
                             ${fileBuktiHTML}
                             <div class="mt-4">

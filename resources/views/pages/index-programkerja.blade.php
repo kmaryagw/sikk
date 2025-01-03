@@ -80,12 +80,16 @@
                                     <td>
                                         @if($programkerja->targetindikators->isNotEmpty())
                                             @foreach ($programkerja->targetindikators as $iku)
-                                                <span class="badge badge-success">{{ $iku->indikatorKinerja->ik_nama }}</span>
+                                                @if(strtolower($iku->indikatorKinerja->ik_jenis === 'IKU'))
+                                                    <span class="badge badge-success">{{ $iku->indikatorKinerja->ik_nama }}</span>
+                                                @elseif(strtolower($iku->indikatorKinerja->ik_jenis === 'IKT'))
+                                                    <span class="badge badge-primary">{{ $iku->indikatorKinerja->ik_nama }}</span>
+                                                @endif
                                             @endforeach
                                         @else
                                             <span class="text-muted">Tidak ada Indikator Kinerja</span>
                                         @endif
-                                    </td> 
+                                    </td>                                        
                                     <td>
                                         @if($programkerja->periodes->isNotEmpty())
                                             @foreach ($programkerja->periodes as $periode)

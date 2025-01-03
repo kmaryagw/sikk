@@ -77,10 +77,6 @@
                                     </td>                                    
                                     <td>{{ $indikatorkinerja->ik_ketercapaian }}</td>
 
-
-                        
-                         
-
                                     @if (Auth::user()->role== 'admin')
                                     <td>
                                         

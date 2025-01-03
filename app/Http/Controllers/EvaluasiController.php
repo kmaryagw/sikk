@@ -30,8 +30,9 @@ class EvaluasiController extends Controller
 
         $no = $evaluasis->firstItem();
 
-        $prodis = program_studi::all();
-        $tahuns = tahun_kerja::all();
+        $prodis = program_studi::orderBy('nama_prodi', 'asc')->get();
+        $tahuns = tahun_kerja::where('th_is_aktif', 'y')->orderBy('th_tahun', 'asc')->get();
+
 
         return view('pages.index-evaluasi', [
             'title' => $title,

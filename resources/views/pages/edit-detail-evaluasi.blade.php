@@ -62,19 +62,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                    {{-- <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="ik_nama">Indikator Kinerja</label>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text">
-                                                        <i class="fa-solid fa-bullseye"></i>
-                                                    </span>
-                                                </div>
-                                                <input type="text" id="ik_nama" class="form-control" value="{{ $targetIndikator->indikatorKinerja->ik_nama }}" readonly>
-                                            </div>
-                                        </div>
-                                    </div> --}}
 
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -119,19 +106,6 @@
                                         </div>
                                     </div>
 
-                                    {{-- <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="evald_capaian">Capaian</label>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text">
-                                                        <i class="fa-solid fa-percent"></i>
-                                                    </span>
-                                                </div>
-                                                <input type="text" class="form-control" name="evald_capaian" value="{{ $evaluasiDetail->evald_capaian }}">
-                                            </div>
-                                        </div>
-                                    </div> --}}
 
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -228,16 +202,34 @@
                                                             <th>Kondisi</th>
                                                             <th>Kendala</th>
                                                             <th>Tindak Lanjut</th>
+                                                            <th>Tanggal Tindak Lanjut</th>
+                                                            <th>Status</th>
                                                             <th>Bukti</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         @foreach ($program->monitoring as $monitoring)
                                                             <tr>
-                                                                <td>{{ $monitoring->mtg_capaian }}</td>
+                                                                <td>
+                                                                    <div class="progress" style="height: 20px;">
+                                                                        <div class="progress-bar" role="progressbar" style="width: {{ $monitoring->mtg_capaian }}%;" aria-valuenow="{{ $monitoring->rmtg_capaian }}" aria-valuemin="0" aria-valuemax="100">{{ $monitoring->mtg_capaian }}%</div>
+                                                                    </div>
+                                                                </td>
                                                                 <td>{{ $monitoring->mtg_kondisi }}</td>
                                                                 <td>{{ $monitoring->mtg_kendala }}</td>
                                                                 <td>{{ $monitoring->mtg_tindak_lanjut }}</td>
+                                                                <td>{{ $monitoring->mtg_tindak_lanjut_tanggal }}</td>
+                                                                <td>
+                                                                    @if (strtolower($monitoring->mtg_status) === 'y')
+                                                                        <span class="text-success"><i class="fa-solid fa-check-circle"></i> Tercapai</span>
+                                                                    @elseif (strtolower($monitoring->mtg_status) === 'n')
+                                                                        <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Belum Tercapai</span>
+                                                                    @elseif (strtolower($monitoring->mtg_status) === 'p')
+                                                                        <span class="text-primary"><i class="fa-solid fa-arrow-circle-right"></i> Perlu Tindak Lanjut</span>
+                                                                    @else
+                                                                        <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak Terlaksana</span>
+                                                                    @endif
+                                                                </td>
                                                                 <td>
                                                                     @if ($monitoring->mtg_bukti)
                                                                         <a href="{{ Storage::url($monitoring->mtg_bukti) }}" target="_blank" class="btn btn-success btn-sm"><i class="fa-solid fa-eye"></i> Lihat Bukti</a>
@@ -280,7 +272,7 @@
                                                                 <td>{{ $real->rkr_tanggal ? \Carbon\Carbon::parse($real->rkr_tanggal)->format('d-m-Y') : '-' }}</td>
                                                                 <td>
                                                                     @if($real->rkr_url)
-                                                                        <a href="{{ $real->rkr_url }}" target="_blank">{{ $real->rkr_url }}</a>
+                                                                        <a href="{{ $real->rkr_url}}" target="_blank" class="btn btn-link">Lihat URL</a>
                                                                     @else
                                                                         Tidak Ada URL
                                                                     @endif
@@ -330,8 +322,6 @@
             const evaldCapaianInput = document.getElementById("evald_capaian");
             const evaldCapaianHint = document.getElementById("evald_capaian_hint");
     
-            // Menambahkan event listener untuk perubahan pada input Indikator Kinerja
-            // Karena input hanya dibaca saja (readonly), jenis ketercapaian ditentukan berdasarkan data yang sudah ada
             const jenis = "{{ $targetIndikator->indikatorKinerja->ik_ketercapaian }}";
     
             if (jenis === "nilai") {

@@ -66,7 +66,7 @@
                                         @endif
                                     </td> 
                                     <td>{{ $target->ti_keterangan }}</td>  
-                                    <td>{{ $evaluasiDetail->evald_capaian ?? 'Belum ada capaian' }}</td>                                                                 
+                                    <td>{{ $evaluasiDetail->evald_capaian ?? 'Belum ada capaian' }}</td>                                                                
                                     <td>
                                         @if (strtolower($evaluasiDetail->evald_status) === 'tercapai')
                                             <span class="text-success"><i class="fa-solid fa-check-circle"></i> Tercapai</span>
