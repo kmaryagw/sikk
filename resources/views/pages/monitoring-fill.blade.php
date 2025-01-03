@@ -237,7 +237,8 @@
                             </div>
                             <div class="form-group text-left" id="flagContainer" style="display: none;">
                                 <label for="mtg_flag">Tandai Monitoring</label>
-                                <div class="input-group-prepend">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
                                         <div class="input-group-text">
                                             <i class="fa-solid fa-flag"></i>
                                         </div>
