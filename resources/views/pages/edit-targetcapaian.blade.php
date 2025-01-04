@@ -27,7 +27,6 @@
                 <div class="row">
                     <div class="col-12 col-lg-12">
                         <div class="card">
-                            
                             <div class="card-body">
                                 @if ($errors->any())
                                     <div class="alert alert-danger">
@@ -57,41 +56,30 @@
                                                     <select class="form-control" name="ik_id" required>
                                                         <option value="" disabled>Pilih Indikator Kinerja</option>
                                                         @foreach ($indikatorkinerjautamas as $indikatorkinerjautama)
-                                                            <option value="{{ $indikatorkinerjautama->ik_id }}" 
+                                                            <option value="{{ $indikatorkinerjautama->ik_id }}"
+                                                                data-jenis="{{ $indikatorkinerjautama->ik_jenis }}"
                                                                 {{ $indikatorkinerjautama->ik_id == $targetcapaian->ik_id ? 'selected' : '' }}>
-                                                                {{ $indikatorkinerjautama->ik_nama }}
+                                                                {{ $indikatorkinerjautama->ik_kode }} - {{ $indikatorkinerjautama->ik_nama }}
                                                             </option>
                                                         @endforeach
                                                     </select>
                                                 </div>
                                             </div>
 
-                                    <div class="form-group">
-                                        <label>Target Capaian</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <i class="fa-solid fa-award"></i>
+                                            <div class="form-group">
+                                                <label>Target Capaian</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fa-solid fa-award"></i>
+                                                        </div>
+                                                    </div>
+                                                    <input type="text" id="ti_target" name="ti_target" class="form-control" 
+                                                        placeholder="Isi Target Capaian" 
+                                                        value="{{ old('ti_target', $targetcapaian->ti_target) }}" required>
                                                 </div>
+                                                <small id="ti_target_hint" class="form-text text-muted">Isi sesuai dengan jenis ketercapaian.</small>
                                             </div>
-                                            <input type="text" id="ti_target" name="ti_target" class="form-control" 
-                                                placeholder="Isi Target Capaian" 
-                                                value="{{ old('ti_target', $targetcapaian->ti_target) }}" required>
-                                        </div>
-                                        <small id="ti_target_hint" class="form-text text-muted">Isi sesuai dengan jenis ketercapaian.</small>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label>Keterangan</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <i class="fa-solid fa-clipboard-list"></i>
-                                                </div>
-                                            </div>
-                                            <textarea class="form-control" name="ti_keterangan" required>{{ old('ti_keterangan', $targetcapaian->ti_keterangan) }}</textarea>
-                                        </div>
-                                    </div>
 
                                             <div class="form-group">
                                                 <label>Prodi</label>
@@ -185,7 +173,7 @@
                     tiTargetHint.textContent = "Isi angka dalam rentang 0 hingga 100.";
                 } else if (jenis === "ketersediaan") {
                     tiTargetInput.placeholder = "Indikator ini menggunakan ketercapaian ketersediaan";
-                    tiTargetHint.textContent = "Isi dengan 'Ada' atau 'Tidak'.";
+                    tiTargetHint.textContent = "Isi dengan 'Ada' atau 'Draft'.";
                 } else {
                     tiTargetInput.placeholder = "Isi Target Capaian";
                     tiTargetHint.textContent = "Isi sesuai dengan jenis ketercapaian.";

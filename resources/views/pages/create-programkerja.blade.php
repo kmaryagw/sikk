@@ -104,9 +104,14 @@
                                                         
                                                     </div>
                                                     <select name="ti_id[]" id="ti_id" class="form-control select2" multiple="multiple" data-placeholder="Pilih Indikator Kinerja" required>
-                                                        @foreach($targetindikators as $ti_id => $ik_nama)
+                                                        {{-- @foreach($targetindikators as $ti_id => $ik_nama)
                                                             <option value="{{ $ti_id }}" {{ collect(old('ti_id'))->contains($ti_id) ? 'selected' : '' }}>
                                                                 {{ $ik_nama }}
+                                                            </option>
+                                                        @endforeach --}}
+                                                        @foreach($targetindikators as $indikator)
+                                                            <option value="{{ $indikator->ti_id }}" {{ collect(old('ti_id'))->contains($indikator->ti_id) ? 'selected' : '' }}>
+                                                                {{ $indikator->ik_kode }} - {{ $indikator->ik_nama }}
                                                             </option>
                                                         @endforeach
                                                     </select>

@@ -81,10 +81,16 @@ class ProgramKerjaController extends Controller
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
         $periodes = periode_monev::orderBy('pm_nama')->get();
 
+        // $targetindikators = target_indikator::with('indikatorKinerja')
+        //     ->join('indikator_kinerja', 'target_indikator.ik_id', '=', 'indikator_kinerja.ik_id')
+        //     ->orderBy('indikator_kinerja.ik_nama', 'asc')
+        //     ->pluck('indikator_kinerja.ik_nama', 'target_indikator.ti_id');
+
         $targetindikators = target_indikator::with('indikatorKinerja')
             ->join('indikator_kinerja', 'target_indikator.ik_id', '=', 'indikator_kinerja.ik_id')
             ->orderBy('indikator_kinerja.ik_nama', 'asc')
-            ->pluck('indikator_kinerja.ik_nama', 'target_indikator.ti_id');
+            ->get(['target_indikator.ti_id', 'indikator_kinerja.ik_kode', 'indikator_kinerja.ik_nama']);
+
 
         return view('pages.create-programkerja', [
             'title' => $title,
@@ -165,10 +171,15 @@ class ProgramKerjaController extends Controller
         $units = UnitKerja::where('unit_kerja', 'y')->get();
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
         $periodes = periode_monev::orderBy('pm_nama')->get();
+        // $targetindikators = target_indikator::with('indikatorKinerja')
+        //     ->join('indikator_kinerja', 'target_indikator.ik_id', '=', 'indikator_kinerja.ik_id')
+        //     ->orderBy('indikator_kinerja.ik_nama', 'asc')
+        //     ->pluck('indikator_kinerja.ik_nama', 'target_indikator.ti_id');
+
         $targetindikators = target_indikator::with('indikatorKinerja')
             ->join('indikator_kinerja', 'target_indikator.ik_id', '=', 'indikator_kinerja.ik_id')
             ->orderBy('indikator_kinerja.ik_nama', 'asc')
-            ->pluck('indikator_kinerja.ik_nama', 'target_indikator.ti_id');
+            ->get(['target_indikator.ti_id', 'indikator_kinerja.ik_kode', 'indikator_kinerja.ik_nama']);
 
         $selectedPeriodes = $programkerja->periodes->pluck('pm_id')->toArray();
         $selectedIndikators = $programkerja->targetindikators()->pluck('target_indikator.ti_id')->toArray();

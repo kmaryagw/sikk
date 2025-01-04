@@ -57,7 +57,7 @@
                                                         @foreach ($indikatorkinerjas as $indikatorkinerja)
                                                             <option value="{{ $indikatorkinerja->ik_id }}" 
                                                                 data-jenis="{{ $indikatorkinerja->ik_ketercapaian }}">
-                                                                {{ $indikatorkinerja->ik_nama }}
+                                                                {{ $indikatorkinerja->ik_kode }} - {{ $indikatorkinerja->ik_nama }}
                                                             </option>
                                                         @endforeach
                                                     </select>
@@ -178,7 +178,7 @@
                     tiTargetHint.textContent = "Isi angka dalam rentang 0 hingga 100.";
                 } else if (jenis === "ketersediaan") {
                     tiTargetInput.placeholder = "Indikator ini menggunakan ketercapaian ketersediaan";
-                    tiTargetHint.textContent = "Isi dengan 'Ada' atau 'Tidak'.";
+                    tiTargetHint.textContent = "Isi dengan 'Ada' atau 'Draft'.";
                 } else {
                     tiTargetInput.placeholder = "Isi Target Capaian";
                     tiTargetHint.textContent = "Isi sesuai dengan jenis ketercapaian.";

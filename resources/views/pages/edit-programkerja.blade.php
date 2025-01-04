@@ -24,7 +24,7 @@
 
             <div class="section-body">
                 <div class="row">
-                    <div class="col-12 col-lg-10 offset-lg-1">
+                    <div class="col-12">
                         <div class="card">
                             
                             <div class="card-body">
@@ -107,14 +107,14 @@
                                             <div class="form-group">
                                                 <label for="ti_id">Indikator Kinerja</label>
                                                 <select name="ti_id[]" id="ti_id" class="form-control select2" multiple="multiple" required>
-                                                    @foreach($targetindikators as $ti_id => $ik_nama)
-                                                        <option value="{{ $ti_id }}" 
-                                                            @if(in_array($ti_id, $selectedIndikators)) selected @endif>
-                                                            {{ $ik_nama }}
+                                                    @foreach($targetindikators as $indikator)
+                                                        <option value="{{ $indikator->ti_id }}" 
+                                                            @if(in_array($indikator->ti_id, $selectedIndikators)) selected @endif>
+                                                            {{ $indikator->ik_kode }} - {{ $indikator->ik_nama }}
                                                         </option>
                                                     @endforeach
                                                 </select>
-                                            </div>                                        
+                                            </div>                                                                                   
 
                                             <div class="form-group">
                                                 <label>Periode Monev</label>

@@ -18,7 +18,7 @@
             <div class="card mb-3">
                 <div class="card-header">
                     <form class="row g-2 align-items-center">
-                        @if (Auth::user()->role== 'admin')
+                        @if (Auth::user()->role== 'admin' || Auth::user()->role == 'prodi')
                         <div class="col-auto">
                             <select class="form-control" name="prodi">
                                 <option value="">Semua Prodi</option>
@@ -37,7 +37,7 @@
                         <div class="col-auto">
                             <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
                         </div>
-                        @if (Auth::user()->role== 'admin')
+                        @if (Auth::user()->role== 'admin' || Auth::user()->role == 'prodi')
                         <div class="col-auto">
                             <a class="btn btn-primary" href="{{ route('targetcapaian.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
                         </div>
@@ -51,6 +51,7 @@
                             <tr>
                                 <th>No</th>
                                 <th>Indikator Kinerja</th>
+                                <th>Jenis</th>
                                 <th>Target Capaian</th>
                                 <th>Keterangan</th>
                                 <th>Prodi</th>
@@ -63,7 +64,16 @@
                             @foreach ($target_capaians as $targetcapaian)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $targetcapaian->ik_nama }}</td>
+                                    <td>{{ $targetcapaian->ik_kode }} - {{ $targetcapaian->ik_nama }}</td>
+                                    <td>
+                                        @if (strtolower($targetcapaian->ik_jenis == 'IKU'))
+                                            <span class="badge badge-success">IKU</span>
+                                        @elseif (strtolower($targetcapaian->ik_jenis == 'IKT'))
+                                            <span class="badge badge-primary">IKT</span>
+                                        @else
+                                            <span class="badge badge-secondary">Tidak Diketahui</span>
+                                        @endif
+                                    </td>
                                     <td>
                                         @if ($targetcapaian->ik_ketercapaian == 'persentase' && is_numeric($targetcapaian->ti_target))
                                             <div class="progress">
@@ -76,11 +86,11 @@
                                             </div>
                                         @elseif ($targetcapaian->ik_ketercapaian == 'nilai' && is_numeric($targetcapaian->ti_target))
                                             <span class="badge badge-primary">{{ $targetcapaian->ti_target }}</span>
-                                        @elseif (in_array(strtolower($targetcapaian->ti_target), ['ada', 'tidak']))
+                                        @elseif (in_array(strtolower($targetcapaian->ti_target), ['ada', 'draft']))
                                             @if (strtolower($targetcapaian->ti_target) === 'ada')
                                                 <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
                                             @else
-                                                <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak</span>
+                                                <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
                                             @endif
                                         @else
                                             {{ $targetcapaian->ti_target }}
@@ -90,7 +100,7 @@
                                     <td>{{ $targetcapaian->nama_prodi }}</td>
                                     <td>{{ $targetcapaian->th_tahun }}</td>
 
-                                    @if (Auth::user()->role== 'admin')
+                                    @if (Auth::user()->role== 'admin' || Auth::user()->role == 'prodi')
                                     <td>
                                         <a class="btn btn-warning" href="{{ route('targetcapaian.edit', $targetcapaian->ti_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
                                         <form id="delete-form-{{ $targetcapaian->ti_id }}" method="POST" class="d-inline" action="{{ route('targetcapaian.destroy', $targetcapaian->ti_id) }}">
