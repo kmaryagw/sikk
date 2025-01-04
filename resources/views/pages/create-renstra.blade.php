@@ -95,27 +95,24 @@
                                         </div>
                                     </div>
 
-                                    <div class="form-group">
-                                        <label>Status Aktif</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <i class="fa-solid fa-check"></i>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Status Aktif</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <div class="input-group-text">
+                                                        <i class="fa-solid fa-toggle-on"></i>
+                                                    </div>
                                                 </div>
+                                                <select class="form-control" name="ren_is_aktif">
+                                                    @foreach ($ren_is_aktifs as $ren_is_aktif)
+                                                        <option value="{{ $ren_is_aktif }}" {{ old('ren_is_aktif', 'y') == $ren_is_aktif ? 'selected' : '' }}>
+                                                            {{ $ren_is_aktif == 'y' ? 'Ya' : 'Tidak' }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
                                             </div>
-                                            <select class="form-control" name="ren_is_aktif">
-                                                @foreach ($ren_is_aktifs as $ren_is_aktif)
-                                                    <option value="{{ $ren_is_aktif }}" {{ old('ren_is_aktif', 'y') == $ren_is_aktif ? 'selected' : '' }}>
-                                                        {{ $ren_is_aktif == 'y' ? 'Ya' : 'Tidak' }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
                                         </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <button type="submit" class="btn btn-primary">Simpan</button>
-                                        <a href="{{ route('renstra.index') }}" class="btn btn-danger">Kembali</a>
                                     </div>
                                 </div>
 

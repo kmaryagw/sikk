@@ -36,7 +36,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Tahun</th>
-                                    <th>Tahun is Active</th>
+                                    <th>Status Aktif</th>
                                     <th>Nama Renstra</th>
                                     <th>Aksi</th>
                                 </tr>

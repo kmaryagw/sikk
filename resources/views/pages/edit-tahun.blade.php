@@ -56,11 +56,11 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="ren_is_aktif">Tahun is Active</label>
+                                        <label for="ren_is_aktif">Status Aktif</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
-                                                    <i class="fa-solid fa-check"></i>
+                                                    <i class="fa-solid fa-toggle-on"></i>
                                                 </div>
                                             </div>
                                             <select class="form-control" name="th_is_aktif">

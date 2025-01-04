@@ -31,7 +31,7 @@ class RenstraSeeder extends Seeder
             'ren_pimpinan' => '-',
             'ren_periode_awal' => '2025',
             'ren_periode_akhir' => '2026',
-            'ren_is_aktif' => 'y',
+            'ren_is_aktif' => 'n',
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
@@ -42,7 +42,7 @@ class RenstraSeeder extends Seeder
             'ren_pimpinan' => '-',
             'ren_periode_awal' => '2026',
             'ren_periode_akhir' => '2027',
-            'ren_is_aktif' => 'y',
+            'ren_is_aktif' => 'n',
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
@@ -53,7 +53,7 @@ class RenstraSeeder extends Seeder
             'ren_pimpinan' => '-',
             'ren_periode_awal' => '2027',
             'ren_periode_akhir' => '2028',
-            'ren_is_aktif' => 'y',
+            'ren_is_aktif' => 'n',
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
@@ -64,7 +64,7 @@ class RenstraSeeder extends Seeder
             'ren_pimpinan' => '-',
             'ren_periode_awal' => '2028',
             'ren_periode_akhir' => '2029',
-            'ren_is_aktif' => 'y',
+            'ren_is_aktif' => 'n',
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);

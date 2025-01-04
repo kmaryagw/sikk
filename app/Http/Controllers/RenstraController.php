@@ -50,6 +50,10 @@ class RenstraController extends Controller
             'ren_is_aktif' => 'required|in:y,n',
         ]);
 
+        if ($request->ren_is_aktif == 'y') {
+            Renstra::where('ren_is_aktif', 'y')->update(['ren_is_aktif' => 'n']);
+        }
+
         $ren_id = 'REN' . strtoupper(md5(time()));
 
         $renstra = new Renstra($request->all());
@@ -83,6 +87,12 @@ class RenstraController extends Controller
         'ren_periode_akhir' => 'required|integer|min:1900|max:2100',
         'ren_is_aktif' => 'required|in:y,n',
     ]);
+
+    if ($request->ren_is_aktif == 'y') {
+        Renstra::where('ren_is_aktif', 'y')
+            ->where('ren_id', '!=', $renstra->ren_id)
+            ->update(['ren_is_aktif' => 'n']);
+    } 
 
     $renstra->ren_nama = $request->ren_nama;
     $renstra->ren_pimpinan = $request->ren_pimpinan;
