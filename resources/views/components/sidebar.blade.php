@@ -28,6 +28,9 @@
                     <li class="{{ Request::is('prodi') || (isset($sub_menu) && $sub_menu === 'prodi') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('prodi') }}"><i class="fas fa-building-columns"></i>Program Studi</a>
                     </li>
+                    <li class="{{ Request::is('falkutasn') || (isset($sub_menu) && $sub_menu === 'falkutasn') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('falkutasn') }}"><i class="fas fa-building-columns"></i>Falkutas</a>
+                    </li>
                     <li class="{{ Request::is('unit') || (isset($sub_menu) && $sub_menu === 'unit') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('unit') }}"><i class="fas fa-briefcase"></i>Unit Kerja</a>
                     </li>
@@ -70,6 +73,18 @@
                 <a class="nav-link" href="{{ url('indikatorkinerja') }}">
                     <i class="fa fa-bullseye" aria-hidden="true"></i>
                     <span>Indikator Kinerja Utama/Tambahan</span>
+                </a>
+            </li>
+            @endif
+
+
+            {{-- Setting IKU --}}
+            
+            @if (Auth::user()->role== 'admin'|| Auth::user()->role == 'prodi')
+            <li class="{{ $type_menu === 'SettingIKU' ? 'active' : '' }}">
+                <a class="nav-link" href="{{ url('SettingIKU') }}">
+                    <i class="fa fa-bullseye" aria-hidden="true"></i>
+                    <span>Setting IKU</span>
                 </a>
             </li>
             @endif

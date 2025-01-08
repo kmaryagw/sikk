@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\EvaluasiController;
+use App\Http\Controllers\FalkutasController;
+use App\Http\Controllers\FalkutasnController;
 use App\Http\Controllers\IndikatorKinerjaController;
 use App\Http\Controllers\LaporanIkuController;
 use App\Http\Controllers\LaporanRenjaController;
@@ -12,6 +14,7 @@ use App\Http\Controllers\ProdiController;
 use App\Http\Controllers\ProgramKerjaController;
 use App\Http\Controllers\RealisasiRenjaController;
 use App\Http\Controllers\RenstraController;
+use App\Http\Controllers\SettingIKUController;
 use App\Http\Controllers\StandarController;
 use App\Http\Controllers\TahunController;
 use App\Http\Controllers\TargetCapaianController;
@@ -28,6 +31,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('user', UserController::class);
     Route::resource('unit', UnitKerjaController::class);
     Route::resource('prodi', ProdiController::class);
+    Route::resource('falkutasn', FalkutasnController::class);
     Route::resource('renstra', RenstraController::class);
     Route::resource('tahun', TahunController::class);
     Route::resource('periodemonev', PeriodeMonevController::class);
@@ -59,6 +63,9 @@ Route::middleware('auth')->group(function () {
     Route::put('evaluasi/{eval_id}/update-detail', [EvaluasiController::class, 'updateDetail'])->name('evaluasi.update-detail');
     Route::delete('evaluasi/destroy-detail/{eval_id}', [EvaluasiController::class, 'destroyDetail'])->name('evaluasi.destroy-detail');
     Route::get('evaluasi/{eval_id}/show-evaluasi', [EvaluasiController::class, 'show'])->name('evaluasi.show-evaluasi');
+
+    // Rute untuk Setting
+    Route::resource('SettingIKU', SettingIKUController::class);
 
     // Rute untuk laporan
     Route::resource('laporan-renja', LaporanRenjaController::class);

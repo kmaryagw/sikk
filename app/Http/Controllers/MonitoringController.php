@@ -10,6 +10,7 @@ use App\Models\RencanaKerja;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class MonitoringController extends Controller
@@ -157,7 +158,7 @@ public function store(Request $request)
 
     } catch (\Exception $e) {
         // Log error untuk debugging
-        \Log::error('Error saat menyimpan monitoring data: ' . $e->getMessage());
+        Log::error('Error saat menyimpan monitoring data: ' . $e->getMessage());
 
         // Mengembalikan respons JSON jika terjadi error
         return response()->json([
