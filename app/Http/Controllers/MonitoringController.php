@@ -38,10 +38,10 @@ class MonitoringController extends Controller
 
     // Tambahkan logika pengecekan durasi periode
     foreach ($periodemonitorings as $item) {
-        $tanggalMulai = Carbon::parse($item->pmo_tanggal_mulai);
+        $tanggalInput = Carbon::now();
         $tanggalSelesai = Carbon::parse($item->pmo_tanggal_selesai);
 
-        $item->is_within_three_months = $tanggalMulai->diffInMonths($tanggalSelesai) <= 3;
+        $item = $tanggalInput >= $tanggalSelesai;
     }
 
     return view('pages.index-monitoring', [

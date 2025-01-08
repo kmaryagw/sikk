@@ -57,17 +57,14 @@
                                     <td>{{ \Carbon\Carbon::parse($item->pmo_tanggal_selesai)->format('Y-m-d H:i:s') }}</td>
                                     <td class="text-center">
                                         @php
-                                            $tanggalMulai = \Carbon\Carbon::parse($item->pmo_tanggal_mulai);
+                                            $tanggalInput = \Carbon\Carbon::now();
                                             $tanggalSelesai = \Carbon\Carbon::parse($item->pmo_tanggal_selesai);
-                                            $selisihBulan = $tanggalMulai->diffInMonths($tanggalSelesai);
                                         @endphp
-                                        @if ($selisihBulan <= 3)
-                                            <!-- Tombol Isi Monitoring jika selisih <= 3 bulan -->
+                                        @if ($tanggalInput <= $tanggalSelesai)
                                             <a class="btn btn-warning btn-sm" href="{{ route('monitoring.fill', $item->pmo_id) }}">
                                                 <i class="fa-solid fa-pen-to-square"></i> Isi Monitoring
                                             </a>
                                         @else
-                                            <!-- Tombol Lihat Monitoring jika selisih > 3 bulan -->
                                             <a class="btn btn-success btn-sm" href="{{ route('monitoring.show', $item->pmo_id) }}">
                                                 <i class="fa-solid fa-eye"></i> Lihat Monitoring
                                             </a>

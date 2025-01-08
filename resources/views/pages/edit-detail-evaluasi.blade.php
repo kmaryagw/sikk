@@ -332,7 +332,7 @@
                 evaldCapaianHint.textContent = "Isi angka dalam rentang 0 hingga 100.";
             } else if (jenis === "ketersediaan") {
                 evaldCapaianInput.placeholder = "Indikator ini menggunakan ketercapaian ketersediaan";
-                evaldCapaianHint.textContent = "Isi dengan 'Ada' atau 'Tidak'.";
+                evaldCapaianHint.textContent = "Isi dengan 'Ada' atau 'Draft'.";
             } else {
                 evaldCapaianInput.placeholder = "Isi Capaian";
                 evaldCapaianHint.textContent = "Isi sesuai dengan jenis ketercapaian.";

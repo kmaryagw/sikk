@@ -74,7 +74,7 @@
                                                     <i class="fa-solid fa-file-upload"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="file" name="stdd_file" required/>
+                                            <input class="form-control" type="file" name="stdd_file"/>
                                         </div>
                                     </div>
 

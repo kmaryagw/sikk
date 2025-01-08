@@ -79,17 +79,15 @@
                                     <td>{{ $programkerja->th_tahun }}</td>
                                     <td>
                                         @if($programkerja->targetindikators->isNotEmpty())
-                                            @foreach ($programkerja->targetindikators as $iku)
-                                                @if(strtolower($iku->indikatorKinerja->ik_jenis === 'IKU'))
-                                                    <span class="badge badge-success">{{ $iku->indikatorKinerja->ik_nama }}</span>
-                                                @elseif(strtolower($iku->indikatorKinerja->ik_jenis === 'IKT'))
-                                                    <span class="badge badge-primary">{{ $iku->indikatorKinerja->ik_nama }}</span>
-                                                @endif
-                                            @endforeach
+                                            <ul class="list-unstyled">
+                                                @foreach ($programkerja->targetindikators as $iku)
+                                                    <li class="my-2">{{ $iku->indikatorKinerja->ik_kode }} - {{ $iku->indikatorKinerja->ik_nama }}</li>
+                                                @endforeach
+                                            </ul>
                                         @else
                                             <span class="text-muted">Tidak ada Indikator Kinerja</span>
                                         @endif
-                                    </td>                                        
+                                    </td>                                                                                                               
                                     <td>
                                         @if($programkerja->periodes->isNotEmpty())
                                             @foreach ($programkerja->periodes as $periode)

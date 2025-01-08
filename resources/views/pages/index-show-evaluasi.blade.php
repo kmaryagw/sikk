@@ -54,11 +54,11 @@
                                             </div>
                                         @elseif ($target->indikatorKinerja->ik_ketercapaian == 'nilai' && is_numeric($target->ti_target))
                                             <span class="badge badge-primary">{{ $target->ti_target }}</span>
-                                        @elseif (in_array(strtolower($target->ti_target), ['ada', 'tidak']))
+                                        @elseif (in_array(strtolower($target->ti_target), ['ada', 'draft']))
                                             @if (strtolower($target->ti_target) === 'ada')
                                                 <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
                                             @else
-                                                <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak</span>
+                                                <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
                                             @endif
                                         @else
                                             {{ $target->ti_target }}
