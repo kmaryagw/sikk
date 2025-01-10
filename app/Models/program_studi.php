@@ -20,5 +20,11 @@ class program_studi extends Model
     protected $fillable = [
         'prodi_id',
         'nama_prodi',
+        'id_falkutas',
     ];
+
+    public function Falkutasn()
+    {
+        return $this->belongsTo(Falkutasn::class, 'id_falkutas', 'id_falkutas');
+    }
 }

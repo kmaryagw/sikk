@@ -53,6 +53,19 @@
                                         </div>
                                     </div>
 
+                                    <!-- Dropdown Fakultas -->
+                                    <div class="form-group">
+                                        <label for="id_falkutas">Fakultas</label>
+                                        <select class="form-control" name="id_falkutas" id="id_falkutas">
+                                            <option value="">Pilih Fakultas</option>
+                                            @foreach ($falkutas as $falkutasItem)
+                                                <option value="{{ $falkutasItem->id_falkutas }}" {{ old('id_falkutas') == $falkutasItem->id_falkutas ? 'selected' : '' }}>
+                                                    {{ $falkutasItem->nama_falkutas }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Simpan</button>
                                         <a href="{{ url('prodi') }}" class="btn btn-danger">Kembali</a>

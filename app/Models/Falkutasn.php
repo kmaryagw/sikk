@@ -19,4 +19,9 @@ class Falkutasn extends Model
         'id_falkutas',
         'nama_falkutas',
     ];
+    public function programStudis()
+    {
+        return $this->hasMany(program_studi::class, 'id_falkutas');
+    }
+
 }
