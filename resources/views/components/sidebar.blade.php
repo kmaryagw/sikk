@@ -81,8 +81,8 @@
             {{-- Setting IKU --}}
             
             @if (Auth::user()->role== 'admin'|| Auth::user()->role == 'prodi')
-            <li class="{{ $type_menu === 'SettingIKU' ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('SettingIKU') }}">
+            <li class="{{ $type_menu === 'settingiku' ? 'active' : '' }}">
+                <a class="nav-link" href="{{ url('settingiku') }}">
                     <i class="fa fa-bullseye" aria-hidden="true"></i>
                     <span>Setting IKU</span>
                 </a>

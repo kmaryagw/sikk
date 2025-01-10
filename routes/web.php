@@ -65,7 +65,8 @@ Route::middleware('auth')->group(function () {
     Route::get('evaluasi/{eval_id}/show-evaluasi', [EvaluasiController::class, 'show'])->name('evaluasi.show-evaluasi');
 
     // Rute untuk Setting
-    Route::resource('SettingIKU', SettingIKUController::class);
+    Route::resource('settingiku', SettingIKUController::class)->except(['create', 'edit', 'show']);
+
 
     // Rute untuk laporan
     Route::resource('laporan-renja', LaporanRenjaController::class);
