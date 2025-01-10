@@ -97,25 +97,6 @@
                                             </select>
                                         </div>
                                     </div>
-
-                                    <div class="form-group">
-                                        <label for="th_id">Tahun</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <i class="fa-solid fa-calendar"></i>
-                                                </div>
-                                            </div>
-                                            <select id="th_id" name="th_id" class="form-control" required>
-                                                <option value="" disabled selected>Pilih Tahun</option>
-                                                @foreach ($tahunKerja as $th)
-                                                    <option value="{{ $th->th_id }}" {{ old('th_id', $indikatorkinerja->th_id ?? '') == $th->th_id ? 'selected' : '' }}>
-                                                        {{ $th->th_tahun }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
 

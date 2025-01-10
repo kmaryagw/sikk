@@ -19,16 +19,11 @@ class IndikatorKinerja extends Model
         'ik_kode',
         'ik_ketercapaian',
         'std_id',
-        'th_id',
     ];
     public function standar()
     {
         return $this->belongsTo(standar::class, 'std_id', 'std_id');
     }
-    public function tahun_kerja()
-{
-    return $this->belongsTo(tahun_kerja::class, 'th_id', 'th_id');
-}
 
     public $timestamps = true;
 }

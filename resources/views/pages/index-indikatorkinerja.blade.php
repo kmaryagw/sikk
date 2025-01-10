@@ -16,17 +16,7 @@
 
             <div class="card mb-3">
                 <div class="card-header">
-                    <form class="row g-2 align-items-center">
-                        <div class="col-auto">
-                            <select class="form-control" name="tahun">
-                                @foreach ($tahun as $thn)
-                                    <option value="{{ $thn->th_id }}" 
-                                        {{ request('tahun') == $thn->th_id || (request('tahun') == null && $loop->first) ? 'selected' : '' }}>
-                                        {{ $thn->th_tahun }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>                        
+                    <form class="row g-2 align-items-center">                      
                         <div class="col-auto">
                             <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>
@@ -49,7 +39,6 @@
                                 <th>Kode IKU/IKT</th>
                                 <th>Nama IKU/IKT</th>
                                 <th>Standar</th>
-                                <th>Tahun</th>
                                 <th>Jenis</th>
                                 <th>Pengukur Ketercapaian</th>
                                 @if (Auth::user()->role== 'admin')
@@ -65,7 +54,6 @@
                                     <td>{{ $indikatorkinerja->ik_kode }}</td>
                                     <td>{{ $indikatorkinerja->ik_nama }}</td>
                                     <td>{{ $indikatorkinerja->std_nama ?? '-' }}</td>
-                                    <td>{{ $indikatorkinerja->th_tahun ?? '-' }}</td>
                                     <td>
                                         @if (strtolower($indikatorkinerja->ik_jenis) === 'iku')
                                             <span class="badge badge-success">IKU</span>

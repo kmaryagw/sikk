@@ -25,11 +25,11 @@
                     <li class="{{ Request::is('user') || (isset($sub_menu) && $sub_menu === 'user') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('user') }}"><i class="fas fa-user"></i>User</a>
                     </li>
+                    <li class="{{ Request::is('falkutasn') || (isset($sub_menu) && $sub_menu === 'falkutasn') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('falkutasn') }}"><i class="fas fa-school"></i>Fakultas</a>
+                    </li>
                     <li class="{{ Request::is('prodi') || (isset($sub_menu) && $sub_menu === 'prodi') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('prodi') }}"><i class="fas fa-building-columns"></i>Program Studi</a>
-                    </li>
-                    <li class="{{ Request::is('falkutasn') || (isset($sub_menu) && $sub_menu === 'falkutasn') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ url('falkutasn') }}"><i class="fas fa-building-columns"></i>Falkutas</a>
                     </li>
                     <li class="{{ Request::is('unit') || (isset($sub_menu) && $sub_menu === 'unit') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('unit') }}"><i class="fas fa-briefcase"></i>Unit Kerja</a>
@@ -42,6 +42,9 @@
                     </li>
                     <li class="{{ Request::is('periodemonev') || (isset($sub_menu) && $sub_menu === 'periodemonev') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('periodemonev') }}"><i class="fas fa-clock"></i>Periode Monev</a>
+                    </li>
+                    <li class="{{ Request::is('indikatorkinerja') || (isset($sub_menu) && $sub_menu === 'indikatorkinerja') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('indikatorkinerja') }}"><i class="fas fa-bullseye"></i>IKU/IKT</a>
                     </li>
                 </ul>
             </li>
@@ -66,24 +69,13 @@
             </li>
             @endif
 
-            {{-- Indikator Kinerja Utama/Tambahan --}}
-            
-            @if (Auth::user()->role== 'admin'|| Auth::user()->role == 'prodi')
-            <li class="{{ $type_menu === 'indikatorkinerja' ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('indikatorkinerja') }}">
-                    <i class="fa fa-bullseye" aria-hidden="true"></i>
-                    <span>Indikator Kinerja Utama/Tambahan</span>
-                </a>
-            </li>
-            @endif
-
 
             {{-- Setting IKU --}}
             
             @if (Auth::user()->role== 'admin'|| Auth::user()->role == 'prodi')
             <li class="{{ $type_menu === 'SettingIKU' ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('SettingIKU') }}">
-                    <i class="fa fa-bullseye" aria-hidden="true"></i>
+                    <i class="fa fa-gears" aria-hidden="true"></i>
                     <span>Setting IKU</span>
                 </a>
             </li>

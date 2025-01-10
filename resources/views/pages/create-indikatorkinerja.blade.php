@@ -99,24 +99,6 @@
 
                                 <!-- Kolom Kanan -->
                                 <div class="col-md-6">
-                                    <!-- Tahun -->
-                                    <div class="form-group">
-                                        <label for="th_id">Tahun</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <i class="fas fa-calendar-alt"></i>
-                                                </div>
-                                            </div>
-                                            <select id="th_id" name="th_id" class="form-control" required>
-                                                <option value="" disabled selected>Pilih Tahun</option>
-                                                @foreach ($tahunKerja as $tahun)
-                                                    <option value="{{ $tahun->th_id }}" {{ old('th_id') == $tahun->th_id ? 'selected' : '' }}>{{ $tahun->th_tahun }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-
                                     <div class="form-group">
                                         <label for="ik_jenis">Jenis Indikator Kinerja</label>
                                         <div class="input-group">

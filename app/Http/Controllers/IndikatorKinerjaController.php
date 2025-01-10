@@ -15,24 +15,13 @@ class IndikatorKinerjaController extends Controller
 {
     $title = 'Data Indikator Kinerja Utama';
     $q = $request->query('q');
-    $tahunId = $request->query('tahun');
-
-    $tahun = tahun_kerja::where('th_is_aktif', 'y')->get();
 
     $query = IndikatorKinerja::where('ik_nama', 'like', '%'. $q. '%')
         ->orderBy('ik_nama', 'asc')
-        ->leftJoin('standar', 'standar.std_id', '=', 'indikator_kinerja.std_id')
-        ->leftJoin('tahun_kerja', function($join) {
-            $join->on('tahun_kerja.th_id', '=', 'indikator_kinerja.th_id')
-                ->where('tahun_kerja.th_is_aktif', 'y');
-        });
+        ->leftJoin('standar', 'standar.std_id', '=', 'indikator_kinerja.std_id');
 
     if ($q) {
         $query->where('ik_nama', 'like', '%' . $q . '%');
-    }
-
-    if ($tahunId) {
-        $query->where('tahun_kerja.th_id', $tahunId);
     }
 
     $indikatorkinerjas = $query->paginate(10)->withQueryString();
@@ -42,10 +31,9 @@ class IndikatorKinerjaController extends Controller
         'title' => $title,
         'indikatorkinerjas' => $indikatorkinerjas,
         'q' => $q,
-        'tahun' => $tahun,
-        'tahunId' => $tahunId,
         'no' => $no,
-        'type_menu' => 'indikatorkinerja',
+        'type_menu' => 'masterdata',
+        'sub_menu' => 'indikatorkinerja',
     ]);
 }
 
@@ -57,15 +45,14 @@ public function create()
     $jeniss = ['IKU', 'IKT'];
     $ketercapaians = ['nilai', 'persentase', 'ketersediaan'];
     $standar = Standar::orderBy('std_nama')->get();
-    $tahunKerja = tahun_kerja::where('th_is_aktif', 'y')->get();
 
     return view('pages.create-indikatorkinerja', [
         'title' => $title,
         'standar' => $standar,
         'jeniss' => $jeniss,
         'ketercapaians' => $ketercapaians,
-        'tahunKerja' => $tahunKerja,
-        'type_menu' => 'indikatorkinerja',
+        'type_menu' => 'masterdata',
+        'sub_menu' => 'indikatorkinerja',
     ]);
 }
 
@@ -76,7 +63,6 @@ public function create()
             'ik_kode' => 'required|string|max:255',
             'ik_nama' => 'required|string|max:255',
             'std_id' => 'required|string',
-            'th_id' => 'required',
             'ik_jenis' => 'required|in:IKU,IKT',
             'ik_ketercapaian' => 'required|in:nilai,persentase,ketersediaan',
         ]);
@@ -91,7 +77,6 @@ public function create()
         $indikatorkinerja->ik_kode = $request->ik_kode;
         $indikatorkinerja->ik_nama = $request->ik_nama;
         $indikatorkinerja->std_id = $request->std_id;
-        $indikatorkinerja->th_id = $request->th_id;
         $indikatorkinerja->ik_jenis = $request->ik_jenis;
         $indikatorkinerja->ik_ketercapaian = $request->ik_ketercapaian;
 
@@ -108,15 +93,14 @@ public function create()
         $standar = Standar::orderBy('std_nama')->get();
         $jeniss = ['IKU', 'IKT'];
         $ketercapaians = ['nilai', 'persentase', 'ketersediaan'];
-        $tahunKerja = DB::table('tahun_kerja')->where('th_is_aktif', 'y')->get();
         
         return view('pages.edit-indikatorkinerja', [
             'title' => $title,
-            'type_menu' => 'indikatorkinerja',
+            'type_menu' => 'masterdata',
+            'sub_menu' => 'indikatorkinerja',
             'jeniss' => $jeniss,
             'ketercapaians' => $ketercapaians,
             'indikatorkinerja' => $indikatorkinerja,
-            'tahunKerja' => $tahunKerja,
             'standar' => $standar,
         ]);
     }
@@ -127,7 +111,6 @@ public function create()
             'ik_kode' => 'required|string|max:255',
             'ik_nama' => 'required|string|max:255',
             'std_id' => 'required|string',
-            'th_id' => 'required',
             'ik_jenis' => 'required|in:IKU,IKT',
             'ik_ketercapaian' => 'required|in:nilai,persentase,ketersediaan',
         ]);
@@ -135,7 +118,6 @@ public function create()
         $indikatorkinerja->ik_kode = $request->ik_kode;
         $indikatorkinerja->ik_nama = $request->ik_nama;
         $indikatorkinerja->std_id = $request->std_id;
-        $indikatorkinerja->th_id = $request->th_id;
         $indikatorkinerja->ik_jenis = $request->ik_jenis;
         $indikatorkinerja->ik_ketercapaian = $request->ik_ketercapaian;
 
