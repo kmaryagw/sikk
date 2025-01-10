@@ -19,4 +19,9 @@ class Fakultasn extends Model
         'id_fakultas',
         'nama_fakultas',
     ];
+    public function programStudis()
+    {
+        return $this->hasMany(program_studi::class, 'id_fakultas');
+    }
+
 }

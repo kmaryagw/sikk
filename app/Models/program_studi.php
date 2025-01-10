@@ -20,5 +20,11 @@ class program_studi extends Model
     protected $fillable = [
         'prodi_id',
         'nama_prodi',
+        'id_fakultas',
     ];
+
+    public function Fakultasn()
+    {
+        return $this->belongsTo(Fakultasn::class, 'id_fakultas', 'id_fakultas');
+    }
 }

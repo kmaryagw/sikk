@@ -16,7 +16,7 @@ class SettingIKU extends Model
         'id_setting',
         'th_id',
         'ik_id',
-        'status',
+        
     ];
 
     

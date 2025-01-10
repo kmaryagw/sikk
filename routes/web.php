@@ -66,6 +66,7 @@ Route::middleware('auth')->group(function () {
 
     // Rute untuk Setting
     Route::resource('settingiku', SettingIKUController::class)->except(['create', 'edit', 'show']);
+    Route::put('/settingiku/{id_setting}', [SettingIKUController::class, 'update'])->name('settingiku.update');
 
 
     // Rute untuk laporan

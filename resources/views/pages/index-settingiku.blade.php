@@ -48,10 +48,15 @@
                                     <td>{{ $setting->tahunKerja->th_tahun }}</td>
                                     <td>{{ $setting->indikatorKinerja->ik_nama }}</td>
                                     <td>
-                                        <form action="{{ route('settingiku.destroy', $setting->id_setting) }}" method="POST" style="display: inline-block;">
+                                        <button class="btn btn-warning btn-edit" data-id="{{ $setting->id_setting }}" data-th="{{ $setting->th_id }}" data-ik="{{ $setting->ik_id }}">
+                                            <i class="fa-solid fa-pencil"></i> Edit
+                                        </button>
+                                        <form id="delete-form-{{ $setting->id_setting }}" action="{{ route('settingiku.destroy', $setting->id_setting) }}" method="POST" style="display: inline-block;">
                                             @csrf
                                             @method('DELETE')
-                                            <button class="btn btn-danger" onclick="return confirm('Hapus setting ini?')"><i class="fa-solid fa-trash"></i> Hapus</button>
+                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $setting->id_setting }}')">
+                                                <i class="fa-solid fa-trash"></i> Hapus
+                                            </button>
                                         </form>
                                     </td>
                                 </tr>
@@ -142,5 +147,98 @@
                 }
             });
         });
+
+        // Modal Edit Data
+        document.querySelectorAll('.btn-edit').forEach(button => {
+            button.addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                const thId = this.getAttribute('data-th');
+                const ikId = this.getAttribute('data-ik');
+
+                Swal.fire({
+                    title: 'Edit Setting IKU',
+                    html: `
+                        <form id="form-edit-settingiku">
+                            <div class="mb-3">
+                                <label for="th_id" class="form-label">Tahun</label>
+                                <select class="form-control" name="th_id" required>
+                                    <option value="">Pilih Tahun</option>
+                                    @foreach ($tahuns as $tahun)
+                                        <option value="{{ $tahun->th_id }}" ${thId == '{{ $tahun->th_id }}' ? 'selected' : ''}>{{ $tahun->th_tahun }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="ik_id" class="form-label">Indikator Kinerja</label>
+                                <select class="form-control" name="ik_id" required>
+                                    <option value="">Pilih Indikator Kinerja</option>
+                                    @foreach ($indikatorKinerjas as $indikator)
+                                        <option value="{{ $indikator->ik_id }}" ${ikId == '{{ $indikator->ik_id }}' ? 'selected' : ''}>{{ $indikator->ik_nama }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </form>
+                    `,
+                    focusConfirm: false,
+                    preConfirm: () => {
+                        const indikatorKinerjaId = document.querySelector('[name="ik_id"]').value;
+                        const thId = document.querySelector('[name="th_id"]').value;
+
+                        if (!indikatorKinerjaId || !thId) {
+                            Swal.showValidationMessage('Harap pilih Indikator Kinerja dan Tahun');
+                            return false;
+                        }
+                        return { ik_id: indikatorKinerjaId, th_id: thId };
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'Perbarui Data',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+                        fetch(`{{ url('/settingiku/') }}/${id}`, {
+                            method: "PUT",
+                            headers: {
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(result.value)
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire('Sukses', data.message, 'success').then(() => location.reload());
+                            } else {
+                                Swal.fire('Gagal', data.message, 'error');
+                            }
+                        })
+                        .catch(() => Swal.fire('Gagal', 'Terjadi kesalahan.', 'error'));
+                    }
+                });
+            });
+        });
+
+        // Konfirmasi Hapus Data
+        function confirmDelete(event, formid) {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Data yang dihapus tidak bisa dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, hapus data!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form-' + formid).submit();
+                }
+            })
+        }
     </script>
 @endpush
+
+

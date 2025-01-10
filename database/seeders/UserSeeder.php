@@ -26,6 +26,17 @@ class UserSeeder extends Seeder
         ]);
 
         DB::table('users')->insert([
+            'id_user' => 'USHJSIF8934TJNKJ4HTI398IUEHGWRMBW34',
+            'username' => 'fakultas1',
+            'status' => '0',
+            'password' => hash::make('fakultas1'),
+            'role'=>'fakultas',
+            'id_fakultas' => 'FK66A330D9AA18520C38F84970A3D4541A',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+
+        DB::table('users')->insert([
             'id_user' => 'US2CBA43FF5C76829E891323DA14F3C0F5',
             'username' => 'informatika',
             'status' => '0',
