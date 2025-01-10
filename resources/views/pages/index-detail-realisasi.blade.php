@@ -103,7 +103,7 @@
                                     </td>
                                     <td>
                                         @if($item->rkr_url)
-                                            <a href="{{ $item->rkr_url}}" target="_blank" class="btn btn-link">Lihat URL</a>
+                                            <a href="{{ $item->rkr_url}}" target="_blank" class="btn btn-success">Lihat URL</a>
                                         @else
                                             Tidak Ada URL
                                         @endif

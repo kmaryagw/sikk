@@ -39,21 +39,34 @@ class SettingIKUController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'ik_id' => 'required|exists:IndikatorKinerja,ik_id',
+            'ik_id' => 'required|exists:indikator_kinerja,ik_id',
             'th_id' => 'required|exists:tahun_kerja,th_id',
         ]);
 
+        $Setting = SettingIKU::where('ik_id', $request->ik_id)
+                ->where('th_id', $request->th_id)
+                ->first();
+
+            if ($Setting) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Indikator ini sudah ada untuk tahun yang sama.',
+                ]);
+            }
+
         SettingIKU::create([
+            'id_setting' => 'IS' . md5(uniqid(rand(), true)),
             'ik_id' => $request->ik_id,
             'th_id' => $request->th_id,
+            'status' => 0,
         ]);
 
         return response()->json(['success' => true, 'message' => 'Setting IKU berhasil ditambahkan.']);
     }
 
-    public function destroy($id)
+    public function destroy($id_setting)
     {
-        $setting = SettingIKU::findOrFail($id);
+        $setting = SettingIKU::findOrFail($id_setting);
         $setting->delete();
 
         return redirect()->route('settingiku.index')->with('success', 'Setting IKU berhasil dihapus.');

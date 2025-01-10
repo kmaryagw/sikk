@@ -100,6 +100,23 @@
                                             </select>
                                         </div>
                                     </div>
+
+                                    <div class="mb-3" id="fakultas_field" style="display: none;">
+                                        <label>Fakultas</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-school"></i>
+                                                </div>
+                                            </div>
+                                            <select class="form-control" name="id_fakultas">
+                                                <option value="" disabled selected>Pilih Fakultas</option>
+                                                @foreach ($fakultasns as $fakultas)
+                                                    <option value="{{ $fakultas->id_fakultas }}" {{ old('id_fakultas') == $fakultas->id_fakultas ? 'selected' : '' }}>{{ $fakultas->nama_fakultas }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
                                     
                                     <div class="mb-3" id="prodi_field" style="display: none;">
                                         <label>Prodi</label>
@@ -173,6 +190,7 @@
             const roleSelect = document.getElementById('role');
             const prodiField = document.getElementById('prodi_field');
             const unitField = document.getElementById('unit_field');
+            const fakultasField = document.getElementById('fakultas_field');
 
             function toggleFields() {
                 const selectedRole = roleSelect.value;
@@ -181,19 +199,32 @@
                 if (selectedRole === 'admin') {
                     prodiField.style.display = 'none';
                     unitField.style.display = 'none';
+                    fakultasField.style.display = 'none';
                     document.querySelector('select[name="prodi_id"]').value = '';
                     document.querySelector('select[name="unit_id"]').value = '';
+                    document.querySelector('select[name="id_fakultas"]').value = '';
                 } else if (selectedRole === 'prodi') {
                     prodiField.style.display = 'block';
                     unitField.style.display = 'none';
+                    fakultasField.style.display = 'none';
                     document.querySelector('select[name="unit_id"]').value = '';
+                    document.querySelector('select[name="id_fakultas"]').value = '';
                 } else if (selectedRole === 'unit kerja') {
                     prodiField.style.display = 'none';
+                    fakultasField.style.display = 'none';
                     unitField.style.display = 'block';
                     document.querySelector('select[name="prodi_id"]').value = '';
+                    document.querySelector('select[name="id_fakultas"]').value = '';
+                } else if (selectedRole === 'fakultas') {
+                    prodiField.style.display = 'none';
+                    unitField.style.display = 'none';
+                    fakultasField.style.display = 'block';
+                    document.querySelector('select[name="prodi_id"]').value = '';
+                    document.querySelector('select[name="unit_id"]').value = '';
                 } else {
                     prodiField.style.display = 'none';
                     unitField.style.display = 'none';
+                    fakultasField.style.display = 'none';
                 }
             }
 

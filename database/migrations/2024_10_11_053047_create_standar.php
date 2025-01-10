@@ -16,6 +16,7 @@ return new class extends Migration
                 $table->string('std_id', 50)->primary(); 
                 $table->string('std_nama', 20);
                 $table->text('std_deskripsi');
+                $table->text('std_url');
                 $table->timestamps(); 
         });
     }

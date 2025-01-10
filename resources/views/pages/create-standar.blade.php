@@ -67,14 +67,14 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <label>Upload Dokumen</label>
+                                        <label for="std_url">URL Standar</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
-                                                    <i class="fa-solid fa-file-upload"></i>
+                                                    <i class="fa-solid fa-link"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="file" name="stdd_file"/>
+                                            <input class="form-control" type="url" name="std_url" value="{{ old('std_url') }}" />
                                         </div>
                                     </div>
 

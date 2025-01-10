@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Falkutas')
+@section('title', 'Fakultas')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -12,7 +12,7 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Daftar Falkutas</h1>
+                <h1>Daftar Fakultas</h1>
             </div>
 
             <div class="card mb-3">
@@ -25,7 +25,7 @@
                             <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
                         </div>
                         <div class="col-auto">
-                            <a class="btn btn-primary" href="{{ route('falkutasn.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
+                            <a class="btn btn-primary" href="{{ route('fakultasn.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
                         </div>
                     </form>
                 </div>
@@ -35,23 +35,23 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Nama Falkutas</th>
+                                <th>Nama Fakultas</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @php $no = $falkutasns->firstItem(); @endphp
-                            @foreach ($falkutasns as $falkutas)
+                            @php $no = $fakultasns->firstItem(); @endphp
+                            @foreach ($fakultasns as $fakultas)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $falkutas->nama_falkutas }}</td>
+                                    <td>{{ $fakultas->nama_fakultas }}</td>
                                     <td>
-                                        <a class="btn btn-warning" href="{{ route('falkutasn.edit', $falkutas->id_falkutas) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
-                                        <form id="delete-form-{{ $falkutas->id_falkutas }}" method="POST" class="d-inline" action="{{ route('falkutasn.destroy', $falkutas->id_falkutas) }}">
+                                        <a class="btn btn-warning" href="{{ route('fakultasn.edit', $fakultas->id_fakultas) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
+                                        <form id="delete-form-{{ $fakultas->id_fakultas }}" method="POST" class="d-inline" action="{{ route('fakultasn.destroy', $fakultas->id_fakultas) }}">
 
                                             @csrf
                                             @method('DELETE')
-                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $falkutas->id_falkutas }}' )"><i class="fa-solid fa-trash"></i> Hapus</button>
+                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $fakultas->id_fakultas }}' )"><i class="fa-solid fa-trash"></i> Hapus</button>
 
                                         </form>
                                     </td>
@@ -61,9 +61,9 @@
                     </table>
                 </div>
 
-                @if ($falkutasns->hasPages())
+                @if ($fakultasns->hasPages())
                     <div class="card-footer">
-                        {{ $falkutasns->links('pagination::bootstrap-5') }}
+                        {{ $fakultasns->links('pagination::bootstrap-5') }}
                     </div>
                 @endif
             </div>

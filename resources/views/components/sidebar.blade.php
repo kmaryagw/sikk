@@ -25,8 +25,8 @@
                     <li class="{{ Request::is('user') || (isset($sub_menu) && $sub_menu === 'user') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('user') }}"><i class="fas fa-user"></i>User</a>
                     </li>
-                    <li class="{{ Request::is('falkutasn') || (isset($sub_menu) && $sub_menu === 'falkutasn') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ url('falkutasn') }}"><i class="fas fa-school"></i>Fakultas</a>
+                    <li class="{{ Request::is('fakultas') || (isset($sub_menu) && $sub_menu === 'fakultas') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('fakultasn') }}"><i class="fas fa-school"></i>Fakultas</a>
                     </li>
                     <li class="{{ Request::is('prodi') || (isset($sub_menu) && $sub_menu === 'prodi') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('prodi') }}"><i class="fas fa-building-columns"></i>Program Studi</a>

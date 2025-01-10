@@ -35,7 +35,7 @@
                                 <th>No</th>
                                 <th>Standar</th>
                                 <th>Deskripsi</th>
-                                <th>Dokumen</th>
+                                <th>URL</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -47,12 +47,10 @@
                                     <td>{{ $standar->std_nama }}</td>
                                     <td>{{ $standar->std_deskripsi }}</td>
                                     <td>
-                                        @if($standar->standardokumen->isNotEmpty())
-                                            @foreach($standar->standardokumen as $dokumen)
-                                                <a class="btn btn-success" href="{{ asset('storage/' . $dokumen->stdd_file) }}" target="_blank"><i class="fa-solid fa-eye"></i> Lihat Dokumen</a><br>
-                                            @endforeach
+                                        @if($standar->std_url)
+                                            <a href="{{ $standar->std_url}}" target="_blank" class="btn btn-success">Lihat URL</a>
                                         @else
-                                            Tidak Ada Dokumen
+                                            Tidak Ada URL
                                         @endif
                                     </td>                                                                      
                                     <td>

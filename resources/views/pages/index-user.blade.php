@@ -38,6 +38,7 @@
                                 <th>Nama User</th>
                                 <th>Status</th>
                                 <th>Role</th>
+                                <th>Fakultas</th>
                                 <th>Prodi</th>
                                 <th>Unit Kerja</th>
                                 <th>Aksi</th>
@@ -57,6 +58,7 @@
                                         @endif
                                     </td>                                    
                                     <td>{{ $user->role }}</td>
+                                    <td>{{ $user->nama_fakultas ?? '-' }}</td>
                                     <td>{{ $user->nama_prodi ?? '-' }}</td>
                                     <td>{{ $user->unit_nama ?? '-' }}</td>
                                     <td>

@@ -67,20 +67,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="form-group">
-                                        <label>Dokumen yang Sudah Diunggah</label>
-                                        <div>
-                                            @if($standar->standardokumen->isNotEmpty())
-                                                @foreach($standar->standardokumen as $dokumen)
-                                                    <a href="{{ asset('storage/' . $dokumen->stdd_file) }}" target="_blank" class="btn btn-info mb-2"> <i class="fa-solid fa-eye"></i> Lihat Dokumen</a><br>
-                                                @endforeach
-                                            @else
-                                                Tidak Ada Dokumen
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
+                                    {{-- <div class="form-group">
                                         <label>Upload Dokumen Baru (Opsional)</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
@@ -91,6 +78,18 @@
                                             <input class="form-control" type="file" name="stdd_file"/>
                                         </div>
                                         <small class="text-muted">Biarkan kosong jika tidak ingin mengganti dokumen.</small>
+                                    </div> --}}
+
+                                    <div class="form-group">
+                                        <label for="std_url">URL Standar</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-link"></i>
+                                                </div>
+                                            </div>
+                                            <input class="form-control" type="url" name="std_url" value="{{ old('std_url', $standar->std_url) }}" />
+                                        </div>
                                     </div>
 
                                     <div class="form-group">

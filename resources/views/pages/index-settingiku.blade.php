@@ -48,7 +48,7 @@
                                     <td>{{ $setting->tahunKerja->th_tahun }}</td>
                                     <td>{{ $setting->indikatorKinerja->ik_nama }}</td>
                                     <td>
-                                        <form action="{{ route('settingiku.destroy', $setting->id) }}" method="POST" style="display: inline-block;">
+                                        <form action="{{ route('settingiku.destroy', $setting->id_setting) }}" method="POST" style="display: inline-block;">
                                             @csrf
                                             @method('DELETE')
                                             <button class="btn btn-danger" onclick="return confirm('Hapus setting ini?')"><i class="fa-solid fa-trash"></i> Hapus</button>
@@ -96,7 +96,7 @@
                             <select class="form-control" name="ik_id" required>
                                 <option value="">Pilih Indikator Kinerja</option>
                                 @foreach ($indikatorKinerjas as $indikator)
-                                    <option value="{{ $indikator->id }}">{{ $indikator->ik_nama }}</option>
+                                    <option value="{{ $indikator->ik_id }}">{{ $indikator->ik_nama }}</option>
                                 @endforeach
                             </select>
                         </div>

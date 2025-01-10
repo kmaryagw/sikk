@@ -45,7 +45,7 @@ class StandarController extends Controller
         $request->validate([
             'std_nama' => 'required|string|max:20',
             'std_deskripsi' => 'required',
-            'stdd_file' => 'nullable|file|mimes:pdf|max:2048',
+            'std_url' => 'required|url',
         ]);
 
         $customPrefix = 'STD';
@@ -57,28 +57,8 @@ class StandarController extends Controller
         $standar->std_id = $std_id;
         $standar->std_nama = $request->std_nama;
         $standar->std_deskripsi = $request->std_deskripsi;
+        $standar->std_url = $request->std_url;
         $standar->save();
-
-        if ($request->hasFile('stdd_file')) {
-            $file = $request->file('stdd_file');
-
-            $hashedFilename = Hash::make($file->getClientOriginalName());
-
-            $extension = $file->getClientOriginalExtension();
-            $filePath = $file->storeAs('dokumen', $hashedFilename . '.' . $extension, 'public');
-
-            $standardokumen = new standar_dokumen();
-            $standardokumen->stdd_id = uniqid();
-            $standardokumen->std_id = $standar->std_id;
-            $standardokumen->stdd_file = $filePath;
-            $standardokumen->save();
-
-            if (!$filePath) {
-                Alert::error('Error', 'File Gagal Disimpan!');
-                return back();
-            }           
-
-        }
 
         Alert::success('Sukses', 'Data Berhasil Ditambah');
         return redirect()->route('standar.index');
@@ -100,41 +80,13 @@ class StandarController extends Controller
         $request->validate([
             'std_nama' => 'required|string|max:20',
             'std_deskripsi' => 'required',
-            'stdd_file' => 'nullable|file|mimes:pdf|max:2048',
+            'std_url' => 'required|url',
         ]);
 
         $standar->std_nama = $request->std_nama;
         $standar->std_deskripsi = $request->std_deskripsi;
+        $standar->std_url = $request->std_url;
         $standar->save();
-
-        if ($request->hasFile('stdd_file')) {
-            $file = $request->file('stdd_file');
-
-            $hashedFilename = Hash::make($file->getClientOriginalName());
-
-            $extension = $file->getClientOriginalExtension();
-            $filePath = $file->storeAs('dokumen', $hashedFilename . '.' . $extension, 'public');
-
-            $standardokumen = standar_dokumen::where('std_id', $standar->std_id)->first();
-
-            if ($standardokumen && Storage::exists('public/' . $standardokumen->stdd_file)) {
-                Storage::delete('public/' . $standardokumen->stdd_file);
-            }
-
-            if (!$standardokumen) {
-                $standardokumen = new standar_dokumen();
-                $standardokumen->stdd_id = uniqid();
-                $standardokumen->std_id = $standar->std_id;
-            }
-
-            $standardokumen->stdd_file = $filePath;
-            $standardokumen->save();
-
-            if (!$filePath) {
-                Alert::error('Error', 'File Gagal Disimpan!');
-                return back();
-            }
-        }
 
         Alert::success('Sukses', 'Data Berhasil Diubah');
         return redirect()->route('standar.index');
@@ -143,12 +95,6 @@ class StandarController extends Controller
 
     public function destroy(standar $standar)
     {
-   
-        $standarDokumen = standar_dokumen::where('std_id', $standar->std_id)->first();
-        if ($standarDokumen) {
-            Storage::delete('public/' . $standarDokumen->stdd_file);
-        }
-
         $standar->delete();
         Alert::success('Sukses', 'Data Berhasil Dihapus');
         return redirect()->route('standar.index');

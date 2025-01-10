@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'create-falkutas')
+@section('title', 'edit-fakultas')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -16,10 +16,10 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Form Falkutas</h1>
+                <h1>Edit fakultas</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
-                    <div class="breadcrumb-item">Form Falkutas</div>
+                    <div class="breadcrumb-item">Form fakultas</div>
                 </div>
             </div>
 
@@ -39,23 +39,24 @@
                                     </div>
                                 @endif
 
-                                <form method="POST" action="{{ route('falkutasn.store') }}">
+                                <form action="{{ route('fakultasn.update', $fakultasn->id_fakultas) }}" method="POST">
                                     @csrf
+                                    @method('put')
                                     <div class="form-group">
-                                        <label>Nama falkutas</label>
+                                        <label>Nama fakultas</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
-                                                    <i class="fa-solid fa-building-columns"></i>
+                                                    <i class="fa-solid fa-school"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="nama_falkutas" value="{{ old('nama_falkutas') }}"/>
+                                            <input class="form-control" type="text" name="nama_fakultas" value="{{ old('nama_fakultas', $fakultasn->nama_fakultas) }}"/>
                                         </div>
                                     </div>
 
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Simpan</button>
-                                        <a href="{{ url('falkutasn') }}" class="btn btn-danger">Kembali</a>
+                                        <a href="{{ url('fakultasn') }}" class="btn btn-danger">Kembali</a>
                                     </div>
                                 </form>
                                 </div>
@@ -78,8 +79,6 @@
     <script src="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js') }}"></script>
     <script src="{{ asset('library/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ asset('library/selectric/public/jquery.selectric.min.js') }}"></script>
-
-    @include('sweetalert::alert')
 
     <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>

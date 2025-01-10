@@ -16,15 +16,17 @@ return new class extends Migration
             $table->string('username', 255);
             $table->string('password', 255);
             $table->string('status', 1);
-            $table->enum('role', ['admin', 'prodi', 'unit kerja']);
+            $table->enum('role', ['admin', 'prodi', 'unit kerja', 'fakultas']);
 
              // Menambahkan kolom prodi_id dan unit_kerja_id
             $table->string('prodi_id', 50)->nullable(); // menempatkan setelah kolom 'role'
-            $table->string('unit_id', 50)->nullable();; // menempatkan setelah kolom 'prodi_id'
+            $table->string('unit_id', 50)->nullable();
+            $table->string('id_fakultas', 50)->nullable();; // menempatkan setelah kolom 'prodi_id'
  
              // Menambahkan foreign key constraint
             $table->foreign('prodi_id')->references('prodi_id')->on('program_studi')->onDelete('set null');
             $table->foreign('unit_id')->references('unit_id')->on('unit_kerja')->onDelete('set null');
+            $table->foreign('id_fakultas')->references('id_fakultas')->on('fakultasn')->onDelete('set null');
 
             $table->timestamps();
         });
@@ -54,7 +56,8 @@ return new class extends Migration
             // Menghapus foreign key dan kolom
             $table->dropForeign(['prodi_id']);
             $table->dropForeign(['unit_id']);
-            $table->dropColumn(['prodi_id', 'unit_id']);
+            $table->dropForeign(['id_fakultas']);
+            $table->dropColumn(['prodi_id', 'unit_id', 'id_fakultas']);
         });
 
         Schema::dropIfExists('users');

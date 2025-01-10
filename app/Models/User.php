@@ -28,6 +28,7 @@ class User extends Authenticatable
         'role',
         'prodi_id',
         'unit_id',
+        'id_fakultas',
     ];
     
     /**
@@ -64,5 +65,10 @@ class User extends Authenticatable
     public function unitKerja()
     {
         return $this->belongsTo(UnitKerja::class, 'unit_id', 'unit_id');
+    }
+
+    public function fakultas()
+    {
+        return $this->belongsTo(Fakultasn::class, 'id_fakultas', 'id_fakultas');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Fakultasn;
 use App\Models\program_studi;
 use App\Models\UnitKerja;
 use App\Models\User;
@@ -75,6 +76,7 @@ class UserController extends Controller
         $usersQuery = User::where('username', 'like', '%' . $q . '%')
             ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'users.prodi_id')
             ->leftJoin('unit_kerja', 'unit_kerja.unit_id', '=', 'users.unit_id')
+            ->leftJoin('fakultasn', 'fakultasn.id_fakultas', '=', 'users.id_fakultas')
             ->orderBy('role', 'asc');
 
         if ($user->role === 'admin') {
@@ -101,14 +103,16 @@ class UserController extends Controller
     public function create()
     {
         $title = 'Tambah User';
-        $roles = ['admin', 'prodi', 'unit kerja'];
+        $roles = ['admin', 'prodi', 'unit kerja', 'fakultas'];
         $prodis = program_studi::orderBy('nama_prodi')->get();
         $units = UnitKerja::orderBy('unit_nama')->get();
+        $fakultasns = Fakultasn::orderBy('nama_fakultas')->get();
 
         return view('pages.create-user', [
             'title' => $title,
             'roles' => $roles,
             'prodis' => $prodis,
+            'fakultasns' => $fakultasns,
             'units' => $units,
             'type_menu' => 'masterdata',
             'sub_menu' => 'user',
@@ -121,21 +125,26 @@ class UserController extends Controller
             'username' => 'required|string|max:255',
             'status' => 'required|string|in:0,1',
             'password' => 'required|string|min:8',
-            'role' => 'required|in:admin,prodi,unit kerja',
+            'role' => 'required|in:admin,prodi,unit kerja,fakultas',
         ]);
 
         if ($request->role === 'prodi') {
             $rules['prodi_id'] = 'required|exists:program_studi,prodi_id';
             $rules['unit_id'] = 'nullable';
+            $rules['id_fakultas'] = 'nullable';
         } elseif ($request->role === 'unit kerja') {
             $rules['unit_id'] = 'required|exists:unit_kerja,id_unit_kerja';
             $rules['prodi_id'] = 'nullable';
+            $rules['id_fakultas'] = 'nullable';
+        } elseif ($request->role === 'fakultas') {
+            $rules['id_fakultas'] = 'required|exists:fakultasn,id_fakultas';
+            $rules['prodi_id'] = 'nullable';
+            $rules['unit_id'] = 'nullable';
         } elseif ($request->role === 'admin') {
             $rules['prodi_id'] = 'nullable';
             $rules['unit_id'] = 'nullable';
+            $rules['id_fakultas'] = 'nullable';
         }
-    
-        
     
         $customPrefix = 'US';
         $timestamp = time();
@@ -151,6 +160,7 @@ class UserController extends Controller
 
         $user->prodi_id = $request->prodi_id;
         $user->unit_id = $request->unit_id;
+        $user->id_fakultas = $request->id_fakultas;
     
         $user->save();
     
@@ -162,13 +172,15 @@ class UserController extends Controller
     public function edit(user $user)
     {
         $title = 'Ubah User';
-        $roles = ['admin','prodi','unit kerja'];
+        $roles = ['admin','prodi','unit kerja', 'fakultas'];
         $prodis = program_studi::orderBy('nama_prodi')->get();
         $units = UnitKerja::orderBy('unit_nama')->get();
+        $fakultasns = Fakultasn::orderBy('nama_fakultas')->get();
         return view('pages.edit-user', [
             'title' => $title,
             'prodis' => $prodis,
             'units' => $units,
+            'fakultasns' => $fakultasns,
             'roles' => $roles,
             'user' => $user,
             'type_menu' => 'masterdata',
@@ -181,7 +193,7 @@ class UserController extends Controller
         $request->validate([
             'username' => 'required|string|max:255',
             'status' => 'required|string|in:0,1',
-            'role' => 'required|in:admin,prodi,unit kerja',
+            'role' => 'required|in:admin,prodi,unit kerja,fakultas',
         ]);
 
         if (User::where('username', $request->username)->where('id_user', '<>', $user->id_user)->first()) {
@@ -205,15 +217,25 @@ class UserController extends Controller
             ]);
             $user->prodi_id = $request->prodi_id;
             $user->unit_id = null;
+            $user->id_fakultas = null;
         } elseif ($request->role === 'unit kerja') {
             $request->validate([
                 'unit_id' => 'required|exists:unit_kerja,unit_id',
             ]);
             $user->unit_id = $request->unit_id;
             $user->prodi_id = null;
+            $user->id_fakultas = null;
+        } elseif ($request->role === 'fakultas') {
+            $request->validate([
+                'fakultas' => 'required|exists:fakultasn,id_fakultas',
+            ]);
+            $user->id_fakultas = $request->id_fakultas;
+            $user->prodi_id = null;
+            $user->unit_id = null;
         } else {
             $user->prodi_id = null;
             $user->unit_id = null;
+            $user->id_fakultas = null;
         }
 
         $user->save();

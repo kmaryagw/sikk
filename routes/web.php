@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\EvaluasiController;
 use App\Http\Controllers\FalkutasController;
-use App\Http\Controllers\FalkutasnController;
+use App\Http\Controllers\FakultasnController;
 use App\Http\Controllers\IndikatorKinerjaController;
 use App\Http\Controllers\LaporanIkuController;
 use App\Http\Controllers\LaporanRenjaController;
@@ -31,7 +31,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('user', UserController::class);
     Route::resource('unit', UnitKerjaController::class);
     Route::resource('prodi', ProdiController::class);
-    Route::resource('falkutasn', FalkutasnController::class);
+    Route::resource('fakultasn', FakultasnController::class);
     Route::resource('renstra', RenstraController::class);
     Route::resource('tahun', TahunController::class);
     Route::resource('periodemonev', PeriodeMonevController::class);

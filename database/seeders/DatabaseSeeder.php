@@ -31,13 +31,12 @@ class DatabaseSeeder extends Seeder
             Indikator_kinerjaSeeder::class,
             Target_indikatorSeeder::class,
             Periode_monevSeeder::class,
-            Standar_dokumenSeeder::class,
             EvaluasiSeeder::class,
             RencanaKerjaTargetIndikatorSeeder::class,
             RencanaKerjaSeeder::class,
             MonitoringSeeder::class,
             RencanaKerjaPelaksanaanSeeder::class,
-            FalkutasnSeeder::class,
+            FakultasnSeeder::class,
             SettingSeeder::class,
         ]);
     }
