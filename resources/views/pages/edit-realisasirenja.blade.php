@@ -101,31 +101,6 @@
                                             </div>
                                         </div>
 
-                                        <div class="form-group">
-                                            <label>Dokumen yang Sudah Diunggah</label>
-                                            <div>
-                                                @if($realisasi->rkr_file)
-                                                    <a class="btn btn-success" href="{{ asset('storage/' . $realisasi->rkr_file) }}" target="_blank"><i class="fa-solid fa-eye"></i> Lihat Dokumen</a><br>
-                                                @else
-                                                    <span class="text-muted">Tidak Ada Dokumen</span>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                        <!-- File Realisasi -->
-                                        <div class="form-group">
-                                            <label for="rkr_file">File Realisasi (Opsional)</label>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <div class="input-group-text">
-                                                        <i class="fa-solid fa-file-upload"></i>
-                                                    </div>
-                                                </div>
-                                                <input class="form-control" type="file" name="rkr_file" />
-                                            </div>
-                                            <small class="text-muted">Biarkan kosong jika tidak ingin mengganti dokumen.</small>
-                                        </div>
-
                                         <!-- Submit Button -->
                                         <div class="form-group">
                                             <button type="submit" class="btn btn-primary">Simpan</button>

@@ -52,6 +52,7 @@
                                 <th>No</th>
                                 <th>Indikator Kinerja</th>
                                 <th>Jenis</th>
+                                <th>Nilai Baseline</th>
                                 <th>Target Capaian</th>
                                 <th>Keterangan</th>
                                 <th>Prodi</th>
@@ -72,6 +73,28 @@
                                             <span class="badge badge-primary">IKT</span>
                                         @else
                                             <span class="badge badge-secondary">Tidak Diketahui</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($targetcapaian->ik_ketercapaian == 'persentase' && is_numeric($targetcapaian->ik_baseline))
+                                            <div class="progress">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     style="width: {{ intval($targetcapaian->ik_baseline) }}%;" 
+                                                     aria-valuenow="{{ intval($targetcapaian->ik_baseline) }}" 
+                                                     aria-valuemin="0" aria-valuemax="100">
+                                                    {{ $targetcapaian->ik_baseline }}%
+                                                </div>
+                                            </div>
+                                        @elseif ($targetcapaian->ik_ketercapaian == 'nilai' && is_numeric($targetcapaian->ik_baseline))
+                                            <span class="badge badge-primary">{{ $targetcapaian->ik_baseline }}</span>
+                                        @elseif (in_array(strtolower($targetcapaian->ik_baseline), ['ada', 'draft']))
+                                            @if (strtolower($targetcapaian->ik_baseline) === 'ada')
+                                                <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
+                                            @else
+                                                <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
+                                            @endif
+                                        @else
+                                            {{ $targetcapaian->ik_baseline }}
                                         @endif
                                     </td>
                                     <td>
@@ -102,7 +125,7 @@
 
                                     @if (Auth::user()->role== 'admin' || Auth::user()->role == 'prodi')
                                     <td>
-                                        <a class="btn btn-warning" href="{{ route('targetcapaian.edit', $targetcapaian->ti_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
+                                        <a class="btn btn-warning mb-2 mt-2" href="{{ route('targetcapaian.edit', $targetcapaian->ti_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
                                         <form id="delete-form-{{ $targetcapaian->ti_id }}" method="POST" class="d-inline" action="{{ route('targetcapaian.destroy', $targetcapaian->ti_id) }}">
 
                                             @csrf

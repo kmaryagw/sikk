@@ -59,13 +59,26 @@ public function create()
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validationRules = [
             'ik_kode' => 'required|string|max:255',
             'ik_nama' => 'required|string|max:255',
             'std_id' => 'required|string',
             'ik_jenis' => 'required|in:IKU,IKT',
+            'ik_baseline' => 'required',
             'ik_ketercapaian' => 'required|in:nilai,persentase,ketersediaan',
-        ]);
+        ];
+
+        if ($request) {
+            if ($request->ik_ketercapaian == 'nilai') {
+                $validationRules['ik_baseline'] = 'required|numeric|min:0';
+            } elseif ($request->ik_ketercapaian == 'persentase') {
+                $validationRules['ik_baseline'] = 'required|numeric|min:0|max:100';
+            } elseif ($request->ik_ketercapaian == 'ketersediaan') {
+                $validationRules['ik_baseline'] = 'required|string';
+            }
+        }
+
+        $request->validate($validationRules);
 
         $customPrefix = 'IK';
         $timestamp = time();
@@ -78,6 +91,7 @@ public function create()
         $indikatorkinerja->ik_nama = $request->ik_nama;
         $indikatorkinerja->std_id = $request->std_id;
         $indikatorkinerja->ik_jenis = $request->ik_jenis;
+        $indikatorkinerja->ik_baseline = $request->ik_baseline;
         $indikatorkinerja->ik_ketercapaian = $request->ik_ketercapaian;
 
         $indikatorkinerja->save();
@@ -107,18 +121,32 @@ public function create()
 
     public function update(IndikatorKinerja $indikatorkinerja, Request $request)
     {
-        $request->validate([
+        $validationRules = [
             'ik_kode' => 'required|string|max:255',
             'ik_nama' => 'required|string|max:255',
             'std_id' => 'required|string',
             'ik_jenis' => 'required|in:IKU,IKT',
+            'ik_baseline' => 'required',
             'ik_ketercapaian' => 'required|in:nilai,persentase,ketersediaan',
-        ]);
+        ];
+
+        if ($request) {
+            if ($request->ik_ketercapaian == 'nilai') {
+                $validationRules['ik_baseline'] = 'required|numeric|min:0';
+            } elseif ($request->ik_ketercapaian == 'persentase') {
+                $validationRules['ik_baseline'] = 'required|numeric|min:0|max:100';
+            } elseif ($request->ik_ketercapaian == 'ketersediaan') {
+                $validationRules['ik_baseline'] = 'required|string';
+            }
+        }
+
+        $request->validate($validationRules);
 
         $indikatorkinerja->ik_kode = $request->ik_kode;
         $indikatorkinerja->ik_nama = $request->ik_nama;
         $indikatorkinerja->std_id = $request->std_id;
         $indikatorkinerja->ik_jenis = $request->ik_jenis;
+        $indikatorkinerja->ik_baseline = $request->ik_baseline;
         $indikatorkinerja->ik_ketercapaian = $request->ik_ketercapaian;
 
         $indikatorkinerja->save();

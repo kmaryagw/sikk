@@ -75,10 +75,7 @@
                                                 placeholder="Masukkan nama indikator" required>
                                         </div>
                                     </div>
-                                </div>
 
-                                <!-- Kolom Kanan -->
-                                <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="std_id">Standar</label>
                                         <div class="input-group">
@@ -98,10 +95,9 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                                
 
-                            <!-- Baris Tambahan -->
-                            <div class="row">
+                                <!-- Kolom Kanan -->
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="ik_jenis">Jenis Indikator Kinerja</label>
@@ -120,24 +116,41 @@
                                             </select>
                                         </div>
                                     </div>
-                                </div>
-
-                                <div class="col-md-6">
+                                    
                                     <div class="form-group">
                                         <label for="ik_ketercapaian">Pengukur Ketercapaian</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
-                                                    <i class="fa-solid fa-check"></i>
+                                                    <i class="fas fa-chart-line"></i>
                                                 </div>
                                             </div>
-                                            <select id="ik_ketercapaian" name="ik_ketercapaian" class="form-control" required>
+                                            <select id="ik_ketercapaian" name="ik_ketercapaian" class="form-control" required onchange="updateBaselinePlaceholder()">
+                                            <option value="" disabled>Pilih Ketercapaian</option>
                                                 @foreach ($ketercapaians as $ketercapaian)
-                                                    <option value="{{ $ketercapaian }}" {{ old('ik_ketercapaian', $indikatorkinerja->ik_ketercapaian) == $ketercapaian ? 'selected' : '' }}>
+                                                    <option value="{{ $ketercapaian }}" 
+                                                        {{ old('ik_ketercapaian', $indikatorkinerja->ik_ketercapaian) == $ketercapaian ? 'selected' : '' }}>
                                                         {{ $ketercapaian }}
                                                     </option>
                                                 @endforeach
                                             </select>
+                                        </div> 
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="ik_baseline">Nilai Baseline</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fas fa-sort-amount-down"></i>
+                                                </div>
+                                            </div>
+                                            <input type="text" id="ik_baseline" name="ik_baseline" 
+                                                class="form-control @error('ik_baseline') is-invalid @enderror" 
+                                                value="{{ old('ik_baseline', $indikatorkinerja->ik_baseline) }}" placeholder="Masukkan nilai baseline" required>
+                                            @error('ik_baseline')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                     </div>
                                 </div>
@@ -173,4 +186,31 @@
 
     <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>
+    <script>
+        function updateBaselinePlaceholder() {
+            const ketercapaian = document.getElementById('ik_ketercapaian').value;
+            const baselineInput = document.getElementById('ik_baseline');
+    
+            if (ketercapaian === 'nilai') {
+                baselineInput.placeholder = 'Isi dengan angka (contoh: 1.1, 1.2)';
+                baselineInput.type = 'number';
+                baselineInput.min = 0;
+                baselineInput.step = '0.1';
+            } else if (ketercapaian === 'persentase') {
+                baselineInput.placeholder = 'Isi dengan angka 1-100%';
+                baselineInput.type = 'number';
+                baselineInput.min = 0;
+                baselineInput.max = 100;
+                baselineInput.step = '1';
+            } else if (ketercapaian === 'ketersediaan') {
+                baselineInput.placeholder = 'Isi dengan "ada" atau "draft"';
+                baselineInput.type = 'text';
+                baselineInput.removeAttribute('min');
+                baselineInput.removeAttribute('max');
+                baselineInput.removeAttribute('step');
+            }
+        }
+    
+        window.onload = updateBaselinePlaceholder;
+    </script>    
 @endpush

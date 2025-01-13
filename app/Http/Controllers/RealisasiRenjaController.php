@@ -86,33 +86,18 @@ class RealisasiRenjaController extends Controller
     {
         $request->validate([
             'rkr_url' => 'nullable|url',
-            'rkr_file' => 'nullable|file|mimes:pdf|max:2048',
             'rkr_deskripsi' => 'nullable|string',
             'rkr_capaian' => 'required|integer',
             'rkr_tanggal' => 'required|date',
             'pm_id' => 'nullable',
         ]);
 
-        if (empty($request->rkr_url) && empty($request->rkr_deskripsi)) {
-            Alert::error('Error', 'URL atau Deskripsi harus diisi.');
-            return back()->withInput();
-        }
 
         $realisasi = new RealisasiRenja();
         $realisasi->rk_id = $request->rk_id;
         $realisasi->rkr_url = $request->rkr_url;
 
         $realisasi->rkr_id = 'RKR' . md5(uniqid(rand(), true));
-
-        if ($request->hasFile('rkr_file')) {
-            $file = $request->file('rkr_file');
-        
-            $hashedFileName = Hash::make($file->getClientOriginalName());
-        
-            $filePath = $file->storeAs('realisasi_files', $hashedFileName, 'public');
-        
-            $realisasi->rkr_file = $filePath;
-        }
 
         $realisasi->rkr_deskripsi = $request->rkr_deskripsi;
         $realisasi->rkr_capaian = $request->rkr_capaian;
@@ -144,40 +129,16 @@ class RealisasiRenjaController extends Controller
     {
         $request->validate([
             'rkr_url' => 'nullable|url',
-            'rkr_file' => 'nullable|file|mimes:pdf|max:2048',
             'rkr_deskripsi' => 'nullable|string',
             'rkr_capaian' => 'required|integer',
             'rkr_tanggal' => 'required|date',
             'pm_id' => 'nullable',
         ]);
 
-        if (empty($request->rkr_url) && empty($request->rkr_deskripsi)) {
-            Alert::error('Error', 'URL atau Deskripsi harus diisi.');
-            return back()->withInput();
-        }
-
         $realisasi = RealisasiRenja::findOrFail($id);
 
         $realisasi->rk_id = $request->rk_id;
         $realisasi->rkr_url = $request->rkr_url;
-
-        if ($request->hasFile('rkr_file')) {
-            $file = $request->file('rkr_file');
-            $hashedFilename = Hash::make($file->getClientOriginalName());
-            $extension = $file->getClientOriginalExtension();
-            $filePath = $file->storeAs('realisasi_files', $hashedFilename . '.' . $extension, 'public');
-
-            if (!$filePath) {
-                Alert::error('Error', 'File Gagal Disimpan!');
-                return back()->withInput();
-            }
-
-            if ($realisasi && Storage::exists('public/' . $realisasi->rkr_file)) {
-                Storage::delete('public/' . $realisasi->rkr_file);
-            }
-
-            $realisasi->rkr_file = $filePath;
-        }
 
         $realisasi->rkr_deskripsi = $request->rkr_deskripsi;
         $realisasi->rkr_capaian = $request->rkr_capaian;

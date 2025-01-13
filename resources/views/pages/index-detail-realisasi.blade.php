@@ -79,7 +79,6 @@
                                 <th>Capaian</th>
                                 <th>Tanggal</th>
                                 <th>Url</th>
-                                <th>File</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -106,13 +105,6 @@
                                             <a href="{{ $item->rkr_url}}" target="_blank" class="btn btn-success">Lihat URL</a>
                                         @else
                                             Tidak Ada URL
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if($item->rkr_file)
-                                            <a class="btn btn-success" href="{{ asset('storage/' . $item->rkr_file) }}" target="_blank"><i class="fa-solid fa-eye"></i> Lihat Dokumen</a><br>
-                                        @else
-                                            Tidak Ada Dokumen
                                         @endif
                                     </td>
                                     <td>

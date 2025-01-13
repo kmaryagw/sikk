@@ -21,7 +21,6 @@ class RealisasiRenja extends Model
         'rk_id',
         'pm_id',
         'rkr_url',
-        'rkr_file',
         'rkr_deskripsi',
         'rkr_capaian',
         'rkr_tanggal'

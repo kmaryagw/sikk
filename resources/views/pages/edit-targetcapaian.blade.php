@@ -45,21 +45,23 @@
                                     <div class="row">
                                         <!-- Kolom Kiri -->
                                         <div class="col-md-6">
+                                            <!-- Indikator Kinerja -->
                                             <div class="form-group">
-                                                <label>Indikator Kinerja</label>
+                                                <label for="ik_id">Indikator Kinerja</label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
                                                         <div class="input-group-text">
                                                             <i class="fa-solid fa-bullseye"></i>
                                                         </div>
                                                     </div>
-                                                    <select class="form-control" name="ik_id" required>
+                                                    <select class="form-control" name="ik_id" id="ik_id" required>
                                                         <option value="" disabled>Pilih Indikator Kinerja</option>
-                                                        @foreach ($indikatorkinerjautamas as $indikatorkinerjautama)
-                                                            <option value="{{ $indikatorkinerjautama->ik_id }}"
-                                                                data-jenis="{{ $indikatorkinerjautama->ik_jenis }}"
-                                                                {{ $indikatorkinerjautama->ik_id == $targetcapaian->ik_id ? 'selected' : '' }}>
-                                                                {{ $indikatorkinerjautama->ik_kode }} - {{ $indikatorkinerjautama->ik_nama }}
+                                                        @foreach ($indikatorkinerjautamas as $indikatorkinerja)
+                                                            <option value="{{ $indikatorkinerja->ik_id }}" 
+                                                                data-jenis="{{ $indikatorkinerja->ik_ketercapaian }}"
+                                                                data-baseline="{{ $indikatorkinerja->ik_baseline }}"
+                                                                {{ old('ik_id', $targetcapaian->ik_id) == $indikatorkinerja->ik_id ? 'selected' : '' }}>
+                                                                {{ $indikatorkinerja->ik_kode }} - {{ $indikatorkinerja->ik_nama }}
                                                             </option>
                                                         @endforeach
                                                     </select>
@@ -67,7 +69,22 @@
                                             </div>
 
                                             <div class="form-group">
-                                                <label>Target Capaian</label>
+                                                <label for="ik_baseline">Nilai Baseline</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fas fa-sort-amount-down"></i>
+                                                        </div>
+                                                    </div>
+                                                    <input type="text" id="ik_baseline" name="ik_baseline_display" 
+                                                        class="form-control" 
+                                                        value="{{ $baseline ?? 'Pilih Indikator Kinerja Terlebih Dahulu' }}" readonly>
+                                                </div>
+                                            </div>
+
+                                            <!-- Target Capaian -->
+                                            <div class="form-group">
+                                                <label for="ti_target">Target Capaian</label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
                                                         <div class="input-group-text">
@@ -75,12 +92,28 @@
                                                         </div>
                                                     </div>
                                                     <input type="text" id="ti_target" name="ti_target" class="form-control" 
-                                                        placeholder="Isi Target Capaian" 
-                                                        value="{{ old('ti_target', $targetcapaian->ti_target) }}" required>
+                                                        value="{{ old('ti_target', $targetcapaian->ti_target) }}" placeholder="Isi Target Capaian" required>
                                                 </div>
                                                 <small id="ti_target_hint" class="form-text text-muted">Isi sesuai dengan jenis ketercapaian.</small>
                                             </div>
+                                        </div>
 
+                                        <!-- Kolom Kanan -->
+                                        <div class="col-md-6">
+                                            <!-- Keterangan -->
+                                            <div class="form-group">
+                                                <label>Keterangan</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fa-solid fa-clipboard-list"></i>
+                                                        </div>
+                                                    </div>
+                                                    <textarea class="form-control" name="ti_keterangan" required>{{ old('ti_keterangan', $targetcapaian->ti_keterangan) }}</textarea>
+                                                </div>
+                                            </div>
+
+                                            <!-- Prodi -->
                                             <div class="form-group">
                                                 <label>Prodi</label>
                                                 <div class="input-group">
@@ -100,22 +133,8 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <!-- Kolom Kanan -->
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>Keterangan</label>
-                                                <div class="input-group">
-                                                    <div class="input-group-prepend">
-                                                        <div class="input-group-text">
-                                                            <i class="fa-solid fa-clipboard-list"></i>
-                                                        </div>
-                                                    </div>
-                                                    <textarea class="form-control" name="ti_keterangan" required>{{ old('ti_keterangan', $targetcapaian->ti_keterangan) }}</textarea>
-                                                </div>
-                                            </div>
-
+                                            <!-- Tahun -->
                                             <div class="form-group">
                                                 <label>Tahun</label>
                                                 <div class="input-group">
@@ -161,8 +180,9 @@
             const tiTargetInput = document.getElementById("ti_target");
             const tiTargetHint = document.getElementById("ti_target_hint");
 
-            ikSelect.addEventListener("change", function () {
-                const selectedOption = this.options[this.selectedIndex];
+            // Fungsi untuk memperbarui placeholder dan hint
+            function updateTargetFields() {
+                const selectedOption = ikSelect.options[ikSelect.selectedIndex];
                 const jenis = selectedOption.getAttribute("data-jenis");
 
                 if (jenis === "nilai") {
@@ -178,7 +198,24 @@
                     tiTargetInput.placeholder = "Isi Target Capaian";
                     tiTargetHint.textContent = "Isi sesuai dengan jenis ketercapaian.";
                 }
-            });
+            }
+
+            // Jalankan saat dropdown berubah
+            ikSelect.addEventListener("change", updateTargetFields);
+
+            // Jalankan saat halaman selesai dimuat
+            updateTargetFields();
+        });
+    </script>    
+    <script>
+        // Kosongkan baseline saat halaman dimuat
+        document.getElementById('ik_baseline').value = '{{ $baseline ?? 'Pilih Indikator Kinerja Terlebih Dahulu' }}';
+    
+        // Ketika ada perubahan pada pilihan indikator kinerja
+        document.getElementById('ik_id').addEventListener('change', function() {
+            var selectedOption = this.options[this.selectedIndex];
+            var baseline = selectedOption.getAttribute('data-baseline');
+            document.getElementById('ik_baseline').value = baseline;
         });
     </script>
 @endpush

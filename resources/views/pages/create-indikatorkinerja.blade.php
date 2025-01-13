@@ -21,7 +21,6 @@
 
             <div class="section-body">
                 <div class="card">
-                   
                     <div class="card-body">
                         @if ($errors->any())
                             <div class="alert alert-danger">
@@ -38,7 +37,6 @@
                             <div class="row">
                                 <!-- Kolom Kiri -->
                                 <div class="col-md-6">
-                                    <!-- Kode Indikator Kinerja -->
                                     <div class="form-group">
                                         <label for="ik_kode">Kode Indikator Kinerja</label>
                                         <div class="input-group">
@@ -56,7 +54,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- Nama Indikator Kinerja -->
                                     <div class="form-group">
                                         <label for="ik_nama">Nama Indikator Kinerja</label>
                                         <div class="input-group">
@@ -74,7 +71,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- Standar -->
                                     <div class="form-group">
                                         <label for="std_id">Standar</label>
                                         <div class="input-group">
@@ -87,7 +83,9 @@
                                                 class="form-control @error('std_id') is-invalid @enderror" required>
                                                 <option value="" disabled selected>Pilih Standar</option>
                                                 @foreach ($standar as $s)
-                                                    <option value="{{ $s->std_id }}" {{ old('std_id') == $s->std_id ? 'selected' : '' }}>{{ $s->std_nama }}</option>
+                                                    <option value="{{ $s->std_id }}" {{ old('std_id') == $s->std_id ? 'selected' : '' }}>
+                                                        {{ $s->std_nama }}
+                                                    </option>
                                                 @endforeach
                                             </select>
                                             @error('std_id')
@@ -111,13 +109,14 @@
                                                 class="form-control" required>
                                                 <option value="" disabled selected>Pilih Jenis</option>
                                                 @foreach ($jeniss as $jenis)
-                                                    <option value="{{ $jenis }}" {{ old('ik_jenis') == $jenis ? 'selected' : '' }}>{{ $jenis }}</option>
+                                                    <option value="{{ $jenis }}" {{ old('ik_jenis') == $jenis ? 'selected' : '' }}>
+                                                        {{ $jenis }}
+                                                    </option>
                                                 @endforeach
                                             </select>
                                         </div>
                                     </div>
 
-                                    <!-- Pengukur Ketercapaian -->
                                     <div class="form-group">
                                         <label for="ik_ketercapaian">Pengukur Ketercapaian</label>
                                         <div class="input-group">
@@ -127,18 +126,36 @@
                                                 </div>
                                             </div>
                                             <select id="ik_ketercapaian" name="ik_ketercapaian" 
-                                                class="form-control" required>
+                                                class="form-control" required onchange="updateBaselinePlaceholder()">
                                                 <option value="" disabled selected>Pilih Ketercapaian</option>
                                                 @foreach ($ketercapaians as $ketercapaian)
-                                                    <option value="{{ $ketercapaian }}" {{ old('ik_ketercapaian') == $ketercapaian ? 'selected' : '' }}>{{ $ketercapaian }}</option>
+                                                    <option value="{{ $ketercapaian }}" {{ old('ik_ketercapaian') == $ketercapaian ? 'selected' : '' }}>
+                                                        {{ $ketercapaian }}
+                                                    </option>
                                                 @endforeach
                                             </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="ik_baseline">Nilai Baseline</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fas fa-sort-amount-down"></i>
+                                                </div>
+                                            </div>
+                                            <input type="text" id="ik_baseline" name="ik_baseline" 
+                                                class="form-control @error('ik_baseline') is-invalid @enderror" 
+                                                value="{{ old('ik_baseline') }}" placeholder="Masukkan nilai baseline" required>
+                                            @error('ik_baseline')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Tombol Aksi -->
                             <div class="form-group text-right">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-save"></i> Simpan
@@ -170,4 +187,29 @@
 
     <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>
+    <script>
+        function updateBaselinePlaceholder() {
+            const ketercapaian = document.getElementById('ik_ketercapaian').value;
+            const baselineInput = document.getElementById('ik_baseline');
+
+            if (ketercapaian === 'nilai') {
+                baselineInput.placeholder = 'Isi dengan angka (contoh: 1.1, 1.2)';
+                baselineInput.type = 'number';
+                baselineInput.min = 0;
+                baselineInput.step = '0.1';
+            } else if (ketercapaian === 'persentase') {
+                baselineInput.placeholder = 'Isi dengan angka 1-100%';
+                baselineInput.type = 'number';
+                baselineInput.min = 0;
+                baselineInput.max = 100;
+                baselineInput.step = '1';
+            } else if (ketercapaian === 'ketersediaan') {
+                baselineInput.placeholder = 'Isi dengan "ada" atau "draft"';
+                baselineInput.type = 'text';
+                baselineInput.removeAttribute('min');
+                baselineInput.removeAttribute('max');
+                baselineInput.removeAttribute('step');
+            }
+        }
+    </script>
 @endpush

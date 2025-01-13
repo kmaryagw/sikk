@@ -69,12 +69,14 @@ class TargetCapaianController extends Controller
         $title = 'Tambah Target Capaian';
         
         $indikatorkinerjas = IndikatorKinerja::orderBy('ik_nama')->get();
+        $baseline = null;
         $prodis = program_studi::orderBy('nama_prodi', 'asc')->get();
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
 
         return view('pages.create-targetcapaian', [
             'title' => $title,
             'indikatorkinerjas' => $indikatorkinerjas,
+            'baseline' => $baseline,
             'prodis' => $prodis,
             'tahuns' => $tahuns,
             'type_menu' => 'targetcapaian',
@@ -132,10 +134,13 @@ class TargetCapaianController extends Controller
     $prodis = program_studi::orderBy('nama_prodi')->get();
     $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
 
+    $baseline = $targetcapaian->indikatorKinerja->ik_baseline;
+
     return view('pages.edit-targetcapaian', [
         'title' => $title,
         'targetcapaian' => $targetcapaian,
         'indikatorkinerjautamas' => $indikatorkinerjautamas,
+        'baseline' => $baseline,
         'prodis' => $prodis,
         'tahuns' => $tahuns,
         'type_menu' => 'targetcapaian',

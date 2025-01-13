@@ -35,6 +35,10 @@
                             <div class="has-icon">
                                 <i class="fas fa-briefcase"></i> {{ Auth::user()->unitKerja->unit_nama }}
                             </div>
+                        @elseif (Auth::user()->role == 'fakultas' && Auth::user()->fakultas)
+                            <div class="has-icon">
+                                <i class="fas fa-school"></i> {{ Auth::user()->fakultas->nama_fakultas }}
+                            </div>
                         @endif
                     </div>
                     <div class="dropdown-divider"></div>

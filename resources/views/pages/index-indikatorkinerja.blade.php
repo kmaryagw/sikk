@@ -41,6 +41,7 @@
                                 <th>Standar</th>
                                 <th>Jenis</th>
                                 <th>Pengukur Ketercapaian</th>
+                                <th>Nilai Baseline</th>
                                 @if (Auth::user()->role== 'admin')
                                 <th>Aksi</th>
                                 @endif
@@ -64,11 +65,33 @@
                                         @endif
                                     </td>                                    
                                     <td>{{ $indikatorkinerja->ik_ketercapaian }}</td>
+                                    <td>
+                                        @if ($indikatorkinerja->ik_ketercapaian == 'persentase' && is_numeric($indikatorkinerja->ik_baseline))
+                                            <div class="progress">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     style="width: {{ intval($indikatorkinerja->ik_baseline) }}%;" 
+                                                     aria-valuenow="{{ intval($indikatorkinerja->ik_baseline) }}" 
+                                                     aria-valuemin="0" aria-valuemax="100">
+                                                    {{ $indikatorkinerja->ik_baseline }}%
+                                                </div>
+                                            </div>
+                                        @elseif ($indikatorkinerja->ik_ketercapaian == 'nilai' && is_numeric($indikatorkinerja->ik_baseline))
+                                            <span class="badge badge-primary">{{ $indikatorkinerja->ik_baseline }}</span>
+                                        @elseif (in_array(strtolower($indikatorkinerja->ik_baseline), ['ada', 'draft']))
+                                            @if (strtolower($indikatorkinerja->ik_baseline) === 'ada')
+                                                <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
+                                            @else
+                                                <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
+                                            @endif
+                                        @else
+                                            {{ $indikatorkinerja->ik_baseline }}
+                                        @endif
+                                    </td> 
 
                                     @if (Auth::user()->role== 'admin')
                                     <td>
                                         
-                                            <a class="btn btn-warning" href="{{ route('indikatorkinerja.edit', $indikatorkinerja->ik_id) }}">
+                                            <a class="btn btn-warning mb-2 mt-2" href="{{ route('indikatorkinerja.edit', $indikatorkinerja->ik_id) }}">
                                                 <i class="fa-solid fa-pen-to-square"></i> Ubah
                                             </a>
                                             <form id="delete-form-{{ $indikatorkinerja->ik_id }}" method="POST" class="d-inline" action="{{ route('indikatorkinerja.destroy', $indikatorkinerja->ik_id) }}">

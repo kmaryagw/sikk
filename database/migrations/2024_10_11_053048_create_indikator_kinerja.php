@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('ik_nama', 255);
             $table->enum('ik_jenis', ['IKU', 'IKT']);
             $table->enum('ik_ketercapaian', ['nilai', 'persentase', 'ketersediaan']);
+            $table->string('ik_baseline', 100);
             $table->string('std_id', 50);
             $table->foreign('std_id')->references('std_id')->on('standar')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();

@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('rk_id', 50);
             $table->string('pm_id', 255)->nullable();
             $table->string('rkr_url', 255)->nullable();
-            $table->string('rkr_file', 255)->nullable();
             $table->text('rkr_deskripsi');
             $table->integer('rkr_capaian');
             $table->datetime('rkr_tanggal');
