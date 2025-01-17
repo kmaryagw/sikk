@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\periode_monev;
+use App\Models\program_studi;
 use App\Models\RencanaKerja;
 use App\Models\tahun_kerja;
 use App\Models\target_indikator;
@@ -80,6 +81,7 @@ class ProgramKerjaController extends Controller
         $units = UnitKerja::where('unit_kerja', 'y')->get();
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
         $periodes = periode_monev::orderBy('pm_nama')->get();
+        $programStudis = program_studi::orderBy('nama_prodi')->get();
 
         // $targetindikators = target_indikator::with('indikatorKinerja')
         //     ->join('indikator_kinerja', 'target_indikator.ik_id', '=', 'indikator_kinerja.ik_id')
@@ -98,6 +100,7 @@ class ProgramKerjaController extends Controller
             'tahuns' => $tahuns,
             'periodes' => $periodes,
             'targetindikators' => $targetindikators,
+            'programStudis' => $programStudis,
             'type_menu' => 'programkerja',
         ]);
     }
@@ -110,6 +113,8 @@ class ProgramKerjaController extends Controller
             'th_id' => 'required|exists:tahun_kerja,th_id',
             'pm_id' => 'array',
             'ti_id' => 'array',
+            'prodi_id' => 'required|array',
+            'prodi_id' => 'exists:program_studi,prodi_id',
         ]);
 
         $unitAktif = UnitKerja::where('unit_id', $request->unit_id)->where('unit_kerja', 'y')->exists();
@@ -146,6 +151,18 @@ class ProgramKerjaController extends Controller
             DB::table('rencana_kerja_pelaksanaan')->insert($dataToInsert);
         }
 
+        if ($request->has('prodi_id') && count($request->prodi_id) > 0) {
+            $dataToInsert = collect($request->prodi_id)->map(function ($prodi_id) use ($programkerja) {
+                return [
+                    'rkps_id' => Str::uuid()->toString(),
+                    'rk_id' => $programkerja->rk_id,
+                    'prodi_id' => $prodi_id,
+                ];
+            })->toArray();
+    
+            DB::table('rencana_kerja_program_studi')->insert($dataToInsert);
+        }
+
         if ($request->has('ti_id')) {
             $ti_ids = $request->ti_id;
         
@@ -166,99 +183,138 @@ class ProgramKerjaController extends Controller
     }
 
     public function edit(RencanaKerja $programkerja)
-    {
-        $title = 'Ubah Program Kerja';
-        $units = UnitKerja::where('unit_kerja', 'y')->get();
-        $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
-        $periodes = periode_monev::orderBy('pm_nama')->get();
-        // $targetindikators = target_indikator::with('indikatorKinerja')
-        //     ->join('indikator_kinerja', 'target_indikator.ik_id', '=', 'indikator_kinerja.ik_id')
-        //     ->orderBy('indikator_kinerja.ik_nama', 'asc')
-        //     ->pluck('indikator_kinerja.ik_nama', 'target_indikator.ti_id');
+{
+    $title = 'Ubah Program Kerja';
 
-        $targetindikators = target_indikator::with('indikatorKinerja')
-            ->join('indikator_kinerja', 'target_indikator.ik_id', '=', 'indikator_kinerja.ik_id')
-            ->orderBy('indikator_kinerja.ik_nama', 'asc')
-            ->get(['target_indikator.ti_id', 'indikator_kinerja.ik_kode', 'indikator_kinerja.ik_nama']);
+    // Ambil data unit kerja yang aktif
+    $units = UnitKerja::where('unit_kerja', 'y')->get();
 
-        $selectedPeriodes = $programkerja->periodes->pluck('pm_id')->toArray();
-        $selectedIndikators = $programkerja->targetindikators()->pluck('target_indikator.ti_id')->toArray();
+    // Ambil data tahun kerja yang aktif
+    $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
 
-        return view('pages.edit-programkerja', [
-            'title' => $title,
-            'programkerja' => $programkerja,
-            'units' => $units,
-            'tahuns' => $tahuns,
-            'periodes' => $periodes,
-            'selectedPeriodes' => $selectedPeriodes,
-            'selectedIndikators' => $selectedIndikators,
-            'targetindikators' => $targetindikators,
-            'type_menu' => 'programkerja',
-        ]);
-    }
+    // Ambil semua periode monev
+    $periodes = periode_monev::orderBy('pm_nama')->get();
+
+    // Ambil semua program studi
+    $programStudis = program_studi::orderBy('nama_prodi')->get();
+
+    // Ambil semua target indikator
+    $targetindikators = target_indikator::with('indikatorKinerja')
+        ->join('indikator_kinerja', 'target_indikator.ik_id', '=', 'indikator_kinerja.ik_id')
+        ->orderBy('indikator_kinerja.ik_nama', 'asc')
+        ->get(['target_indikator.ti_id', 'indikator_kinerja.ik_kode', 'indikator_kinerja.ik_nama']);
+
+    // Ambil periode yang sudah dipilih
+    $selectedPeriodes = $programkerja->periodes->pluck('pm_id')->toArray();
+
+    // Ambil indikator yang sudah dipilih
+    $selectedIndikators = $programkerja->targetindikators()->pluck('target_indikator.ti_id')->toArray();
+
+    // Ambil program studi yang sudah dipilih
+    $selectedProgramStudis = $programkerja->programStudis->pluck('prodi_id')->toArray();
+
+    return view('pages.edit-programkerja', [
+        'title' => $title,
+        'programkerja' => $programkerja,
+        'units' => $units,
+        'tahuns' => $tahuns,
+        'periodes' => $periodes,
+        'selectedPeriodes' => $selectedPeriodes,
+        'selectedIndikators' => $selectedIndikators,
+        'targetindikators' => $targetindikators,
+        'programStudis' => $programStudis,
+        'selectedProgramStudis' => $selectedProgramStudis,
+        'type_menu' => 'programkerja',
+    ]);
+}
+
 
     public function update(RencanaKerja $programkerja, Request $request)
-    {
-        $request->validate([
-            'rk_nama' => 'required|string|max:255',
-            'unit_id' => 'required|exists:unit_kerja,unit_id',
-            'th_id' => 'required|exists:tahun_kerja,th_id',
-            'pm_id' => 'array',
-            'ti_id' => 'array',
-        ]);
+{
+    $request->validate([
+        'rk_nama' => 'required|string|max:255',
+        'unit_id' => 'required|exists:unit_kerja,unit_id',
+        'th_id' => 'required|exists:tahun_kerja,th_id',
+        'pm_id' => 'array',
+        'ti_id' => 'array',
+        'prodi_id' => 'array', // Pastikan prodi_id berbentuk array
+    ]);
 
-        $unitAktif = UnitKerja::where('unit_id', $request->unit_id)->where('unit_kerja', 'y')->exists();
-        $tahunAktif = tahun_kerja::where('th_id', $request->th_id)->where('th_is_aktif', 'y')->exists();
+    $unitAktif = UnitKerja::where('unit_id', $request->unit_id)->where('unit_kerja', 'y')->exists();
+    $tahunAktif = tahun_kerja::where('th_id', $request->th_id)->where('th_is_aktif', 'y')->exists();
 
-        if (!$unitAktif || !$tahunAktif) {
-            Alert::error('Gagal', 'Unit kerja atau tahun kerja tidak aktif.');
-            return redirect()->back()->withInput();
-        }
-
-        $programkerja->rk_nama = $request->rk_nama;
-        $programkerja->unit_id = $request->unit_id;
-        $programkerja->th_id = $request->th_id;
-        $programkerja->save();
-
-        DB::table('rencana_kerja_pelaksanaan')
-            ->where('rk_id', $programkerja->rk_id)
-            ->delete();
-
-        if ($request->has('pm_id')) {
-            $pm_ids = $request->pm_id;
-        
-            $dataToInsert = [];
-            foreach ($pm_ids as $pm_id) {
-                $dataToInsert[] = [
-                    'rkp_id' => Str::uuid()->toString(),
-                    'rk_id' => $programkerja->rk_id,
-                    'pm_id' => $pm_id,
-                ];
-            }
-            DB::table('rencana_kerja_pelaksanaan')->insert($dataToInsert);
-        }
-
-        DB::table('rencana_kerja_target_indikator')
-            ->where('rk_id', $programkerja->rk_id)
-            ->delete();
-
-        if ($request->has('ti_id')) {
-            $ti_ids = $request->ti_id;
-        
-            $dataToInsert = [];
-            foreach ($ti_ids as $ti_id) {
-                $dataToInsert[] = [
-                    'rkti_id' => Str::uuid()->toString(),
-                    'rk_id' => $programkerja->rk_id,
-                    'ti_id' => $ti_id,
-                ];
-            }
-            DB::table('rencana_kerja_target_indikator')->insert($dataToInsert);
-        }
-
-        Alert::success('Sukses', 'Data Berhasil Diubah');
-        return redirect()->route('programkerja.index');
+    if (!$unitAktif || !$tahunAktif) {
+        Alert::error('Gagal', 'Unit kerja atau tahun kerja tidak aktif.');
+        return redirect()->back()->withInput();
     }
+
+    $programkerja->rk_nama = $request->rk_nama;
+    $programkerja->unit_id = $request->unit_id;
+    $programkerja->th_id = $request->th_id;
+    $programkerja->save();
+
+    // Update tabel pivot untuk rencana kerja pelaksanaan
+    DB::table('rencana_kerja_pelaksanaan')
+        ->where('rk_id', $programkerja->rk_id)
+        ->delete();
+
+    if ($request->has('pm_id')) {
+        $pm_ids = $request->pm_id;
+
+        $dataToInsert = [];
+        foreach ($pm_ids as $pm_id) {
+            $dataToInsert[] = [
+                'rkp_id' => Str::uuid()->toString(),
+                'rk_id' => $programkerja->rk_id,
+                'pm_id' => $pm_id,
+            ];
+        }
+        DB::table('rencana_kerja_pelaksanaan')->insert($dataToInsert);
+    }
+
+    // Update tabel pivot untuk target indikator
+    DB::table('rencana_kerja_target_indikator')
+        ->where('rk_id', $programkerja->rk_id)
+        ->delete();
+
+    if ($request->has('ti_id')) {
+        $ti_ids = $request->ti_id;
+
+        $dataToInsert = [];
+        foreach ($ti_ids as $ti_id) {
+            $dataToInsert[] = [
+                'rkti_id' => Str::uuid()->toString(),
+                'rk_id' => $programkerja->rk_id,
+                'ti_id' => $ti_id,
+            ];
+        }
+        DB::table('rencana_kerja_target_indikator')->insert($dataToInsert);
+    }
+
+    // Update tabel pivot untuk program studi
+    DB::table('rencana_kerja_program_studi')
+        ->where('rk_id', $programkerja->rk_id)
+        ->delete();
+
+    if ($request->has('prodi_id')) {
+        $prodi_ids = $request->prodi_id;
+
+        $dataToInsert = [];
+        foreach ($prodi_ids as $prodi_id) {
+            $dataToInsert[] = [
+                'rkps_id' => Str::uuid()->toString(),
+                'rk_id' => $programkerja->rk_id,
+                'prodi_id' => $prodi_id,
+            ];
+        }
+        DB::table('rencana_kerja_program_studi')->insert($dataToInsert);
+    }
+
+    Alert::success('Sukses', 'Data Berhasil Diubah');
+    return redirect()->route('programkerja.index');
+}
+
+
 
     public function destroy(RencanaKerja $programkerja)
     {
