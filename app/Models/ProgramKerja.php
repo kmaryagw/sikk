@@ -27,5 +27,11 @@ class ProgramKerja extends Model
     {
         return $this->belongsTo(UnitKerja::class, 'unit_id', 'unit_id');
     }
+
+    public function programStudis()
+{
+    return $this->belongsToMany(program_studi::class, 'rencana_kerja_program_studi', 'rk_id', 'prodi_id');
+}
+
     public $timestamps = true;
 }

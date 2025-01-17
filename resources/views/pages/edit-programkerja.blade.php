@@ -81,6 +81,24 @@
                                                     @enderror
                                                 </div>
                                             </div>
+                                            
+                                            <div class="form-group">
+                                                <label>Pilih Program Studi</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fa-solid fa-graduation-cap"></i>
+                                                        </div>
+                                                    </div>
+                                                    <select name="prodi_id[]" id="prodi_id" class="form-control select2" multiple="multiple" data-placeholder="Pilih Program Studi" required>
+                                                        @foreach($programStudis as $prodi)
+                                                            <option value="{{ $prodi->prodi_id }}" {{ collect(old('prodi_id'))->contains($prodi->prodi_id) ? 'selected' : '' }}>
+                                                                {{ $prodi->nama_prodi }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
 
                                             <div class="form-group">
                                                 <label>Tahun</label>

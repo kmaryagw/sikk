@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\periode_monev;
+use App\Models\program_studi;
 use App\Models\RencanaKerja;
 use App\Models\tahun_kerja;
 use App\Models\target_indikator;
@@ -80,6 +81,7 @@ class ProgramKerjaController extends Controller
         $units = UnitKerja::where('unit_kerja', 'y')->get();
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
         $periodes = periode_monev::orderBy('pm_nama')->get();
+        $programStudis = program_studi::orderBy('nama_prodi')->get();
 
         // $targetindikators = target_indikator::with('indikatorKinerja')
         //     ->join('indikator_kinerja', 'target_indikator.ik_id', '=', 'indikator_kinerja.ik_id')
@@ -98,6 +100,7 @@ class ProgramKerjaController extends Controller
             'tahuns' => $tahuns,
             'periodes' => $periodes,
             'targetindikators' => $targetindikators,
+            'programStudis' => $programStudis,
             'type_menu' => 'programkerja',
         ]);
     }
@@ -110,6 +113,8 @@ class ProgramKerjaController extends Controller
             'th_id' => 'required|exists:tahun_kerja,th_id',
             'pm_id' => 'array',
             'ti_id' => 'array',
+            'prodi_id' => 'required|array',
+            'prodi_id' => 'exists:program_studi,prodi_id',
         ]);
 
         $unitAktif = UnitKerja::where('unit_id', $request->unit_id)->where('unit_kerja', 'y')->exists();
@@ -146,6 +151,18 @@ class ProgramKerjaController extends Controller
             DB::table('rencana_kerja_pelaksanaan')->insert($dataToInsert);
         }
 
+        if ($request->has('prodi_id') && count($request->prodi_id) > 0) {
+            $dataToInsert = collect($request->prodi_id)->map(function ($prodi_id) use ($programkerja) {
+                return [
+                    'rkps_id' => Str::uuid()->toString(),
+                    'rk_id' => $programkerja->rk_id,
+                    'prodi_id' => $prodi_id,
+                ];
+            })->toArray();
+    
+            DB::table('rencana_kerja_program_studi')->insert($dataToInsert);
+        }
+
         if ($request->has('ti_id')) {
             $ti_ids = $request->ti_id;
         
@@ -171,6 +188,7 @@ class ProgramKerjaController extends Controller
         $units = UnitKerja::where('unit_kerja', 'y')->get();
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
         $periodes = periode_monev::orderBy('pm_nama')->get();
+        $programStudis = program_studi::orderBy('nama_prodi')->get();
         // $targetindikators = target_indikator::with('indikatorKinerja')
         //     ->join('indikator_kinerja', 'target_indikator.ik_id', '=', 'indikator_kinerja.ik_id')
         //     ->orderBy('indikator_kinerja.ik_nama', 'asc')
@@ -193,6 +211,7 @@ class ProgramKerjaController extends Controller
             'selectedPeriodes' => $selectedPeriodes,
             'selectedIndikators' => $selectedIndikators,
             'targetindikators' => $targetindikators,
+            'programStudis' => $programStudis,
             'type_menu' => 'programkerja',
         ]);
     }

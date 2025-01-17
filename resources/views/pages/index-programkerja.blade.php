@@ -20,7 +20,6 @@
                         <div class="col-auto">
                             <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>
-            
                         <div class="col-auto">
                             <select class="form-control" name="unit_id">
                                 <option value="">Semua Unit Kerja</option>
@@ -31,7 +30,6 @@
                                 @endforeach
                             </select>
                         </div>
-
                         <div class="col-auto">
                             <select class="form-control" name="tahun">
                                 <option value="">Pilih Tahun</option>
@@ -42,14 +40,13 @@
                                 @endforeach
                             </select>
                         </div>
-                        
                         <div class="col-auto">
                             <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
                         </div>
                         @if (Auth::user()->role == 'admin')
-                        <div class="col-auto">
-                            <a class="btn btn-primary" href="{{ route('programkerja.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
-                        </div>
+                            <div class="col-auto">
+                                <a class="btn btn-primary" href="{{ route('programkerja.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
+                            </div>
                         @endif
                     </form>
                 </div>
@@ -63,7 +60,8 @@
                                 <th>Unit Kerja</th>
                                 <th>Tahun</th>
                                 <th>Indikator Kinerja</th>
-                                <th>Periode</th> <!-- Kolom baru untuk periode -->
+                                <th>Program Studi</th>
+                                <th>Periode</th>
                                 @if (Auth::user()->role == 'admin')
                                     <th>Aksi</th>
                                 @endif
@@ -87,7 +85,18 @@
                                         @else
                                             <span class="text-muted">Tidak ada Indikator Kinerja</span>
                                         @endif
-                                    </td>                                                                                                               
+                                    </td>
+                                    <td>
+                                        @if($programkerja->programStudis->isNotEmpty())
+                                            <ul class="list-unstyled">
+                                                @foreach ($programkerja->programStudis as $prodi)
+                                                    <li class="my-2">{{ $prodi->nama_prodi }}</li>
+                                                @endforeach
+                                            </ul>
+                                        @else
+                                            <span class="text-muted">Tidak ada Program Studi</span>
+                                        @endif
+                                    </td>
                                     <td>
                                         @if($programkerja->periodes->isNotEmpty())
                                             @foreach ($programkerja->periodes as $periode)
@@ -96,8 +105,7 @@
                                         @else
                                             <span class="text-muted">Tidak ada periode</span>
                                         @endif
-                                    </td>                                    
-                                    
+                                    </td>
                                     @if (Auth::user()->role == 'admin')
                                     <td>
                                         <a class="btn btn-warning" href="{{ route('programkerja.edit', $programkerja->rk_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
@@ -112,7 +120,6 @@
                             @endforeach
                         </tbody>
                     </table>
-                    
                 </div>
 
                 @if ($programkerjas->hasPages())

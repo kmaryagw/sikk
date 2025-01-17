@@ -57,6 +57,8 @@ class RencanaKerja extends Model
         return $this->hasMany(IndikatorKinerja::class, 'rk_id', 'rk_id');
     }
 
+    
+
     public function realisasi()
     {
         return $this->hasMany(RealisasiRenja::class, 'rk_id', 'rk_id');
@@ -67,5 +69,9 @@ class RencanaKerja extends Model
     return $this->hasMany(RencanaKerjaPelaksanaan::class, 'rk_id', 'rk_id')->with('[periode_monev]');
 }
    
+public function programStudis()
+{
+    return $this->belongsToMany(program_studi::class, 'rencana_kerja_program_studi', 'rk_id', 'prodi_id');
+}
 
 }
