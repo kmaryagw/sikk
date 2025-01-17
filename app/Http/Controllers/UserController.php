@@ -227,7 +227,7 @@ class UserController extends Controller
             $user->id_fakultas = null;
         } elseif ($request->role === 'fakultas') {
             $request->validate([
-                'fakultas' => 'required|exists:fakultasn,id_fakultas',
+                'id_fakultas' => 'required|exists:fakultasn,id_fakultas',
             ]);
             $user->id_fakultas = $request->id_fakultas;
             $user->prodi_id = null;
