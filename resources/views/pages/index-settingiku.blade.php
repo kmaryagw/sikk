@@ -37,6 +37,7 @@
                                 <th>No</th>
                                 <th>Tahun</th>
                                 <th>Indikator Kinerja</th>
+                                <th>Baseline</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -47,8 +48,9 @@
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $setting->tahunKerja->th_tahun }}</td>
                                     <td>{{ $setting->indikatorKinerja->ik_nama }}</td>
+                                    <td>{{ $setting->baseline }}</td>
                                     <td>
-                                        <button class="btn btn-warning btn-edit" data-id="{{ $setting->id_setting }}" data-th="{{ $setting->th_id }}" data-ik="{{ $setting->ik_id }}">
+                                        <button class="btn btn-warning btn-edit" data-id="{{ $setting->id_setting }}" data-th="{{ $setting->th_id }}" data-ik="{{ $setting->ik_id }}" data-baseline="{{ $setting->baseline }}">
                                             <i class="fa-solid fa-pencil"></i> Edit
                                         </button>
                                         <form id="delete-form-{{ $setting->id_setting }}" action="{{ route('settingiku.destroy', $setting->id_setting) }}" method="POST" style="display: inline-block;">
@@ -105,18 +107,23 @@
                                 @endforeach
                             </select>
                         </div>
+                        <div class="mb-3">
+                            <label for="baseline" class="form-label">Baseline</label>
+                            <input type="number" class="form-control" name="baseline" required>
+                        </div>
                     </form>
                 `,
                 focusConfirm: false,
                 preConfirm: () => {
                     const indikatorKinerjaId = document.querySelector('[name="ik_id"]').value;
                     const thId = document.querySelector('[name="th_id"]').value;
+                    const baseline = document.querySelector('[name="baseline"]').value;
 
-                    if (!indikatorKinerjaId || !thId) {
-                        Swal.showValidationMessage('Harap pilih Indikator Kinerja dan Tahun');
+                    if (!indikatorKinerjaId || !thId || !baseline) {
+                        Swal.showValidationMessage('Harap isi semua bidang');
                         return false;
                     }
-                    return { ik_id: indikatorKinerjaId, th_id: thId };
+                    return { ik_id: indikatorKinerjaId, th_id: thId, baseline: baseline };
                 },
                 showCancelButton: true,
                 confirmButtonText: 'Tambah Data',
@@ -154,6 +161,7 @@
                 const id = this.getAttribute('data-id');
                 const thId = this.getAttribute('data-th');
                 const ikId = this.getAttribute('data-ik');
+                const baseline = this.getAttribute('data-baseline');
 
                 Swal.fire({
                     title: 'Edit Setting IKU',
@@ -177,18 +185,23 @@
                                     @endforeach
                                 </select>
                             </div>
+                            <div class="mb-3">
+                                <label for="baseline" class="form-label">Baseline</label>
+                                <input type="number" class="form-control" name="baseline" value="${baseline}" required>
+                            </div>
                         </form>
                     `,
                     focusConfirm: false,
                     preConfirm: () => {
                         const indikatorKinerjaId = document.querySelector('[name="ik_id"]').value;
                         const thId = document.querySelector('[name="th_id"]').value;
+                        const baseline = document.querySelector('[name="baseline"]').value;
 
-                        if (!indikatorKinerjaId || !thId) {
-                            Swal.showValidationMessage('Harap pilih Indikator Kinerja dan Tahun');
+                        if (!indikatorKinerjaId || !thId || !baseline) {
+                            Swal.showValidationMessage('Harap isi semua bidang');
                             return false;
                         }
-                        return { ik_id: indikatorKinerjaId, th_id: thId };
+                        return { ik_id: indikatorKinerjaId, th_id: thId, baseline: baseline };
                     },
                     showCancelButton: true,
                     confirmButtonText: 'Perbarui Data',
@@ -221,24 +234,22 @@
             });
         });
 
-        // Konfirmasi Hapus Data
-        function confirmDelete(event, formid) {
+        function confirmDelete(event, id) {
             event.preventDefault();
             Swal.fire({
-                title: 'Apakah Anda yakin?',
-                text: "Data yang dihapus tidak bisa dikembalikan!",
+                title: 'Hapus Data',
+                text: "Apakah anda yakin ingin menghapus data ini?", 
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, hapus data!'
+                confirmButtonText: 'Ya, hapus',
+                cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    document.getElementById('delete-form-' + formid).submit();
+                    document.getElementById(`delete-form-${id}`).submit();
                 }
-            })
+            });
         }
     </script>
 @endpush
-
-

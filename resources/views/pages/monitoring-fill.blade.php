@@ -257,7 +257,7 @@
                                             <i class="fa-solid fa-file"></i>
                                         </div>
                                     </div>
-                                    <input class="form-control" type="file" name="mtg_bukti" />
+                                    <input class="form-control" type="url" name="mtg_bukti" />
                                 </div>
                             </div>
                             ${fileBuktiHTML}

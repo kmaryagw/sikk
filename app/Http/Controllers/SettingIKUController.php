@@ -11,54 +11,54 @@ use RealRashid\SweetAlert\Facades\Alert;
 class SettingIKUController extends Controller
 {
     public function index(Request $request)
-{
-    $title = 'Setting IKU';
-    $indikatorKinerjas = IndikatorKinerja::all();
-    $tahuns = tahun_kerja::where('th_is_aktif', 'y')->orderBy('th_tahun', 'asc')->get();
-    $q = $request->input('q', '');
+    {
+        $title = 'Setting IKU';
+        $indikatorKinerjas = IndikatorKinerja::all();
+        $tahuns = tahun_kerja::where('th_is_aktif', 'y')->orderBy('th_tahun', 'asc')->get();
+        $q = $request->input('q', '');
 
-    // Logika pencarian pada relasi indikator_kinerja
-    $settings = SettingIKU::with(['indikatorKinerja', 'tahunKerja'])
-        ->when($q, function ($query) use ($q) {
-            return $query->whereHas('indikatorKinerja', function ($query) use ($q) {
-                $query->where('ik_nama', 'like', "%$q%");
-            });
-        })
-        ->paginate(10);
+        $settings = SettingIKU::with(['indikatorKinerja', 'tahunKerja'])
+            ->when($q, function ($query) use ($q) {
+                return $query->whereHas('indikatorKinerja', function ($query) use ($q) {
+                    $query->where('ik_nama', 'like', "%$q%");
+                });
+            })
+            ->paginate(10);
 
-    return view('pages.index-settingiku', [
-        'title' => $title,
-        'settings' => $settings,
-        'indikatorKinerjas' => $indikatorKinerjas,
-        'tahuns' => $tahuns,
-        'q' => $q,
-        'type_menu' => 'SettingIKU',
-    ]);
-}
+        return view('pages.index-settingiku', [
+            'title' => $title,
+            'settings' => $settings,
+            'indikatorKinerjas' => $indikatorKinerjas,
+            'tahuns' => $tahuns,
+            'q' => $q,
+            'type_menu' => 'SettingIKU',
+        ]);
+    }
 
-
-public function store(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'ik_id' => 'required|exists:indikator_kinerja,ik_id',
             'th_id' => 'required|exists:tahun_kerja,th_id',
+            'baseline' => 'required|string',
         ]);
 
         $Setting = SettingIKU::where('ik_id', $request->ik_id)
                 ->where('th_id', $request->th_id)
                 ->first();
 
-            if ($Setting) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Indikator ini sudah ada untuk tahun yang sama.',
-                ]);
-            }
+        if ($Setting) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Indikator ini sudah ada untuk tahun yang sama.',
+            ]);
+        }
 
         SettingIKU::create([
             'id_setting' => 'IS' . md5(uniqid(rand(), true)),
             'ik_id' => $request->ik_id,
             'th_id' => $request->th_id,
+            'baseline' => $request->baseline,
             'status' => 0,
         ]);
 
@@ -66,48 +66,47 @@ public function store(Request $request)
     }
 
     public function update(Request $request, $id_setting)
-{
-    $request->validate([
-        'ik_id' => 'required|exists:indikator_kinerja,ik_id',
-        'th_id' => 'required|exists:tahun_kerja,th_id',
-    ]);
-
-    $setting = SettingIKU::findOrFail($id_setting);
-    $existingSetting = SettingIKU::where('ik_id', $request->ik_id)
-        ->where('th_id', $request->th_id)
-        ->where('id_setting', '!=', $id_setting)
-        ->first();
-
-    if ($existingSetting) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Indikator ini sudah ada untuk tahun yang sama.',
+    {
+        $request->validate([
+            'ik_id' => 'required|exists:indikator_kinerja,ik_id',
+            'th_id' => 'required|exists:tahun_kerja,th_id',
+            'baseline' => 'required|string',
         ]);
+
+        $setting = SettingIKU::findOrFail($id_setting);
+        $existingSetting = SettingIKU::where('ik_id', $request->ik_id)
+            ->where('th_id', $request->th_id)
+            ->where('id_setting', '!=', $id_setting)
+            ->first();
+
+        if ($existingSetting) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Indikator ini sudah ada untuk tahun yang sama.',
+            ]);
+        }
+
+        $setting->update([
+            'ik_id' => $request->ik_id,
+            'th_id' => $request->th_id,
+            'baseline' => $request->baseline,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Setting IKU berhasil diperbarui.']);
     }
 
-    $setting->update([
-        'ik_id' => $request->ik_id,
-        'th_id' => $request->th_id,
-    ]);
+    public function destroy($id_setting)
+    {
+        $setting = SettingIKU::find($id_setting);
 
-    return response()->json(['success' => true, 'message' => 'Setting IKU berhasil diperbarui.']);
-}
+        if ($setting) {
+            $setting->delete();
 
+            Alert::success('Sukses', 'Data berhasil dihapus');
+            return redirect()->route('settingiku.index');
+        }
 
-public function destroy($id_setting)
-{
-    $setting = SettingIKU::find($id_setting);
-
-    if ($setting) {
-        $setting->delete();
-
-        Alert::success('Sukses', 'Data berhasil dihapus');
+        Alert::error('Error', 'Terjadi kesalahan!');
         return redirect()->route('settingiku.index');
     }
-
-    Alert::error('Error', 'Terjadi kesalahan!');
-    return redirect()->route('settingiku.index');
-}
-
-
 }

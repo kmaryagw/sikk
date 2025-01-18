@@ -16,36 +16,18 @@ class SettingIKU extends Model
         'id_setting',
         'th_id',
         'ik_id',
-        
+        'baseline',
     ];
-
-    
-
-    // public function prodi()
-    // {
-    //     return $this->belongsToThrough(program_studi::class, target_indikator::class);
-    // }
-
-    // public function tahunKerja()
-    // {
-    //     return $this->belongsToThrough(tahun_kerja::class, target_indikator::class);
-    // }
 
     public function indikatorKinerja()
     {
         return $this->belongsTo(IndikatorKinerja::class, 'ik_id', 'ik_id');
     }
 
-    // Relasi ke Tahun Kerja
     public function tahunKerja()
     {
         return $this->belongsTo(tahun_kerja::class, 'th_id', 'th_id');
     }
-
-    
-
-    
-
 
     public $timestamps = true;
 }
