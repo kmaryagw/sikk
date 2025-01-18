@@ -36,34 +36,64 @@ class SettingIKUController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'ik_id' => 'required|exists:indikator_kinerja,ik_id',
-            'th_id' => 'required|exists:tahun_kerja,th_id',
-            'baseline' => 'required|string',
-        ]);
+{
+    // Validasi inputan
+    $request->validate([
+        'ik_id' => 'required|exists:indikator_kinerja,ik_id',
+        'th_id' => 'required|exists:tahun_kerja,th_id',
+        'baseline' => 'required|numeric',  // Pastikan baseline adalah angka
+    ]);
 
-        $Setting = SettingIKU::where('ik_id', $request->ik_id)
-                ->where('th_id', $request->th_id)
-                ->first();
+    // Ambil data indikator kinerja berdasarkan ik_id
+    $indikatorKinerja = IndikatorKinerja::find($request->ik_id);
 
-        if ($Setting) {
+    // Cek jika indikator kinerja ada dan memiliki tipe "persentase"
+    if ($indikatorKinerja && $indikatorKinerja->ik_ketercapaian == 'persentase') {
+        // Validasi bahwa baseline berada di antara 0 dan 100 untuk tipe persentase
+        if ($request->baseline < 0 || $request->baseline > 100) {
             return response()->json([
                 'success' => false,
-                'message' => 'Indikator ini sudah ada untuk tahun yang sama.',
+                'message' => 'Nilai baseline harus antara 0 dan 100 untuk indikator persentase.',
             ]);
         }
-
-        SettingIKU::create([
-            'id_setting' => 'IS' . md5(uniqid(rand(), true)),
-            'ik_id' => $request->ik_id,
-            'th_id' => $request->th_id,
-            'baseline' => $request->baseline,
-            'status' => 0,
-        ]);
-
-        return response()->json(['success' => true, 'message' => 'Setting IKU berhasil ditambahkan.']);
     }
+
+    // Cek jika indikator kinerja memiliki tipe "nilai"
+    if ($indikatorKinerja && $indikatorKinerja->ik_ketercapaian == 'nilai') {
+        // Validasi bahwa baseline adalah angka positif
+        if ($request->baseline <= 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nilai baseline harus lebih besar dari 0 untuk indikator nilai.',
+            ]);
+        }
+    }
+
+    // Cek jika SettingIKU sudah ada untuk indikator dan tahun yang sama
+    $Setting = SettingIKU::where('ik_id', $request->ik_id)
+                         ->where('th_id', $request->th_id)
+                         ->first();
+
+    if ($Setting) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Indikator ini sudah ada untuk tahun yang sama.',
+        ]);
+    }
+
+    // Menyimpan data SettingIKU baru
+    SettingIKU::create([
+        'id_setting' => 'IS' . md5(uniqid(rand(), true)), // ID unik untuk SettingIKU
+        'ik_id' => $request->ik_id,
+        'th_id' => $request->th_id,
+        'baseline' => $request->baseline,
+        'status' => 0,
+    ]);
+
+    return response()->json(['success' => true, 'message' => 'Setting IKU berhasil ditambahkan.']);
+}
+
+
 
     public function update(Request $request, $id_setting)
     {
