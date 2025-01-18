@@ -20,9 +20,9 @@ return new class extends Migration
             $table->string('mtg_kendala', 255);
             $table->string('mtg_tindak_lanjut', 255);
             $table->enum('mtg_status', ['y', 'n', 't', 'p']);
-            $table->boolean('mtg_flag')->default(false); // Tambahkan kolom mtg_flag
+            $table->boolean('mtg_flag')->default(false); // Kolom mtg_flag tetap
             $table->date('mtg_tindak_lanjut_tanggal');  
-            $table->string('mtg_bukti', 255)->nullable();
+            $table->string('mtg_bukti', 2048)->nullable(); // Ubah panjang kolom mtg_bukti menjadi 2048 karakter
             $table->string('rk_id', 50);
 
             // Foreign keys
@@ -45,3 +45,4 @@ return new class extends Migration
         Schema::dropIfExists('monitoring');
     }
 };
+

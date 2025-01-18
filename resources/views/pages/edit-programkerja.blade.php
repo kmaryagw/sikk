@@ -156,17 +156,11 @@
                                                             <i class="fa-solid fa-calendar-alt"></i>
                                                         </div>
                                                     </div>
-                                                    <select class="form-control" name="th_id" required>
-                                                        <option value="" disabled>Pilih Tahun</option>
-                                                        @foreach($tahuns as $tahun)
-                                                            <option value="{{ $tahun->th_id }}" 
-                                                                    {{ old('th_id', $programkerja->th_id) == $tahun->th_id ? 'selected' : '' }}>
-                                                                {{ $tahun->th_tahun }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
+                                                    <input type="text" id="tahun" class="form-control" value="{{ $programkerja->tahunKerja->th_tahun }}" readonly>
+                                                    <input type="hidden" name="th_id" value="{{ $programkerja->th_id }}">
                                                 </div>
                                             </div>
+                                            
                                         </div>
                                     </div>
                                     
