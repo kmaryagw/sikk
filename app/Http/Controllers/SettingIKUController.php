@@ -41,7 +41,7 @@ class SettingIKUController extends Controller
     $request->validate([
         'ik_id' => 'required|exists:indikator_kinerja,ik_id',
         'th_id' => 'required|exists:tahun_kerja,th_id',
-        'baseline' => 'required|numeric',  // Pastikan baseline adalah angka
+        'baseline' => 'required|string',  // Pastikan baseline adalah angka
     ]);
 
     // Ambil data indikator kinerja berdasarkan ik_id

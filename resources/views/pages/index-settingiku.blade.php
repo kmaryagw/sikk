@@ -132,7 +132,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="baseline" class="form-label">Baseline</label>
-                    <input type="number" class="form-control" name="baseline" id="baseline" required>
+                    <input type="text" class="form-control" name="baseline" id="baseline" required>
                     <small id="baseline_hint" class="form-text text-muted">Isi sesuai dengan jenis ketercapaian.</small>
                 </div>
             </form>
@@ -154,6 +154,12 @@
                     Swal.showValidationMessage('Nilai baseline harus berupa angka bulat antara 0 dan 100');
                     return false;
                 }
+            }
+
+            // Validasi jika indikator kinerja menggunakan tipe 'ketersediaan'
+            if (indicatorType === 'ketersediaan' && !['Ada', 'Draft'].includes(baseline)) {
+                Swal.showValidationMessage('Nilai baseline harus "Ada" atau "Draft" untuk indikator ketersediaan');
+                return false;
             }
 
             if (!indikatorKinerjaId || !thId || !baseline) {
@@ -207,7 +213,7 @@
             baselineHint.textContent = "Isi angka dalam rentang 0 hingga 100.";
         } else if (jenis === "ketersediaan") {
             baselineInput.placeholder = "Indikator ini menggunakan ketercapaian ketersediaan";
-            baselineHint.textContent = "Isi dengan 'Ada' atau 'Draft'.";
+            baselineHint.textContent = 'Isi dengan "Ada" atau "Draft".';
         } else {
             baselineInput.placeholder = "Isi Target Capaian";
             baselineHint.textContent = "Isi sesuai dengan jenis ketercapaian.";
@@ -250,7 +256,7 @@ document.querySelectorAll('.btn-edit').forEach(button => {
                     </div>
                     <div class="mb-3">
                         <label for="baseline" class="form-label">Baseline</label>
-                        <input type="number" class="form-control" name="baseline" value="${baseline}" id="baseline" required>
+                        <input type="text" class="form-control" name="baseline" value="${baseline}" id="baseline" required>
                         <small id="baseline_hint" class="form-text text-muted">Isi sesuai dengan jenis ketercapaian.</small>
                     </div>
                 </form>
@@ -271,6 +277,13 @@ document.querySelectorAll('.btn-edit').forEach(button => {
                         return false;
                     }
                 }
+
+                // Validasi jika indikator kinerja menggunakan tipe 'ketersediaan'
+                if (indicatorType === 'ketersediaan' && !['ada', 'draft'].includes(baseline.toLowerCase())) {
+    Swal.showValidationMessage('Nilai baseline harus "Ada" atau "Draft" untuk indikator ketersediaan');
+    return false;
+}
+
 
                 if (!indikatorKinerjaId || !thId || !baseline) {
                     Swal.showValidationMessage('Harap isi semua bidang');
@@ -323,7 +336,7 @@ document.querySelectorAll('.btn-edit').forEach(button => {
                 baselineHint.textContent = "Isi angka dalam rentang 0 hingga 100.";
             } else if (jenis === "ketersediaan") {
                 baselineInput.placeholder = "Indikator ini menggunakan ketercapaian ketersediaan";
-                baselineHint.textContent = "Isi dengan 'Ada' atau 'Draft'.";
+                baselineHint.textContent = 'Isi dengan "Ada" atau "Draft".';
             } else {
                 baselineInput.placeholder = "Isi Target Capaian";
                 baselineHint.textContent = "Isi sesuai dengan jenis ketercapaian.";
@@ -331,6 +344,7 @@ document.querySelectorAll('.btn-edit').forEach(button => {
         });
     });
 });
+
 
 
     
