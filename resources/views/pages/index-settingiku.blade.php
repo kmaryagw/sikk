@@ -48,7 +48,28 @@
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $setting->tahunKerja->th_tahun }}</td>
                                     <td>{{ $setting->indikatorKinerja->ik_nama }}</td>
-                                    <td>{{ $setting->baseline }}</td>
+                                    <td>
+                                        @if ($setting->indikatorKinerja->ik_ketercapaian == 'persentase' && is_numeric($setting->baseline))
+                                            <div class="progress">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     style="width: {{ intval($setting->baseline) }}%;" 
+                                                     aria-valuenow="{{ intval($setting->baseline) }}" 
+                                                     aria-valuemin="0" aria-valuemax="100">
+                                                    {{ $setting->baseline }}%
+                                                </div>
+                                            </div>
+                                        @elseif ($setting->indikatorKinerja->ik_ketercapaian == 'nilai' && is_numeric($setting->baseline))
+                                            <span class="badge badge-primary">{{ $setting->baseline }}</span>
+                                        @elseif (in_array(strtolower($setting->baseline), ['ada', 'draft']))
+                                            @if (strtolower($setting->baseline) === 'ada')
+                                                <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
+                                            @else
+                                                <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
+                                            @endif
+                                        @else
+                                            {{ $setting->baseline }}
+                                        @endif
+                                    </td> 
                                     <td>
                                         <button class="btn btn-warning btn-edit" data-id="{{ $setting->id_setting }}" data-th="{{ $setting->th_id }}" data-ik="{{ $setting->ik_id }}" data-baseline="{{ $setting->baseline }}">
                                             <i class="fa-solid fa-pencil"></i> Edit

@@ -24,7 +24,8 @@ class TargetCapaianController extends Controller
         $prodis = program_studi::all();
 
         $query = target_indikator::where('ti_target', 'like', '%' . $q . '%')
-            ->leftjoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
+            ->leftjoin('settingiku', 'settingiku.ik_id', '=', 'target_indikator.ik_id')
+            ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'settingiku.ik_id')
             ->leftjoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
             ->leftjoin('tahun_kerja as aktif_tahun', function($join) {
                 $join->on('aktif_tahun.th_id', '=', 'target_indikator.th_id')
@@ -136,7 +137,6 @@ class TargetCapaianController extends Controller
 {
     $title = 'Edit Target Capaian';
 
-    // $indikatorkinerjautamas = IndikatorKinerja::orderBy('ik_nama')->get();
     $indikatorkinerjautamas = SettingIKU::with('indikatorKinerja')
             ->whereHas('indikatorKinerja')
             ->get()
@@ -146,7 +146,7 @@ class TargetCapaianController extends Controller
     $prodis = program_studi::orderBy('nama_prodi')->get();
     $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
 
-    $baseline = $targetcapaian->indikatorKinerja->ik_baseline;
+    $baseline = optional($targetcapaian->settingIKU)->baseline ?? 'Baseline tidak ditemukan';
 
     return view('pages.edit-targetcapaian', [
         'title' => $title,
@@ -161,7 +161,6 @@ class TargetCapaianController extends Controller
 
 public function update(target_indikator $targetcapaian, Request $request)
 {
-    // $indikatorKinerja = IndikatorKinerja::find($request->ik_id);
     $indikatorKinerjas = SettingIKU::with('indikatorKinerja')->find($request->ik_id);
 
     $validationRules = [

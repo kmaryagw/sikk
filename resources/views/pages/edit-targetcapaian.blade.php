@@ -78,14 +78,14 @@
                                             </div>
 
                                             <div class="form-group">
-                                                <label for="ik_baseline">Nilai Baseline</label>
+                                                <label for="baseline">Nilai Baseline</label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
                                                         <div class="input-group-text">
                                                             <i class="fas fa-sort-amount-down"></i>
                                                         </div>
                                                     </div>
-                                                    <input type="text" id="ik_baseline" name="ik_baseline_display" 
+                                                    <input type="text" id="baseline" name="baseline_display" 
                                                         class="form-control" 
                                                         value="{{ $baseline ?? 'Pilih Indikator Kinerja Terlebih Dahulu' }}" readonly>
                                                 </div>
@@ -121,7 +121,7 @@
                                                         @foreach ($indikatorkinerjautamas as $indikatorkinerja)
                                                             <option value="{{ $indikatorkinerja->ik_id }}" 
                                                                 data-jenis="{{ $indikatorkinerja->indikatorKinerja->ik_ketercapaian }}"
-                                                                data-baseline="{{ $indikatorkinerja->indikatorKinerja->ik_baseline }}"
+                                                                data-baseline="{{ $indikatorkinerja->baseline }}"
                                                                 {{ old('ik_id', $targetcapaian->ik_id) == $indikatorkinerja->ik_id ? 'selected' : '' }}>
                                                                 {{ $indikatorkinerja->indikatorKinerja->ik_kode }} - {{ $indikatorkinerja->indikatorKinerja->ik_nama }}
                                                             </option>
@@ -195,12 +195,12 @@
         });
     </script>    
     <script>
-        document.getElementById('ik_baseline').value = '{{ $baseline ?? 'Pilih Indikator Kinerja Terlebih Dahulu' }}';
+        document.getElementById('baseline').value = '{{ $baseline ?? 'Pilih Indikator Kinerja Terlebih Dahulu' }}';
     
         document.getElementById('ik_id').addEventListener('change', function() {
             var selectedOption = this.options[this.selectedIndex];
             var baseline = selectedOption.getAttribute('data-baseline');
-            document.getElementById('ik_baseline').value = baseline;
+            document.getElementById('baseline').value = baseline;
         });
     </script>
 @endpush
