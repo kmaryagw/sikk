@@ -24,8 +24,8 @@ class UnitKerja extends Model
         'unit_kerja',
     ];
 
-    public function evaluasiDetails()
+    public function monitoringikuDetail()
     {
-        return $this->hasMany(Evaluasi_Detail::class, 'unit_id', 'unit_id');
+        return $this->hasMany(MonitoringIKU_Detail::class, 'unit_id', 'unit_id');
     }
 }

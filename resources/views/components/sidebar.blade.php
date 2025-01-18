@@ -76,7 +76,7 @@
             <li class="{{ $type_menu === 'SettingIKU' ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('settingiku') }}">
                     <i class="fa fa-gears" aria-hidden="true"></i>
-                    <span>Setting IKU</span>
+                    <span>Set IKU/T per-Tahun</span>
                 </a>
             </li>
             @endif
@@ -109,20 +109,20 @@
             </li>
             @endif
 
-            {{-- Monitoring --}}
+            {{-- Monitoring Renja--}}
             @if (Auth::user()->role == 'admin')
             <li class="{{ $type_menu === 'monitoring' ? 'active' : '' }}">
                 <a class="nav-link"
-                    href="{{ url('monitoring') }}"><i class="fa fa-eye" aria-hidden="true"></i> <span>Monitoring</span>
+                    href="{{ url('monitoring') }}"><i class="fa fa-eye" aria-hidden="true"></i> <span>Monitoring Renja</span>
                 </a>
             </li>
             @endif
 
-            {{-- Evaluasi --}}
+            {{-- Monitoring IKU/T --}}
             @if (Auth::user()->role == 'admin')
-            <li class="{{ $type_menu === 'evaluasi' ? 'active' : '' }}">
+            <li class="{{ $type_menu === 'monitoringiku' ? 'active' : '' }}">
                 <a class="nav-link"
-                    href="{{ url('evaluasi') }}"><i class="fa-solid fa-file-pen"></i> <span>Evaluasi</span>
+                    href="{{ url('monitoringiku') }}"><i class="fa-solid fa-eye"></i> <span>Monitoring IKU/T</span>
                 </a>
             </li>
             @endif

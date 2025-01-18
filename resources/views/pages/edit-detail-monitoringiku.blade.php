@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Edit Detail Evaluasi')
+@section('title', 'Edit Monitoring IKU')
 
 @push('style')
     <link rel="stylesheet" href="{{ asset('library/select2/dist/css/select2.min.css') }}">
@@ -9,18 +9,18 @@
 <div class="main-content">
     <section class="section">
         <div class="section-header">
-            <h1>Tambah Evaluasi</h1>
+            <h1>Tambah Monitoring IKU</h1>
             <div class="section-header-breadcrumb">
                 <div class="breadcrumb-item"><a href="#">Dashboard</a></div>
-                <div class="breadcrumb-item">Tambah Evaluasi</div>
+                <div class="breadcrumb-item">Tambah Monitoring IKU</div>
             </div>
         </div>
 
         <div class="section-body">
             <div class="row">
                 <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-body">
+                    <div class="card" >
+                        <div class="card-body" style="background-color: #f4f4f4;" >
                             @if ($errors->any())
                                 <div class="alert alert-danger">
                                     <ul>
@@ -30,143 +30,178 @@
                                     </ul>
                                 </div>
                             @endif
-
+                    
                             <!-- Form -->
-                            <form action="{{ route('evaluasi.update-detail', $evaluasi->eval_id) }}" method="POST">
+                            <form action="{{ route('monitoringiku.update-detail', $monitoringiku->mti_id) }}" method="POST">
                                 @csrf
                                 @method('PUT')
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="prodi">Program Studi</label>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text">
-                                                        <i class="fa-solid fa-building-columns"></i>
-                                                    </span>
+                    
+                                <!-- Card 1: Informasi Utama -->
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h4 class="text-danger mb-3">Data Target Capaian</h4>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="prodi">Program Studi</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">
+                                                                <i class="fa-solid fa-building-columns"></i>
+                                                            </span>
+                                                        </div>
+                                                        <input type="text" id="prodi" class="form-control" value="{{ $monitoringiku->prodi->nama_prodi }}" readonly>
+                                                    </div>
                                                 </div>
-                                                <input type="text" id="prodi" class="form-control" value="{{ $evaluasi->prodi->nama_prodi }}" readonly>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="tahun">Tahun Kerja</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">
+                                                                <i class="fa-solid fa-calendar"></i>
+                                                            </span>
+                                                        </div>
+                                                        <input type="text" id="tahun" class="form-control" value="{{ $monitoringiku->tahunKerja->th_tahun }}" readonly>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="ik_nama">Indikator Kinerja</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">
+                                                                <i class="fa-solid fa-bullseye"></i>
+                                                            </span>
+                                                        </div>
+                                                        <input type="text" id="ik_nama" class="form-control" value="{{ $targetIndikator->indikatorKinerja->ik_kode }} - {{ $targetIndikator->indikatorKinerja->ik_nama }}" readonly>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="ik_baseline">Baseline</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">
+                                                                <i class="fa-solid fa-sort-amount-down"></i>
+                                                            </span>
+                                                        </div>
+                                                        <input type="text" id="ik_baseline" class="form-control" 
+                                                               value="{{ $targetIndikator->indikatorKinerja->ik_baseline }}" readonly>
+                                                    </div>
+                                                </div>
+                                            </div>                                            
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="ti_target">Target</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">
+                                                                <i class="fa-solid fa-award"></i>
+                                                            </span>
+                                                        </div>
+                                                        <input type="text" id="ti_target" class="form-control" value="{{ $targetIndikator->ti_target }}" readonly>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="ti_keterangan">Keterangan Indikator</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">
+                                                                <i class="fa-solid fa-info-circle"></i>
+                                                            </span>
+                                                        </div>
+                                                        <input class="form-control" name="ti_keterangan" value="{{ $targetIndikator->ti_keterangan }}" readonly>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="tahun">Tahun Kerja</label>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text">
-                                                        <i class="fa-solid fa-calendar"></i>
-                                                    </span>
-                                                </div>
-                                                <input type="text" id="tahun" class="form-control" value="{{ $evaluasi->tahunKerja->th_tahun }}" readonly>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="ik_nama">Indikator Kinerja</label>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text">
-                                                        <i class="fa-solid fa-bullseye"></i>
-                                                    </span>
-                                                </div>
-                                                <input type="text" id="ik_nama" class="form-control" 
-                                                    value="{{ $targetIndikator->indikatorKinerja->ik_nama }}" readonly>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="ti_target">Target</label>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text">
-                                                        <i class="fa-solid fa-award"></i>
-                                                    </span>
-                                                </div>
-                                                <input type="text" id="ti_target" class="form-control" value="{{ $targetIndikator->ti_target }}" readonly>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="ti_keterangan">Keterangan Indikator</label>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text">
-                                                        <i class="fa-solid fa-info-circle"></i>
-                                                    </span>
-                                                </div>
-                                                <input class="form-control" name="ti_keterangan" value="{{ $targetIndikator->ti_keterangan }}" readonly>
-                                            </div>
-                                        </div>
-                                    </div>
-
-
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="evald_capaian">Capaian</label>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text">
-                                                        <i class="fa-solid fa-award"></i>
-                                                    </span>
-                                                </div>
-                                                <input type="text" class="form-control" name="evald_capaian" id="evald_capaian"
-                                                    placeholder="Isi Capaian" value="{{ old('evald_capaian', $evaluasiDetail->evald_capaian) }}" required>
-                                            </div>
-                                            <small id="evald_capaian_hint" class="form-text text-muted">Isi sesuai dengan jenis ketercapaian.</small>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="evald_keterangan">Keterangan Tambahan</label>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text">
-                                                        <i class="fa-solid fa-plus-circle"></i>
-                                                    </span>
-                                                </div>
-                                                <textarea class="form-control" name="evald_keterangan" rows="4">{{ $evaluasiDetail->evald_keterangan }}</textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="evald_keterangan">Status</label>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text">
-                                                        <i class="fa-solid fa-check-circle"></i>
-                                                    </span>
-                                                </div>
-                                                <select class="form-control" name="evald_status" required>
-                                                    <option value="" disabled {{ is_null($evaluasiDetail->evald_status) ? 'selected' : '' }}>Pilih Status</option>
-                                                    @foreach ($status as $statuses)
-                                                        <option value="{{ $statuses }}" 
-                                                            {{ old('evald_status', $evaluasiDetail->evald_status) == $statuses ? 'selected' : '' }}>
-                                                            {{ $statuses }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>                                    
                                 </div>
-
-                                <div class="form-group text-right">
-                                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Simpan</button>
-                                    <a href="{{ route('evaluasi.index-detail', $evaluasi->eval_id) }}" class="btn btn-danger"><i class="fa-solid fa-arrow-left"></i> Kembali</a>
+                    
+                                <!-- Card 2: Form Input -->
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h4 class="text-danger mb-3">Data Monitoring IKU</h4>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="mtid_capaian">Capaian</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">
+                                                                <i class="fa-solid fa-award"></i>
+                                                            </span>
+                                                        </div>
+                                                        <input type="text" class="form-control" name="mtid_capaian" id="mtid_capaian"
+                                                            placeholder="Isi Capaian" value="{{ old('mtid_capaian', $monitoringikuDetail->mtid_capaian) }}" required>
+                                                    </div>
+                                                    <small id="mtid_capaian_hint" class="form-text text-muted">Isi sesuai dengan jenis ketercapaian.</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="mtid_status">Status</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">
+                                                                <i class="fa-solid fa-check-circle"></i>
+                                                            </span>
+                                                        </div>
+                                                        <select class="form-control" name="mtid_status" required>
+                                                            <option value="" disabled {{ is_null($monitoringikuDetail->mtid_status) ? 'selected' : '' }}>Pilih Status</option>
+                                                            @foreach ($status as $statuses)
+                                                                <option value="{{ $statuses }}" 
+                                                                    {{ old('mtid_status', $monitoringikuDetail->mtid_status) == $statuses ? 'selected' : '' }}>
+                                                                    {{ $statuses }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="mtid_url">URL</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <div class="input-group-text">
+                                                                <i class="fa-solid fa-link"></i>
+                                                            </div>
+                                                        </div>
+                                                        <input class="form-control" type="url" name="mtid_url" value="{{ old('mtid_url', $monitoringikuDetail->mtid_url) }}" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="mtid_keterangan">Keterangan Tambahan</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">
+                                                                <i class="fa-solid fa-plus-circle"></i>
+                                                            </span>
+                                                        </div>
+                                                        <textarea class="form-control" name="mtid_keterangan" rows="4">{{ $monitoringikuDetail->mtid_keterangan }}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                    
+                                        <div class="form-group text-right">
+                                            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Simpan</button>
+                                            <a href="{{ route('monitoringiku.index-detail', $monitoringiku->mti_id) }}" class="btn btn-danger"><i class="fa-solid fa-arrow-left"></i> Kembali</a>
+                                        </div>
+                                    </div>
                                 </div>
-                            </form>                          
+                            </form>
                         </div>
-                    </div>
+                    </div>                    
                     
                     {{-- Data program kerja, monitoring, realisasi --}}
                     <div class="card">
@@ -319,23 +354,23 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const ikNamaInput = document.getElementById("ik_nama");
-            const evaldCapaianInput = document.getElementById("evald_capaian");
-            const evaldCapaianHint = document.getElementById("evald_capaian_hint");
+            const mtidCapaianInput = document.getElementById("mtid_capaian");
+            const mtidCapaianHint = document.getElementById("mtid_capaian_hint");
     
             const jenis = "{{ $targetIndikator->indikatorKinerja->ik_ketercapaian }}";
     
             if (jenis === "nilai") {
-                evaldCapaianInput.placeholder = "Indikator ini menggunakan ketercapaian nilai";
-                evaldCapaianHint.textContent = "Isi nilai ketercapaian seperti 1.2 atau 1.3.";
+                mtidCapaianInput.placeholder = "Indikator ini menggunakan ketercapaian nilai";
+                mtidCapaianHint.textContent = "Isi nilai ketercapaian seperti 1.2 atau 1.3.";
             } else if (jenis === "persentase") {
-                evaldCapaianInput.placeholder = "Indikator ini menggunakan ketercapaian persentase";
-                evaldCapaianHint.textContent = "Isi angka dalam rentang 0 hingga 100.";
+                mtidCapaianInput.placeholder = "Indikator ini menggunakan ketercapaian persentase";
+                mtidCapaianHint.textContent = "Isi angka dalam rentang 0 hingga 100.";
             } else if (jenis === "ketersediaan") {
-                evaldCapaianInput.placeholder = "Indikator ini menggunakan ketercapaian ketersediaan";
-                evaldCapaianHint.textContent = "Isi dengan 'Ada' atau 'Draft'.";
+                mtidCapaianInput.placeholder = "Indikator ini menggunakan ketercapaian ketersediaan";
+                mtidCapaianHint.textContent = "Isi dengan 'Ada' atau 'Draft'.";
             } else {
-                evaldCapaianInput.placeholder = "Isi Capaian";
-                evaldCapaianHint.textContent = "Isi sesuai dengan jenis ketercapaian.";
+                mtidCapaianInput.placeholder = "Isi Capaian";
+                mtidCapaianHint.textContent = "Isi sesuai dengan jenis ketercapaian.";
             }
         });
     </script>

@@ -5,31 +5,32 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Evaluasi_Detail extends Model
+class MonitoringIKU_Detail extends Model
 {
     use HasFactory;
 
-    protected $table = 'evaluasi_detail';
+    protected $table = 'monitoring_iku_detail';
 
-    protected $primaryKey = 'evald_id';
+    protected $primaryKey = 'mtid_id';
 
     public $incrementing = false;
 
     protected $keyType = 'string';
 
     protected $fillable = [
-        'evald_id',
-        'eval_id',
+        'mtid_id',
+        'mti_id',
         'ti_id',
-        'evald_target',
-        'evald_capaian',
-        'evald_keterangan',
-        'evald_status',
+        'mtid_target',
+        'mtid_capaian',
+        'mtid_keterangan',
+        'mtid_status',
+        'mtid_url',
     ];
 
-    public function evaluasi()
+    public function monitoringIKU()
     {
-        return $this->belongsTo(Evaluasi::class, 'eval_id', 'eval_id');
+        return $this->belongsTo(MonitoringIKU::class, 'mti_id', 'mti_id');
     }
 
     public function targetIndikator()

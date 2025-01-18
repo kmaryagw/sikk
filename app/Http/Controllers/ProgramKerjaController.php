@@ -83,11 +83,6 @@ class ProgramKerjaController extends Controller
         $periodes = periode_monev::orderBy('pm_nama')->get();
         $programStudis = program_studi::orderBy('nama_prodi')->get();
 
-        // $targetindikators = target_indikator::with('indikatorKinerja')
-        //     ->join('indikator_kinerja', 'target_indikator.ik_id', '=', 'indikator_kinerja.ik_id')
-        //     ->orderBy('indikator_kinerja.ik_nama', 'asc')
-        //     ->pluck('indikator_kinerja.ik_nama', 'target_indikator.ti_id');
-
         $targetindikators = target_indikator::with('indikatorKinerja')
             ->join('indikator_kinerja', 'target_indikator.ik_id', '=', 'indikator_kinerja.ik_id')
             ->orderBy('indikator_kinerja.ik_nama', 'asc')

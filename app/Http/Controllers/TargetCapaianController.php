@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\IndikatorKinerja;
 use App\Models\program_studi;
+use App\Models\SettingIKU;
 use App\Models\tahun_kerja;
 use App\Models\target_indikator;
 use Illuminate\Support\Facades\Auth;
@@ -67,8 +68,13 @@ class TargetCapaianController extends Controller
     public function create()
     {
         $title = 'Tambah Target Capaian';
-        
-        $indikatorkinerjas = IndikatorKinerja::orderBy('ik_nama')->get();
+        $indikatorkinerjas = SettingIKU::with('indikatorKinerja')
+            ->whereHas('indikatorKinerja')
+            ->get()
+            ->sortBy(function ($item) {
+            return $item->indikatorKinerja->ik_nama;
+        });
+
         $baseline = null;
         $prodis = program_studi::orderBy('nama_prodi', 'asc')->get();
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
@@ -85,7 +91,7 @@ class TargetCapaianController extends Controller
 
     public function store(Request $request)
     {
-        $indikatorKinerja = IndikatorKinerja::find($request->ik_id);
+        $indikatorkinerjas = SettingIKU::with('indikatorKinerja')->find($request->ik_id);
 
         $validationRules = [
             'ik_id' => 'required|string',
@@ -95,12 +101,12 @@ class TargetCapaianController extends Controller
             'th_id' => 'required|string',
         ];
 
-        if ($indikatorKinerja) {
-            if ($indikatorKinerja->ik_ketercapaian == 'nilai') {
+        if ($indikatorkinerjas) {
+            if ($indikatorkinerjas->indikatorKinerja->ik_ketercapaian == 'nilai') {
                 $validationRules['ti_target'] = 'required|numeric|min:0';
-            } elseif ($indikatorKinerja->ik_ketercapaian == 'persentase') {
+            } elseif ($indikatorkinerjas->indikatorKinerja->ik_ketercapaian == 'persentase') {
                 $validationRules['ti_target'] = 'required|numeric|min:0|max:100';
-            } elseif ($indikatorKinerja->ik_ketercapaian == 'ketersediaan') {
+            } elseif ($indikatorkinerjas->indikatorKinerja->ik_ketercapaian == 'ketersediaan') {
                 $validationRules['ti_target'] = 'required|string';
             }
         }
@@ -130,7 +136,13 @@ class TargetCapaianController extends Controller
 {
     $title = 'Edit Target Capaian';
 
-    $indikatorkinerjautamas = IndikatorKinerja::orderBy('ik_nama')->get();
+    // $indikatorkinerjautamas = IndikatorKinerja::orderBy('ik_nama')->get();
+    $indikatorkinerjautamas = SettingIKU::with('indikatorKinerja')
+            ->whereHas('indikatorKinerja')
+            ->get()
+            ->sortBy(function ($item) {
+            return $item->indikatorKinerja->ik_nama;
+        });
     $prodis = program_studi::orderBy('nama_prodi')->get();
     $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
 
@@ -149,7 +161,8 @@ class TargetCapaianController extends Controller
 
 public function update(target_indikator $targetcapaian, Request $request)
 {
-    $indikatorKinerja = IndikatorKinerja::find($request->ik_id);
+    // $indikatorKinerja = IndikatorKinerja::find($request->ik_id);
+    $indikatorKinerjas = SettingIKU::with('indikatorKinerja')->find($request->ik_id);
 
     $validationRules = [
         'ik_id' => 'required|string',
@@ -159,12 +172,12 @@ public function update(target_indikator $targetcapaian, Request $request)
         'th_id' => 'required|string',
     ];
 
-    if ($indikatorKinerja) {
-        if ($indikatorKinerja->ik_ketercapaian == 'nilai') {
+    if ($indikatorKinerjas) {
+        if ($indikatorKinerjas->indikatorKinerja->ik_ketercapaian == 'nilai') {
             $validationRules['ti_target'] = 'required|numeric|min:0';
-        } elseif ($indikatorKinerja->ik_ketercapaian == 'persentase') {
+        } elseif ($indikatorKinerjas->indikatorKinerja->ik_ketercapaian == 'persentase') {
             $validationRules['ti_target'] = 'required|numeric|min:0|max:100';
-        } elseif ($indikatorKinerja->ik_ketercapaian == 'ketersediaan') {
+        } elseif ($indikatorKinerjas->indikatorKinerja->ik_ketercapaian == 'ketersediaan') {
             $validationRules['ti_target'] = 'required|string';
         }
     }

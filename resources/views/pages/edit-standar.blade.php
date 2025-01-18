@@ -67,19 +67,6 @@
                                         </div>
                                     </div>
 
-                                    {{-- <div class="form-group">
-                                        <label>Upload Dokumen Baru (Opsional)</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <i class="fa-solid fa-file-upload"></i>
-                                                </div>
-                                            </div>
-                                            <input class="form-control" type="file" name="stdd_file"/>
-                                        </div>
-                                        <small class="text-muted">Biarkan kosong jika tidak ingin mengganti dokumen.</small>
-                                    </div> --}}
-
                                     <div class="form-group">
                                         <label for="std_url">URL Standar</label>
                                         <div class="input-group">

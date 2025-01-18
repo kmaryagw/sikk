@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('evaluasi', function (Blueprint $table) {
-            $table->string('eval_id', 50)->primary();  
+        Schema::create('monitoring_iku', function (Blueprint $table) {
+            $table->string('mti_id', 50)->primary();  
             $table->string('th_id', 50);  
             $table->string('prodi_id', 50);
             $table->string('status', 1);

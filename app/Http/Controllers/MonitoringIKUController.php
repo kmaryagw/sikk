@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Evaluasi;
-use App\Models\Evaluasi_Detail;
+use App\Models\MonitoringIKU;
+use App\Models\MonitoringIKU_Detail;
 use App\Models\IndikatorKinerja;
 use App\Models\program_studi;
 use App\Models\RencanaKerja;
@@ -12,15 +12,16 @@ use App\Models\target_indikator;
 use Illuminate\Http\Request;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Str;
+use Symfony\Contracts\Service\Attribute\Required;
 
-class EvaluasiController extends Controller
+class MonitoringIKUController extends Controller
 {
     public function index(Request $request)
     {
-        $title = 'Data Evaluasi';
+        $title = 'Data Monitoring IKU';
         $q = $request->query('q');
 
-        $evaluasis = Evaluasi::with(['targetIndikator'])
+        $monitoringikus = MonitoringIKU::with(['targetIndikator'])
             ->whereHas('targetIndikator', function ($query) use ($q) {
                 $query->whereHas('prodi', function ($query) use ($q) {
                     $query->where('nama_prodi', 'like', '%' . $q . '%');
@@ -28,20 +29,20 @@ class EvaluasiController extends Controller
             })
             ->paginate(10);
 
-        $no = $evaluasis->firstItem();
+        $no = $monitoringikus->firstItem();
 
         $prodis = program_studi::orderBy('nama_prodi', 'asc')->get();
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->orderBy('th_tahun', 'asc')->get();
 
 
-        return view('pages.index-evaluasi', [
+        return view('pages.index-monitoringiku', [
             'title' => $title,
-            'evaluasis' => $evaluasis,
+            'monitoringikus' => $monitoringikus,
             'prodis' => $prodis,
             'tahuns' => $tahuns,
             'q' => $q,
             'no' => $no,
-            'type_menu' => 'evaluasi',
+            'type_menu' => 'monitoringiku',
         ]);
     }
 
@@ -72,19 +73,19 @@ class EvaluasiController extends Controller
                 ]);
             }
 
-            $existingEvaluasi = Evaluasi::where('prodi_id', $request->prodi_id)
+            $existisMonitoringIKU = MonitoringIKU::where('prodi_id', $request->prodi_id)
                 ->where('th_id', $request->th_id)
                 ->first();
 
-            if ($existingEvaluasi) {
+            if ($existisMonitoringIKU) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Prodi ini sudah ada untuk tahun yang sama.',
                 ]);
             }
 
-            $evaluasi = Evaluasi::create([
-                'eval_id' => 'EV' . md5(uniqid(rand(), true)),
+            $monitoringiku = MonitoringIKU::create([
+                'mti_id' => 'EV' . md5(uniqid(rand(), true)),
                 'prodi_id' => $request->prodi_id,
                 'th_id' => $request->th_id,
                 'status' => 0,
@@ -102,44 +103,44 @@ class EvaluasiController extends Controller
         }
     }
 
-    public function indexDetail($eval_id)
+    public function indexDetail($mti_id)
     {
-        $Evaluasis = Evaluasi_Detail::where('eval_id', $eval_id)->get();
+        // $Monitoringikus = MonitoringIKU_Detail::where('mti_id', $mti_id)->get(); //Evaluasis
 
-        $Evaluasi = Evaluasi::find($eval_id);
-        $prodi_id = $Evaluasi->prodi_id;
-        $th_id = $Evaluasi->th_id;
+        $Monitoringiku = MonitoringIKU::find($mti_id); //Evaluasi
+        $prodi_id = $Monitoringiku->prodi_id;
+        $th_id = $Monitoringiku->th_id;
 
         $targetIndikators = target_indikator::with('indikatorKinerja')
             ->where('prodi_id', $prodi_id)
             ->where('th_id', $th_id)
             ->get();
         
-        $evaluasiDetail = Evaluasi_Detail::where('eval_id', $eval_id)->first() ?? new Evaluasi_Detail();
+        $monitoringikuDetail = MonitoringIKU_Detail::where('mti_id', $mti_id)->first() ?? new MonitoringIKU_Detail();
 
-        return view('pages.index-detail-evaluasi', [
-            'Evaluasi' => $Evaluasi,
-            'Evaluasis' => $Evaluasis,
+        return view('pages.index-detail-monitoringiku', [
+            'Monitoringiku' => $Monitoringiku,
+            // 'Monitoringikus' => $Monitoringikus,
             'targetIndikators' => $targetIndikators,
-            'evaluasiDetail' => $evaluasiDetail,
-            'type_menu' => 'evaluasi',
+            'monitoringikuDetail' => $monitoringikuDetail,
+            'type_menu' => 'monitoringiku',
         ]);
     }
 
-    public function editDetail($eval_id)
+    public function editDetail($mti_id)
     {
-        $evaluasi = Evaluasi::with(['prodi', 'tahunKerja'])->findOrFail($eval_id);
+        $monitoringiku = MonitoringIKU::with(['prodi', 'tahunKerja'])->findOrFail($mti_id);
         $status = ['tercapai','tidak tercapai','tidak terlaksana'];
-        $targetIndikator = target_indikator::where('prodi_id', $evaluasi->prodi_id)
-            ->where('th_id', $evaluasi->th_id)
+        $targetIndikator = target_indikator::where('prodi_id', $monitoringiku->prodi_id)
+            ->where('th_id', $monitoringiku->th_id)
             ->with('indikatorKinerja')
             ->first();
 
-        $evaluasiDetail = Evaluasi_Detail::where('eval_id', $eval_id)->first() ?? new Evaluasi_Detail();
+        $monitoringikuDetail = MonitoringIKU_Detail::where('mti_id', $mti_id)->first() ?? new MonitoringIKU_Detail();
 
         $indikatorKinerja = $targetIndikator->indikatorKinerja;
             if (!$indikatorKinerja) {
-                return redirect()->route('evaluasi.index')->with('error', 'Indikator Kinerja tidak ditemukan.');
+                return redirect()->route('monitoringiku.index')->with('error', 'Indikator Kinerja tidak ditemukan.');
             }
         
         $programKerja = RencanaKerja::with(['periodes', 'tahunKerja', 'monitoring', 'realisasi'])
@@ -150,24 +151,25 @@ class EvaluasiController extends Controller
             ->orderBy('rk_nama', 'asc')
             ->get();
 
-        return view('pages.edit-detail-evaluasi', [
-            'evaluasi' => $evaluasi,
+        return view('pages.edit-detail-monitoringiku', [
+            'monitoringiku' => $monitoringiku,
             'targetIndikator' => $targetIndikator,
             'status' => $status,
             'programKerja' => $programKerja,
-            'evaluasiDetail' => $evaluasiDetail,
-            'type_menu' => 'evaluasi',
+            'monitoringikuDetail' => $monitoringikuDetail,
+            'type_menu' => 'monitoringiku',
         ]);
     }
 
-    public function updateDetail(Request $request, $eval_id)
+    public function updateDetail(Request $request, $mti_id)
     {
         $indikatorKinerja = IndikatorKinerja::find($request->ik_id);
         
         $validated = $request->validate([
-            'evald_capaian' => 'required',
-            'evald_keterangan' => 'nullable|string',
-            'evald_status' => 'required|in:tercapai,tidak tercapai,tidak terlaksana',
+            'mtid_capaian' => 'required',
+            'mtid_keterangan' => 'nullable|string',
+            'mtid_status' => 'required|in:tercapai,tidak tercapai,tidak terlaksana',
+            'mtid_url' => 'required|url',
         ]);
 
         if ($indikatorKinerja) {
@@ -181,90 +183,74 @@ class EvaluasiController extends Controller
         }
 
         try {
-            $evaluasi = Evaluasi::findOrFail($eval_id);
-            $targetIndikator = target_indikator::where('prodi_id', $evaluasi->prodi_id)
-                ->where('th_id', $evaluasi->th_id)
+            $monitoringiku = MonitoringIKU::findOrFail($mti_id);
+            $targetIndikator = target_indikator::where('prodi_id', $monitoringiku->prodi_id)
+                ->where('th_id', $monitoringiku->th_id)
                 ->first();
 
-            if ($evaluasi->status == 1) {
-                return redirect()->route('evaluasi.index')->with('error', 'Evaluasi ini sudah final dan tidak dapat diubah.');
+            if ($monitoringiku->status == 1) {
+                return redirect()->route('monitoringiku.index')->with('error', 'Monitoring IKU ini sudah final dan tidak dapat diubah.');
             }
 
-            Evaluasi_Detail::create([
-                'evald_id' => Str::uuid(),
-                'eval_id' => $eval_id,
+            MonitoringIKU_Detail::create([
+                'mtid_id' => Str::uuid(),
+                'mti_id' => $mti_id,
                 'ti_id' => $targetIndikator->ti_id,
-                'evald_target' => $targetIndikator->ti_target,
-                'evald_capaian' => $validated['evald_capaian'],
-                'evald_keterangan' => $validated['evald_keterangan'],
-                'evald_status' => $validated['evald_status'],
+                'mtid_target' => $targetIndikator->ti_target,
+                'mtid_capaian' => $validated['mtid_capaian'],
+                'mtid_keterangan' => $validated['mtid_keterangan'],
+                'mtid_status' => $validated['mtid_status'],
+                'mtid_url' => $validated['mtid_url'],
             ]);
 
             Alert::success('Sukses', 'Data Berhasil Ditambah');
 
-            return redirect()->route('evaluasi.index-detail', $eval_id);
+            return redirect()->route('monitoringiku.index-detail', $mti_id);
         } catch (\Exception $e) {
             Alert::error('Error', 'Terjadi Kesalahan!');
-            return redirect()->route('evaluasi.index-detail', $eval_id);
+            return redirect()->route('monitoringiku.index-detail', $mti_id);
         }
     }
 
     public function final($id)
     {
-        $evaluasi = Evaluasi::findOrFail($id);
+        $monitoringiku = MonitoringIKU::findOrFail($id);
 
-        if ($evaluasi->status == 1) {
-            return response()->json(['success' => false, 'message' => 'Evaluasi ini sudah final dan tidak dapat diubah.']);
+        if ($monitoringiku->status == 1) {
+            return response()->json(['success' => false, 'message' => 'Monitoring IKU ini sudah final dan tidak dapat diubah.']);
         }
 
-        if (!$evaluasi->isFilled()) {
+        if (!$monitoringiku->isFilled()) {
             return response()->json(['success' => false, 'message' => 'Data harus diisi terlebih dahulu sebelum final.']);
         }
 
-        $evaluasi->status = 1;
-        $evaluasi->save();
+        $monitoringiku->status = 1;
+        $monitoringiku->save();
 
-        return response()->json(['success' => true, 'message' => 'Evaluasi berhasil diselesaikan.']);
+        return response()->json(['success' => true, 'message' => 'Monitoring IKU berhasil diselesaikan.']);
     }
 
-    public function show($eval_id)
+    public function show($mti_id)
     {
-        $Evaluasis = Evaluasi_Detail::where('eval_id', $eval_id)->get();
+        $Evaluasis = MonitoringIKU_Detail::where('mti_id', $mti_id)->get();
 
-        $Evaluasi = Evaluasi::find($eval_id);
-        $prodi_id = $Evaluasi->prodi_id;
-        $th_id = $Evaluasi->th_id;
+        $Monitoringiku = MonitoringIKU::find($mti_id);
+        $prodi_id = $Monitoringiku->prodi_id;
+        $th_id = $Monitoringiku->th_id;
 
         $targetIndikators = target_indikator::with('indikatorKinerja')
             ->where('prodi_id', $prodi_id)
             ->where('th_id', $th_id)
             ->get();
         
-        $evaluasiDetail = Evaluasi_Detail::where('eval_id', $eval_id)->first() ?? new Evaluasi_Detail();
+        $monitoringikuDetail = MonitoringIKU_Detail::where('mti_id', $mti_id)->first() ?? new MonitoringIKU_Detail();
 
-        return view('pages.index-show-evaluasi', [
-            'Evaluasi' => $Evaluasi,
+        return view('pages.index-show-monitoringiku', [
+            'Monitoringiku' => $Monitoringiku,
             'Evaluasis' => $Evaluasis,
             'targetIndikators' => $targetIndikators,
-            'evaluasiDetail' => $evaluasiDetail,
+            'monitoringikuDetail' => $monitoringikuDetail,
             'type_menu' => 'evaluasi',
         ]);
     }
-
-    public function destroyDetail($eval_id)
-    {
-        $evaluasi = Evaluasi::find($eval_id);
-
-        if ($evaluasi) {
-            $evaluasi->evaluasiDetails()->delete();
-            $evaluasi->status = 0;
-            $evaluasi->save();
-
-            Alert::success('Sukses', 'Data Berhasil Dihapus');
-            return redirect()->route('evaluasi.index-detail', $eval_id);
-        }
-        Alert::error('Error', 'Terjadi Kesalahan!');
-        return redirect()->route('evaluasi.index-detail', $eval_id);
-    }
-
 }

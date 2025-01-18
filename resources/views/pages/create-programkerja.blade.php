@@ -41,9 +41,36 @@
 
                                 <form method="POST" action="{{ route('programkerja.store') }}">
                                     @csrf
+
+                                    <div class="form-group d-flex align-items-center">
+                                        <label for="th_id" class="mr-2" style="font-size: 1rem;">Tahun Aktif:</label>
+                                        @foreach ($tahuns as $tahun)
+                                            @if ($tahun->th_is_aktif === 'y')
+                                                <span class="badge badge-primary p-3" style="font-size: 1rem;">
+                                                    <i class="fa-solid fa-calendar-alt"></i> {{ $tahun->th_tahun }}
+                                                </span>
+                                                <input type="hidden" name="th_id" value="{{ $tahun->th_id }}">
+                                            @endif
+                                        @endforeach
+                                    </div>
                                     <div class="row">
                                         <!-- Kolom Kiri -->
                                         <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Pilih Program Studi</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                    </div>
+                                                    <select name="prodi_id[]" id="prodi_id" class="form-control select2" multiple="multiple" data-placeholder="Pilih Program Studi" required>
+                                                        @foreach($programStudis as $prodi)
+                                                            <option value="{{ $prodi->prodi_id }}" {{ collect(old('prodi_id'))->contains($prodi->prodi_id) ? 'selected' : '' }}>
+                                                                {{ $prodi->nama_prodi }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+
                                             <div class="form-group">
                                                 <label>Nama Program Kerja</label>
                                                 <div class="input-group">
@@ -55,24 +82,37 @@
                                                     <input class="form-control" type="text" name="rk_nama" value="{{ old('rk_nama') }}" required/>
                                                 </div>
                                             </div>
+
                                             <div class="form-group">
-                                                <label>Pilih Program Studi</label>
+                                                <label>Pilih Periode Monev</label>
+                                                <div>
+                                                    @foreach ($periodes as $periode)
+                                                        <div class="form-check form-check-inline">
+                                                            <input type="checkbox" class="form-check-input" name="pm_id[]" value="{{ $periode->pm_id }}">
+                                                            <label class="form-check-label">{{ $periode->pm_nama }}</label><br>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Kolom Kanan -->
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Indikator Kinerja</label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
-                                                        <div class="input-group-text">
-                                                            <i class="fa-solid fa-graduation-cap"></i>
-                                                        </div>
                                                     </div>
-                                                    <select name="prodi_id[]" id="prodi_id" class="form-control select2" multiple="multiple" data-placeholder="Pilih Program Studi" required>
-                                                        @foreach($programStudis as $prodi)
-                                                            <option value="{{ $prodi->prodi_id }}" {{ collect(old('prodi_id'))->contains($prodi->prodi_id) ? 'selected' : '' }}>
-                                                                {{ $prodi->nama_prodi }}
+                                                    <select name="ti_id[]" id="ti_id" class="form-control select2" multiple="multiple" data-placeholder="Pilih Indikator Kinerja" required>
+                                                        @foreach($targetindikators as $indikator)
+                                                            <option value="{{ $indikator->ti_id }}" {{ collect(old('ti_id'))->contains($indikator->ti_id) ? 'selected' : '' }}>
+                                                                {{ $indikator->ik_kode }} - {{ $indikator->ik_nama }}
                                                             </option>
                                                         @endforeach
                                                     </select>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="form-group">
                                                 <label>Unit Kerja</label>
                                                 <div class="input-group">
@@ -89,61 +129,6 @@
                                                             @endif
                                                         @endforeach
                                                     </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label>Tahun</label>
-                                                <div class="input-group">
-                                                    <div class="input-group-prepend">
-                                                        <div class="input-group-text">
-                                                            <i class="fa-solid fa-calendar-alt"></i>
-                                                        </div>
-                                                    </div>
-                                                    <select class="form-control" name="th_id" id="th_id" required>
-                                                        <option value="" disabled selected>Pilih Tahun</option>
-                                                        @foreach ($tahuns as $tahun)
-                                                            @if ($tahun->th_is_aktif == 'y')
-                                                                <option value="{{ $tahun->th_id }}" {{ old('th_id') == $tahun->th_id ? 'selected' : '' }}>{{ $tahun->th_tahun }}</option>
-                                                            @endif
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Kolom Kanan -->
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>Indikator Kinerja</label>
-                                                <div class="input-group">
-                                                    <div class="input-group-prepend">
-                                                        
-                                                    </div>
-                                                    <select name="ti_id[]" id="ti_id" class="form-control select2" multiple="multiple" data-placeholder="Pilih Indikator Kinerja" required>
-                                                        {{-- @foreach($targetindikators as $ti_id => $ik_nama)
-                                                            <option value="{{ $ti_id }}" {{ collect(old('ti_id'))->contains($ti_id) ? 'selected' : '' }}>
-                                                                {{ $ik_nama }}
-                                                            </option>
-                                                        @endforeach --}}
-                                                        @foreach($targetindikators as $indikator)
-                                                            <option value="{{ $indikator->ti_id }}" {{ collect(old('ti_id'))->contains($indikator->ti_id) ? 'selected' : '' }}>
-                                                                {{ $indikator->ik_kode }} - {{ $indikator->ik_nama }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label>Pilih Periode Monev</label>
-                                                <div>
-                                                    @foreach ($periodes as $periode)
-                                                        <div class="form-check form-check-inline">
-                                                            <input type="checkbox" class="form-check-input" name="pm_id[]" value="{{ $periode->pm_id }}">
-                                                            <label class="form-check-label">{{ $periode->pm_nama }}</label><br>
-                                                        </div>
-                                                    @endforeach
                                                 </div>
                                             </div>
                                         </div>

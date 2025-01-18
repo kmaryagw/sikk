@@ -32,7 +32,7 @@ class DatabaseSeeder extends Seeder
             Indikator_kinerjaSeeder::class,
             Target_indikatorSeeder::class,
             Periode_monevSeeder::class,
-            EvaluasiSeeder::class,
+            Monitoring_IKU::class,
             RencanaKerjaTargetIndikatorSeeder::class,
             RencanaKerjaSeeder::class,
             MonitoringSeeder::class,

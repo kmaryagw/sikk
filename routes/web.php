@@ -7,6 +7,7 @@ use App\Http\Controllers\IndikatorKinerjaController;
 use App\Http\Controllers\LaporanIkuController;
 use App\Http\Controllers\LaporanRenjaController;
 use App\Http\Controllers\MonitoringController;
+use App\Http\Controllers\MonitoringIKUController;
 use App\Http\Controllers\PeriodeMonevController;
 use App\Http\Controllers\PeriodeMonitoringController;
 use App\Http\Controllers\UnitKerjaController;
@@ -53,20 +54,20 @@ Route::middleware('auth')->group(function () {
     // Rute untuk Evaluasi
     Route::resource('monitoring', MonitoringController::class);
     Route::resource('periode-monitoring', PeriodeMonitoringController::class);
-    Route::resource('evaluasi', EvaluasiController::class);
+    Route::resource('monitoringiku', MonitoringIKUController::class);
 
-    Route::post('/evaluasi/final/{id}', [EvaluasiController::class, 'final'])->name('evaluasi.final');
-    Route::get('evaluasi/{eval_id}/index-detail', [EvaluasiController::class, 'indexDetail'])->name('evaluasi.index-detail');
-    // Route::get('evaluasi/{eval_id}/create-detail', [EvaluasiController::class, 'createDetail'])->name('evaluasi.create-detail');
-    // Route::post('/evaluasi/{eval_id}/store-detail', [EvaluasiController::class, 'storeDetail'])->name('evaluasi.store-detail');
-    Route::get('evaluasi/{eval_id}/edit-detail', [EvaluasiController::class, 'editDetail'])->name('evaluasi.edit-detail');
-    Route::put('evaluasi/{eval_id}/update-detail', [EvaluasiController::class, 'updateDetail'])->name('evaluasi.update-detail');
-    Route::delete('evaluasi/destroy-detail/{eval_id}', [EvaluasiController::class, 'destroyDetail'])->name('evaluasi.destroy-detail');
-    Route::get('evaluasi/{eval_id}/show-evaluasi', [EvaluasiController::class, 'show'])->name('evaluasi.show-evaluasi');
+    Route::post('/monitoringiku/final/{id}', [MonitoringIKUController::class, 'final'])->name('monitoringiku.final');
+    Route::get('monitoringiku/{mti_id}/index-detail', [MonitoringIKUController::class, 'indexDetail'])->name('monitoringiku.index-detail');
+    // Route::get('monitoringiku/{mti_id}/create-detail', [MonitoringIKUController::class, 'createDetail'])->name('monitoringiku.create-detail');
+    // Route::post('/monitoringiku/{mti_id}/store-detail', [MonitoringIKUController::class, 'storeDetail'])->name('monitoringiku.store-detail');
+    Route::get('monitoringiku/{mti_id}/edit-detail', [MonitoringIKUController::class, 'editDetail'])->name('monitoringiku.edit-detail');
+    Route::put('monitoringiku/{mti_id}/update-detail', [MonitoringIKUController::class, 'updateDetail'])->name('monitoringiku.update-detail');
+    Route::get('monitoringiku/{mti_id}/show-monitoringiku', [MonitoringIKUController::class, 'show'])->name('monitoringiku.show-monitoringiku');
 
     // Rute untuk Setting
-    Route::resource('settingiku', SettingIKUController::class)->except(['create', 'edit', 'show']);
-    Route::put('/settingiku/{id_setting}', [SettingIKUController::class, 'update'])->name('settingiku.update');
+    Route::resource('settingiku', SettingIKUController::class);
+    // Route::resource('settingiku', SettingIKUController::class)->except(['create', 'edit', 'show']);
+    // Route::put('/settingiku/{id_setting}', [SettingIKUController::class, 'update'])->name('settingiku.update');
 
 
     // Rute untuk laporan
@@ -77,23 +78,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('laporan-iku', LaporanIkuController::class);
     Route::get('/export-excel-iku', [LaporanIkuController::class, 'exportExcel'])->name('export-excel.iku');
     Route::get('/export-pdf-iku', [LaporanIkuController::class, 'exportPdf'])->name('export-pdf.iku');
-
-    // Routes untuk Akses File
-    Route::get('/storage/{filename}', function ($filename) {
-        $filePath = storage_path('app/public/dokumen/' . $filename);
-        if (!file_exists($filePath)) {
-            return abort(404, 'File tidak ditemukan.');
-        }
-        return response()->file($filePath);
-    })->where('filename', '.*');
-    
-    Route::get('/realisasi_files/{filename}', function ($filename) {
-        $filePath = storage_path('app/public/realisasi_files/' . $filename);
-        if (!file_exists($filePath)) {
-            return abort(404, 'File tidak ditemukan.');
-        }
-        return response()->file($filePath);
-    })->where('filename', '.*');    
+  
 
     // Dashboard & Audit Forms
     Route::get('/dashboard', function () {
@@ -108,6 +93,3 @@ Route::middleware('auth')->group(function () {
         return view('pages.formaudit', ['type_menu' => 'formaudit']);
     });
 });
-
-// Route untuk menyimpan Realisasi Renja
-// Route::post('/realisasirenja/store', [RealisasiRenjaController::class, 'store'])->name('realisasirenja.store');

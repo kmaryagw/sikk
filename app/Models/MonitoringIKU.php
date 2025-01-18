@@ -5,15 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Evaluasi extends Model
+class MonitoringIKU extends Model
 {
     use HasFactory;
 
-    protected $table = 'evaluasi';
-    protected $primaryKey = 'eval_id';
+    protected $table = 'monitoring_iku';
+    protected $primaryKey = 'mti_id';
     public $incrementing = false;
     protected $fillable = [
-        'eval_id',
+        'mti_id',
         'th_id',
         'prodi_id',
         'status',
@@ -50,19 +50,19 @@ class Evaluasi extends Model
         return $this->belongsTo(IndikatorKinerja::class, 'ik_id', 'ik_id');
     }
 
-    public function evaluasiDetails()
+    public function monitoringikuDetail()
     {
-        return $this->hasMany(Evaluasi_Detail::class, 'eval_id', 'eval_id');
+        return $this->hasMany(MonitoringIKU_Detail::class, 'mti_id', 'mti_id');
     }
 
     public function isFilled()
     {
-        return $this->evaluasiDetails()->exists();
+        return $this->monitoringikuDetail()->exists();
     }
 
     public function monitorings()
     {
-        return $this->hasManyThrough(Monitoring::class, Evaluasi_Detail::class, 'eval_id', 'rk_id', 'eval_id', 'rk_id');
+        return $this->hasManyThrough(Monitoring::class, MonitoringIKU_Detail::class, 'mti_id', 'rk_id', 'mti_id', 'rk_id');
     }
 
 

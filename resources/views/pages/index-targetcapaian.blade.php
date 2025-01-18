@@ -50,13 +50,13 @@
                         <thead>
                             <tr>
                                 <th>No</th>
+                                <th>Tahun</th>
+                                <th>Prodi</th>
                                 <th>Indikator Kinerja</th>
                                 <th>Jenis</th>
                                 <th>Nilai Baseline</th>
                                 <th>Target Capaian</th>
                                 <th>Keterangan</th>
-                                <th>Prodi</th>
-                                <th>Tahun</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -65,6 +65,8 @@
                             @foreach ($target_capaians as $targetcapaian)
                                 <tr>
                                     <td>{{ $no++ }}</td>
+                                    <td>{{ $targetcapaian->th_tahun }}</td>
+                                    <td>{{ $targetcapaian->nama_prodi }}</td>
                                     <td>{{ $targetcapaian->ik_kode }} - {{ $targetcapaian->ik_nama }}</td>
                                     <td>
                                         @if (strtolower($targetcapaian->ik_jenis == 'IKU'))
@@ -120,8 +122,6 @@
                                         @endif
                                     </td>                                                                       
                                     <td>{{ $targetcapaian->ti_keterangan }}</td>
-                                    <td>{{ $targetcapaian->nama_prodi }}</td>
-                                    <td>{{ $targetcapaian->th_tahun }}</td>
 
                                     @if (Auth::user()->role== 'admin' || Auth::user()->role == 'prodi')
                                     <td>

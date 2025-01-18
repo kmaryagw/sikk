@@ -42,77 +42,20 @@
                                     @csrf
                                     @method('PUT')
 
+                                    <div class="form-group d-flex align-items-center">
+                                        <label for="th_id" class="mr-2" style="font-size: 1rem;">Tahun Aktif:</label>
+                                        @foreach ($tahuns as $tahun)
+                                            @if ($tahun->th_is_aktif === 'y')
+                                                <span class="badge badge-primary p-3" style="font-size: 1rem;">
+                                                    <i class="fa-solid fa-calendar-alt"></i> {{ $tahun->th_tahun }}
+                                                </span>
+                                                <input type="hidden" name="th_id" value="{{ $tahun->th_id }}">
+                                            @endif
+                                        @endforeach
+                                    </div> 
                                     <div class="row">
                                         <!-- Kolom Kiri -->
                                         <div class="col-md-6">
-                                            <!-- Indikator Kinerja -->
-                                            <div class="form-group">
-                                                <label for="ik_id">Indikator Kinerja</label>
-                                                <div class="input-group">
-                                                    <div class="input-group-prepend">
-                                                        <div class="input-group-text">
-                                                            <i class="fa-solid fa-bullseye"></i>
-                                                        </div>
-                                                    </div>
-                                                    <select class="form-control" name="ik_id" id="ik_id" required>
-                                                        <option value="" disabled>Pilih Indikator Kinerja</option>
-                                                        @foreach ($indikatorkinerjautamas as $indikatorkinerja)
-                                                            <option value="{{ $indikatorkinerja->ik_id }}" 
-                                                                data-jenis="{{ $indikatorkinerja->ik_ketercapaian }}"
-                                                                data-baseline="{{ $indikatorkinerja->ik_baseline }}"
-                                                                {{ old('ik_id', $targetcapaian->ik_id) == $indikatorkinerja->ik_id ? 'selected' : '' }}>
-                                                                {{ $indikatorkinerja->ik_kode }} - {{ $indikatorkinerja->ik_nama }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="ik_baseline">Nilai Baseline</label>
-                                                <div class="input-group">
-                                                    <div class="input-group-prepend">
-                                                        <div class="input-group-text">
-                                                            <i class="fas fa-sort-amount-down"></i>
-                                                        </div>
-                                                    </div>
-                                                    <input type="text" id="ik_baseline" name="ik_baseline_display" 
-                                                        class="form-control" 
-                                                        value="{{ $baseline ?? 'Pilih Indikator Kinerja Terlebih Dahulu' }}" readonly>
-                                                </div>
-                                            </div>
-
-                                            <!-- Target Capaian -->
-                                            <div class="form-group">
-                                                <label for="ti_target">Target Capaian</label>
-                                                <div class="input-group">
-                                                    <div class="input-group-prepend">
-                                                        <div class="input-group-text">
-                                                            <i class="fa-solid fa-award"></i>
-                                                        </div>
-                                                    </div>
-                                                    <input type="text" id="ti_target" name="ti_target" class="form-control" 
-                                                        value="{{ old('ti_target', $targetcapaian->ti_target) }}" placeholder="Isi Target Capaian" required>
-                                                </div>
-                                                <small id="ti_target_hint" class="form-text text-muted">Isi sesuai dengan jenis ketercapaian.</small>
-                                            </div>
-                                        </div>
-
-                                        <!-- Kolom Kanan -->
-                                        <div class="col-md-6">
-                                            <!-- Keterangan -->
-                                            <div class="form-group">
-                                                <label>Keterangan</label>
-                                                <div class="input-group">
-                                                    <div class="input-group-prepend">
-                                                        <div class="input-group-text">
-                                                            <i class="fa-solid fa-clipboard-list"></i>
-                                                        </div>
-                                                    </div>
-                                                    <textarea class="form-control" name="ti_keterangan" required>{{ old('ti_keterangan', $targetcapaian->ti_keterangan) }}</textarea>
-                                                </div>
-                                            </div>
-
                                             <!-- Prodi -->
                                             <div class="form-group">
                                                 <label>Prodi</label>
@@ -134,25 +77,72 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Tahun -->
                                             <div class="form-group">
-                                                <label>Tahun</label>
+                                                <label for="ik_baseline">Nilai Baseline</label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
                                                         <div class="input-group-text">
-                                                            <i class="fa-solid fa-calendar-alt"></i>
+                                                            <i class="fas fa-sort-amount-down"></i>
                                                         </div>
                                                     </div>
-                                                    <select class="form-control" name="th_id" required>
-                                                        <option value="" disabled>Pilih Tahun</option>
-                                                        @foreach ($tahuns as $tahun)
-                                                            <option value="{{ $tahun->th_id }}" 
-                                                                {{ $tahun->th_id == $targetcapaian->th_id ? 'selected' : '' }}>
-                                                                {{ $tahun->th_tahun }}
+                                                    <input type="text" id="ik_baseline" name="ik_baseline_display" 
+                                                        class="form-control" 
+                                                        value="{{ $baseline ?? 'Pilih Indikator Kinerja Terlebih Dahulu' }}" readonly>
+                                                </div>
+                                            </div>
+
+                                            <!-- Keterangan -->
+                                            <div class="form-group">
+                                                <label>Keterangan</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fa-solid fa-clipboard-list"></i>
+                                                        </div>
+                                                    </div>
+                                                    <textarea class="form-control" name="ti_keterangan" required>{{ old('ti_keterangan', $targetcapaian->ti_keterangan) }}</textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Kolom Kanan -->
+                                        <div class="col-md-6">
+                                            <!-- Indikator Kinerja -->
+                                            <div class="form-group">
+                                                <label for="ik_id">Indikator Kinerja</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fa-solid fa-bullseye"></i>
+                                                        </div>
+                                                    </div>
+                                                    <select class="form-control" name="ik_id" id="ik_id" required>
+                                                        <option value="" disabled>Pilih Indikator Kinerja</option>
+                                                        @foreach ($indikatorkinerjautamas as $indikatorkinerja)
+                                                            <option value="{{ $indikatorkinerja->ik_id }}" 
+                                                                data-jenis="{{ $indikatorkinerja->indikatorKinerja->ik_ketercapaian }}"
+                                                                data-baseline="{{ $indikatorkinerja->indikatorKinerja->ik_baseline }}"
+                                                                {{ old('ik_id', $targetcapaian->ik_id) == $indikatorkinerja->ik_id ? 'selected' : '' }}>
+                                                                {{ $indikatorkinerja->indikatorKinerja->ik_kode }} - {{ $indikatorkinerja->indikatorKinerja->ik_nama }}
                                                             </option>
                                                         @endforeach
                                                     </select>
                                                 </div>
+                                            </div>
+
+                                            <!-- Target Capaian -->
+                                            <div class="form-group">
+                                                <label for="ti_target">Target Capaian</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fa-solid fa-award"></i>
+                                                        </div>
+                                                    </div>
+                                                    <input type="text" id="ti_target" name="ti_target" class="form-control" 
+                                                        value="{{ old('ti_target', $targetcapaian->ti_target) }}" placeholder="Isi Target Capaian" required>
+                                                </div>
+                                                <small id="ti_target_hint" class="form-text text-muted">Isi sesuai dengan jenis ketercapaian.</small>
                                             </div>
                                         </div>
                                     </div>
@@ -180,7 +170,6 @@
             const tiTargetInput = document.getElementById("ti_target");
             const tiTargetHint = document.getElementById("ti_target_hint");
 
-            // Fungsi untuk memperbarui placeholder dan hint
             function updateTargetFields() {
                 const selectedOption = ikSelect.options[ikSelect.selectedIndex];
                 const jenis = selectedOption.getAttribute("data-jenis");
@@ -200,18 +189,14 @@
                 }
             }
 
-            // Jalankan saat dropdown berubah
             ikSelect.addEventListener("change", updateTargetFields);
 
-            // Jalankan saat halaman selesai dimuat
             updateTargetFields();
         });
     </script>    
     <script>
-        // Kosongkan baseline saat halaman dimuat
         document.getElementById('ik_baseline').value = '{{ $baseline ?? 'Pilih Indikator Kinerja Terlebih Dahulu' }}';
     
-        // Ketika ada perubahan pada pilihan indikator kinerja
         document.getElementById('ik_id').addEventListener('change', function() {
             var selectedOption = this.options[this.selectedIndex];
             var baseline = selectedOption.getAttribute('data-baseline');

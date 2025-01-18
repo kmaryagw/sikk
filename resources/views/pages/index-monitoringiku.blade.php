@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Evaluasi')
+@section('title', 'Monitoring IKU')
 
 @push('style')
     <link rel="stylesheet" href="{{ asset('library/jqvmap/dist/jqvmap.min.css') }}">
@@ -41,22 +41,22 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @php $no = $evaluasis->firstItem(); @endphp
-                            @foreach ($evaluasis as $evaluasi)
+                            @php $no = $monitoringikus->firstItem(); @endphp
+                            @foreach ($monitoringikus as $monitoringiku)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $evaluasi->targetIndikator->tahunKerja->th_tahun }}</td>
-                                    <td>{{ $evaluasi->targetIndikator->prodi->nama_prodi }}</td>
+                                    <td>{{ $monitoringiku->targetIndikator->tahunKerja->th_tahun }}</td>
+                                    <td>{{ $monitoringiku->targetIndikator->prodi->nama_prodi }}</td>
                                     <td>
-                                        @if($evaluasi->status == 0)
-                                            <a class="btn btn-warning" href="{{ route('evaluasi.index-detail', $evaluasi->eval_id) }}"><i class="fa-solid fa-pen-to-square"></i> Isi/Ubah</a>
-                                            @if($evaluasi->isFilled())
-                                                <button class="btn btn-info finalBtn" data-id="{{ $evaluasi->eval_id }}"><i class="fa-solid fa-lock"></i> Final</button>
+                                        @if($monitoringiku->status == 0)
+                                            <a class="btn btn-warning" href="{{ route('monitoringiku.index-detail', $monitoringiku->mti_id) }}"><i class="fa-solid fa-pen-to-square"></i> Isi/Ubah</a>
+                                            @if($monitoringiku->isFilled())
+                                                <button class="btn btn-info finalBtn" data-id="{{ $monitoringiku->mti_id }}"><i class="fa-solid fa-lock"></i> Final</button>
                                             @else
                                                 <button class="btn btn-secondary" disabled><i class="fa-solid fa-lock"></i> Final</button>
                                             @endif
                                         @else
-                                            <a class="btn btn-success" href="{{ route('evaluasi.show-evaluasi', $evaluasi->eval_id) }}"><i class="fa-solid fa-eye"></i> Lihat Data</a>
+                                            <a class="btn btn-success" href="{{ route('monitoringiku.show-monitoringiku', $monitoringiku->mti_id) }}"><i class="fa-solid fa-eye"></i> Lihat Data</a>
                                         @endif
                                     </td>
                                 </tr>
@@ -65,9 +65,9 @@
                     </table>
                 </div>
 
-                @if ($evaluasis->hasPages())
+                @if ($monitoringikus->hasPages())
                     <div class="card-footer">
-                        {{ $evaluasis->links('pagination::bootstrap-5') }}
+                        {{ $monitoringikus->links('pagination::bootstrap-5') }}
                     </div>
                 @endif
             </div>
@@ -84,9 +84,9 @@
         // Modal Tambah Data
         document.getElementById("showModalBtn").addEventListener("click", function () {
     Swal.fire({
-        title: 'Tambah Data Evaluasi',
+        title: 'Tambah Data Monitoring IKU',
         html: `
-            <form id="form-add-evaluasi">
+            <form id="form-add-monitoring-iku">
                 <div class="mb-3">
                     <label for="th_id" class="form-label">Tahun</label>
                     <select class="form-control" name="th_id" required>
@@ -127,7 +127,7 @@
         if (result.isConfirmed) {
             const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
-            fetch("{{ route('evaluasi.store') }}", {
+            fetch("{{ route('monitoringiku.store') }}", {
                 method: "POST",
                 headers: {
                     'X-CSRF-TOKEN': csrfToken,
@@ -153,7 +153,7 @@
 
 document.querySelectorAll('.finalBtn').forEach(button => {
     button.addEventListener('click', function () {
-        const evaluasiId = this.getAttribute('data-id');
+        const monitoringikuId = this.getAttribute('data-id');
 
         Swal.fire({
             title: 'Finalisasi?',
@@ -164,7 +164,7 @@ document.querySelectorAll('.finalBtn').forEach(button => {
             cancelButtonText: 'Batal',
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch(`/evaluasi/final/${evaluasiId}`, {
+                fetch(`/monitoringiku/final/${monitoringikuId}`, {
                     method: 'POST',
                     headers: { 
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content 

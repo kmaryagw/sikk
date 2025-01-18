@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Detail Evaluasi')
+@section('title', 'Detail Monitoring IKU')
 
 @section('main')
 <div class="main-content">
@@ -8,7 +8,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h1 class="mb-0">Detail Program Studi</h1>
-                    <a class="btn btn-danger" href="{{ route('evaluasi.index') }}">
+                    <a class="btn btn-danger" href="{{ route('monitoringiku.index') }}">
                         <i class="fa-solid fa-arrow-left"></i> Kembali
                     </a>
                 </div>
@@ -16,7 +16,7 @@
         </div>
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h4>Data Evaluasi dari Prodi: <span class="badge badge-info">{{ $Evaluasi->targetIndikator->prodi->nama_prodi }}</span> Tahun: <span class="badge badge-primary">{{ $Evaluasi->targetIndikator->tahunKerja->th_tahun }}</span></h4>
+                <h4>Data Monitoring IKU dari Prodi: <span class="badge badge-info">{{ $Monitoringiku->targetIndikator->prodi->nama_prodi }}</span> Tahun: <span class="badge badge-primary">{{ $Monitoringiku->targetIndikator->tahunKerja->th_tahun }}</span></h4>
             </div>
         
             @if($targetIndikators->isEmpty())
@@ -30,10 +30,12 @@
                             <tr>
                                 <th>No</th>
                                 <th>Indikator Kinerja</th>
+                                <th>Baseline</th>
                                 <th>Target</th>
                                 <th>Keterangan Indikator</th>
                                 <th>Capaian</th>
                                 <th>Status</th>
+                                <th>URL</th>
                                 <th class="text-center">Aksi</th>
                             </tr>
                         </thead>
@@ -42,7 +44,29 @@
                             @foreach ($targetIndikators as $target)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $target->indikatorKinerja->ik_nama }}</td>
+                                    <td>{{ $target->indikatorKinerja->ik_kode }} - {{ $target->indikatorKinerja->ik_nama }}</td>
+                                    <td>
+                                        @if ($target->indikatorKinerja->ik_ketercapaian == 'persentase' && is_numeric($target->indikatorKinerja->ik_baseline))
+                                            <div class="progress">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     style="width: {{ intval($target->indikatorKinerja->ik_baseline) }}%;" 
+                                                     aria-valuenow="{{ intval($target->indikatorKinerja->ik_baseline) }}" 
+                                                     aria-valuemin="0" aria-valuemax="100">
+                                                    {{ $target->indikatorKinerja->ik_baseline }}%
+                                                </div>
+                                            </div>
+                                        @elseif ($target->indikatorKinerja->ik_ketercapaian == 'nilai' && is_numeric($target->indikatorKinerja->ik_baseline))
+                                            <span class="badge badge-primary">{{ $target->indikatorKinerja->ik_baseline }}</span>
+                                        @elseif (in_array(strtolower($target->indikatorKinerja->ik_baseline), ['ada', 'draft']))
+                                            @if (strtolower($target->indikatorKinerja->ik_baseline) === 'ada')
+                                                <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
+                                            @else
+                                                <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
+                                            @endif
+                                        @else
+                                            {{ $target->indikatorKinerja->ik_baseline }}
+                                        @endif
+                                    </td>
                                     <td>
                                         @if ($target->indikatorKinerja->ik_ketercapaian == 'persentase' && is_numeric($target->ti_target))
                                             <div class="progress">
@@ -66,29 +90,27 @@
                                         @endif
                                     </td> 
                                     <td>{{ $target->ti_keterangan }}</td>  
-                                    <td>{{ $evaluasiDetail->evald_capaian ?? 'Belum ada capaian' }}</td>                                                                
+                                    <td>{{ $monitoringikuDetail->mtid_capaian ?? 'Belum ada capaian' }}</td>                                                                
                                     <td>
-                                        @if (strtolower($evaluasiDetail->evald_status) === 'tercapai')
+                                        @if (strtolower($monitoringikuDetail->mtid_status) === 'tercapai')
                                             <span class="text-success"><i class="fa-solid fa-check-circle"></i> Tercapai</span>
-                                        @elseif (strtolower($evaluasiDetail->evald_status) === 'tidak tercapai')
+                                        @elseif (strtolower($monitoringikuDetail->mtid_status) === 'tidak tercapai')
                                             <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Tidak Tercapai</span>
-                                        @elseif (strtolower($evaluasiDetail->evald_status) === 'tidak terlaksana')
+                                        @elseif (strtolower($monitoringikuDetail->mtid_status) === 'tidak terlaksana')
                                             <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak Terlaksana</span>
                                         @else
                                             <span></i>Belum ada status</span>
                                         @endif
-                                    </td>                                        
-                                    <td class="text-center">
-                                        <a href="{{ route('evaluasi.edit-detail', ['eval_id' => $Evaluasi->eval_id]) }}" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Isi/Ubah</a>
-                                        @if($Evaluasis->isNotEmpty())
-                                            <form id="delete-form-{{ $evaluasiDetail->evald_id }}" method="POST" class="d-inline" action="{{ route('evaluasi.destroy-detail', ['eval_id' => $Evaluasi->eval_id]) }}">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $evaluasiDetail->evald_id }}')"><i class="fa-solid fa-trash"></i> Hapus</button>
-                                            </form>
+                                    </td>
+                                    <td>
+                                        @if($monitoringikuDetail->mtid_url)
+                                            <a href="{{ $monitoringikuDetail->mtid_url}}" target="_blank" class="btn btn-success">Lihat URL</a>
                                         @else
-                                            <button class="btn btn-secondary" disabled><i class="fa-solid fa-trash"></i> Hapus</button>
-                                        @endif                                       
+                                            Belum Ada URL
+                                        @endif
+                                    </td>                                   
+                                    <td class="text-center">
+                                        <a href="{{ route('monitoringiku.edit-detail', ['mti_id' => $Monitoringiku->mti_id]) }}" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Isi/Ubah</a>                                      
                                     </td>
                                 </tr>
                             @endforeach
