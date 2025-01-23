@@ -7,54 +7,67 @@ use App\Models\IndikatorKinerja;
 use App\Models\Standar;
 use App\Models\tahun_kerja;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class IndikatorKinerjaController extends Controller
 {
     public function index(Request $request)
-{
-    $title = 'Data Indikator Kinerja Utama';
-    $q = $request->query('q');
+    {
+        $user = Auth::user();
 
-    $query = IndikatorKinerja::where('ik_nama', 'like', '%'. $q. '%')
-        ->orderBy('ik_nama', 'asc')
-        ->leftJoin('standar', 'standar.std_id', '=', 'indikator_kinerja.std_id');
+        if ($user->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $title = 'Data Indikator Kinerja Utama';
+        $q = $request->query('q');
 
-    if ($q) {
-        $query->where('ik_nama', 'like', '%' . $q . '%');
+        $query = IndikatorKinerja::where('ik_nama', 'like', '%'. $q. '%')
+            ->orderBy('ik_kode', 'asc')
+            ->leftJoin('standar', 'standar.std_id', '=', 'indikator_kinerja.std_id');
+
+        if ($q) {
+            $query->where('ik_nama', 'like', '%' . $q . '%');
+        }
+
+        $indikatorkinerjas = $query->paginate(10)->withQueryString();
+        $no = $indikatorkinerjas->firstItem();
+    
+        return view('pages.index-indikatorkinerja', [
+            'title' => $title,
+            'indikatorkinerjas' => $indikatorkinerjas,
+            'q' => $q,
+            'no' => $no,
+            'type_menu' => 'masterdata',
+            'sub_menu' => 'indikatorkinerja',
+        ]);
     }
 
-    $indikatorkinerjas = $query->paginate(10)->withQueryString();
-    $no = $indikatorkinerjas->firstItem();
-    
-    return view('pages.index-indikatorkinerja', [
-        'title' => $title,
-        'indikatorkinerjas' => $indikatorkinerjas,
-        'q' => $q,
-        'no' => $no,
-        'type_menu' => 'masterdata',
-        'sub_menu' => 'indikatorkinerja',
-    ]);
-}
 
 
+    public function create()
+    {
+        $user = Auth::user();
 
-public function create()
-{
-    $title = 'Tambah Indikator Kinerja Utama';
-    $jeniss = ['IKU', 'IKT'];
-    $ketercapaians = ['nilai', 'persentase', 'ketersediaan'];
-    $standar = Standar::orderBy('std_nama')->get();
+        if ($user->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $title = 'Tambah Indikator Kinerja Utama';
+        $jeniss = ['IKU', 'IKT'];
+        $ketercapaians = ['nilai', 'persentase', 'ketersediaan'];
+        $standar = Standar::orderBy('std_nama')->get();
 
-    return view('pages.create-indikatorkinerja', [
-        'title' => $title,
-        'standar' => $standar,
-        'jeniss' => $jeniss,
-        'ketercapaians' => $ketercapaians,
-        'type_menu' => 'masterdata',
-        'sub_menu' => 'indikatorkinerja',
-    ]);
-}
+        return view('pages.create-indikatorkinerja', [
+            'title' => $title,
+            'standar' => $standar,
+            'jeniss' => $jeniss,
+            'ketercapaians' => $ketercapaians,
+            'type_menu' => 'masterdata',
+            'sub_menu' => 'indikatorkinerja',
+        ]);
+    }
 
 
     public function store(Request $request)
@@ -103,6 +116,12 @@ public function create()
 
     public function edit(IndikatorKinerja $indikatorkinerja)
     {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $title = 'Ubah Indikator Kinerja Utama';
         $standar = Standar::orderBy('std_nama')->get();
         $jeniss = ['IKU', 'IKT'];

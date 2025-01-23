@@ -21,10 +21,17 @@ class program_studi extends Model
         'prodi_id',
         'nama_prodi',
         'id_fakultas',
+        'singkatan_prodi',
     ];
 
     public function Fakultasn()
     {
         return $this->belongsTo(Fakultasn::class, 'id_fakultas', 'id_fakultas');
     }
+
+    public function targetIndikator()
+    {
+        return $this->hasMany(target_indikator::class, 'prodi_id', 'prodi_id');
+    }
+
 }

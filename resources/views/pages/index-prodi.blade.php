@@ -36,6 +36,7 @@
                             <tr>
                                 <th>No</th>
                                 <th>Nama Prodi</th>
+                                <th>Singkatan</th>
                                 <th>Fakultas</th>
                                 <th>Aksi</th>
                             </tr>
@@ -46,6 +47,7 @@
                                 <tr>
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $prodi->nama_prodi }}</td>
+                                    <td>{{ $prodi->singkatan_prodi }}</td>
                                     <td>{{ $prodi->Fakultasn ? $prodi->Fakultasn->nama_fakultas : 'Tidak ada Fakultas' }}</td>
 
                                     <td>

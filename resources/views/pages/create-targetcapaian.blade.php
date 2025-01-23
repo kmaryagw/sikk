@@ -56,7 +56,7 @@
                                     <div class="row">                                       
                                         <!-- Kolom Kiri -->
                                         <div class="col-md-6">
-                                            <div class="form-group">
+                                            {{-- <div class="form-group">
                                                 <label for="prodi_id">Prodi</label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
@@ -73,7 +73,35 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                            </div> 
+                                            </div>  --}}
+
+                                            <div class="form-group">
+                                                <label for="prodi_id">Prodi</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fa-solid fa-building-columns"></i>
+                                                        </div>
+                                                    </div>
+                                            
+                                                    @if ($userRole === 'prodi' && $userProdi)
+                                                        <!-- Jika user adalah prodi, tampilkan readonly input -->
+                                                        <input type="text" class="form-control" value="{{ $userProdi->nama_prodi }}" readonly>
+                                                        <input type="hidden" name="prodi_id" value="{{ $userProdi->prodi_id }}">
+                                                    @else
+                                                        <!-- Form biasa jika bukan prodi -->
+                                                        <select class="form-control" name="prodi_id" id="prodi_id">
+                                                            <option value="" disabled selected>Pilih Prodi</option>
+                                                            @foreach ($prodis as $prodi)
+                                                                <option value="{{ $prodi->prodi_id }}" {{ old('prodi_id') == $prodi->prodi_id ? 'selected' : '' }}>
+                                                                    {{ $prodi->nama_prodi }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            
                                                                                       
                                             <div class="form-group">
                                                 <label for="baseline">Nilai Baseline</label>

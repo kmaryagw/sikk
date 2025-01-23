@@ -69,6 +69,12 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $title = 'Data User';
         $q = $request->query('q');
         $user = Auth::user();
@@ -102,6 +108,12 @@ class UserController extends Controller
 
     public function create()
     {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $title = 'Tambah User';
         $roles = ['admin', 'prodi', 'unit kerja', 'fakultas'];
         $prodis = program_studi::orderBy('nama_prodi')->get();
@@ -171,6 +183,12 @@ class UserController extends Controller
 
     public function edit(user $user)
     {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $title = 'Ubah User';
         $roles = ['admin','prodi','unit kerja', 'fakultas'];
         $prodis = program_studi::orderBy('nama_prodi')->get();

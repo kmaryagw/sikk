@@ -4,11 +4,18 @@ namespace App\Http\Controllers;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\Models\periode_monev;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PeriodeMonevController extends Controller
 {
     public function index(Request $request)
     {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $title = 'Data Rencana Strategis';
         $q = $request->query('q');
         $periodems = periode_monev::where('pm_nama', 'like', '%' . $q . '%')
@@ -29,6 +36,12 @@ class PeriodeMonevController extends Controller
 
     public function create()
     {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $title = 'Tambah Periode Monev';
         
 
@@ -41,36 +54,42 @@ class PeriodeMonevController extends Controller
     }
 
     public function store(Request $request)
-{
-    $request->validate([
-        'pm_nama' => 'required|string|max:255',
-    ]);
+    {
+        $request->validate([
+            'pm_nama' => 'required|string|max:255',
+        ]);
 
-    $customPrefix = 'PM';
-    $timestamp = time();
-    $md5Hash = md5($timestamp);
-    $pm_id = $customPrefix . strtoupper($md5Hash);
+        $customPrefix = 'PM';
+        $timestamp = time();
+        $md5Hash = md5($timestamp);
+        $pm_id = $customPrefix . strtoupper($md5Hash);
 
-    $pm = new periode_monev();
-    $pm->pm_id = $pm_id;
-    $pm->pm_nama = $request->pm_nama;
+        $pm = new periode_monev();
+        $pm->pm_id = $pm_id;
+        $pm->pm_nama = $request->pm_nama;
     
-    $pm->save();
+        $pm->save();
 
-    Alert::success('Sukses', 'Data Berhasil Ditambah');
-    return redirect()->route('periodemonev.index');
-}
+        Alert::success('Sukses', 'Data Berhasil Ditambah');
+        return redirect()->route('periodemonev.index');
+    }
 
-public function edit(periode_monev $periodemonev)
-{
-    $title = 'Ubah Periode Monev';
-    return view('pages.edit-periode-monev', [
-        'title' => $title,
-        'periodemonev' => $periodemonev,
-        'type_menu' => 'masterdata',
-        'sub_menu' => 'periodemonev',
-    ]);
-}
+    public function edit(periode_monev $periodemonev)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $title = 'Ubah Periode Monev';
+        return view('pages.edit-periode-monev', [
+            'title' => $title,
+            'periodemonev' => $periodemonev,
+            'type_menu' => 'masterdata',
+            'sub_menu' => 'periodemonev',
+        ]);
+    }
 
     public function update(periode_monev $periodemonev, Request $request)
     {

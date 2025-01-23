@@ -4,12 +4,19 @@ namespace App\Http\Controllers;
 use App\Models\UnitKerja;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class UnitkerjaController extends Controller
 {
     public function index(Request $request)
     {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $title = 'Data Unit';
         $q = $request->query('q');
         $units = UnitKerja::where('unit_nama', 'like', '%'. $q. '%')
@@ -31,6 +38,12 @@ class UnitkerjaController extends Controller
     
     public function create()
     {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $title = 'Tambah User';
         $unit_kerjas = ['y', 'n'];
 
@@ -67,6 +80,12 @@ class UnitkerjaController extends Controller
 
     public function edit(UnitKerja $unit)
     {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $title = 'Ubah Unit';
         $unit_kerjas = ['y', 'n'];
     

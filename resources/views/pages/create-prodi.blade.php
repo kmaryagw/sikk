@@ -53,6 +53,18 @@
                                         </div>
                                     </div>
 
+                                    <div class="form-group">
+                                        <label>Singkatan</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-ellipsis-h"></i>
+                                                </div>
+                                            </div>
+                                            <input class="form-control" type="text" name="singkatan_prodi" value="{{ old('singkatan_prodi') }}"/>
+                                        </div>
+                                    </div>
+
                                     <!-- Dropdown Fakultas -->
                                     <div class="form-group">
                                         <label for="id_falkutas">Fakultas</label>
@@ -62,7 +74,7 @@
                                                     <i class="fa-solid fa-school"></i>
                                                 </div>
                                             </div>
-                                            <select class="form-control" name="id_falkutas" id="id_falkutas">
+                                            <select class="form-control" name="id_fakultas" id="id_fakultas">
                                                 <option value="">Pilih Fakultas</option>
                                                 @foreach ($fakultas as $fakultasItem)
                                                     <option value="{{ $fakultasItem->id_fakultas }}" {{ old('id_fakultas') == $fakultasItem->id_fakultas ? 'selected' : '' }}>

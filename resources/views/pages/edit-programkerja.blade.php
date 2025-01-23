@@ -42,9 +42,38 @@
                                     @csrf
                                     @method('PUT')
 
+                                    <div class="form-group d-flex align-items-center">
+                                        <label for="th_id" class="mr-2" style="font-size: 1rem;">Tahun Aktif:</label>
+                                        @foreach ($tahuns as $tahun)
+                                            @if ($tahun->th_is_aktif === 'y')
+                                                <span class="badge badge-primary p-3" style="font-size: 1rem;">
+                                                    <i class="fa-solid fa-calendar-alt"></i> {{ $tahun->th_tahun }}
+                                                </span>
+                                                <input type="hidden" name="th_id" value="{{ $tahun->th_id }}">
+                                            @endif
+                                        @endforeach
+                                    </div>
                                     <div class="row">
                                         <!-- Kolom Kiri -->
-                                        <div class="col-md-6 border-right">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Pilih Program Studi</label>
+                                                <div class="input-group">
+                                                    <select name="prodi_id[]" 
+                                                            id="prodi_id" 
+                                                            class="form-control select2" 
+                                                            multiple="multiple" 
+                                                            data-placeholder="Pilih Program Studi" required>
+                                                        @foreach($programStudis as $prodi)
+                                                            <option value="{{ $prodi->prodi_id }}" 
+                                                                    {{ in_array($prodi->prodi_id, $selectedProgramStudis) ? 'selected' : '' }}>
+                                                                {{ $prodi->nama_prodi }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+
                                             <div class="form-group">
                                                 <label>Nama Program Kerja</label>
                                                 <div class="input-group">
@@ -61,7 +90,42 @@
                                                     @enderror
                                                 </div>
                                             </div>
+
+                                            <div class="form-group">
+                                                <label>Periode Monev</label>
+                                                <div>
+                                                    @foreach($periodes as $periode)
+                                                        <div class="form-check form-check-inline">
+                                                            <input class="form-check-input" 
+                                                                   type="checkbox" 
+                                                                   name="pm_id[]" 
+                                                                   value="{{ $periode->pm_id }}" 
+                                                                   {{ in_array($periode->pm_id, $selectedPeriodes) ? 'checked' : '' }}>
+                                                            <label class="form-check-label">
+                                                                {{ $periode->pm_nama }}
+                                                            </label>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        </div>
                                     
+                                        <!-- Kolom Kanan -->
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="ti_id">Indikator Kinerja</label>
+                                                <div class="input-group">
+                                                    <select name="ti_id[]" id="ti_id" class="form-control select2" multiple="multiple" required>
+                                                        @foreach($targetindikators as $indikator)
+                                                            <option value="{{ $indikator->ti_id }}" 
+                                                                    {{ in_array($indikator->ti_id, $selectedIndikators) ? 'selected' : '' }}>
+                                                                {{ $indikator->ik_kode }} - {{ $indikator->ik_nama }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+
                                             <div class="form-group">
                                                 <label>Unit Kerja</label>
                                                 <div class="input-group">
@@ -85,70 +149,9 @@
                                                 </div>
                                             </div>
                                     
-                                            <div class="form-group">
-                                                <label>Pilih Program Studi</label>
-                                                <div class="input-group">
-                                                    <div class="input-group-prepend">
-                                                        <div class="input-group-text">
-                                                            <i class="fa-solid fa-graduation-cap"></i>
-                                                        </div>
-                                                    </div>
-                                                    <select name="prodi_id[]" 
-                                                            id="prodi_id" 
-                                                            class="form-control select2" 
-                                                            multiple="multiple" 
-                                                            data-placeholder="Pilih Program Studi" required>
-                                                        @foreach($programStudis as $prodi)
-                                                            <option value="{{ $prodi->prodi_id }}" 
-                                                                    {{ in_array($prodi->prodi_id, $selectedProgramStudis) ? 'selected' : '' }}>
-                                                                {{ $prodi->nama_prodi }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
+                                            
                                     
-                                        <!-- Kolom Kanan -->
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="ti_id">Indikator Kinerja</label>
-                                                <div class="input-group">
-                                                    <div class="input-group-prepend">
-                                                        <div class="input-group-text">
-                                                            <i class="fa-solid fa-chart-line"></i>
-                                                        </div>
-                                                    </div>
-                                                    <select name="ti_id[]" id="ti_id" class="form-control select2" multiple="multiple" required>
-                                                        @foreach($targetindikators as $indikator)
-                                                            <option value="{{ $indikator->ti_id }}" 
-                                                                    {{ in_array($indikator->ti_id, $selectedIndikators) ? 'selected' : '' }}>
-                                                                {{ $indikator->ik_kode }} - {{ $indikator->ik_nama }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                    
-                                            <div class="form-group">
-                                                <label>Periode Monev</label>
-                                                <div>
-                                                    @foreach($periodes as $periode)
-                                                        <div class="form-check form-check-inline">
-                                                            <input class="form-check-input" 
-                                                                   type="checkbox" 
-                                                                   name="pm_id[]" 
-                                                                   value="{{ $periode->pm_id }}" 
-                                                                   {{ in_array($periode->pm_id, $selectedPeriodes) ? 'checked' : '' }}>
-                                                            <label class="form-check-label">
-                                                                {{ $periode->pm_nama }}
-                                                            </label>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                            </div>
-                                    
-                                            <div class="form-group">
+                                            {{-- <div class="form-group">
                                                 <label>Tahun</label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
@@ -159,7 +162,7 @@
                                                     <input type="text" id="tahun" class="form-control" value="{{ $programkerja->tahunKerja->th_tahun }}" readonly>
                                                     <input type="hidden" name="th_id" value="{{ $programkerja->th_id }}">
                                                 </div>
-                                            </div>
+                                            </div> --}}
                                             
                                         </div>
                                     </div>

@@ -6,12 +6,19 @@ use App\Models\Renstra;
 use App\Models\tahun_kerja;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class TahunController extends Controller
 {
     public function index(Request $request)
     {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $title = 'Data Tahun Kerja';
         $q = $request->query('q');
         $tahuns = tahun_kerja::where('th_tahun', 'like', '%' . $q . '%')
@@ -33,6 +40,12 @@ class TahunController extends Controller
 
     public function create()
     {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $title = 'Tambah Tahun';
         
         $th_is_aktifs = ['y', 'n'];
@@ -79,6 +92,12 @@ class TahunController extends Controller
 
     public function edit(tahun_kerja $tahun)
     {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $title = 'Ubah tahun';
         $th_is_aktifs = ['y', 'n'];
         $renstras = Renstra::orderBy('ren_nama', 'asc')->get();

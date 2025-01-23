@@ -13,17 +13,18 @@ class SettingIKUController extends Controller
     public function index(Request $request)
     {
         $title = 'Setting IKU';
-        $indikatorKinerjas = IndikatorKinerja::all();
+        $indikatorKinerjas = IndikatorKinerja::orderBy('ik_nama', 'asc')->get();
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->orderBy('th_tahun', 'asc')->get();
         $q = $request->input('q', '');
 
         $settings = SettingIKU::with(['indikatorKinerja', 'tahunKerja'])
+            ->join('indikator_kinerja', 'settingiku.ik_id', '=', 'indikator_kinerja.ik_id') // Sesuaikan foreign key jika berbeda
             ->when($q, function ($query) use ($q) {
-                return $query->whereHas('indikatorKinerja', function ($query) use ($q) {
-                    $query->where('ik_nama', 'like', "%$q%");
-                });
+                return $query->where('indikator_kinerja.ik_nama', 'like', "%$q%");
             })
+            ->orderBy('indikator_kinerja.ik_nama', 'asc')
             ->paginate(10);
+
 
         return view('pages.index-settingiku', [
             'title' => $title,
