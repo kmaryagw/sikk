@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EvaluasiController;
 use App\Http\Controllers\FalkutasController;
 use App\Http\Controllers\FakultasnController;
@@ -80,16 +81,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/export-pdf-iku', [LaporanIkuController::class, 'exportPdf'])->name('export-pdf.iku');
   
 
-    // Dashboard & Audit Forms
-    Route::get('/dashboard', function () {
-        return view('pages.dashboard', ['type_menu' => 'dashboard']);
-    })->name('pages.dashboard');
-    
-    Route::get('/auditor', function () {
-        return view('pages.auditor', ['type_menu' => 'auditor']);
-    });
-    
-    Route::get('/formaudit', function () {
-        return view('pages.formaudit', ['type_menu' => 'formaudit']);
-    });
+    // // Dashboard & Audit Forms
+    // Route::get('/dashboard', function () {
+    //     return view('pages.dashboard', ['type_menu' => 'dashboard']);
+    // })->name('pages.dashboard');
+
+    Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 });

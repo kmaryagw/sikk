@@ -28,4 +28,10 @@ class UnitKerja extends Model
     {
         return $this->hasMany(MonitoringIKU_Detail::class, 'unit_id', 'unit_id');
     }
+
+    public function rencanaKerja()
+    {
+        return $this->hasMany(RencanaKerja::class, 'unit_id', 'unit_id');
+    }
+    
 }

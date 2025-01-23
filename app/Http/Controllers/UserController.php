@@ -40,7 +40,7 @@ class UserController extends Controller
             }
 
             Alert::success('Sukses', 'Selamat Datang');
-            return redirect()->route('pages.dashboard');
+            return redirect()->route('dashboard');
         }
 
         Alert::error('Error', 'Username atau Password salah!');
