@@ -25,20 +25,12 @@ class MonitoringController extends Controller
                     $query->where('th_id', 'like', '%' . $q . '%');
                 }
             })
-            ->join('periode_monitoring_periode_monev', 'periode_monitoring.pmo_id', '=', 'periode_monitoring_periode_monev.pmo_id')
-            ->join('periode_monev', 'periode_monitoring_periode_monev.pm_id', '=', 'periode_monev.pm_id')
-            ->select('periode_monitoring.*') 
-            ->distinct() 
-            ->orderBy('periode_monev.pm_nama', 'asc') 
+            ->select('periode_monitoring.*')
+            ->distinct()
+            ->orderBy('periode_monev.pm_nama', 'asc')
             ->paginate(10);
 
         $no = $periodemonitorings->firstItem();
-
-        foreach ($periodemonitorings as $item) {
-            $tanggalInput = Carbon::now();
-            $tanggalSelesai = Carbon::parse($item->pmo_tanggal_selesai);
-            $item = $tanggalInput >= $tanggalSelesai;
-        }
 
         return view('pages.index-monitoring', [
             'title' => $title,
@@ -57,8 +49,9 @@ class MonitoringController extends Controller
             $query->where('pmo_id', $pmo_id);
         }, 'unitKerja'])
             ->whereHas('periodes', function ($query) use ($periodeMonitoring) {
-                $query->where('rencana_kerja_pelaksanaan.pm_id', $periodeMonitoring->pm_id);
-            })->get();
+                $query->whereIn('rencana_kerja_pelaksanaan.pm_id', $periodeMonitoring->periodeMonev->pluck('pm_id')->toArray());
+            })
+            ->get();
 
         foreach ($rencanaKerja as $rencana) {
             $rencana->is_monitored = $rencana->monitoring->isNotEmpty();
@@ -72,44 +65,39 @@ class MonitoringController extends Controller
     }
 
     public function fill($pmo_id)
-{
-    $periodes = periode_monev::orderBy('pm_nama')->get();
-    $periodeMonitoring = PeriodeMonitoring::with('tahunKerja', 'periodeMonev')->findOrFail($pmo_id);
+    {
+        $periodeMonitoring = PeriodeMonitoring::with('tahunKerja', 'periodeMonev')->findOrFail($pmo_id);
 
-    $rencanaKerja = RencanaKerja::with(['periodes', 'monitoring' => function ($query) use ($pmo_id) {
-        $query->where('pmo_id', $pmo_id);
-    }, 'unitKerja', 'realisasi'])
-        ->whereHas('periodes', function ($query) use ($periodeMonitoring) {
-            $query->whereIn('rencana_kerja_pelaksanaan.pm_id', $periodeMonitoring->periodeMonev->pluck('pm_id')->toArray());
-        })
-        ->get();
+        $rencanaKerja = RencanaKerja::with(['periodes', 'monitoring' => function ($query) use ($pmo_id) {
+            $query->where('pmo_id', $pmo_id);
+        }, 'unitKerja', 'realisasi'])
+            ->whereHas('periodes', function ($query) use ($periodeMonitoring) {
+                $query->whereIn('rencana_kerja_pelaksanaan.pm_id', $periodeMonitoring->periodeMonev->pluck('pm_id')->toArray());
+            })
+            ->get();
 
-    $rencanaKerja->each(function ($rencana) {
-        $rencana->is_submitted = $rencana->monitoring->isNotEmpty();
-    });
+        $rencanaKerja->each(function ($rencana) {
+            $rencana->is_submitted = $rencana->monitoring->isNotEmpty();
+        });
 
-    // Retrieve the selected periods if status is "p"
-    $selectedPeriods = [];
-    foreach ($rencanaKerja as $rencana) {
-        $monitoring = $rencana->monitoring->first();
-        if ($monitoring && $monitoring->mtg_status === 'p') {
-            $selectedPeriods = $monitoring->periodes()->pluck('periode_monev.pm_id')->toArray();
-            break; // Assuming one monitoring record per rencana kerja with status 'p'
-        }
+        $selectedPeriods = $rencanaKerja->flatMap(function ($rencana) {
+            return $rencana->monitoring
+                ->where('mtg_status', 'p')
+                ->flatMap(function ($monitoring) {
+                    return $monitoring->periodes()->pluck('periode_monev.pm_id');
+                });
+        })->unique()->toArray();
+
+        $realisasi = RealisasiRenja::whereIn('rk_id', $rencanaKerja->pluck('rk_id'))->get();
+
+        return view('pages.monitoring-fill', [
+            'periodeMonitoring' => $periodeMonitoring,
+            'rencanaKerja' => $rencanaKerja,
+            'realisasi' => $realisasi,
+            'selectedPeriods' => $selectedPeriods,
+            'type_menu' => 'monitoring',
+        ]);
     }
-
-    $realisasi = RealisasiRenja::whereIn('rk_id', $rencanaKerja->pluck('rk_id'))->get();
-
-    return view('pages.monitoring-fill', [
-        'periodes' => $periodes,
-        'periodeMonitoring' => $periodeMonitoring,
-        'rencanaKerja' => $rencanaKerja,
-        'realisasi' => $realisasi,
-        'selectedPeriods' => $selectedPeriods, // Pass the selected periods to the view
-        'type_menu' => 'monitoring',
-    ]);
-}
-
 
     public function store(Request $request)
     {
@@ -121,13 +109,13 @@ class MonitoringController extends Controller
             'mtg_tindak_lanjut_tanggal' => 'required|date',
             'mtg_status' => 'required|in:y,n,t,p',
             'mtg_bukti' => 'nullable|url',
-            'mtg_flag' => 'required|boolean', 
+            'mtg_flag' => 'required|boolean',
             'pmo_id' => 'required|exists:periode_monitoring,pmo_id',
             'rk_id' => 'required|exists:rencana_kerja,rk_id',
         ]);
 
         try {
-            $monitoring = Monitoring::firstOrCreate(
+            $monitoring = Monitoring::updateOrCreate(
                 [
                     'pmo_id' => $request->pmo_id,
                     'rk_id' => $request->rk_id,
@@ -135,22 +123,18 @@ class MonitoringController extends Controller
                 $validatedData
             );
 
-            $monitoring->fill($validatedData);
-            $monitoring->save();
-
             return response()->json([
                 'success' => true,
                 'message' => 'Data berhasil disimpan',
-                'monitoring' => $monitoring
+                'monitoring' => $monitoring,
             ], 200);
-
         } catch (\Exception $e) {
             Log::error('Error saat menyimpan monitoring data: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan dalam menyimpan data.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

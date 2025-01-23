@@ -105,18 +105,6 @@
                 const status = monitoring.mtg_status || '';
                 const flag = monitoring.mtg_flag ? '1' : '0';
 
-                const allowedPeriodes = [
-                    'PM6EGEFUYWERFJHREFUB874R857B78F4U7', 
-                    'PMB53161D39C75013BF12F39B41FA93915'
-                ];
-
-                // Check if the current periode is allowed
-                const isAllowed = allowedPeriodes.includes(pmo);
-
-                if (!isAllowed && status === 'p') {
-                    Swal.fire('Peringatan', 'Data tidak dapat dibuka karena periode tidak memiliki status perlu tindak lanjut.', 'warning');
-                    return;
-                }
 
                 let fileBuktiHTML = bukti ? `
                     <div class="form-group">
