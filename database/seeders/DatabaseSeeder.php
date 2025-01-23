@@ -39,6 +39,8 @@ class DatabaseSeeder extends Seeder
             RencanaKerjaPelaksanaanSeeder::class,
             SettingSeeder::class,
             RencanaKerjaProgramStudiSeeder::class,
+            MonitoringPeriodeMonevSeeder::class,
+
         ]);
     }
 

@@ -48,6 +48,11 @@ class Monitoring extends Model
     {
         return $this->belongsTo(target_indikator::class, 'rk_id', 'rk_id');
     }
+
+    public function periodes()
+    {
+        return $this->belongsToMany(periode_monev::class, 'monitoring_periode_monev', 'mtg_id', 'pm_id');
+    }
     
     protected $attributes = [
         'mtg_capaian' => 0,

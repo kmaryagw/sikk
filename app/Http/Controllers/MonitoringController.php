@@ -72,32 +72,44 @@ class MonitoringController extends Controller
     }
 
     public function fill($pmo_id)
-    {
-        $periodes = periode_monev::orderBy('pm_nama')->get();
-        $periodeMonitoring = PeriodeMonitoring::with('tahunKerja', 'periodeMonev')->findOrFail($pmo_id);
+{
+    $periodes = periode_monev::orderBy('pm_nama')->get();
+    $periodeMonitoring = PeriodeMonitoring::with('tahunKerja', 'periodeMonev')->findOrFail($pmo_id);
 
-        $rencanaKerja = RencanaKerja::with(['periodes', 'monitoring' => function ($query) use ($pmo_id) {
-            $query->where('pmo_id', $pmo_id);
-        }, 'unitKerja', 'realisasi'])
-            ->whereHas('periodes', function ($query) use ($periodeMonitoring) {
-                $query->whereIn('rencana_kerja_pelaksanaan.pm_id', $periodeMonitoring->periodeMonev->pluck('pm_id')->toArray());
-            })
-            ->get();
+    $rencanaKerja = RencanaKerja::with(['periodes', 'monitoring' => function ($query) use ($pmo_id) {
+        $query->where('pmo_id', $pmo_id);
+    }, 'unitKerja', 'realisasi'])
+        ->whereHas('periodes', function ($query) use ($periodeMonitoring) {
+            $query->whereIn('rencana_kerja_pelaksanaan.pm_id', $periodeMonitoring->periodeMonev->pluck('pm_id')->toArray());
+        })
+        ->get();
 
-        $rencanaKerja->each(function ($rencana) {
-            $rencana->is_submitted = $rencana->monitoring->isNotEmpty();
-        });
+    $rencanaKerja->each(function ($rencana) {
+        $rencana->is_submitted = $rencana->monitoring->isNotEmpty();
+    });
 
-        $realisasi = RealisasiRenja::whereIn('rk_id', $rencanaKerja->pluck('rk_id'))->get();
-
-        return view('pages.monitoring-fill', [
-            'periodes' => $periodes,
-            'periodeMonitoring' => $periodeMonitoring,
-            'rencanaKerja' => $rencanaKerja,
-            'realisasi' => $realisasi,
-            'type_menu' => 'monitoring',
-        ]);
+    // Retrieve the selected periods if status is "p"
+    $selectedPeriods = [];
+    foreach ($rencanaKerja as $rencana) {
+        $monitoring = $rencana->monitoring->first();
+        if ($monitoring && $monitoring->mtg_status === 'p') {
+            $selectedPeriods = $monitoring->periodes()->pluck('periode_monev.pm_id')->toArray();
+            break; // Assuming one monitoring record per rencana kerja with status 'p'
+        }
     }
+
+    $realisasi = RealisasiRenja::whereIn('rk_id', $rencanaKerja->pluck('rk_id'))->get();
+
+    return view('pages.monitoring-fill', [
+        'periodes' => $periodes,
+        'periodeMonitoring' => $periodeMonitoring,
+        'rencanaKerja' => $rencanaKerja,
+        'realisasi' => $realisasi,
+        'selectedPeriods' => $selectedPeriods, // Pass the selected periods to the view
+        'type_menu' => 'monitoring',
+    ]);
+}
+
 
     public function store(Request $request)
     {
