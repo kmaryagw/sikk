@@ -81,6 +81,15 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    function viewq(val) {
+        if (val === 'p') {
+            document.getElementById('periodeContainer').style.display = 'block';
+            document.getElementById('flagContainer').style.display = 'block';
+        } else {
+            document.getElementById('periodeContainer').style.display = 'none';
+            document.getElementById('flagContainer').style.display = 'none';
+        }
+    }
     function showMonitoringModal(rencanaKerjaNama, pmo, rk) {
         fetch(`/monitoring/${pmo}/${rk}/getData`)
             .then(response => response.json())
@@ -216,7 +225,7 @@
                                             <i class="fa-solid fa-calendar"></i>
                                         </div>
                                     </div>
-                                    <select class="form-control" name="mtg_status" id="mtg_status" required>
+                                    <select onchange="viewq(this.value)" class="form-control" name="mtg_status" id="mtg_status" required>
                                         <option value="y" ${status === 'y' ? 'selected' : ''}>Tercapai</option>
                                         <option value="n" ${status === 'n' ? 'selected' : ''}>Belum Tercapai</option>
                                         <option value="t" ${status === 't' ? 'selected' : ''}>Tidak Terlaksana</option>
