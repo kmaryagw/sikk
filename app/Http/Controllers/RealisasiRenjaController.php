@@ -20,7 +20,6 @@ class RealisasiRenjaController extends Controller
         $q = $request->query('q');
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
 
-        // Menyaring data berdasarkan tahun yang aktif
         $query = RencanaKerja::with('tahunKerja', 'UnitKerja', 'targetIndikators.indikatorKinerja')
             ->where('rk_nama', 'like', '%' . $q . '%')
             ->whereHas('tahunKerja', function ($subQuery) {

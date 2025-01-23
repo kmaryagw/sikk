@@ -4,12 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Fakultasn;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class FakultasnController extends Controller
 {
     public function index(Request $request)
     {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $title = 'Data Falkutas';
         $q = $request->query('q');
         $fakultasns = Fakultasn::where('nama_fakultas', 'like', '%' . $q . '%')
@@ -31,6 +38,12 @@ class FakultasnController extends Controller
 
         public function create()
     {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $title = 'Tambah Fakultas';
 
         return view('pages.create-fakultasn', [
@@ -64,6 +77,12 @@ class FakultasnController extends Controller
 
     public function edit($id)
     {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $title = 'Ubah Fakultas';
         $fakultasn = Fakultasn::findOrFail($id);
     

@@ -65,15 +65,20 @@
                                                             <i class="fa-solid fa-building-columns"></i>
                                                         </div>
                                                     </div>
-                                                    <select class="form-control" name="prodi_id">
-                                                        <option value="" disabled>Pilih Prodi</option>
-                                                        @foreach ($prodis as $prodi)
-                                                            <option value="{{ $prodi->prodi_id }}" 
-                                                                {{ $prodi->prodi_id == $targetcapaian->prodi_id ? 'selected' : '' }}>
-                                                                {{ $prodi->nama_prodi }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
+                                                    @if ($userRole === 'prodi' && $userProdi)
+                                                        <input type="text" class="form-control" value="{{ $userProdi->nama_prodi }}" readonly>
+                                                        <input type="hidden" name="prodi_id" value="{{ $userProdi->prodi_id }}">
+                                                    @else
+                                                        <select class="form-control" name="prodi_id">
+                                                            <option value="" disabled>Pilih Prodi</option>
+                                                            @foreach ($prodis as $prodi)
+                                                                <option value="{{ $prodi->prodi_id }}" 
+                                                                    {{ $prodi->prodi_id == $targetcapaian->prodi_id ? 'selected' : '' }}>
+                                                                    {{ $prodi->nama_prodi }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    @endif
                                                 </div>
                                             </div>
 

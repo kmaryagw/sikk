@@ -56,11 +56,11 @@
                         <thead>
                             <tr>
                                 <th>No</th>
+                                <th>Tahun</th>
+                                <th>Program Studi</th>
+                                <th>Indikator Kinerja</th>
                                 <th>Nama Program Kerja</th>
                                 <th>Unit Kerja</th>
-                                <th>Tahun</th>
-                                <th>Indikator Kinerja</th>
-                                <th>Program Studi</th>
                                 <th>Periode</th>
                                 @if (Auth::user()->role == 'admin')
                                     <th>Aksi</th>
@@ -72,20 +72,7 @@
                             @foreach ($programkerjas as $programkerja)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $programkerja->rk_nama }}</td>
-                                    <td>{{ $programkerja->unit_nama }}</td>
                                     <td>{{ $programkerja->th_tahun }}</td>
-                                    <td>
-                                        @if($programkerja->targetindikators->isNotEmpty())
-                                            <ul class="list-unstyled">
-                                                @foreach ($programkerja->targetindikators as $iku)
-                                                    <li class="my-2">{{ $iku->indikatorKinerja->ik_kode }} - {{ $iku->indikatorKinerja->ik_nama }}</li>
-                                                @endforeach
-                                            </ul>
-                                        @else
-                                            <span class="text-muted">Tidak ada Indikator Kinerja</span>
-                                        @endif
-                                    </td>
                                     <td>
                                         @if($programkerja->programStudis->isNotEmpty())
                                             <ul class="list-unstyled">
@@ -97,6 +84,19 @@
                                             <span class="text-muted">Tidak ada Program Studi</span>
                                         @endif
                                     </td>
+                                    <td>
+                                        @if($programkerja->targetindikators->isNotEmpty())
+                                            <ul class="list-unstyled">
+                                                @foreach ($programkerja->targetindikators as $iku)
+                                                    <li class="my-2">{{ $iku->indikatorKinerja->ik_kode }} - {{ $iku->indikatorKinerja->ik_nama }}</li>
+                                                @endforeach
+                                            </ul>
+                                        @else
+                                            <span class="text-muted">Tidak ada Indikator Kinerja</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $programkerja->rk_nama }}</td>
+                                    <td>{{ $programkerja->unit_nama }}</td>
                                     <td>
                                         @if($programkerja->periodes->isNotEmpty())
                                             @foreach ($programkerja->periodes as $periode)

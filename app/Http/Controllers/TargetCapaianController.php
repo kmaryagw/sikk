@@ -80,6 +80,15 @@ class TargetCapaianController extends Controller
         $prodis = program_studi::orderBy('nama_prodi', 'asc')->get();
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
 
+        $loggedInUser = Auth::user();
+        $userRole = $loggedInUser->role;
+        $userProdi = null;
+
+        if ($userRole === 'prodi') {
+            $userProdi = $loggedInUser->programStudi;
+        }
+
+
         return view('pages.create-targetcapaian', [
             'title' => $title,
             'indikatorkinerjas' => $indikatorkinerjas,
@@ -87,6 +96,8 @@ class TargetCapaianController extends Controller
             'prodis' => $prodis,
             'tahuns' => $tahuns,
             'type_menu' => 'targetcapaian',
+            'userRole' => $userRole,
+            'userProdi' => $userProdi,
         ]);
     }
 
@@ -146,6 +157,14 @@ class TargetCapaianController extends Controller
     $prodis = program_studi::orderBy('nama_prodi')->get();
     $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
 
+    $loggedInUser = Auth::user();
+        $userRole = $loggedInUser->role;
+        $userProdi = null;
+
+    if ($userRole === 'prodi') {
+        $userProdi = $loggedInUser->programStudi;
+    }
+
     $baseline = optional($targetcapaian->settingIKU)->baseline ?? 'Baseline tidak ditemukan';
 
     return view('pages.edit-targetcapaian', [
@@ -156,6 +175,8 @@ class TargetCapaianController extends Controller
         'prodis' => $prodis,
         'tahuns' => $tahuns,
         'type_menu' => 'targetcapaian',
+        'userRole' => $userRole,
+        'userProdi' => $userProdi,
     ]);
 }
 
