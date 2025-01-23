@@ -90,6 +90,7 @@
             document.getElementById('flagContainer').style.display = 'none';
         }
     }
+
     function showMonitoringModal(rencanaKerjaNama, pmo, rk) {
         fetch(`/monitoring/${pmo}/${rk}/getData`)
             .then(response => response.json())
@@ -103,6 +104,19 @@
                 const bukti = monitoring.mtg_bukti || null;
                 const status = monitoring.mtg_status || '';
                 const flag = monitoring.mtg_flag ? '1' : '0';
+
+                const allowedPeriodes = [
+                    'PM6EGEFUYWERFJHREFUB874R857B78F4U7', 
+                    'PMB53161D39C75013BF12F39B41FA93915'
+                ];
+
+                // Check if the current periode is allowed
+                const isAllowed = allowedPeriodes.includes(pmo);
+
+                if (!isAllowed && status === 'p') {
+                    Swal.fire('Peringatan', 'Data tidak dapat dibuka karena periode tidak memiliki status perlu tindak lanjut.', 'warning');
+                    return;
+                }
 
                 let fileBuktiHTML = bukti ? `
                     <div class="form-group">
@@ -308,44 +322,23 @@
                             method: 'POST',
                             body: formData
                         })
-                        .then(response => response.json())
-                        .then(result => {
-                            if (result.success) {
-                                Swal.fire('Berhasil!', 'Data monitoring telah disimpan.', 'success');
-                            } else {
-                                Swal.fire('Gagal!', result.message || 'Terjadi kesalahan saat menyimpan data.', 'error');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire('Error', 'Gagal menyimpan data. Pastikan server berjalan dengan baik.', 'error');
-                        });
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Gagal menyimpan data');
+                                }
+                                return response.json();
+                            })
+                            .catch(error => {
+                                Swal.showValidationMessage(
+                                    `Request failed: ${error}`
+                                );
+                            });
                     }
                 });
-
-                // Logika tampilan flag dan periode berdasarkan status
-                document.getElementById('mtg_status').addEventListener('change', function () {
-                    const statusValue = this.value;
-                    const periodeContainer = document.getElementById('periodeContainer');
-                    const flagContainer = document.getElementById('flagContainer');
-                    if (statusValue === 'p') {
-                        periodeContainer.style.display = 'block';
-                        flagContainer.style.display = 'block';
-                    } else {
-                        periodeContainer.style.display = 'none';
-                        flagContainer.style.display = 'none';
-                    }
-                });
-
-                // Trigger tampilan awal saat modal dimuat
-                document.getElementById('mtg_status').dispatchEvent(new Event('change'));
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-                Swal.fire('Error', 'Gagal memuat data', 'error');
             });
     }
 </script>
 @endpush
+
 
 
