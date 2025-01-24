@@ -105,6 +105,7 @@
                 const status = monitoring.mtg_status || '';
                 const flag = monitoring.mtg_flag ? '1' : '0';
 
+                
 
                 let fileBuktiHTML = bukti ? `
                     <div class="form-group">
@@ -220,21 +221,37 @@
                                 </div>
                             </div>
                             <div class="form-group text-left">
-                                <label for="mtg_status">Status</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text">
-                                            <i class="fa-solid fa-calendar"></i>
-                                        </div>
-                                    </div>
-                                    <select onchange="viewq(this.value)" class="form-control" name="mtg_status" id="mtg_status" required>
-                                        <option value="y" ${status === 'y' ? 'selected' : ''}>Tercapai</option>
-                                        <option value="n" ${status === 'n' ? 'selected' : ''}>Belum Tercapai</option>
-                                        <option value="t" ${status === 't' ? 'selected' : ''}>Tidak Terlaksana</option>
-                                        <option value="p" ${status === 'p' ? 'selected' : ''}>Perlu tindak lanjut</option>
-                                    </select>
-                                </div>
-                            </div>
+    <label for="mtg_status">Status</label>
+    <div class="input-group">
+        <div class="input-group-prepend">
+            <div class="input-group-text">
+                <i class="fa-solid fa-calendar"></i>
+            </div>
+        </div>
+        <select onchange="viewq(this.value)" class="form-control" name="mtg_status" id="mtg_status" required>
+            @php
+                // Status yang selalu tersedia
+                $allowedStatuses = [
+                    'y' => 'Tercapai',
+                    'n' => 'Belum Tercapai',
+                    't' => 'Tidak Terlaksana',
+                ];
+
+                // Tambahkan opsi "Perlu Tindak Lanjut" jika tidak tersembunyi
+                if (!$hideTindakLanjut) {
+                    $allowedStatuses['p'] = 'Perlu Tindak Lanjut';
+                }
+            @endphp
+
+            @foreach ($allowedStatuses as $key => $value)
+                <option value="{{ $key }}" {{ old('mtg_status', $status ?? '') === $key ? 'selected' : '' }}>
+                    {{ $value }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+</div>
+
                             <div class="form-group text-left" id="periodeContainer" style="display: none;">
                                 <label>Pilih Periode Monev</label>
                                 <div>
@@ -327,6 +344,3 @@
     }
 </script>
 @endpush
-
-
-

@@ -25,12 +25,20 @@ class MonitoringController extends Controller
                     $query->where('th_id', 'like', '%' . $q . '%');
                 }
             })
+            ->join('periode_monitoring_periode_monev', 'periode_monitoring.pmo_id', '=', 'periode_monitoring_periode_monev.pmo_id')
+            ->join('periode_monev', 'periode_monitoring_periode_monev.pm_id', '=', 'periode_monev.pm_id')
             ->select('periode_monitoring.*')
             ->distinct()
             ->orderBy('periode_monev.pm_nama', 'asc')
             ->paginate(10);
 
         $no = $periodemonitorings->firstItem();
+
+        foreach ($periodemonitorings as $item) {
+            $tanggalInput = Carbon::now();
+            $tanggalSelesai = Carbon::parse($item->pmo_tanggal_selesai);
+            $item = $tanggalInput >= $tanggalSelesai;
+        }
 
         return view('pages.index-monitoring', [
             'title' => $title,
@@ -49,9 +57,8 @@ class MonitoringController extends Controller
             $query->where('pmo_id', $pmo_id);
         }, 'unitKerja'])
             ->whereHas('periodes', function ($query) use ($periodeMonitoring) {
-                $query->whereIn('rencana_kerja_pelaksanaan.pm_id', $periodeMonitoring->periodeMonev->pluck('pm_id')->toArray());
-            })
-            ->get();
+                $query->where('rencana_kerja_pelaksanaan.pm_id', $periodeMonitoring->pm_id);
+            })->get();
 
         foreach ($rencanaKerja as $rencana) {
             $rencana->is_monitored = $rencana->monitoring->isNotEmpty();
@@ -65,39 +72,45 @@ class MonitoringController extends Controller
     }
 
     public function fill($pmo_id)
-    {
-        $periodeMonitoring = PeriodeMonitoring::with('tahunKerja', 'periodeMonev')->findOrFail($pmo_id);
+{
+    // Ambil semua periode monev terurut berdasarkan nama
+    $periodes = periode_monev::orderBy('pm_nama')->get();
+    
+    // Ambil data periode monitoring beserta relasi
+    $periodeMonitoring = PeriodeMonitoring::with('tahunKerja', 'periodeMonev')->findOrFail($pmo_id);
 
-        $rencanaKerja = RencanaKerja::with(['periodes', 'monitoring' => function ($query) use ($pmo_id) {
-            $query->where('pmo_id', $pmo_id);
-        }, 'unitKerja', 'realisasi'])
-            ->whereHas('periodes', function ($query) use ($periodeMonitoring) {
-                $query->whereIn('rencana_kerja_pelaksanaan.pm_id', $periodeMonitoring->periodeMonev->pluck('pm_id')->toArray());
-            })
-            ->get();
+    // Ambil data rencana kerja yang sesuai dengan periode monitoring
+    $rencanaKerja = RencanaKerja::with(['periodes', 'monitoring' => function ($query) use ($pmo_id) {
+        $query->where('pmo_id', $pmo_id);
+    }, 'unitKerja', 'realisasi'])
+        ->whereHas('periodes', function ($query) use ($periodeMonitoring) {
+            $query->whereIn('rencana_kerja_pelaksanaan.pm_id', $periodeMonitoring->periodeMonev->pluck('pm_id')->toArray());
+        })
+        ->get();
 
-        $rencanaKerja->each(function ($rencana) {
-            $rencana->is_submitted = $rencana->monitoring->isNotEmpty();
-        });
+    // Tandai apakah rencana kerja telah memiliki monitoring
+    $rencanaKerja->each(function ($rencana) {
+        $rencana->is_submitted = $rencana->monitoring->isNotEmpty();
+    });
 
-        $selectedPeriods = $rencanaKerja->flatMap(function ($rencana) {
-            return $rencana->monitoring
-                ->where('mtg_status', 'p')
-                ->flatMap(function ($monitoring) {
-                    return $monitoring->periodes()->pluck('periode_monev.pm_id');
-                });
-        })->unique()->toArray();
+    // ID periode di mana "Perlu Tindak Lanjut" harus dihapus dari dropdown
+    $restrictedIds = [
+        'PM6DA104A10B4F0DED85F92F877AF01684', // Q3
+        'PM0A1C8847BC9316A6FC058F47C1EC7682', // Q4
+    ];
 
-        $realisasi = RealisasiRenja::whereIn('rk_id', $rencanaKerja->pluck('rk_id'))->get();
+    // Tentukan apakah perlu menghapus opsi "Perlu Tindak Lanjut"
+    $hideTindakLanjut = in_array($periodeMonitoring->periodeMonev->first()->pm_id, $restrictedIds);
 
-        return view('pages.monitoring-fill', [
-            'periodeMonitoring' => $periodeMonitoring,
-            'rencanaKerja' => $rencanaKerja,
-            'realisasi' => $realisasi,
-            'selectedPeriods' => $selectedPeriods,
-            'type_menu' => 'monitoring',
-        ]);
-    }
+    return view('pages.monitoring-fill', [
+        'periodes' => $periodes,
+        'periodeMonitoring' => $periodeMonitoring,
+        'rencanaKerja' => $rencanaKerja,
+        'hideTindakLanjut' => $hideTindakLanjut,
+        'type_menu' => 'monitoring',
+    ]);
+}
+
 
     public function store(Request $request)
     {
@@ -115,7 +128,7 @@ class MonitoringController extends Controller
         ]);
 
         try {
-            $monitoring = Monitoring::updateOrCreate(
+            $monitoring = Monitoring::firstOrCreate(
                 [
                     'pmo_id' => $request->pmo_id,
                     'rk_id' => $request->rk_id,
@@ -123,18 +136,22 @@ class MonitoringController extends Controller
                 $validatedData
             );
 
+            $monitoring->fill($validatedData);
+            $monitoring->save();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Data berhasil disimpan',
-                'monitoring' => $monitoring,
+                'monitoring' => $monitoring
             ], 200);
+
         } catch (\Exception $e) {
             Log::error('Error saat menyimpan monitoring data: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan dalam menyimpan data.',
-                'error' => $e->getMessage(),
+                'error' => $e->getMessage()
             ], 500);
         }
     }
