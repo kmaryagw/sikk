@@ -19,6 +19,8 @@ class RencanaKerja extends Model
         'unit_id',
     ];
 
+    public $timestamps = true;
+
     public function tahunKerja()
     {
         return $this->belongsTo(tahun_kerja::class, 'th_id', 'th_id');
@@ -30,9 +32,9 @@ class RencanaKerja extends Model
     }
 
     public function periodes()
-{
-    return $this->belongsToMany(periode_monev::class, 'rencana_kerja_pelaksanaan', 'rk_id', 'pm_id');
-}
+    {
+        return $this->belongsToMany(periode_monev::class, 'rencana_kerja_pelaksanaan', 'rk_id', 'pm_id');
+    }
 
 
     public function targetindikators()
@@ -45,12 +47,10 @@ class RencanaKerja extends Model
         return $this->hasOne(PeriodeMonitoring::class, 'rk_id', 'rk_id');
     }
 
-    public $timestamps = true;
-
     public function monitoring()
-{
-    return $this->hasMany(Monitoring::class, 'rk_id', 'rk_id');
-}
+    {
+        return $this->hasMany(Monitoring::class, 'rk_id', 'rk_id');
+    }
 
     public function indikatorKinerja()
     {
@@ -65,13 +65,19 @@ class RencanaKerja extends Model
     }
 
     public function rencanaKerjaPelaksanaan()
-{
-    return $this->hasMany(RencanaKerjaPelaksanaan::class, 'rk_id', 'rk_id')->with('[periode_monev]');
-}
+    {
+        return $this->hasMany(RencanaKerjaPelaksanaan::class, 'rk_id', 'rk_id')->with('[periode_monev]');
+    }
    
-public function programStudis()
-{
-    return $this->belongsToMany(program_studi::class, 'rencana_kerja_program_studi', 'rk_id', 'prodi_id');
-}
+    public function programStudis()
+    {
+        return $this->belongsToMany(program_studi::class, 'rencana_kerja_program_studi', 'rk_id', 'prodi_id');
+    }
+
+    public function prodi()
+    {
+        return $this->hasMany(RencanaKerjaProgramStudi::class, 'rk_id', 'rk_id');
+    }
+
 
 }

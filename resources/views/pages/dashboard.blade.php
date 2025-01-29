@@ -30,6 +30,7 @@
                 <div class="col-lg-6 col-md-6 col-12">
 
                     {{-- IKU --}}
+                    @if (Auth::user()->role == 'admin' || Auth::user()->role == 'prodi')
                     <div class="card shadow-sm">
                         <div class="card-header">
                             <h4 class="mb-0">Set IKU</h4>
@@ -61,9 +62,11 @@
                                 </table>
                             </div>
                         </div>
-                    </div>      
+                    </div> 
+                    @endif     
                     
                     {{-- IKT --}}
+                    @if (Auth::user()->role == 'admin')
                     <div class="card shadow-sm">
                         <div class="card-header">
                             <h4 class="mb-0">Set IKT</h4>
@@ -130,10 +133,48 @@
                             </div>
                         </div>
                     </div>
+                    @endif
                 </div>
 
                 <div class="col-lg-6 col-md-6 col-12">
+                    {{-- IKT --}}
+                    @if (Auth::user()->role == 'prodi')
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h4 class="mb-0">Set IKT</h4>
+                            <div class="card-header-action">
+                                <a class="btn btn-primary" href="{{ route('targetcapaian.index') }}"><i class="fa-solid fa-eye"></i> Lihat Detail </a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered">
+                                    <thead class="text-center">
+                                        <tr>
+                                            <th>Nama Program Studi</th>
+                                            <th style="text-align: center;">Jumlah IKT</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-center">
+                                        @forelse ($jumlahikt as $prodi)
+                                            <tr>
+                                                <td>{{ $prodi->nama_prodi }}</td>
+                                                <td style="text-align: center;">{{ $prodi->target_indikator_count }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="3" class="text-center text-muted">Tidak ada data tersedia</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
                     {{-- RENCANA KERJA --}}
+                    @if (Auth::user()->role == 'admin')
                     <div class="card shadow-sm">
                         <div class="card-header">
                             <h4 class="mb-0">Rencana Kerja</h4>
@@ -250,6 +291,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
 
             </div>
         </section>

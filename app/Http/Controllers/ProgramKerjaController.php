@@ -46,6 +46,11 @@ class ProgramKerjaController extends Controller
             $query->where('rencana_kerja.unit_id', Auth::user()->unit_id);
         }
 
+        if (Auth::user()->role == 'prodi') {
+            $query->join('rencana_kerja_program_studi', 'rencana_kerja.rk_id', '=', 'rencana_kerja_program_studi.rk_id')
+                  ->where('rencana_kerja_program_studi.prodi_id', Auth::user()->prodi_id);
+        }
+
         if ($q) {
             $query->where('rk_nama', 'like', '%' . $q . '%');
         }
@@ -89,6 +94,14 @@ class ProgramKerjaController extends Controller
             ->join('indikator_kinerja', 'target_indikator.ik_id', '=', 'indikator_kinerja.ik_id')
             ->orderBy('indikator_kinerja.ik_nama', 'asc')
             ->get(['target_indikator.ti_id', 'indikator_kinerja.ik_kode', 'indikator_kinerja.ik_nama']);
+        
+        $loggedInUser = Auth::user();
+        $userRole = $loggedInUser->role;
+        $userUnit = null;
+    
+        if ($userRole === 'unit kerja') {
+            $userUnit = $loggedInUser->unitKerja;
+        }
 
 
         return view('pages.create-programkerja', [
@@ -99,6 +112,8 @@ class ProgramKerjaController extends Controller
             'targetindikators' => $targetindikators,
             'programStudis' => $programStudis,
             'type_menu' => 'programkerja',
+            'userRole' => $userRole,
+            'userUnit' => $userUnit,
         ]);
     }
 
@@ -198,6 +213,14 @@ class ProgramKerjaController extends Controller
         $selectedIndikators = $programkerja->targetindikators()->pluck('target_indikator.ti_id')->toArray();
         $selectedProgramStudis = $programkerja->programStudis->pluck('prodi_id')->toArray();
 
+        $loggedInUser = Auth::user();
+        $userRole = $loggedInUser->role;
+        $userUnit = null;
+    
+        if ($userRole === 'unit kerja') {
+            $userUnit = $loggedInUser->unitKerja;
+        }
+
         return view('pages.edit-programkerja', [
             'title' => $title,
             'programkerja' => $programkerja,
@@ -209,6 +232,8 @@ class ProgramKerjaController extends Controller
             'targetindikators' => $targetindikators,
             'programStudis' => $programStudis,
             'selectedProgramStudis' => $selectedProgramStudis,
+            'userRole' => $userRole,
+            'userUnit' => $userUnit,
             'type_menu' => 'programkerja',
         ]);
     }

@@ -114,23 +114,32 @@
                                             </div>
 
                                             <div class="form-group">
-                                                <label>Unit Kerja</label>
+                                                <label for="unit_id">Unit Kerja</label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
                                                         <div class="input-group-text">
                                                             <i class="fa-solid fa-sitemap"></i>
                                                         </div>
                                                     </div>
-                                                    <select class="form-control" name="unit_id" id="unit_id" required>
-                                                        <option value="" disabled selected>Pilih Unit Kerja</option>
-                                                        @foreach ($units as $unit)
-                                                            @if ($unit->unit_kerja == 'y') <!-- Menampilkan hanya unit kerja yang aktif -->
-                                                                <option value="{{ $unit->unit_id }}" {{ old('unit_id') == $unit->unit_id ? 'selected' : '' }}>{{ $unit->unit_nama }}</option>
-                                                            @endif
-                                                        @endforeach
-                                                    </select>
+                                            
+                                                    @if ($userRole === 'unit kerja' && $userUnit)
+                                                        <!-- Jika user adalah unit, tampilkan readonly input -->
+                                                        <input type="text" class="form-control" value="{{ $userUnit->unit_nama }}" readonly>
+                                                        <input type="hidden" name="unit_id" value="{{ $userUnit->unit_id }}">
+                                                    @else
+                                                        <!-- Form biasa jika bukan prodi -->
+                                                        <select class="form-control" name="unit_id" id="unit_id" required>
+                                                            <option value="" disabled selected>Pilih Unit Kerja</option>
+                                                            @foreach ($units as $unit)
+                                                                @if ($unit->unit_kerja == 'y') <!-- Menampilkan hanya unit kerja yang aktif -->
+                                                                    <option value="{{ $unit->unit_id }}" {{ old('unit_id') == $unit->unit_id ? 'selected' : '' }}>{{ $unit->unit_nama }}</option>
+                                                                @endif
+                                                            @endforeach
+                                                        </select>
+                                                    @endif
                                                 </div>
                                             </div>
+
                                         </div>
                                     </div>
 

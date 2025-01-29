@@ -35,6 +35,18 @@
                             </select>
                         </div>
                     {{-- @endif --}}
+
+                    <div class="col-auto">
+                        <select class="form-control" name="prodi">
+                            <option value="">Semua Prodi</option>
+                            @foreach ($prodis as $prodi)
+                                <option value="{{ $prodi->prodi_id }}" 
+                                    {{ request('prodi') == $prodi->prodi_id ? 'selected' : '' }}>
+                                    {{ $prodi->nama_prodi }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 
                     <div class="col-auto">
                         <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
@@ -57,11 +69,11 @@
                     <thead>
                         <tr>
                             <th>No</th>
+                            <th>Tahun</th>
+                            <th>Prodi</th>
                             <th>Indikator Kinerja</th>
                             <th>Target Capaian</th>
                             <th>Keterangan</th>
-                            <th>Prodi</th>
-                            <th>Tahun</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -69,6 +81,8 @@
                         @foreach ($target_capaians as $targetcapaian)
                             <tr>
                                 <td>{{ $no++ }}</td>
+                                <td>{{ $targetcapaian->th_tahun }}</td>
+                                <td>{{ $targetcapaian->nama_prodi }}</td>
                                 <td>{{ $targetcapaian->ik_nama }}</td>
                                 <td>
                                     @if ($targetcapaian->indikatorKinerja->ik_ketercapaian == 'persentase' && is_numeric($targetcapaian->ti_target))
@@ -93,8 +107,6 @@
                                     @endif
                                 </td> 
                                 <td>{{ $targetcapaian->ti_keterangan }}</td>
-                                <td>{{ $targetcapaian->nama_prodi }}</td>
-                                <td>{{ $targetcapaian->th_tahun }}</td>
                             </tr>
                         @endforeach
                     </tbody>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\program_studi;
 use App\Models\tahun_kerja;
 use App\Models\target_indikator;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -15,8 +16,10 @@ class LaporanIkuController extends Controller
         $title = 'Data Target Capaian';
         $q = $request->query('q');
         $tahunId = $request->query('tahun');
+        $prodiId = $request->query('prodi');
 
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
+        $prodis = program_studi::all();
 
         $query = target_indikator::select('target_indikator.*', 'indikator_kinerja.ik_nama', 'program_studi.nama_prodi', 'aktif_tahun.th_tahun')
             ->leftjoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
@@ -35,6 +38,10 @@ class LaporanIkuController extends Controller
             $query->where('aktif_tahun.th_id', $tahunId);
         }
 
+        if ($prodiId) {
+            $query->where('program_studi.prodi_id', $prodiId);
+        }
+
         $target_capaians = $query->paginate(10)->withQueryString();
         $no = $target_capaians->firstItem();
 
@@ -42,7 +49,9 @@ class LaporanIkuController extends Controller
             'title' => $title,
             'target_capaians' => $target_capaians,
             'tahuns' => $tahuns,
+            'prodis' => $prodis,
             'tahunId' => $tahunId,
+            'prodiId' => $prodiId,
             'q' => $q,
             'no' => $no,
             'type_menu' => 'laporan',
@@ -54,6 +63,36 @@ class LaporanIkuController extends Controller
     {
         return Excel::download(new \App\Exports\IkuExport, 'laporan_iku.xlsx');
     }
+
+//     public function exportExcel(Request $request)
+// {
+//     $q = $request->query('q');
+//     $tahunId = $request->query('tahun');
+//     $prodiId = $request->query('prodi');
+
+//     $query = target_indikator::select('target_indikator.*', 'indikator_kinerja.ik_nama', 'program_studi.nama_prodi', 'tahun_kerja.th_tahun')
+//         ->leftjoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
+//         ->leftjoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
+//         ->leftjoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id')
+//         ->where('tahun_kerja.th_is_aktif', 'y');
+
+//     if ($q) {
+//         $query->where('ik_nama', 'like', '%' . $q . '%');
+//     }
+
+//     if ($tahunId) {
+//         $query->where('tahun_kerja.th_id', $tahunId);
+//     }
+
+//     if ($prodiId) {
+//         $query->where('program_studi.prodi_id', $prodiId);
+//     }
+
+//     $target_capaians = $query->get();
+
+//     return Excel::download(new \App\Exports\IkuExport($target_capaians), 'laporan_iku.xlsx');
+// }
+
 
     public function exportPdf()
     {

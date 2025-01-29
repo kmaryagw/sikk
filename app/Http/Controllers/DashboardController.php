@@ -8,6 +8,7 @@ use App\Models\RencanaKerja;
 use App\Models\tahun_kerja;
 use App\Models\UnitKerja;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -15,26 +16,46 @@ class DashboardController extends Controller
         
         $title = 'Dashboard';
 
+        $user = Auth::user();
+
         //TAHUN
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
         
         // IKU
-        $jumlahiku = program_studi::withCount([
-            'targetIndikator' => function ($query) {
-                $query->whereHas('indikatorKinerja', function ($query) {
-                    $query->where('ik_jenis', 'IKU');
+        if ($user->role === 'prodi') {
+            $jumlahiku = program_studi::withCount(['targetIndikator' => function ($query) {
+                $query->whereHas('indikatorKinerja', function ($q) {
+                    $q->where('ik_jenis', 'IKU');
                 });
-            }
-        ])->orderBy('nama_prodi')->get();
+            }])
+            ->where('prodi_id', $user->prodi_id)
+            ->get();
+        } else {
+            $jumlahiku = program_studi::withCount(['targetIndikator' => function ($query) {
+                $query->whereHas('indikatorKinerja', function ($q) {
+                    $q->where('ik_jenis', 'IKU');
+                });
+            }])
+            ->orderBy('nama_prodi')->get();
+        }
 
         // IKT
-        $jumlahikt = program_studi::withCount([
-            'targetIndikator' => function ($query) {
-                $query->whereHas('indikatorKinerja', function ($query) {
-                    $query->where('ik_jenis', 'IKT');
+        if ($user->role === 'prodi') {
+            $jumlahikt = program_studi::withCount(['targetIndikator' => function ($query) {
+                $query->whereHas('indikatorKinerja', function ($q) {
+                    $q->where('ik_jenis', 'IKT');
                 });
-            }
-        ])->orderBy('nama_prodi')->get();
+            }])
+            ->where('prodi_id', $user->prodi_id)
+            ->get();
+        } else {
+            $jumlahikt = program_studi::withCount(['targetIndikator' => function ($query) {
+                $query->whereHas('indikatorKinerja', function ($q) {
+                    $q->where('ik_jenis', 'IKT');
+                });
+            }])
+            ->orderBy('nama_prodi')->get();
+        }
 
         //RENJA
         $totalrenja = RencanaKerja::count();

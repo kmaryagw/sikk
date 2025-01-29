@@ -43,7 +43,7 @@
                         <div class="col-auto">
                             <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
                         </div>
-                        @if (Auth::user()->role == 'admin')
+                        @if (Auth::user()->role == 'admin' || Auth::user()->role == 'unit kerja')
                             <div class="col-auto">
                                 <a class="btn btn-primary" href="{{ route('programkerja.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
                             </div>
@@ -62,7 +62,7 @@
                                 <th>Nama Program Kerja</th>
                                 <th>Unit Kerja</th>
                                 <th>Periode</th>
-                                @if (Auth::user()->role == 'admin')
+                                @if (Auth::user()->role == 'admin' || Auth::user()->role == 'unit kerja')
                                     <th>Aksi</th>
                                 @endif
                             </tr>
@@ -106,9 +106,9 @@
                                             <span class="text-muted">Tidak ada periode</span>
                                         @endif
                                     </td>
-                                    @if (Auth::user()->role == 'admin')
+                                    @if (Auth::user()->role == 'admin' || Auth::user()->role == 'unit kerja')
                                     <td>
-                                        <a class="btn btn-warning" href="{{ route('programkerja.edit', $programkerja->rk_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
+                                        <a class="btn btn-warning mb-2 mt-2" href="{{ route('programkerja.edit', $programkerja->rk_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
                                         <form id="delete-form-{{ $programkerja->rk_id }}" method="POST" class="d-inline" action="{{ route('programkerja.destroy', $programkerja->rk_id) }}">
                                             @csrf
                                             @method('DELETE')

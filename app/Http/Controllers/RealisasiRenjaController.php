@@ -33,6 +33,11 @@ class RealisasiRenjaController extends Controller
             });
         }
 
+        if (Auth::user()->role == 'prodi') {
+            $query->join('rencana_kerja_program_studi', 'rencana_kerja.rk_id', '=', 'rencana_kerja_program_studi.rk_id')
+                  ->where('rencana_kerja_program_studi.prodi_id', Auth::user()->prodi_id);
+        }
+
         $rencanaKerjas = $query->paginate(10);
         $no = $rencanaKerjas->firstItem();
 

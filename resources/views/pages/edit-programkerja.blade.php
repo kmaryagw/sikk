@@ -126,7 +126,7 @@
                                                 </div>
                                             </div>
 
-                                            <div class="form-group">
+                                            {{-- <div class="form-group">
                                                 <label>Unit Kerja</label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
@@ -147,22 +147,35 @@
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </div>
-                                            </div>
-                                    
+                                            </div> --}}
                                             
-                                    
-                                            {{-- <div class="form-group">
-                                                <label>Tahun</label>
+                                            <div class="form-group">
+                                                <label>Unit Kerja</label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
                                                         <div class="input-group-text">
-                                                            <i class="fa-solid fa-calendar-alt"></i>
+                                                            <i class="fa-solid fa-sitemap"></i>
                                                         </div>
                                                     </div>
-                                                    <input type="text" id="tahun" class="form-control" value="{{ $programkerja->tahunKerja->th_tahun }}" readonly>
-                                                    <input type="hidden" name="th_id" value="{{ $programkerja->th_id }}">
+                                                    @if ($userRole === 'unit kerja' && $userUnit)
+                                                        <input type="text" class="form-control" value="{{ $userUnit->unit_nama }}" readonly>
+                                                        <input type="hidden" name="unit_id" value="{{ $userUnit->unit_id }}">
+                                                    @else
+                                                        <select class="form-control @error('unit_id') is-invalid @enderror" name="unit_id" required>
+                                                            <option value="" disabled>Pilih Unit Kerja</option>
+                                                            @foreach ($units as $unit)
+                                                                <option value="{{ $unit->unit_id }}" 
+                                                                        {{ old('unit_id', $programkerja->unit_id) == $unit->unit_id ? 'selected' : '' }}>
+                                                                    {{ $unit->unit_nama }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                        @error('unit_id')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    @endif
                                                 </div>
-                                            </div> --}}
+                                            </div>
                                             
                                         </div>
                                     </div>

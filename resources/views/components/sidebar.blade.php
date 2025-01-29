@@ -119,7 +119,7 @@
             @endif
 
             {{-- Monitoring IKU/T --}}
-            @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi'|| Auth::user()->role == 'fakultas')
+            @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'fakultas')
             <li class="{{ $type_menu === 'monitoringiku' ? 'active' : '' }}">
                 <a class="nav-link"
                     href="{{ url('monitoringiku') }}"><i class="fa-solid fa-eye"></i> <span>Monitoring IKU/T</span>
