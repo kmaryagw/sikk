@@ -27,9 +27,9 @@ class MonitoringController extends Controller
             })
             ->join('periode_monitoring_periode_monev', 'periode_monitoring.pmo_id', '=', 'periode_monitoring_periode_monev.pmo_id')
             ->join('periode_monev', 'periode_monitoring_periode_monev.pm_id', '=', 'periode_monev.pm_id')
-            ->select('periode_monitoring.*') 
-            ->distinct() 
-            ->orderBy('periode_monev.pm_nama', 'asc') 
+            ->select('periode_monitoring.*')
+            ->distinct()
+            ->orderBy('periode_monev.pm_nama', 'asc')
             ->paginate(10);
 
         $no = $periodemonitorings->firstItem();
@@ -73,9 +73,13 @@ class MonitoringController extends Controller
 
     public function fill($pmo_id)
 {
+    // Ambil semua periode monev terurut berdasarkan nama
     $periodes = periode_monev::orderBy('pm_nama')->get();
+    
+    // Ambil data periode monitoring beserta relasi
     $periodeMonitoring = PeriodeMonitoring::with('tahunKerja', 'periodeMonev')->findOrFail($pmo_id);
 
+    // Ambil data rencana kerja yang sesuai dengan periode monitoring
     $rencanaKerja = RencanaKerja::with(['periodes', 'monitoring' => function ($query) use ($pmo_id) {
         $query->where('pmo_id', $pmo_id);
     }, 'unitKerja', 'realisasi'])
@@ -84,28 +88,25 @@ class MonitoringController extends Controller
         })
         ->get();
 
+    // Tandai apakah rencana kerja telah memiliki monitoring
     $rencanaKerja->each(function ($rencana) {
         $rencana->is_submitted = $rencana->monitoring->isNotEmpty();
     });
 
-    // Retrieve the selected periods if status is "p"
-    $selectedPeriods = [];
-    foreach ($rencanaKerja as $rencana) {
-        $monitoring = $rencana->monitoring->first();
-        if ($monitoring && $monitoring->mtg_status === 'p') {
-            $selectedPeriods = $monitoring->periodes()->pluck('periode_monev.pm_id')->toArray();
-            break; // Assuming one monitoring record per rencana kerja with status 'p'
-        }
-    }
+    // ID periode di mana "Perlu Tindak Lanjut" harus dihapus dari dropdown
+    $restrictedIds = [
+        'PM6DA104A10B4F0DED85F92F877AF01684', // Q3
+        'PM0A1C8847BC9316A6FC058F47C1EC7682', // Q4
+    ];
 
-    $realisasi = RealisasiRenja::whereIn('rk_id', $rencanaKerja->pluck('rk_id'))->get();
+    // Tentukan apakah perlu menghapus opsi "Perlu Tindak Lanjut"
+    $hideTindakLanjut = in_array($periodeMonitoring->periodeMonev->first()->pm_id, $restrictedIds);
 
     return view('pages.monitoring-fill', [
         'periodes' => $periodes,
         'periodeMonitoring' => $periodeMonitoring,
         'rencanaKerja' => $rencanaKerja,
-        'realisasi' => $realisasi,
-        'selectedPeriods' => $selectedPeriods, // Pass the selected periods to the view
+        'hideTindakLanjut' => $hideTindakLanjut,
         'type_menu' => 'monitoring',
     ]);
 }
@@ -121,7 +122,7 @@ class MonitoringController extends Controller
             'mtg_tindak_lanjut_tanggal' => 'required|date',
             'mtg_status' => 'required|in:y,n,t,p',
             'mtg_bukti' => 'nullable|url',
-            'mtg_flag' => 'required|boolean', 
+            'mtg_flag' => 'required|boolean',
             'pmo_id' => 'required|exists:periode_monitoring,pmo_id',
             'rk_id' => 'required|exists:rencana_kerja,rk_id',
         ]);

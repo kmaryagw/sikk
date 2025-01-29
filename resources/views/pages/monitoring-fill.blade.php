@@ -105,18 +105,7 @@
                 const status = monitoring.mtg_status || '';
                 const flag = monitoring.mtg_flag ? '1' : '0';
 
-                const allowedPeriodes = [
-                    'PM6EGEFUYWERFJHREFUB874R857B78F4U7', 
-                    'PMB53161D39C75013BF12F39B41FA93915'
-                ];
-
-                // Check if the current periode is allowed
-                const isAllowed = allowedPeriodes.includes(pmo);
-
-                if (!isAllowed && status === 'p') {
-                    Swal.fire('Peringatan', 'Data tidak dapat dibuka karena periode tidak memiliki status perlu tindak lanjut.', 'warning');
-                    return;
-                }
+                
 
                 let fileBuktiHTML = bukti ? `
                     <div class="form-group">
@@ -232,21 +221,37 @@
                                 </div>
                             </div>
                             <div class="form-group text-left">
-                                <label for="mtg_status">Status</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text">
-                                            <i class="fa-solid fa-calendar"></i>
-                                        </div>
-                                    </div>
-                                    <select onchange="viewq(this.value)" class="form-control" name="mtg_status" id="mtg_status" required>
-                                        <option value="y" ${status === 'y' ? 'selected' : ''}>Tercapai</option>
-                                        <option value="n" ${status === 'n' ? 'selected' : ''}>Belum Tercapai</option>
-                                        <option value="t" ${status === 't' ? 'selected' : ''}>Tidak Terlaksana</option>
-                                        <option value="p" ${status === 'p' ? 'selected' : ''}>Perlu tindak lanjut</option>
-                                    </select>
-                                </div>
-                            </div>
+    <label for="mtg_status">Status</label>
+    <div class="input-group">
+        <div class="input-group-prepend">
+            <div class="input-group-text">
+                <i class="fa-solid fa-calendar"></i>
+            </div>
+        </div>
+        <select onchange="viewq(this.value)" class="form-control" name="mtg_status" id="mtg_status" required>
+            @php
+                // Status yang selalu tersedia
+                $allowedStatuses = [
+                    'y' => 'Tercapai',
+                    'n' => 'Belum Tercapai',
+                    't' => 'Tidak Terlaksana',
+                ];
+
+                // Tambahkan opsi "Perlu Tindak Lanjut" jika tidak tersembunyi
+                if (!$hideTindakLanjut) {
+                    $allowedStatuses['p'] = 'Perlu Tindak Lanjut';
+                }
+            @endphp
+
+            @foreach ($allowedStatuses as $key => $value)
+                <option value="{{ $key }}" {{ old('mtg_status', $status ?? '') === $key ? 'selected' : '' }}>
+                    {{ $value }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+</div>
+
                             <div class="form-group text-left" id="periodeContainer" style="display: none;">
                                 <label>Pilih Periode Monev</label>
                                 <div>
@@ -339,6 +344,3 @@
     }
 </script>
 @endpush
-
-
-
