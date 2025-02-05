@@ -15,7 +15,51 @@
                 </a>
             </li>
             
-            
+            {{-- Master Surat --}}
+            @if (Auth::user()->role == 'admin')
+             <li class="nav-item dropdown {{ $type_menu === 'mastersurat' ? 'active' : '' }}">
+                <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fa-solid fa-file"></i> <span>Master Surat</span></a>
+                <ul class="dropdown-menu">
+                    <li class="{{ Request::is('organisasijabatan') || (isset($sub_menu) && $sub_menu === 'organisasijabatan') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('organisasijabatan') }}"><i class="fas fa-sitemap"></i>Organisasi Jabatan</a>
+                    </li>
+                    <li class="{{ Request::is('suratfungsi') || (isset($sub_menu) && $sub_menu === 'suratfungsi') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('suratfungsi') }}"><i class="fas fa-tasks"></i>Surat Fungsi</a>
+                    </li>
+                    <li class="{{ Request::is('suratperihal') || (isset($sub_menu) && $sub_menu === 'suratperihal') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('suratperihal') }}"><i class="fas fa-tag"></i>Surat Perihal</a>
+                    </li>
+                    <li class="{{ Request::is('suratlingkup') || (isset($sub_menu) && $sub_menu === 'suratlingkup') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('suratlingkup') }}"><i class="fas fa-folder-open"></i>Surat Lingkup</a>
+                    </li>
+                </ul>
+            </li>
+            @endif
+
+            {{-- Surat --}}
+            @if (Auth::user()->role == 'admin')
+             <li class="nav-item dropdown {{ $type_menu === 'surat' ? 'active' : '' }}">
+                <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fa-solid fa-envelope"></i> <span>Surat</span></a>
+                <ul class="dropdown-menu">
+                    <li class="{{ Request::is('datanomorsurat') || (isset($sub_menu) && $sub_menu === 'datanomorsurat') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('datanomorsurat') }}"><i class="fas fa-list-ol"></i>Data Nomor Surat</a>
+                    </li>
+                    <li class="{{ Request::is('menungguvalidasi') || (isset($sub_menu) && $sub_menu === 'menungguvalidasi') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('menungguvalidasi') }}"><i class="fas fa-hourglass-half"></i>Menunggu Validasi</a>
+                    </li>
+                </ul>
+            </li>
+            @endif
+
+            {{-- Nomor Surat --}}
+            @if (Auth::user()->role == 'unit kerja')
+            <li class="{{ $type_menu === 'nomorsurat' ? 'active' : '' }}">
+                <a class="nav-link" href="{{ url('nomorsurat') }}">
+                    <i class="fas fa-file-invoice" aria-hidden="true"></i>
+                    <span>Nomor Surat</span>
+                </a>
+            </li>
+            @endif
 
             {{-- Master Data --}}
             @if (Auth::user()->role == 'admin')
@@ -72,14 +116,14 @@
 
             {{-- Setting IKU --}}
             
-            @if (Auth::user()->role== 'admin')
+            {{-- @if (Auth::user()->role== 'admin')
             <li class="{{ $type_menu === 'SettingIKU' ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('settingiku') }}">
                     <i class="fa fa-gears" aria-hidden="true"></i>
                     <span>Set IKU/T per-Tahun</span>
                 </a>
             </li>
-            @endif
+            @endif --}}
 
             {{-- Target Capaian --}}
             @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi')

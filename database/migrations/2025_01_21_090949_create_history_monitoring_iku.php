@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('hmi_capaian', 100);
             $table->string('hmi_keterangan');
             $table->enum('hmi_status', ['tercapai', 'tidak tercapai', 'tidak terlaksana']);
-            $table->text('hmi_url');
+            $table->string('hmi_url', 255)->nullable();
             $table->foreign('mtid_id')->references('mtid_id')->on('monitoring_iku_detail')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('ti_id')->references('ti_id')->on('target_indikator')->onDelete('cascade')->onUpdate('cascade');  
             $table->timestamps();

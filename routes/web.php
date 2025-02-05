@@ -70,10 +70,20 @@ Route::middleware('auth')->group(function () {
     Route::put('monitoringiku/{mti_id}/update-detail', [MonitoringIKUController::class, 'updateDetail'])->name('monitoringiku.update-detail');
     Route::get('monitoringiku/{mti_id}/show-monitoringiku', [MonitoringIKUController::class, 'show'])->name('monitoringiku.show-monitoringiku');
 
-    // Rute untuk Setting
-    Route::resource('settingiku', SettingIKUController::class);
-    // Route::resource('settingiku', SettingIKUController::class)->except(['create', 'edit', 'show']);
-    // Route::put('/settingiku/{id_setting}', [SettingIKUController::class, 'update'])->name('settingiku.update');
+    // // Rute untuk Setting
+    // Route::resource('settingiku', SettingIKUController::class);
+    // // Route::resource('settingiku', SettingIKUController::class)->except(['create', 'edit', 'show']);
+    // // Route::put('/settingiku/{id_setting}', [SettingIKUController::class, 'update'])->name('settingiku.update');
+
+    //Surat
+    // Route::resource('organisasijabatan', ....Controller::class);
+    // Route::resource('suratfungsi', ....Controller::class);
+    // Route::resource('suratperihal', ....Controller::class);
+    // Route::resource('suratlingkup', ....Controller::class);
+    // Route::resource('surat', ....Controller::class);
+    // Route::resource('datanomorsurat', ....Controller::class);
+    // Route::resource('menungguvalidasi', ....Controller::class);
+    // Route::resource('nomorsurat', ....Controller::class);
 
 
     // Rute untuk laporan
@@ -84,12 +94,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('laporan-iku', LaporanIkuController::class);
     Route::get('/export-excel-iku', [LaporanIkuController::class, 'exportExcel'])->name('export-excel.iku');
     Route::get('/export-pdf-iku', [LaporanIkuController::class, 'exportPdf'])->name('export-pdf.iku');
-  
 
-    // // Dashboard & Audit Forms
-    // Route::get('/dashboard', function () {
-    //     return view('pages.dashboard', ['type_menu' => 'dashboard']);
-    // })->name('pages.dashboard');
-
+    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 });

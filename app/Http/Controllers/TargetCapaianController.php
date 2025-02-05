@@ -24,8 +24,7 @@ class TargetCapaianController extends Controller
         $prodis = program_studi::all();
 
         $query = target_indikator::where('ti_target', 'like', '%' . $q . '%')
-            ->leftjoin('settingiku', 'settingiku.ik_id', '=', 'target_indikator.ik_id')
-            ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'settingiku.ik_id')
+            ->leftjoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
             ->leftjoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
             ->leftjoin('tahun_kerja as aktif_tahun', function($join) {
                 $join->on('aktif_tahun.th_id', '=', 'target_indikator.th_id')
@@ -69,12 +68,7 @@ class TargetCapaianController extends Controller
     public function create()
     {
         $title = 'Tambah Target Capaian';
-        $indikatorkinerjas = SettingIKU::with('indikatorKinerja')
-            ->whereHas('indikatorKinerja')
-            ->get()
-            ->sortBy(function ($item) {
-            return $item->indikatorKinerja->ik_nama;
-        });
+        $indikatorkinerjas = IndikatorKinerja::orderBy('ik_nama')->get();
 
         $baseline = null;
         $prodis = program_studi::orderBy('nama_prodi', 'asc')->get();
@@ -103,7 +97,7 @@ class TargetCapaianController extends Controller
 
     public function store(Request $request)
     {
-        $indikatorkinerjas = SettingIKU::with('indikatorKinerja')->find($request->ik_id);
+        $indikatorkinerjas = IndikatorKinerja::find($request->ik_id);
 
         $validationRules = [
             'ik_id' => 'required|string',
@@ -114,11 +108,11 @@ class TargetCapaianController extends Controller
         ];
 
         if ($indikatorkinerjas) {
-            if ($indikatorkinerjas->indikatorKinerja->ik_ketercapaian == 'nilai') {
+            if ($indikatorkinerjas->ik_ketercapaian == 'nilai') {
                 $validationRules['ti_target'] = 'required|numeric|min:0';
-            } elseif ($indikatorkinerjas->indikatorKinerja->ik_ketercapaian == 'persentase') {
+            } elseif ($indikatorkinerjas->ik_ketercapaian == 'persentase') {
                 $validationRules['ti_target'] = 'required|numeric|min:0|max:100';
-            } elseif ($indikatorkinerjas->indikatorKinerja->ik_ketercapaian == 'ketersediaan') {
+            } elseif ($indikatorkinerjas->ik_ketercapaian == 'ketersediaan') {
                 $validationRules['ti_target'] = 'required|string';
             }
         }
@@ -148,12 +142,7 @@ class TargetCapaianController extends Controller
 {
     $title = 'Edit Target Capaian';
 
-    $indikatorkinerjautamas = SettingIKU::with('indikatorKinerja')
-            ->whereHas('indikatorKinerja')
-            ->get()
-            ->sortBy(function ($item) {
-            return $item->indikatorKinerja->ik_nama;
-        });
+    $indikatorkinerjautamas = IndikatorKinerja::orderBy('ik_nama')->get();
     $prodis = program_studi::orderBy('nama_prodi')->get();
     $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
 
@@ -165,7 +154,7 @@ class TargetCapaianController extends Controller
         $userProdi = $loggedInUser->programStudi;
     }
 
-    $baseline = optional($targetcapaian->settingIKU)->baseline ?? 'Baseline tidak ditemukan';
+    $baseline = optional($targetcapaian->indikatorKinerja)->ik_baseline ?? 'Baseline tidak ditemukan';
 
     return view('pages.edit-targetcapaian', [
         'title' => $title,
@@ -182,7 +171,7 @@ class TargetCapaianController extends Controller
 
 public function update(target_indikator $targetcapaian, Request $request)
 {
-    $indikatorKinerjas = SettingIKU::with('indikatorKinerja')->find($request->ik_id);
+    $indikatorKinerjas = IndikatorKinerja::find($request->ik_id);
 
     $validationRules = [
         'ik_id' => 'required|string',
@@ -193,11 +182,11 @@ public function update(target_indikator $targetcapaian, Request $request)
     ];
 
     if ($indikatorKinerjas) {
-        if ($indikatorKinerjas->indikatorKinerja->ik_ketercapaian == 'nilai') {
+        if ($indikatorKinerjas->ik_ketercapaian == 'nilai') {
             $validationRules['ti_target'] = 'required|numeric|min:0';
-        } elseif ($indikatorKinerjas->indikatorKinerja->ik_ketercapaian == 'persentase') {
+        } elseif ($indikatorKinerjas->ik_ketercapaian == 'persentase') {
             $validationRules['ti_target'] = 'required|numeric|min:0|max:100';
-        } elseif ($indikatorKinerjas->indikatorKinerja->ik_ketercapaian == 'ketersediaan') {
+        } elseif ($indikatorKinerjas->ik_ketercapaian == 'ketersediaan') {
             $validationRules['ti_target'] = 'required|string';
         }
     }
