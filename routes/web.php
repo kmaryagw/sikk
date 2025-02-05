@@ -37,10 +37,15 @@ Route::middleware('auth')->group(function () {
     Route::resource('renstra', RenstraController::class);
     Route::resource('tahun', TahunController::class);
     Route::resource('periodemonev', PeriodeMonevController::class);
-    Route::resource('indikatorkinerja', IndikatorKinerjaController::class);
+    Route::resource('indikatorkinerja', IndikatorKinerjaController::class)->except(['show']);
     Route::resource('targetcapaian', TargetCapaianController::class);
     Route::resource('programkerja', ProgramKerjaController::class);
     Route::resource('standar', StandarController::class);
+
+
+    Route::get('/indikatorkinerja/template', [IndikatorKinerjaController::class, 'downloadTemplate'])->name('indikatorkinerja.template');
+    Route::post('/indikatorkinerja/import', [IndikatorKinerjaController::class, 'import'])->name('indikatorkinerja.import');
+
 
     Route::resource('realisasirenja', RealisasiRenjaController::class);
     Route::get('realisasirenja/{rk_id}/realisasi', [RealisasiRenjaController::class, 'showRealisasi'])->name('realisasirenja.showRealisasi');

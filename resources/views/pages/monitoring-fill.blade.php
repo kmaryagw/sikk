@@ -81,6 +81,7 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    // Fungsi untuk menampilkan/menyembunyikan container berdasarkan status monitoring
     function viewq(val) {
         if (val === 'p') {
             document.getElementById('periodeContainer').style.display = 'block';
@@ -91,6 +92,7 @@
         }
     }
 
+    // Fungsi untuk menampilkan modal SweetAlert untuk form monitoring
     function showMonitoringModal(rencanaKerjaNama, pmo, rk) {
         fetch(`/monitoring/${pmo}/${rk}/getData`)
             .then(response => response.json())
@@ -103,10 +105,10 @@
                 const tindakLanjutTanggal = monitoring.mtg_tindak_lanjut_tanggal || '';
                 const bukti = monitoring.mtg_bukti || null;
                 const status = monitoring.mtg_status || '';
+                // Jika mtg_flag bernilai truthy maka dianggap '1', selain itu '0'
                 const flag = monitoring.mtg_flag ? '1' : '0';
 
-                
-
+                // Jika ada bukti yang sudah terunggah, tampilkan link untuk melihatnya
                 let fileBuktiHTML = bukti ? `
                     <div class="form-group">
                         <p><strong>Bukti Terunggah</strong></p>
@@ -115,6 +117,7 @@
                         </a>
                     </div>` : '';
 
+                // Filter realisasi berdasarkan rk yang bersangkutan
                 const realisasi = Array.isArray(data.realisasi) ? data.realisasi.filter(rl => rl.rk_id === rk) : [];
                 let viewRealisasi = '';
 
@@ -221,37 +224,34 @@
                                 </div>
                             </div>
                             <div class="form-group text-left">
-    <label for="mtg_status">Status</label>
-    <div class="input-group">
-        <div class="input-group-prepend">
-            <div class="input-group-text">
-                <i class="fa-solid fa-calendar"></i>
-            </div>
-        </div>
-        <select onchange="viewq(this.value)" class="form-control" name="mtg_status" id="mtg_status" required>
-            @php
-                // Status yang selalu tersedia
-                $allowedStatuses = [
-                    'y' => 'Tercapai',
-                    'n' => 'Belum Tercapai',
-                    't' => 'Tidak Terlaksana',
-                ];
-
-                // Tambahkan opsi "Perlu Tindak Lanjut" jika tidak tersembunyi
-                if (!$hideTindakLanjut) {
-                    $allowedStatuses['p'] = 'Perlu Tindak Lanjut';
-                }
-            @endphp
-
-            @foreach ($allowedStatuses as $key => $value)
-                <option value="{{ $key }}" {{ old('mtg_status', $status ?? '') === $key ? 'selected' : '' }}>
-                    {{ $value }}
-                </option>
-            @endforeach
-        </select>
-    </div>
-</div>
-
+                                <label for="mtg_status">Status</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="fa-solid fa-calendar"></i>
+                                        </div>
+                                    </div>
+                                    <select onchange="viewq(this.value)" class="form-control" name="mtg_status" id="mtg_status" required>
+                                        @php
+                                            // Status yang selalu tersedia
+                                            $allowedStatuses = [
+                                                'y' => 'Tercapai',
+                                                'n' => 'Belum Tercapai',
+                                                't' => 'Tidak Terlaksana',
+                                            ];
+                                            // Tambahkan opsi "Perlu Tindak Lanjut" jika tidak tersembunyi
+                                            if (!$hideTindakLanjut) {
+                                                $allowedStatuses['p'] = 'Perlu Tindak Lanjut';
+                                            }
+                                        @endphp
+                                        @foreach ($allowedStatuses as $key => $value)
+                                            <option value="{{ $key }}" {{ old('mtg_status', $status ?? '') === $key ? 'selected' : '' }}>
+                                                {{ $value }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
                             <div class="form-group text-left" id="periodeContainer" style="display: none;">
                                 <label>Pilih Periode Monev</label>
                                 <div>
@@ -320,26 +320,45 @@
                     showCancelButton: true,
                     cancelButtonText: '<i class="fa-solid fa-times"></i> Batal',
                     confirmButtonText: '<i class="fa-solid fa-save"></i> Simpan Monitoring',
+                    focusConfirm: false,
                     preConfirm: () => {
                         const form = document.getElementById('monitoringForm');
                         const formData = new FormData(form);
                         return fetch(form.action, {
                             method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
                             body: formData
                         })
-                            .then(response => {
-                                if (!response.ok) {
-                                    throw new Error('Gagal menyimpan data');
-                                }
-                                return response.json();
-                            })
-                            .catch(error => {
-                                Swal.showValidationMessage(
-                                    `Request failed: ${error}`
-                                );
-                            });
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.json().then(err => {
+                                    throw new Error(err.message || 'Gagal menyimpan data');
+                                });
+                            }
+                            return response.json();
+                        })
+                        .catch(error => {
+                            Swal.showValidationMessage(
+                                `Request failed: ${error}`
+                            );
+                        });
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: result.value.message,
+                        });
+                        // Lakukan reload atau aksi lain jika diperlukan
                     }
                 });
+            })
+            .catch(error => {
+                console.error('Error fetching monitoring data:', error);
             });
     }
 </script>

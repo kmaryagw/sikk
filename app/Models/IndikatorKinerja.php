@@ -19,6 +19,7 @@ class IndikatorKinerja extends Model
         'ik_kode',
         'ik_ketercapaian',
         'ik_baseline',
+        'ik_is_aktif',
         'std_id',
     ];
     public function standar()

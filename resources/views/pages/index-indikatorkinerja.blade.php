@@ -2,9 +2,9 @@
 @section('title', 'IKU/IKT')
 
 @push('style')
-    <!-- CSS Libraries -->
     <link rel="stylesheet" href="{{ asset('library/jqvmap/dist/jqvmap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('library/summernote/dist/summernote-bs4.min.css') }}">
+    
 @endpush
 
 @section('main')
@@ -14,34 +14,67 @@
                 <h1>Daftar Indikator Kinerja Utama/Tambahan</h1>
             </div>
 
+            @if(session('success'))
+                <script>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: '{{ session("success") }}',
+                    });
+                </script>
+            @endif
+
+            @if(session('error'))
+                <script>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: '{{ session("error") }}',
+                    });
+                </script>
+            @endif
+
             <div class="card mb-3">
                 <div class="card-header">
                     <form class="row g-2 align-items-center">                      
                         <div class="col-auto">
-                            <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
+                            <input class="form-control form-control-sm" name="q" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>
                         <div class="col-auto">
-                            <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
+                            <button class="btn btn-info btn-sm"><i class="fa-solid fa-search"></i> Cari</button>
                         </div>
                         @if (Auth::user()->role== 'admin')
                         <div class="col-auto">
-                            <a class="btn btn-primary" href="{{ route('indikatorkinerja.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
+                            <a class="btn btn-primary btn-sm" href="{{ route('indikatorkinerja.create') }}">
+                                <i class="fa-solid fa-plus"></i> Tambah
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <a class="btn btn-success btn-sm" href="{{ route('indikatorkinerja.template') }}">
+                                <i class="fa-solid fa-file-download"></i> Download Template
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#importModal">
+                                <i class="fa-solid fa-file-upload"></i> Import Data
+                            </button>
                         </div>
                         @endif
                     </form>
                 </div>
 
-                <div class="table-responsive text-center">
-                    <table class="table table-hover table-bordered table-striped m-0">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover table-bordered table-striped m-0 text-center">
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Kode IKU/IKT</th>
-                                <th>Nama IKU/IKT</th>
+                                <th>Kode IKU</th>
+                                <th>Nama IKU/T</th>
                                 <th>Standar</th>
                                 <th>Jenis</th>
-                                <th>Pengukur Ketercapaian</th>
-                                <th>Nilai Baseline</th>
+                                <th>Ketercapaian</th>
+                                <th>Baseline</th>
+                                <th>Status</th>
                                 @if (Auth::user()->role== 'admin')
                                 <th>Aksi</th>
                                 @endif
@@ -65,43 +98,26 @@
                                         @endif
                                     </td>                                    
                                     <td>{{ $indikatorkinerja->ik_ketercapaian }}</td>
+                                    <td>{{ $indikatorkinerja->ik_baseline }}</td>
                                     <td>
-                                        @if ($indikatorkinerja->ik_ketercapaian == 'persentase' && is_numeric($indikatorkinerja->ik_baseline))
-                                            <div class="progress">
-                                                <div class="progress-bar" role="progressbar" 
-                                                     style="width: {{ intval($indikatorkinerja->ik_baseline) }}%;" 
-                                                     aria-valuenow="{{ intval($indikatorkinerja->ik_baseline) }}" 
-                                                     aria-valuemin="0" aria-valuemax="100">
-                                                    {{ $indikatorkinerja->ik_baseline }}%
-                                                </div>
-                                            </div>
-                                        @elseif ($indikatorkinerja->ik_ketercapaian == 'nilai' && is_numeric($indikatorkinerja->ik_baseline))
-                                            <span class="badge badge-primary">{{ $indikatorkinerja->ik_baseline }}</span>
-                                        @elseif (in_array(strtolower($indikatorkinerja->ik_baseline), ['ada', 'draft']))
-                                            @if (strtolower($indikatorkinerja->ik_baseline) === 'ada')
-                                                <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
-                                            @else
-                                                <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
-                                            @endif
+                                        @if (strtolower($indikatorkinerja->ik_is_aktif) === 'y')
+                                            <span class="text-success"><i class="fa-solid fa-check-circle"></i> Aktif</span>
                                         @else
-                                            {{ $indikatorkinerja->ik_baseline }}
+                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak</span>
                                         @endif
                                     </td> 
-
                                     @if (Auth::user()->role== 'admin')
                                     <td>
-                                        
-                                            <a class="btn btn-warning mb-2 mt-2" href="{{ route('indikatorkinerja.edit', $indikatorkinerja->ik_id) }}">
-                                                <i class="fa-solid fa-pen-to-square"></i> Ubah
-                                            </a>
-                                            <form id="delete-form-{{ $indikatorkinerja->ik_id }}" method="POST" class="d-inline" action="{{ route('indikatorkinerja.destroy', $indikatorkinerja->ik_id) }}">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $indikatorkinerja->ik_id }}' )">
-                                                    <i class="fa-solid fa-trash"></i> Hapus
-                                                </button>
-                                            </form>
-                                        
+                                        <a class="btn btn-warning btn-sm" href="{{ route('indikatorkinerja.edit', $indikatorkinerja->ik_id) }}">
+                                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                                        </a>
+                                        <form id="delete-form-{{ $indikatorkinerja->ik_id }}" method="POST" class="d-inline" action="{{ route('indikatorkinerja.destroy', $indikatorkinerja->ik_id) }}">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="btn btn-danger btn-sm" onclick="confirmDelete(event, '{{ $indikatorkinerja->ik_id }}')">
+                                                <i class="fa-solid fa-trash"></i> Hapus
+                                            </button>
+                                        </form>
                                     </td>                                    
                                     @endif
                                 </tr>
@@ -109,19 +125,46 @@
                         </tbody>
                     </table>
                 </div>
-
                 @if ($indikatorkinerjas->hasPages())
                     <div class="card-footer">
                         {{ $indikatorkinerjas->links('pagination::bootstrap-5') }}
                     </div>
-                @endif
+        @endif
             </div>
         </section>
+    </div>
+
+    <!-- Modal Import -->
+    <div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-labelledby="importModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importModalLabel">Import Data IKU/IKT</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ route('indikatorkinerja.import') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="file">Pilih File Excel (Format .xlsx)</label>
+                            <input type="file" class="form-control-file" name="file" required accept=".xlsx">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-times"></i> Batal</button>
+                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Import</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
     </div>
 @endsection
 
 @push('scripts')
-    <!-- JS Libraries -->
+    <!-- Load SweetAlert2 -->
     <script src="{{ asset('library/simpleweather/jquery.simpleWeather.min.js') }}"></script>
     <script src="{{ asset('library/chart.js/dist/Chart.min.js') }}"></script>
     <script src="{{ asset('library/jqvmap/dist/jquery.vmap.min.js') }}"></script>
@@ -134,22 +177,45 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
-    function confirmDelete(event, formid) {
-        event.preventDefault();
-        Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: "Data yang dihapus tidak bisa dikembalikan!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya, hapus data!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('delete-form-' + formid).submit();
-            }
-        })
-    }
-</script>
+    <script>
+        function confirmDelete(event, formid) {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Data yang dihapus tidak bisa dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, hapus data!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form-' + formid).submit();
+                }
+            })
+        }
+    </script>
+
+    <!-- Alert untuk success dan error -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Sukses!',
+                    text: '{{ session("success") }}',
+                    confirmButtonText: 'OK'
+                });
+            @endif
+
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: '{{ session("error") }}',
+                    confirmButtonText: 'OK'
+                });
+            @endif
+        });
+    </script>
 @endpush

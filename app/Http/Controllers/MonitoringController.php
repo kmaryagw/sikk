@@ -112,58 +112,71 @@ class MonitoringController extends Controller
 }
 
 
-    public function store(Request $request)
-    {
-        $validatedData = $request->validate([
-            'mtg_capaian' => 'required|numeric',
-            'mtg_kondisi' => 'required|string',
-            'mtg_kendala' => 'nullable|string',
-            'mtg_tindak_lanjut' => 'required|string',
-            'mtg_tindak_lanjut_tanggal' => 'required|date',
-            'mtg_status' => 'required|in:y,n,t,p',
-            'mtg_bukti' => 'nullable|url',
-            'mtg_flag' => 'required|boolean',
-            'pmo_id' => 'required|exists:periode_monitoring,pmo_id',
-            'rk_id' => 'required|exists:rencana_kerja,rk_id',
-        ]);
+public function store(Request $request)
+{
+    \Log::info('Store monitoring request:', $request->all());
 
-        try {
-            $monitoring = Monitoring::firstOrCreate(
-                [
-                    'pmo_id' => $request->pmo_id,
-                    'rk_id' => $request->rk_id,
-                ],
-                $validatedData
-            );
+    $validatedData = $request->validate([
+        'mtg_capaian'                => 'required|numeric',
+        'mtg_kondisi'                => 'required|string',
+        'mtg_kendala'                => 'nullable|string',
+        'mtg_tindak_lanjut'          => 'required|string',
+        'mtg_tindak_lanjut_tanggal'  => 'required|date',
+        'mtg_status'                 => 'required|in:y,n,t,p',
+        'mtg_bukti'                  => 'nullable|url',
+        'mtg_flag'                   => 'required|boolean',
+        'pmo_id'                     => 'required|exists:periode_monitoring,pmo_id',
+        'rk_id'                      => 'required|exists:rencana_kerja,rk_id',
+        'pm_id'                      => $request->mtg_status === 'p' ? 'required|array' : 'nullable|array',
+        'pm_id.*'                    => 'exists:periode_monev,pm_id',
+    ]);
 
-            $monitoring->fill($validatedData);
-            $monitoring->save();
+    try {
+        $monitoring = Monitoring::updateOrCreate(
+            [
+                'pmo_id' => $request->pmo_id,
+                'rk_id'  => $request->rk_id,
+            ],
+            $validatedData
+        );
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Data berhasil disimpan',
-                'monitoring' => $monitoring
-            ], 200);
-
-        } catch (\Exception $e) {
-            Log::error('Error saat menyimpan monitoring data: ' . $e->getMessage());
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan dalam menyimpan data.',
-                'error' => $e->getMessage()
-            ], 500);
+        if ($request->has('pm_id')) {
+            $monitoring->periodes()->sync($request->pm_id);
         }
-    }
-
-    public function getData($pmo_id, $rk_id)
-    {
-        $monitoring = Monitoring::where('pmo_id', $pmo_id)->where('rk_id', $rk_id)->first();
-        $realisasi = RealisasiRenja::where('rk_id', $rk_id)->orderBy('rkr_capaian', 'asc')->get();
 
         return response()->json([
-            'monitoring' => $monitoring,
-            'realisasi' => $realisasi,
-        ]);
+            'success'    => true,
+            'message'    => 'Data berhasil disimpan',
+            'monitoring' => $monitoring->load('periodes')
+        ], 200);
+
+    } catch (\Exception $e) {
+        \Log::error('Error saat menyimpan monitoring data: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Terjadi kesalahan dalam menyimpan data.',
+            'error'   => $e->getMessage()
+        ], 500);
     }
+}
+
+
+
+public function getData($pmo_id, $rk_id)
+{
+    // Eager load relasi periodes dan realisasi
+    $monitoring = Monitoring::with(['periodes', 'realisasi'])
+        ->where('pmo_id', $pmo_id)
+        ->where('rk_id', $rk_id)
+        ->first();
+
+    $realisasi = RealisasiRenja::where('rk_id', $rk_id)
+        ->orderBy('rkr_capaian', 'asc')
+        ->get();
+
+    return response()->json([
+        'monitoring' => $monitoring,
+        'realisasi' => $realisasi,
+    ]);
+}
 }
