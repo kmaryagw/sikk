@@ -32,11 +32,6 @@ class target_indikator extends Model
         return $this->belongsTo(IndikatorKinerja::class, 'ik_id', 'ik_id');
     }
 
-    public function settingIKU()
-    {
-        return $this->belongsTo(SettingIKU::class, 'ik_id', 'ik_id');
-    }
-
     public function prodi()
     {
         return $this->belongsTo(program_studi::class, 'prodi_id','prodi_id');

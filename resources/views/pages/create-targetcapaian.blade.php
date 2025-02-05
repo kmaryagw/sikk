@@ -123,13 +123,13 @@
                                                     <select class="form-control" name="ik_id" id="ik_id" required>
                                                         <option value="" disabled selected>Pilih Indikator Kinerja</option>
                                                         @foreach ($indikatorkinerjas as $indikatorkinerja)
-                                                            @if ($indikatorkinerja->indikatorKinerja)
+                                                            {{-- @if ($indikatorkinerja->indikatorKinerja) --}}
                                                                 <option value="{{ $indikatorkinerja->ik_id }}" 
-                                                                    data-jenis="{{ $indikatorkinerja->indikatorKinerja->ik_ketercapaian }}"
-                                                                    data-baseline="{{ $indikatorkinerja->baseline }}">
-                                                                    {{ $indikatorkinerja->indikatorKinerja->ik_kode }} - {{ $indikatorkinerja->indikatorKinerja->ik_nama }}
+                                                                    data-jenis="{{ $indikatorkinerja->ik_ketercapaian }}"
+                                                                    data-baseline="{{ $indikatorkinerja->ik_baseline }}">
+                                                                    {{ $indikatorkinerja->ik_kode }} - {{ $indikatorkinerja->ik_nama }}
                                                                 </option>
-                                                            @endif
+                                                            {{-- @endif --}}
                                                         @endforeach
                                                     </select>
                                                 </div>

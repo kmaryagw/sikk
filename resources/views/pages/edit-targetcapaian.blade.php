@@ -125,10 +125,10 @@
                                                         <option value="" disabled>Pilih Indikator Kinerja</option>
                                                         @foreach ($indikatorkinerjautamas as $indikatorkinerja)
                                                             <option value="{{ $indikatorkinerja->ik_id }}" 
-                                                                data-jenis="{{ $indikatorkinerja->indikatorKinerja->ik_ketercapaian }}"
-                                                                data-baseline="{{ $indikatorkinerja->baseline }}"
+                                                                data-jenis="{{ $indikatorkinerja->ik_ketercapaian }}"
+                                                                data-baseline="{{ $indikatorkinerja->ik_baseline }}"
                                                                 {{ old('ik_id', $targetcapaian->ik_id) == $indikatorkinerja->ik_id ? 'selected' : '' }}>
-                                                                {{ $indikatorkinerja->indikatorKinerja->ik_kode }} - {{ $indikatorkinerja->indikatorKinerja->ik_nama }}
+                                                                {{ $indikatorkinerja->ik_kode }} - {{ $indikatorkinerja->ik_nama }}
                                                             </option>
                                                         @endforeach
                                                     </select>
@@ -205,7 +205,7 @@
         document.getElementById('ik_id').addEventListener('change', function() {
             var selectedOption = this.options[this.selectedIndex];
             var baseline = selectedOption.getAttribute('data-baseline');
-            document.getElementById('baseline').value = baseline;
+            document.getElementById('baseline').value = ik_baseline;
         });
     </script>
 @endpush

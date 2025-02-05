@@ -39,7 +39,7 @@ class RencanaKerja extends Model
 
     public function targetindikators()
     {
-        return $this->belongsToMany(target_indikator::class, 'rencana_kerja_target_indikator', 'rk_id', 'ti_id')->with('settingIKU');
+        return $this->belongsToMany(target_indikator::class, 'rencana_kerja_target_indikator', 'rk_id', 'ti_id')->with('indikatorKinerja');
     }
 
     public function periodeMonitoring()
@@ -57,7 +57,6 @@ class RencanaKerja extends Model
         return $this->hasMany(IndikatorKinerja::class, 'rk_id', 'rk_id');
     }
 
-    
 
     public function realisasi()
     {

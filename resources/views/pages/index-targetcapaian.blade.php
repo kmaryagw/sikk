@@ -78,25 +78,25 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if ($targetcapaian->ik_ketercapaian == 'persentase' && is_numeric($targetcapaian->baseline))
+                                        @if ($targetcapaian->ik_ketercapaian == 'persentase' && is_numeric($targetcapaian->ik_baseline))
                                             <div class="progress">
                                                 <div class="progress-bar" role="progressbar" 
-                                                     style="width: {{ intval($targetcapaian->baseline) }}%;" 
-                                                     aria-valuenow="{{ intval($targetcapaian->baseline) }}" 
+                                                     style="width: {{ intval($targetcapaian->ik_baseline) }}%;" 
+                                                     aria-valuenow="{{ intval($targetcapaian->ik_baseline) }}" 
                                                      aria-valuemin="0" aria-valuemax="100">
-                                                    {{ $targetcapaian->baseline }}%
+                                                    {{ $targetcapaian->ik_baseline }}%
                                                 </div>
                                             </div>
-                                        @elseif ($targetcapaian->ik_ketercapaian == 'nilai' && is_numeric($targetcapaian->baseline))
-                                            <span class="badge badge-primary">{{ $targetcapaian->baseline }}</span>
-                                        @elseif (in_array(strtolower($targetcapaian->baseline), ['ada', 'draft']))
-                                            @if (strtolower($targetcapaian->baseline) === 'ada')
+                                        @elseif ($targetcapaian->ik_ketercapaian == 'nilai' && is_numeric($targetcapaian->ik_baseline))
+                                            <span class="badge badge-primary">{{ $targetcapaian->ik_baseline }}</span>
+                                        @elseif (in_array(strtolower($targetcapaian->ik_baseline), ['ada', 'draft']))
+                                            @if (strtolower($targetcapaian->ik_baseline) === 'ada')
                                                 <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
                                             @else
                                                 <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
                                             @endif
                                         @else
-                                            {{ $targetcapaian->baseline }}
+                                            {{ $targetcapaian->ik_baseline }}
                                         @endif
                                     </td>
                                     <td>
