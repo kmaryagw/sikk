@@ -2,13 +2,13 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EvaluasiController;
-use App\Http\Controllers\FalkutasController;
 use App\Http\Controllers\FakultasnController;
 use App\Http\Controllers\IndikatorKinerjaController;
 use App\Http\Controllers\LaporanIkuController;
 use App\Http\Controllers\LaporanRenjaController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\MonitoringIKUController;
+use App\Http\Controllers\OrganisasiJabatanController;
 use App\Http\Controllers\PeriodeMonevController;
 use App\Http\Controllers\PeriodeMonitoringController;
 use App\Http\Controllers\UnitKerjaController;
@@ -18,9 +18,12 @@ use App\Http\Controllers\RealisasiRenjaController;
 use App\Http\Controllers\RenstraController;
 use App\Http\Controllers\SettingIKUController;
 use App\Http\Controllers\StandarController;
+use App\Http\Controllers\SuratKlasifikasiLingkupController;
+use App\Http\Controllers\SuratKlasifikasiPerihalController;
 use App\Http\Controllers\TahunController;
 use App\Http\Controllers\TargetCapaianController;
 use App\Http\Controllers\UserController;
+use App\Models\SuratKlasifikasiLingkup;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [UserController::class, 'login'])->name('login');
@@ -76,10 +79,10 @@ Route::middleware('auth')->group(function () {
     // // Route::put('/settingiku/{id_setting}', [SettingIKUController::class, 'update'])->name('settingiku.update');
 
     //Surat
-    // Route::resource('organisasijabatan', ....Controller::class);
+    Route::resource('organisasijabatan', OrganisasiJabatanController::class);
     // Route::resource('suratfungsi', ....Controller::class);
-    // Route::resource('suratperihal', ....Controller::class);
-    // Route::resource('suratlingkup', ....Controller::class);
+    Route::resource('suratperihal', SuratKlasifikasiPerihalController::class);
+    Route::resource('suratlingkup', SuratKlasifikasiLingkupController::class);
     // Route::resource('surat', ....Controller::class);
     // Route::resource('datanomorsurat', ....Controller::class);
     // Route::resource('menungguvalidasi', ....Controller::class);

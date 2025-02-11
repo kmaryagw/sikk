@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Create Standar')
+@section('title', 'edit-organisasi-jabatan')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -10,14 +10,13 @@
     <link rel="stylesheet" href="{{ asset('library/selectric/public/selectric.css') }}">
     <link rel="stylesheet" href="{{ asset('library/bootstrap-timepicker/css/bootstrap-timepicker.min.css') }}">
     <link rel="stylesheet" href="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.css') }}">
-    <link rel="stylesheet" href="{{ asset('library/summernote/dist/summernote-bs4.min.css') }}">
 @endpush
 
 @section('main')
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Form Standar</h1>
+                <h1>Edit Organisasi Jabatan</h1>
             </div>
 
             <div class="section-body">
@@ -36,48 +35,77 @@
                                     </div>
                                 @endif
 
-                                <form method="POST" action="{{ route('standar.store') }}" enctype="multipart/form-data">
+                                <form action="{{ route('organisasijabatan.update', $organisasijabatan->oj_id) }}" method="POST">
                                     @csrf
+                                    @method('put')
                                     <div class="form-group">
-                                        <label>Nama Standar</label>
+                                        <label for="oj_nama">Jabatan</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
-                                                    <i class="fa-solid fa-thumbs-up"></i>
+                                                    <i class="fa-solid fa-user-tie"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="std_nama" value="{{ old('std_nama') }}" required/>
+                                            <input class="form-control" type="text" name="oj_nama" id="oj_nama" value="{{ old('oj_nama', $organisasijabatan->oj_nama) }}"/>
                                         </div>
                                     </div>
 
                                     <div class="form-group">
-                                        <label>Deskripsi</label>
+                                        <label for="oj_kode">Kode</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
-                                                    <i class="fa-solid fa-clipboard-list"></i>
+                                                    <i class="fa-solid fa-code"></i>
                                                 </div>
                                             </div>
-                                            <textarea class="form-control" name="std_deskripsi" required>{{ old('std_deskripsi') }}</textarea>
+                                            <input class="form-control" type="text" name="oj_kode" id="oj_kode" value="{{ old('oj_kode', $organisasijabatan->oj_kode) }}"/>
                                         </div>
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="std_url">URL Standar</label>
+                                        <label for="oj_mengeluarkan_nomor">Mengeluarkan Nomor</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
-                                                    <i class="fa-solid fa-link"></i>
+                                                    <i class="fa-solid fa-check-square"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="url" name="std_url" value="{{ old('std_url') }}" />
+                                            <select class="form-control" id="oj_mengeluarkan_nomor" name="oj_mengeluarkan_nomor">
+                                                @foreach ($nomors as $nomor)
+                                                    <option value="{{ $nomor }}" 
+                                                        {{ old('oj_mengeluarkan_nomor', $organisasijabatan->nomor) == $nomor ? 'selected' : '' }}>
+                                                        {{ $nomor == 'y' ? 'Ya' : 'Tidak' }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="oj_induk">Induk</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-folder-tree"></i>
+                                                </div>
+                                            </div>
+                                            <select class="form-control" name="oj_induk" id="oj_induk">
+                                                <option value="" {{ old('oj_induk', $organisasijabatan->oj_induk) == null ? 'selected' : '' }}>- Tidak Ada -</option>
+                                                @foreach ($organisasies as $organisasi)
+                                                    <option value="{{ $organisasi->oj_id }}" 
+                                                        {{ old('oj_induk', $organisasijabatan->oj_induk) == $organisasi->oj_id ? 'selected' : '' }}>
+                                                        {{ $organisasi->oj_nama }}
+                                                    </option>
+                                                @endforeach
+                                            </select>                                            
                                         </div>
                                     </div>
 
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Simpan</button>
-                                        <a href="{{ url('standar') }}" class="btn btn-danger">Kembali</a>
+                                        <a href="{{ url('organisasijabatan') }}" class="btn btn-danger">Kembali</a>
                                     </div>
+
                                 </form>
                                 </div>
                             </div>
@@ -98,10 +126,7 @@
     <script src="{{ asset('library/bootstrap-timepicker/js/bootstrap-timepicker.min.js') }}"></script>
     <script src="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js') }}"></script>
     <script src="{{ asset('library/select2/dist/js/select2.full.min.js') }}"></script>
-    <script src="{{ asset('library/summernote/dist/summernote-bs4.min.js') }}"></script>
     <script src="{{ asset('library/selectric/public/jquery.selectric.min.js') }}"></script>
-
-    @include('sweetalert::alert')
 
     <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>

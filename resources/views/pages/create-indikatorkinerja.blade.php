@@ -13,10 +13,6 @@
         <section class="section">
             <div class="section-header">
                 <h1>Form Indikator Kinerja Utama</h1>
-                <div class="section-header-breadcrumb">
-                    <div class="breadcrumb-item"><a href="#">Dashboard</a></div>
-                    <div class="breadcrumb-item active">Create Indikator Kinerja Utama</div>
-                </div>
             </div>
 
             <div class="section-body">
@@ -93,6 +89,25 @@
                                             @enderror
                                         </div>
                                     </div>
+
+                                    <div class="form-group">
+                                        <label>Status Aktif</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-toggle-on"></i>
+                                                </div>
+                                            </div>
+                                            <select class="form-control" name="ik_is_aktif">
+                                                @foreach ($ik_is_aktifs as $ik_is_aktif)
+                                                    <option value="{{ $ik_is_aktif }}" {{ old('ik_is_aktif', 'y') == $ik_is_aktif ? 'selected' : '' }}>
+                                                        {{ $ik_is_aktif == 'y' ? 'Ya' : 'Tidak' }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
                                 </div>
 
                                 <!-- Kolom Kanan -->
@@ -151,25 +166,6 @@
                                             @error('ik_baseline')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
-                                        </div>
-                                    </div>
-
-
-                                    <div class="form-group">
-                                        <label>Status Aktif</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <i class="fa-solid fa-toggle-on"></i>
-                                                </div>
-                                            </div>
-                                            <select class="form-control" name="ik_is_aktif">
-                                                @foreach ($ik_is_aktifs as $ik_is_aktif)
-                                                    <option value="{{ $ik_is_aktif }}" {{ old('ik_is_aktif', 'y') == $ik_is_aktif ? 'selected' : '' }}>
-                                                        {{ $ik_is_aktif == 'y' ? 'Ya' : 'Tidak' }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
                                         </div>
                                     </div>
 

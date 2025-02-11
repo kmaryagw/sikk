@@ -13,10 +13,6 @@
     <section class="section">
         <div class="section-header">
             <h1>Create Rencana Strategis</h1>
-            <div class="section-header-breadcrumb">
-                <div class="breadcrumb-item"><a href="#">Dashboard</a></div>
-                <div class="breadcrumb-item">Create Rencana Strategis</div>
-            </div>
         </div>
 
         <div class="section-body">

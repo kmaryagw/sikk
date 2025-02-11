@@ -64,7 +64,7 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table table-sm table-hover table-bordered table-striped m-0 text-center">
+                    <table class="table table-hover table-bordered table-striped m-0 text-center">
                         <thead>
                             <tr>
                                 <th>No</th>
@@ -150,6 +150,7 @@
                         <div class="form-group">
                             <label for="file">Pilih File Excel (Format .xlsx)</label>
                             <input type="file" class="form-control-file" name="file" required accept=".xlsx">
+                            <small class="form-text text-muted">Pastikan format sudah sesuai dengan template</small>
                         </div>
                     </div>
                     <div class="modal-footer">

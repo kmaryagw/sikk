@@ -12,7 +12,6 @@ class OrganisasiJabatan extends Model
     protected $table = 'organisasi_jabatan';
     protected $primaryKey = 'oj_id';
     public $incrementing = false;
-    protected $keyType = 'string';
 
     protected $fillable = [
         'oj_id',

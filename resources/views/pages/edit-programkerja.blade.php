@@ -16,10 +16,6 @@
         <section class="section">
             <div class="section-header">
                 <h1>Edit Program Kerja</h1>
-                <div class="section-header-breadcrumb">
-                    <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
-                    <div class="breadcrumb-item">Edit Program Kerja</div>
-                </div>
             </div>
 
             <div class="section-body">
@@ -125,29 +121,6 @@
                                                     </select>
                                                 </div>
                                             </div>
-
-                                            {{-- <div class="form-group">
-                                                <label>Unit Kerja</label>
-                                                <div class="input-group">
-                                                    <div class="input-group-prepend">
-                                                        <div class="input-group-text">
-                                                            <i class="fa-solid fa-sitemap"></i>
-                                                        </div>
-                                                    </div>
-                                                    <select class="form-control @error('unit_id') is-invalid @enderror" name="unit_id" required>
-                                                        <option value="" disabled>Pilih Unit Kerja</option>
-                                                        @foreach ($units as $unit)
-                                                            <option value="{{ $unit->unit_id }}" 
-                                                                    {{ old('unit_id', $programkerja->unit_id) == $unit->unit_id ? 'selected' : '' }}>
-                                                                {{ $unit->unit_nama }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                    @error('unit_id')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                            </div> --}}
                                             
                                             <div class="form-group">
                                                 <label>Unit Kerja</label>

@@ -17,10 +17,6 @@
         <section class="section">
             <div class="section-header">
                 <h1>Form Target Capaian</h1>
-                <div class="section-header-breadcrumb">
-                    <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
-                    <div class="breadcrumb-item">Form Target Capaian</div>
-                </div>
             </div>
 
             <div class="section-body">
@@ -123,13 +119,11 @@
                                                     <select class="form-control" name="ik_id" id="ik_id" required>
                                                         <option value="" disabled selected>Pilih Indikator Kinerja</option>
                                                         @foreach ($indikatorkinerjas as $indikatorkinerja)
-                                                            {{-- @if ($indikatorkinerja->indikatorKinerja) --}}
                                                                 <option value="{{ $indikatorkinerja->ik_id }}" 
                                                                     data-jenis="{{ $indikatorkinerja->ik_ketercapaian }}"
                                                                     data-baseline="{{ $indikatorkinerja->ik_baseline }}">
                                                                     {{ $indikatorkinerja->ik_kode }} - {{ $indikatorkinerja->ik_nama }}
                                                                 </option>
-                                                            {{-- @endif --}}
                                                         @endforeach
                                                     </select>
                                                 </div>
