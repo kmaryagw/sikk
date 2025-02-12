@@ -18,11 +18,13 @@ use App\Http\Controllers\RealisasiRenjaController;
 use App\Http\Controllers\RenstraController;
 use App\Http\Controllers\SettingIKUController;
 use App\Http\Controllers\StandarController;
+use App\Http\Controllers\SuratKlasifikasiFungsiController;
 use App\Http\Controllers\SuratKlasifikasiLingkupController;
 use App\Http\Controllers\SuratKlasifikasiPerihalController;
 use App\Http\Controllers\TahunController;
 use App\Http\Controllers\TargetCapaianController;
 use App\Http\Controllers\UserController;
+use App\Models\SuratKlasifikasiFungsi;
 use App\Models\SuratKlasifikasiLingkup;
 use Illuminate\Support\Facades\Route;
 
@@ -80,7 +82,7 @@ Route::middleware('auth')->group(function () {
 
     //Surat
     Route::resource('organisasijabatan', OrganisasiJabatanController::class);
-    // Route::resource('suratfungsi', ....Controller::class);
+    Route::resource('suratfungsi', SuratKlasifikasiFungsiController::class);
     Route::resource('suratperihal', SuratKlasifikasiPerihalController::class);
     Route::resource('suratlingkup', SuratKlasifikasiLingkupController::class);
     // Route::resource('surat', ....Controller::class);
