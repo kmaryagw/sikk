@@ -180,7 +180,7 @@ function tampilkanJabatan($organisasi, $no, $level) {
     $padding = $level * 20;
     $html = "<tr>
                 <td>{$no}</td>
-                <td style='padding-left: {$padding}px;'>".str_repeat('— ', $level)."{$organisasi->oj_nama}</td>
+                <td style='padding-left: {$padding}px;'>".str_repeat(' ', $level)."{$organisasi->oj_nama}</td>
                 <td>{$organisasi->oj_kode}</td>
                 <td>";
 

@@ -60,7 +60,7 @@ class SuratKlasifikasiLingkupController extends Controller
     {
         $request->validate([
             'skl_nama' => 'required|string|max:100',
-            'skl_kode' => 'required|string|max:50',
+            'skl_kode' => 'nullable|string|max:50',
             'skl_aktif' => 'required|in:y,n',
             'skp_id' => 'required|string|max:50',
         ]);
@@ -110,7 +110,7 @@ class SuratKlasifikasiLingkupController extends Controller
     {
         $request->validate([
             'skl_nama' => 'required|string|max:100',
-            'skl_kode' => 'required|string|max:50',
+            'skl_kode' => 'nullable|string|max:50',
             'skl_aktif' => 'required|in:y,n',
             'skp_id' => 'required|string|max:50',
         ]);

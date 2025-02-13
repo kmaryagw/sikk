@@ -36,6 +36,7 @@
                             <tr>
                                 <th>No</th>
                                 <th>Nama</th>
+                                <th>Kode</th>
                                 <th>Aktif</th>
                                 <th>Surat Klasifikasi Fungsi</th>
                                 <th>Aksi</th>
@@ -46,6 +47,7 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $perihal->skp_nama }}</td>
+                                    <td>{{ $perihal->skp_kode ?? '-' }}</td>
                                     <td>
                                         @if (strtolower($perihal->skp_aktif) === 'y')
                                             <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ya</span>

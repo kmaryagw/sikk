@@ -47,7 +47,7 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $lingkup->skl_nama }}</td>
-                                    <td>{{ $lingkup->skl_kode }}</td>
+                                    <td>{{ $lingkup->skl_kode ?? '-' }}</td>
                                     <td>
                                         @if (strtolower($lingkup->skl_aktif) === 'y')
                                             <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ya</span>
