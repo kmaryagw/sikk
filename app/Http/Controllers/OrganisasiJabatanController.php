@@ -28,7 +28,7 @@ class OrganisasiJabatanController extends Controller
         $organisasis = OrganisasiJabatan::with('children')
             ->whereNull('oj_induk')
             ->where('oj_nama', 'like', '%' . $q . '%')
-            ->orderBy('oj_nama', 'asc')
+            ->orderBy('created_at', 'asc')
             ->get();
 
             
@@ -68,7 +68,7 @@ class OrganisasiJabatanController extends Controller
         $request->validate([
             'oj_nama' => 'required|max:100',
             'oj_mengeluarkan_nomor' => 'required|in:y,n',
-            'oj_kode' => 'required|max:50',
+            'oj_kode' => 'nullable|max:50',
             'oj_induk' => 'nullable|exists:organisasi_jabatan,oj_id',
         ]);
     
@@ -118,7 +118,7 @@ class OrganisasiJabatanController extends Controller
         $request->validate([
             'oj_nama' => 'required|max:100',
             'oj_mengeluarkan_nomor' => 'required|in:y,n',
-            'oj_kode' => 'required|max:50',
+            'oj_kode' => 'nullable|max:50',
             'oj_induk' => 'nullable|exists:organisasi_jabatan,oj_id',
         ]);
 

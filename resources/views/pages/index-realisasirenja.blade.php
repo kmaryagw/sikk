@@ -91,6 +91,12 @@
                                 </td>
                             </tr>
                         @endforeach
+
+                        @if ($rencanaKerjas->isEmpty())
+                             <tr>
+                                <td colspan="8" class="text-center">Tidak ada data</td>
+                            </tr>
+                        @endif
                     </tbody>
                 </table>
             </div>

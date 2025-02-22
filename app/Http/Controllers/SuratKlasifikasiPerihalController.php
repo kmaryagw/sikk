@@ -22,7 +22,7 @@ class SuratKlasifikasiPerihalController extends Controller
         $q = $request->query('q');
         $perihals = SuratKlasifikasiPerihal::with('fungsi')
             ->where('skp_nama', 'like', '%' . $q . '%')
-            ->orderBy('skp_nama', 'asc')
+            ->orderBy('skf_id', 'asc')
             ->get();
     
         return view('pages.index-surat-klasifikasi-perihal', [

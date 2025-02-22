@@ -38,7 +38,7 @@
                                 <th>Nama</th>
                                 <th>Kode</th>
                                 <th>Aktif</th>
-                                <th>Surat Klasifikasi Fungsi</th>
+                                <th>Surat Klasifikasi Perihal</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>

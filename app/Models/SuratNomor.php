@@ -19,6 +19,7 @@ class SuratNomor extends Model
         'unit_id', 
         'skl_id', 
         'oj_id', 
+        'sn_nomor_urut', 
         'sn_nomor', 
         'sn_tanggal', 
         'sn_perihal', 

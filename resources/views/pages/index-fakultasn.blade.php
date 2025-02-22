@@ -57,6 +57,12 @@
                                     </td>
                                 </tr>
                             @endforeach
+
+                            @if ($fakultasns->isEmpty())
+                                <tr>
+                                    <td colspan="3" class="text-center">Tidak ada data</td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>

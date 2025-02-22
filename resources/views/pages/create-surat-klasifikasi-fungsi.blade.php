@@ -48,7 +48,6 @@
                                             <input class="form-control" type="text" name="skf_nama" id="skf_nama" value="{{ old('skf_nama') }}"/>
                                         </div>
                                     </div>
-
                                     
 
                                     <div class="form-group">

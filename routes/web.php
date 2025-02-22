@@ -1,13 +1,16 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DataNomorSuratController;
 use App\Http\Controllers\EvaluasiController;
 use App\Http\Controllers\FakultasnController;
 use App\Http\Controllers\IndikatorKinerjaController;
 use App\Http\Controllers\LaporanIkuController;
 use App\Http\Controllers\LaporanRenjaController;
+use App\Http\Controllers\MenungguValidasiController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\MonitoringIKUController;
+use App\Http\Controllers\NomorSuratController;
 use App\Http\Controllers\OrganisasiJabatanController;
 use App\Http\Controllers\PeriodeMonevController;
 use App\Http\Controllers\PeriodeMonitoringController;
@@ -80,15 +83,22 @@ Route::middleware('auth')->group(function () {
     // // Route::resource('settingiku', SettingIKUController::class)->except(['create', 'edit', 'show']);
     // // Route::put('/settingiku/{id_setting}', [SettingIKUController::class, 'update'])->name('settingiku.update');
 
-    //Surat
+    //MasterSurat
     Route::resource('organisasijabatan', OrganisasiJabatanController::class);
     Route::resource('suratfungsi', SuratKlasifikasiFungsiController::class);
     Route::resource('suratperihal', SuratKlasifikasiPerihalController::class);
     Route::resource('suratlingkup', SuratKlasifikasiLingkupController::class);
-    // Route::resource('surat', ....Controller::class);
-    // Route::resource('datanomorsurat', ....Controller::class);
-    // Route::resource('menungguvalidasi', ....Controller::class);
-    // Route::resource('nomorsurat', ....Controller::class);
+
+    //Surat
+    Route::resource('datanomorsurat', DataNomorSuratController::class);
+    Route::resource('menungguvalidasi', MenungguValidasiController::class);
+    Route::post('/menungguvalidasi/{id}/valid', [MenungguValidasiController::class, 'validateSuratAdmin'])->name('menungguvalidasi.valid');
+
+    //NomorSurat
+    Route::resource('nomorsurat', NomorSuratController::class);
+    Route::post('/nomorsurat/{id}/validasi', [NomorSuratController::class, 'validateSurat'])->name('nomorsurat.validasi');
+    Route::post('/nomorsurat/{id}/ajukan', [NomorSuratController::class, 'ajukanData'])->name('nomorsurat.ajukan');
+
 
 
     // Rute untuk laporan

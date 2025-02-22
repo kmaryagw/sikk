@@ -21,7 +21,7 @@ class IndikatorKinerjaTemplateExport implements FromArray, WithHeadings, WithSty
     public function array(): array
     {
         return [
-            ['IK001', 'Indikator Contoh', 'STDB04DDEAC3765BE32BE71700C36A6EE7B', 'IKU', 100, 'y', 'persentase'],
+            ['IK001', 'Indikator Contoh', 'Pendidikan', 'IKU', 100, 'persentase', 'y'],
         ];
     }
 

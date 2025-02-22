@@ -74,6 +74,12 @@
                                     </td>
                                 </tr>
                             @endforeach
+
+                            @if ($renstras->isEmpty())
+                                <tr>
+                                    <td colspan="7" class="text-center">Tidak ada data</td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>

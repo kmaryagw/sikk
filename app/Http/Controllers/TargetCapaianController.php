@@ -68,7 +68,7 @@ class TargetCapaianController extends Controller
     public function create()
     {
         $title = 'Tambah Target Capaian';
-        $indikatorkinerjas = IndikatorKinerja::orderBy('ik_nama')->get();
+        $indikatorkinerjas = IndikatorKinerja::orderBy('ik_nama')->where('ik_is_aktif', 'y')->get();
 
         $baseline = null;
         $prodis = program_studi::orderBy('nama_prodi', 'asc')->get();
@@ -142,7 +142,7 @@ class TargetCapaianController extends Controller
 {
     $title = 'Edit Target Capaian';
 
-    $indikatorkinerjautamas = IndikatorKinerja::orderBy('ik_nama')->get();
+    $indikatorkinerjautamas = IndikatorKinerja::orderBy('ik_nama')->where('ik_is_aktif', 'y')->get();
     $prodis = program_studi::orderBy('nama_prodi')->get();
     $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
 

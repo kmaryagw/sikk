@@ -63,7 +63,7 @@
 
                                     <!-- Dropdown Fakultas -->
                                     <div class="form-group">
-                                        <label for="id_falkutas">Fakultas</label>
+                                        <label for="id_fakultas">Fakultas</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">

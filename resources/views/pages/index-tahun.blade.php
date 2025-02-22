@@ -69,6 +69,12 @@
                                         </td>
                                     </tr>
                                 @endforeach
+
+                                @if ($tahuns->isEmpty())
+                                    <tr>
+                                        <td colspan="5" class="text-center">Tidak ada data</td>
+                                    </tr>
+                                @endif
                             </tbody>
                         </table>
                     </div>
