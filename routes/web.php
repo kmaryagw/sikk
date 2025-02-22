@@ -13,6 +13,7 @@ use App\Http\Controllers\PeriodeMonevController;
 use App\Http\Controllers\PeriodeMonitoringController;
 use App\Http\Controllers\UnitKerjaController;
 use App\Http\Controllers\ProdiController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgramKerjaController;
 use App\Http\Controllers\RealisasiRenjaController;
 use App\Http\Controllers\RenstraController;
@@ -47,7 +48,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('programkerja', ProgramKerjaController::class);
     Route::resource('standar', StandarController::class);
 
-
+    // Route untuk Profil
+    Route::get('/profile', [UserController::class, 'profile'])->name('profile')->middleware('auth');
+Route::put('/profile/update', [UserController::class, 'updateProfile'])->name('profile.update');
+    Route::put('/profile/update-password', [UserController::class, 'updatePassword'])->name('profile.update-password');
+    
     Route::get('/indikatorkinerja/template', [IndikatorKinerjaController::class, 'downloadTemplate'])->name('indikatorkinerja.template');
     Route::post('/indikatorkinerja/import', [IndikatorKinerjaController::class, 'import'])->name('indikatorkinerja.import');
 
@@ -100,6 +105,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/export-excel-iku', [LaporanIkuController::class, 'exportExcel'])->name('export-excel.iku');
     Route::get('/export-pdf-iku', [LaporanIkuController::class, 'exportPdf'])->name('export-pdf.iku');
 
+
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+    
 });
