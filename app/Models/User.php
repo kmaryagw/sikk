@@ -24,6 +24,8 @@ class User extends Authenticatable
         'id_user',
         'username',
         'status',
+        'nama',
+        'email',
         'password',
         'role',
         'prodi_id',

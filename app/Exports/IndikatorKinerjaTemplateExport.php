@@ -21,13 +21,13 @@ class IndikatorKinerjaTemplateExport implements FromArray, WithHeadings, WithSty
     public function array(): array
     {
         return [
-            ['IK001', 'Indikator Contoh', 'Pendidikan', 'IKU', 100, 'persentase', 'y'],
+            ['IK001', 'Indikator Contoh', 'STANDAR 1', 'IKU','persentase', 100, 'y', ],
         ];
     }
 
     public function headings(): array
     {
-        return ['Kode IKU/IKT', 'Nama IKU/IKT', 'Standar', 'Jenis', 'Baseline', 'Ketercapaian', 'Status Aktif'];
+        return ['Kode IKU/IKT', 'Nama IKU/IKT', 'Standar', 'Jenis', 'Ketercapaian', 'Baseline', 'Status Aktif'];
     }
 
     public function styles(Worksheet $sheet)
