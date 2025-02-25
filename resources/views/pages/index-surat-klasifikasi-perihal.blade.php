@@ -17,7 +17,7 @@
 
             <div class="card mb-3">
                 <div class="card-header">
-                    <form class="row g-2 align-items-center">
+                    <form class="row g-2 align-items-center" method="GET" action="{{ route('suratperihal.index') }}">
                         <div class="col-auto">
                             <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>
@@ -43,9 +43,10 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @php $no = $perihals->firstItem(); @endphp
                             @foreach ($perihals as $perihal)
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $no++ }}</td>
                                     <td>{{ $perihal->skp_nama }}</td>
                                     <td>{{ $perihal->skp_kode ?? '-' }}</td>
                                     <td>
@@ -71,9 +72,21 @@
                                     </td>
                                 </tr>
                             @endforeach
+
+                            @if ($perihals->isEmpty())
+                                <tr>
+                                    <td colspan="6" class="text-center">Tidak ada data</td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>
+
+                @if ($perihals->hasPages())
+                    <div class="card-footer">
+                        {{ $perihals->links('pagination::bootstrap-5') }}
+                    </div>
+                @endif
             </div>
         </section>
     </div>

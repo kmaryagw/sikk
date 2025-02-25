@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('unit_id', 50);
             $table->string('skl_id', 50);
             $table->string('oj_id', 50);
+            $table->integer('sn_nomor_urut');
             $table->string('sn_nomor', 50)->nullable();
             $table->date('sn_tanggal');
             $table->text('sn_perihal');

@@ -23,15 +23,11 @@ class SuratKlasifikasiFungsiController extends Controller
             ->orderBy('skf_nama', 'asc')
             ->paginate(10)
             ->withQueryString();
-        $no = $fungsis->firstItem();
-        
     
         return view('pages.index-surat-klasifikasi-fungsi', [
             'title' => $title,
             'fungsis' => $fungsis,
             'q' => $q,
-            'no' => $no,
-            
             'type_menu' => 'mastersurat',
             'sub_menu' => 'suratfungsi',
         ]);

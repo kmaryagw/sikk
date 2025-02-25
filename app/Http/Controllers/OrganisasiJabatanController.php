@@ -19,11 +19,6 @@ class OrganisasiJabatanController extends Controller
         
         $title = 'Data Organisasi Jabatan';
         $q = $request->query('q');
-        // $organisasis = OrganisasiJabatan::with('parent')->whereNull('oj_induk')
-        //     ->where('oj_nama', 'like', '%' . $q . '%')
-        //     ->orderBy('oj_nama', 'asc')
-        //     ->paginate(10)
-        //     ->withQueryString();
 
         $organisasis = OrganisasiJabatan::with('children')
             ->whereNull('oj_induk')

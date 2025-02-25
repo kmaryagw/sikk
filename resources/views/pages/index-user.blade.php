@@ -71,6 +71,12 @@
                                     </td>
                                 </tr>
                             @endforeach
+
+                            @if ($users->isEmpty())
+                                <tr>
+                                    <td colspan="8" class="text-center">Tidak ada data</td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>

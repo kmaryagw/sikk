@@ -61,12 +61,6 @@ class UserController extends Controller
             'type_menu' => 'profile'
         ]);
     }
-    
-
-    
-    
-
-
 
     public function logout(Request $request)
     {

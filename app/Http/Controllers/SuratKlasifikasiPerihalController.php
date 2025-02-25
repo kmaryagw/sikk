@@ -23,7 +23,9 @@ class SuratKlasifikasiPerihalController extends Controller
         $perihals = SuratKlasifikasiPerihal::with('fungsi')
             ->where('skp_nama', 'like', '%' . $q . '%')
             ->orderBy('skf_id', 'asc')
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
+            // ->get();
     
         return view('pages.index-surat-klasifikasi-perihal', [
             'title' => $title,

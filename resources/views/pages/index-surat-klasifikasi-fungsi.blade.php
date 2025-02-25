@@ -17,7 +17,7 @@
 
             <div class="card mb-3">
                 <div class="card-header">
-                    <form class="row g-2 align-items-center">
+                    <form class="row g-2 align-items-center" method="GET" action="{{ route('suratfungsi.index') }}">
                         <div class="col-auto">
                             <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>
@@ -41,9 +41,10 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @php $no = $fungsis->firstItem(); @endphp
                             @foreach ($fungsis as $fungsi)
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $no++ }}</td>
                                     <td>{{ $fungsi->skf_nama }}</td>
                                     <td>
                                         @if (strtolower($fungsi->skf_aktif) === 'y')
@@ -68,9 +69,21 @@
                                     </td>
                                 </tr>
                             @endforeach
+
+                            @if ($fungsis->isEmpty())
+                                <tr>
+                                    <td colspan="4" class="text-center">Tidak ada data</td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>
+
+                @if ($fungsis->hasPages())
+                    <div class="card-footer">
+                        {{ $fungsis->links('pagination::bootstrap-5') }}
+                    </div>
+                @endif
             </div>
         </section>
     </div>

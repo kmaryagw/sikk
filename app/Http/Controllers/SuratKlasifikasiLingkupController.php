@@ -23,7 +23,9 @@ class SuratKlasifikasiLingkupController extends Controller
         $lingkups = SuratKlasifikasiLingkup::with('perihal')
             ->where('skl_nama', 'like', '%' . $q . '%')
             ->orderBy('skp_id', 'asc')
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
+            // ->get();
     
         return view('pages.index-surat-klasifikasi-lingkup', [
             'title' => $title,

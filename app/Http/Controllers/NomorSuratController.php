@@ -31,7 +31,7 @@ class NomorSuratController extends Controller
             ->orderByRaw("CAST(SUBSTRING_INDEX(sn_nomor, '/', 1) AS UNSIGNED) ASC")
             ->paginate(10)
             ->withQueryString();
-            // ->get();
+            // ->get();.
     
         return view('pages.index-nomor-surat', [
             'title' => $title,

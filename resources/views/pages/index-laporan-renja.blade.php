@@ -93,7 +93,7 @@
                             </tr>
                         @endforeach
 
-                        @if ($suratNomors->isEmpty())
+                        @if ($rencanaKerjas->isEmpty())
                             <tr>
                                 <td colspan="5" class="text-center">Tidak ada data</td>
                             </tr>
