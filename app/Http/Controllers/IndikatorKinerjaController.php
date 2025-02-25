@@ -208,11 +208,11 @@ class IndikatorKinerjaController extends Controller
             'ik_ketercapaian' => 'required|in:nilai,persentase,ketersediaan',
         ];
 
-        if ($request->ik_is_aktif == 'y') {
-            IndikatorKinerja::where('ik_is_aktif', 'y')
-                ->where('ik_id', '!=', $indikatorkinerja->ik_id)
-                ->update(['ik_is_aktif' => 'n']);
-        }
+        // if ($request->ik_is_aktif == 'y') {
+        //     IndikatorKinerja::where('ik_is_aktif', 'y')
+        //         ->where('ik_id', '!=', $indikatorkinerja->ik_id)
+        //         ->update(['ik_is_aktif' => 'n']);
+        // }
 
 
         if ($request) {

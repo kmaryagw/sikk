@@ -126,7 +126,15 @@
             @endif --}}
 
             {{-- Target Capaian --}}
-            @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi')
+            @if (Auth::user()->role == 'prodi')
+            <li class="{{ $type_menu === 'targetcapaian' ? 'active' : '' }}">
+                <a class="nav-link" href="{{ url('targetcapaianprodi') }}">
+                    <i class="fa-solid fa-award"></i> 
+                    <span>Target Capaian</span>
+                </a>
+            </li>
+            @endif
+            @if (Auth::user()->role == 'admin')
             <li class="{{ $type_menu === 'targetcapaian' ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('targetcapaian') }}">
                     <i class="fa-solid fa-award"></i> 

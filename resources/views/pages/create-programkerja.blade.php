@@ -95,7 +95,7 @@
                                         <!-- Kolom Kanan -->
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label>Indikator Kinerja</label>
+                                                <label>Indikator Kinerja (boleh lebih dari 1 indikator)</label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
                                                     </div>

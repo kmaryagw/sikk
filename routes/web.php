@@ -27,6 +27,7 @@ use App\Http\Controllers\SuratKlasifikasiLingkupController;
 use App\Http\Controllers\SuratKlasifikasiPerihalController;
 use App\Http\Controllers\TahunController;
 use App\Http\Controllers\TargetCapaianController;
+use App\Http\Controllers\TargetCapaianProdiController;
 use App\Http\Controllers\UserController;
 use App\Models\SuratKlasifikasiFungsi;
 use App\Models\SuratKlasifikasiLingkup;
@@ -50,6 +51,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('targetcapaian', TargetCapaianController::class);
     Route::resource('programkerja', ProgramKerjaController::class);
     Route::resource('standar', StandarController::class);
+
+    Route::resource('targetcapaianprodi', TargetCapaianProdiController::class);
+
 
     // Route untuk Profil
     Route::get('/profile', [UserController::class, 'profile'])->name('profile')->middleware('auth');
