@@ -54,7 +54,7 @@ Route::middleware('auth')->group(function () {
 
     // Route untuk Profil
     Route::get('/profile', [UserController::class, 'profile'])->name('profile')->middleware('auth');
-Route::put('/profile/update', [UserController::class, 'updateProfile'])->name('profile.update');
+    Route::put('/profile/update', [UserController::class, 'updateProfile'])->name('profile.update');
     Route::put('/profile/update-password', [UserController::class, 'updatePassword'])->name('profile.update-password');
     
     Route::get('/indikatorkinerja/template', [IndikatorKinerjaController::class, 'downloadTemplate'])->name('indikatorkinerja.template');
