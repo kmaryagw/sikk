@@ -22,8 +22,10 @@ class SuratKlasifikasiPerihalController extends Controller
         $q = $request->query('q');
         $perihals = SuratKlasifikasiPerihal::with('fungsi')
             ->where('skp_nama', 'like', '%' . $q . '%')
-            ->orderBy('skp_nama', 'asc')
-            ->get();
+            ->orderBy('skf_id', 'asc')
+            ->paginate(10)
+            ->withQueryString();
+            // ->get();
     
         return view('pages.index-surat-klasifikasi-perihal', [
             'title' => $title,
@@ -60,6 +62,7 @@ class SuratKlasifikasiPerihalController extends Controller
     {
         $request->validate([
             'skp_nama' => 'required|string|max:100',
+            'skp_kode' => 'nullable|string|max:50',
             'skp_aktif' => 'required|in:y,n',
             'skf_id' => 'required|string|max:50',
         ]);
@@ -72,6 +75,7 @@ class SuratKlasifikasiPerihalController extends Controller
         $suratperihal = new SuratKlasifikasiPerihal();
         $suratperihal->skp_id = $skp_id;
         $suratperihal->skp_nama = $request->skp_nama;
+        $suratperihal->skp_kode = $request->skp_kode;
         $suratperihal->skp_aktif = $request->skp_aktif;
         $suratperihal->skf_id = $request->skf_id;
 
@@ -108,11 +112,13 @@ class SuratKlasifikasiPerihalController extends Controller
     {
         $request->validate([
             'skp_nama' => 'required|string|max:100',
+            'skp_kode' => 'nullable|string|max:50',
             'skp_aktif' => 'required|in:y,n',
             'skf_id' => 'required|string|max:50',
         ]);
 
         $suratperihal->skp_nama = $request->skp_nama;
+        $suratperihal->skp_kode = $request->skp_kode;
         $suratperihal->skp_aktif = $request->skp_aktif;
         $suratperihal->skf_id = $request->skf_id;
         

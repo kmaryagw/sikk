@@ -146,12 +146,12 @@ class TargetCapaianController extends Controller
     }
 
     public function edit(target_indikator $targetcapaian)
-    {
-        $title = 'Edit Target Capaian';
-        
-        $indikatorkinerjautamas = IndikatorKinerja::orderBy('ik_nama')->get();
-        $prodis = program_studi::orderBy('nama_prodi')->get();
-        $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
+{
+    $title = 'Edit Target Capaian';
+
+    $indikatorkinerjautamas = IndikatorKinerja::orderBy('ik_nama')->get();
+    $prodis = program_studi::orderBy('nama_prodi')->get();
+    $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
 
         $loggedInUser = Auth::user();
             $userRole = $loggedInUser->role;

@@ -25,19 +25,19 @@
                     <div class="dropdown-title">
                         @if (Auth::user()->role == 'admin')
                             <div class="has-icon">
-                                <i class="fas fa-user"></i> {{ Auth::user()->role }}
+                                {{ Auth::user()->role }}
                             </div>
                         @elseif (Auth::user()->role == 'prodi' && Auth::user()->programStudi)
                             <div class="has-icon">
-                                <i class="fas fa-building-columns"></i> {{ Auth::user()->programStudi->nama_prodi }}
+                                {{ Auth::user()->programStudi->nama_prodi }}
                             </div>
                         @elseif (Auth::user()->role == 'unit kerja' && Auth::user()->unitKerja)
                             <div class="has-icon">
-                                <i class="fas fa-briefcase"></i> {{ Auth::user()->unitKerja->unit_nama }}
+                                {{ Auth::user()->unitKerja->unit_nama }}
                             </div>
                         @elseif (Auth::user()->role == 'fakultas' && Auth::user()->fakultas)
                             <div class="has-icon">
-                                <i class="fas fa-school"></i> {{ Auth::user()->fakultas->nama_fakultas }}
+                                {{ Auth::user()->fakultas->nama_fakultas }}
                             </div>
                         @endif
                     </div>

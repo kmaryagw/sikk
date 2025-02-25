@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('oj_id', 50)->primary();
             $table->string('oj_nama', 100);
             $table->enum('oj_mengeluarkan_nomor', ['y', 'n']);
-            $table->string('oj_kode', 50);
+            $table->string('oj_kode', 50)->nullable();
             $table->string('oj_induk', 50)->nullable(); 
             $table->timestamps();
 

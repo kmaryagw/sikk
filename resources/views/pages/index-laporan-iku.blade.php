@@ -109,6 +109,12 @@
                                 <td>{{ $targetcapaian->ti_keterangan }}</td>
                             </tr>
                         @endforeach
+
+                        @if ($target_capaians->isEmpty())
+                                <tr>
+                                    <td colspan="6" class="text-center">Tidak ada data</td>
+                                </tr>
+                            @endif
                     </tbody>
                 </table>
             </div>

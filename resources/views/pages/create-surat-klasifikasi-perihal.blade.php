@@ -50,6 +50,18 @@
                                     </div>
 
                                     <div class="form-group">
+                                        <label for="skp_kode">Kode</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-code"></i>
+                                                </div>
+                                            </div>
+                                            <input class="form-control" type="text" name="skp_kode" id="skp_kode" value="{{ old('skp_kode') }}"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
                                         <label for="skp_aktif">Aktif</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">

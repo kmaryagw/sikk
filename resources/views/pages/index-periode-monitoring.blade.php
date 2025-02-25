@@ -75,6 +75,12 @@
                                 </td>
                             </tr>
                             @endforeach
+
+                            @if ($perides->isEmpty())
+                                <tr>
+                                    <td colspan="6" class="text-center">Tidak ada data</td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>

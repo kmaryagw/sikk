@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('surat_klasifikasi_lingkup', function (Blueprint $table) {
             $table->string('skl_id', 50)->primary();  
             $table->string('skl_nama', 100);
-            $table->string('skl_kode', 50);
+            $table->string('skl_kode', 50)->nullable();
             $table->enum('skl_aktif', ['y', 'n']);
             $table->string('skp_id', 50);
             $table->timestamps();

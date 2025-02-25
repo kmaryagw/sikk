@@ -61,6 +61,12 @@
                                     </td>
                                 </tr>
                             @endforeach
+                            
+                            @if ($monitoringikus->isEmpty())
+                                <tr>
+                                    <td colspan="4" class="text-center">Tidak ada data</td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>

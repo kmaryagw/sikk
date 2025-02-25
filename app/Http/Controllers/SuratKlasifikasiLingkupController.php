@@ -22,8 +22,10 @@ class SuratKlasifikasiLingkupController extends Controller
         $q = $request->query('q');
         $lingkups = SuratKlasifikasiLingkup::with('perihal')
             ->where('skl_nama', 'like', '%' . $q . '%')
-            ->orderBy('skl_nama', 'asc')
-            ->get();
+            ->orderBy('skp_id', 'asc')
+            ->paginate(10)
+            ->withQueryString();
+            // ->get();
     
         return view('pages.index-surat-klasifikasi-lingkup', [
             'title' => $title,
@@ -60,7 +62,7 @@ class SuratKlasifikasiLingkupController extends Controller
     {
         $request->validate([
             'skl_nama' => 'required|string|max:100',
-            'skl_kode' => 'required|string|max:50',
+            'skl_kode' => 'nullable|string|max:50',
             'skl_aktif' => 'required|in:y,n',
             'skp_id' => 'required|string|max:50',
         ]);
@@ -110,7 +112,7 @@ class SuratKlasifikasiLingkupController extends Controller
     {
         $request->validate([
             'skl_nama' => 'required|string|max:100',
-            'skl_kode' => 'required|string|max:50',
+            'skl_kode' => 'nullable|string|max:50',
             'skl_aktif' => 'required|in:y,n',
             'skp_id' => 'required|string|max:50',
         ]);

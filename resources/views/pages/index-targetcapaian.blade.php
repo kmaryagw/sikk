@@ -137,6 +137,12 @@
                                     @endif
                                 </tr>
                             @endforeach
+
+                            @if ($target_capaians->isEmpty())
+                                <tr>
+                                    <td colspan="10" class="text-center">Tidak ada data</td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>

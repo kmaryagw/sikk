@@ -45,7 +45,7 @@
                         <a class="nav-link" href="{{ url('datanomorsurat') }}"><i class="fas fa-list-ol"></i>Data Nomor Surat</a>
                     </li>
                     <li class="{{ Request::is('menungguvalidasi') || (isset($sub_menu) && $sub_menu === 'menungguvalidasi') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ url('menungguvalidasi') }}"><i class="fas fa-hourglass-half"></i>Menunggu Validasi</a>
+                        <a class="nav-link" href="{{ url('menungguvalidasi') }}"><i class="fas fa-hourglass-half"></i>Perlu Validasi</a>
                     </li>
                 </ul>
             </li>

@@ -16,11 +16,12 @@ return new class extends Migration
             $table->string('unit_id', 50);
             $table->string('skl_id', 50);
             $table->string('oj_id', 50);
-            $table->string('sn_nomor', 50);
+            $table->integer('sn_nomor_urut');
+            $table->string('sn_nomor', 50)->nullable();
             $table->date('sn_tanggal');
             $table->text('sn_perihal');
             $table->text('sn_keterangan');
-            $table->enum('sn_status', ['draft', 'ajukan', 'validasi']);
+            $table->enum('sn_status', ['draft', 'ajukan', 'validasi', 'revisi']);
             $table->timestamps();
 
             $table->foreign('unit_id')->references('unit_id')->on('unit_kerja')->onDelete('cascade')->onUpdate('cascade');

@@ -73,7 +73,7 @@
                                             <select class="form-control" id="oj_mengeluarkan_nomor" name="oj_mengeluarkan_nomor">
                                                 @foreach ($nomors as $nomor)
                                                     <option value="{{ $nomor }}" 
-                                                        {{ old('oj_mengeluarkan_nomor', $organisasijabatan->nomor) == $nomor ? 'selected' : '' }}>
+                                                        {{ old('oj_mengeluarkan_nomor', $organisasijabatan->oj_mengeluarkan_nomor) == $nomor ? 'selected' : '' }}>
                                                         {{ $nomor == 'y' ? 'Ya' : 'Tidak' }}
                                                     </option>
                                                 @endforeach

@@ -122,6 +122,12 @@
                                     @endif
                                 </tr>
                             @endforeach
+
+                            @if ($indikatorkinerjas->isEmpty())
+                                <tr>
+                                    <td colspan="9" class="text-center">Tidak ada data</td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>
