@@ -49,61 +49,49 @@ class IndikatorKinerjaController extends Controller
     }
 
     public function import(Request $request)
-    {
-        // Validasi file
-        $request->validate([
-            'file' => 'required|mimes:xlsx,csv',
-        ]);
+{
+    $request->validate([
+        'file' => 'required|mimes:xlsx'
+    ]);
 
-        // Baca file Excel
-        $data = Excel::toArray([], $request->file('file'));
+    try {
+        $file = $request->file('file');
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getPathname());
+        $sheet = $spreadsheet->getActiveSheet();
+        $rows = $sheet->toArray();
 
-        // Pastikan data tidak kosong
-        if (empty($data) || empty($data[0])) {
-            return redirect()->back()->with('error', 'File tidak boleh kosong atau format tidak sesuai.');
-        }
-
-        // Debugging: Periksa struktur data yang terbaca
-        // dd($data[0]); 
-
-        // Pastikan data berbentuk array dengan key yang benar
-        if (!isset($data[0][1])) {
-            return redirect()->back()->with('error', 'Format file tidak sesuai, pastikan header berada di baris pertama.');
-        }
-
-        // Jika perlu skip header, gunakan array_slice
-        $rows = array_slice($data[0], 1);
+        // Lewati baris pertama jika itu header
+        array_shift($rows);
 
         foreach ($rows as $row) {
-            // Pastikan data tidak ada yang kosong dengan validasi array indeks
-            if (
-                !isset($row[0]) || !isset($row[1]) || !isset($row[2]) || !isset($row[3]) || 
-                !isset($row[4]) || !isset($row[5]) || !isset($row[6])
-            ) {
-                return redirect()->back()->with('error', 'Pastikan semua kolom terisi dengan benar.');
+            $stdNama = trim($row[2]); // Ambil `std_nama` dari kolom ke-3
+            $standar = \App\Models\Standar::where('std_nama', $stdNama)->first();
+
+            if (!$standar) {
+                return back()->with('error', "$stdNama tidak ditemukan.");
             }
 
-            // Buat ID yang sesuai dengan store()
-            $customPrefix = 'IK';
-            $timestamp = time();
-            $md5Hash = md5($timestamp);
-            $ik_id = $customPrefix . strtoupper(substr($md5Hash, 0, 8));
-
-            // Simpan ke database
             IndikatorKinerja::create([
-                'ik_id' => $ik_id,
-                'ik_kode' => $row[0],  // Menggunakan indeks angka karena array slice
-                'ik_nama' => $row[1],
-                'std_id' => $row[2],
-                'ik_jenis' => strtoupper($row[3]), // Pastikan huruf besar sesuai enum ('IKU'/'IKT')
-                'ik_baseline' => $row[4],
-                'ik_is_aktif' => strtolower($row[5]) === 'y' ? 'y' : 'n', // Validasi status aktif
-                'ik_ketercapaian' => $row[6],
+                'ik_id' => Str::uuid()->toString(),
+                'ik_kode' => trim($row[0]), 
+                'ik_nama' => trim($row[1]), 
+                'std_id' => $standar->std_id, // Menggunakan `std_id` dari hasil pencarian
+                'ik_jenis' => trim($row[3]),
+                'ik_ketercapaian' => trim($row[4]),
+                'ik_baseline' => trim($row[5]),
+                'ik_is_aktif' => strtolower(trim($row[6])) == 'y' ? 'y' : 'n',
             ]);
         }
 
-        return redirect()->back()->with('success', 'Data berhasil diimport');
+        return back()->with('success', 'Data berhasil diimport!');
+    } catch (\Exception $e) {
+        return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
     }
+}
+
+
+
+
 
     public function downloadTemplate()
     {
