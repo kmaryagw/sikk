@@ -57,7 +57,7 @@ Route::middleware('auth')->group(function () {
 
     // Route untuk Profil
     Route::get('/profile', [UserController::class, 'profile'])->name('profile')->middleware('auth');
-Route::put('/profile/update', [UserController::class, 'updateProfile'])->name('profile.update');
+    Route::put('/profile/update', [UserController::class, 'updateProfile'])->name('profile.update');
     Route::put('/profile/update-password', [UserController::class, 'updatePassword'])->name('profile.update-password');
     
     Route::get('/indikatorkinerja/template', [IndikatorKinerjaController::class, 'downloadTemplate'])->name('indikatorkinerja.template');
@@ -102,6 +102,7 @@ Route::put('/profile/update', [UserController::class, 'updateProfile'])->name('p
     Route::resource('datanomorsurat', DataNomorSuratController::class);
     Route::resource('menungguvalidasi', MenungguValidasiController::class);
     Route::post('/menungguvalidasi/{id}/valid', [MenungguValidasiController::class, 'validateSuratAdmin'])->name('menungguvalidasi.valid');
+    Route::post('/menungguvalidasi/{id}/revisi', [MenungguValidasiController::class, 'revisiSurat'])->name('menungguvalidasi.revisi');
 
     //NomorSurat
     Route::resource('nomorsurat', NomorSuratController::class);

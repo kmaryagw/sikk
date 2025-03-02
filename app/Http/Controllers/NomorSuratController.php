@@ -51,6 +51,7 @@ class NomorSuratController extends Controller
 
         $title = 'Tambah Nomor Surat';
         $organisasiJabatans = OrganisasiJabatan::where('oj_mengeluarkan_nomor', 'y')
+            ->where('oj_status', 'y')
             ->with('parent.parent')
             ->get();
         $units = UnitKerja::where('unit_kerja', 'y')->get();        
@@ -106,6 +107,7 @@ class NomorSuratController extends Controller
             'sn_perihal' => $request->sn_perihal,
             'sn_keterangan' => $request->sn_keterangan,
             'sn_status' => 'draft',
+            'sn_revisi' => 'null',
         ]);
     
         Alert::success('Sukses', 'Data Berhasil Ditambah');
@@ -223,7 +225,7 @@ class NomorSuratController extends Controller
     public function ajukanData($id)
     {
         $suratNomor = SuratNomor::findOrFail($id);
-        if ($suratNomor->sn_status == 'draft') {
+        if ($suratNomor->sn_status == 'draft' || $suratNomor->sn_status == 'revisi') {
             $suratNomor->update(['sn_status' => 'ajukan']);
         }
         return response()->json([
@@ -231,47 +233,4 @@ class NomorSuratController extends Controller
             'message' => 'Data berhasil diajukan.'
         ]);
     }
-
-    // public function indexAjukan(Request $request)
-    // {
-    //     $user = Auth::user();
-
-    //         if ($user->role !== 'admin') {
-    //             abort(403, 'Unauthorized action.');
-    //         }
-    
-    //     $title = 'Data Nomor Surat yang perlu ditinjau';
-    //     $q = $request->query('q');
-    //     $ajukans = SuratNomor::with(['unitKerja', 'lingkup', 'organisasiJabatan', 'OrganisasiJabatan.parent'])
-    //         ->where('sn_status', 'ajukan')
-    //         ->orderByRaw("STR_TO_DATE(sn_tanggal, '%Y-%m-%d') ASC")
-    //         ->orderByRaw("CAST(SUBSTRING_INDEX(sn_nomor, '/', 1) AS UNSIGNED) ASC")
-    //         ->get();
-    
-    //     return view('pages.index-menunggu-validasi', [
-    //         'title' => $title,
-    //         'ajukans' => $ajukans,
-    //         'q' => $q,
-    //         'type_menu' => 'surat',
-    //         'sub_menu' => 'menungguvalidasi',
-    //     ]);
-    // }
-
-    // public function validateSuratAdmin($id)
-    // {
-    //     $suratNomor = SuratNomor::findOrFail($id);
-
-    //     if ($suratNomor->sn_status == 'ajukan') {
-    //         $nomorSurat = $this->generateNomorSurat($suratNomor);
-    //         $suratNomor->update([
-    //             'sn_nomor' => $nomorSurat,
-    //             'sn_status' => 'validasi'
-    //         ]);
-    //     }
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'Data berhasil divalidasi.'
-    //     ]);
-    // }
 }

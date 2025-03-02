@@ -40,6 +40,7 @@
                                 <th>Unit Kerja</th>
                                 <th>Keterangan</th>
                                 <th>Status</th>
+                                <th>Revisi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -65,6 +66,7 @@
                                         <span class="badge bg-success text-light"><i class="fa-solid fa-check-circle"></i> Valid</span>
                                     @endif
                                 </td>
+                                <td>{{ $surat->sn_revisi ?? '-' }}</td>
                                 
                             </tr>
                             @endforeach

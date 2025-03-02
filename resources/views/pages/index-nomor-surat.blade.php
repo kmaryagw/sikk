@@ -42,6 +42,7 @@
                                 <th>Perihal</th>
                                 <th>Keterangan</th>
                                 <th>Status</th>
+                                <th>Revisi</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -67,6 +68,7 @@
                                         <span class="badge bg-success text-light"><i class="fa-solid fa-check-circle"></i> Valid</span>
                                     @endif
                                 </td>
+                                <td>{{ $surat->sn_revisi ?? '-'}}</td>
                                 <td>
                                     @php
                                         $oj_nama_lower = strtolower($surat->organisasiJabatan->oj_nama);

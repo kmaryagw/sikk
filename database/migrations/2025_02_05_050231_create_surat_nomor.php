@@ -22,6 +22,7 @@ return new class extends Migration
             $table->text('sn_perihal');
             $table->text('sn_keterangan');
             $table->enum('sn_status', ['draft', 'ajukan', 'validasi', 'revisi']);
+            $table->text('sn_revisi');
             $table->timestamps();
 
             $table->foreign('unit_id')->references('unit_id')->on('unit_kerja')->onDelete('cascade')->onUpdate('cascade');

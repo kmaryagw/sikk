@@ -108,13 +108,13 @@
                                     </td> 
                                     @if (Auth::user()->role== 'admin')
                                     <td>
-                                        <a class="btn btn-warning btn-sm" href="{{ route('indikatorkinerja.edit', $indikatorkinerja->ik_id) }}">
+                                        <a class="btn btn-warning btn-sm mb-3 mt-3" href="{{ route('indikatorkinerja.edit', $indikatorkinerja->ik_id) }}">
                                             <i class="fa-solid fa-pen-to-square"></i> Edit
                                         </a>
                                         <form id="delete-form-{{ $indikatorkinerja->ik_id }}" method="POST" class="d-inline" action="{{ route('indikatorkinerja.destroy', $indikatorkinerja->ik_id) }}">
                                             @csrf
                                             @method('DELETE')
-                                            <button class="btn btn-danger btn-sm" onclick="confirmDelete(event, '{{ $indikatorkinerja->ik_id }}')">
+                                            <button class="btn btn-danger btn-sm mb-3 mt-3" onclick="confirmDelete(event, '{{ $indikatorkinerja->ik_id }}')">
                                                 <i class="fa-solid fa-trash"></i> Hapus
                                             </button>
                                         </form>

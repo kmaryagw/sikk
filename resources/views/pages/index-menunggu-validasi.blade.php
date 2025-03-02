@@ -40,6 +40,7 @@
                                 <th>Unit Kerja</th>
                                 <th>Keterangan</th>
                                 <th>Status</th>
+                                <th>Revisi Sebelumnya</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -66,11 +67,11 @@
                                         <span class="badge bg-success text-light"><i class="fa-solid fa-check-circle"></i> Valid</span>
                                     @endif
                                 </td>
+                                <td>{{ $ajukan->sn_revisi }}</td>
                                 <td>
                                     @if($ajukan->sn_status == 'ajukan')
                                         <button class="btn btn-sm btn-success mt-2 mb-2" onclick="validasiSurat('{{ $ajukan->sn_id }}')"><i class="fa-solid fa-lock"></i> Valid</button>
-                                        {{-- <button class="btn btn-sm btn-success mt-2 mb-2" onclick="revisiSurat('{{ $ajukan->sn_id }}')"><i class="fa-solid fa-clipboard-list"></i> Valid</button> --}}
-                                        <button class="btn btn-sm btn-danger mt-2 mb-2" onclick="#"><i class="fa-solid fa-clipboard-list"></i> Revisi</button>
+                                        <button class="btn btn-sm btn-danger mt-2 mb-2" onclick="openModalRevisi('{{ $ajukan->sn_id }}')"><i class="fa-solid fa-clipboard-list"></i> Revisi</button>                                        
                                     @else
                                         <button class="btn btn-sm btn-secondary mt-2 mb-2" disabled><i class="fa-solid fa-check"></i> Sudah Valid</button>
                                     @endif
@@ -96,6 +97,29 @@
             </div>
         </section>
     </div>
+
+    <!-- Modal Revisi -->
+    <div class="modal fade" id="modalRevisi" tabindex="-1" aria-labelledby="modalRevisiLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalRevisiLabel">Masukkan Keterangan Revisi</h5>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><i class="fa-solid fa-close"></i></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formRevisi">
+                        @csrf
+                        <input type="hidden" id="sn_id">
+                        <div class="mb-3">
+                            <label for="sn_revisi" class="form-label">Revisi</label>
+                            <textarea class="form-control" id="sn_revisi" name="sn_revisi" style="min-height: 150px;"" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Kirim</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -106,6 +130,8 @@
     <script src="{{ asset('library/jqvmap/dist/maps/jquery.vmap.world.js') }}"></script>
     <script src="{{ asset('library/summernote/dist/summernote-bs4.min.js') }}"></script>
     <script src="{{ asset('library/chocolat/dist/js/jquery.chocolat.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 
     <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/index-0.js') }}"></script>
@@ -158,6 +184,42 @@
             }
         });
     }
+
+    function openModalRevisi(id) {
+        document.getElementById("sn_id").value = id;
+        $('#modalRevisi').modal('show');
+    }
+
+    document.getElementById("formRevisi").addEventListener("submit", function(event) {
+        event.preventDefault();
+        
+        let id = document.getElementById("sn_id").value;
+        let sn_revisi = document.getElementById("sn_revisi").value;
+        let csrfToken = document.querySelector('input[name="_token"]').value;
+
+        fetch(`/menungguvalidasi/${id}/revisi`, {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": csrfToken,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ sn_revisi: sn_revisi }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire("Berhasil!", data.message, "success").then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire("Gagal!", "Terjadi kesalahan saat mengirim revisi.", "error");
+            }
+        })
+        .catch(error => {
+            Swal.fire("Error!", "Terjadi kesalahan dalam koneksi.", "error");
+            console.error("Error:", error);
+        });
+    });
 </script>
 
 @endpush

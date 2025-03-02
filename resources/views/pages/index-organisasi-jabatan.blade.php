@@ -38,6 +38,7 @@
                                 <th>Kode</th>
                                 <th>Mengeluarkan Nomor</th>
                                 <th>Induk</th>
+                                <th>Status Aktif</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -72,12 +73,27 @@
 
         $html .= "</td>
                     <td class='text-center'>".($organisasi->parent ? $organisasi->parent->oj_nama : '-')."</td>
+                    <td class='text-center'>";
+
+        if (strtolower($organisasi->oj_status) === 'y') {
+            $html .= "<span class='text-success'><i class='fa-solid fa-check-circle'></i> Ya</span>";
+        } elseif (strtolower($organisasi->oj_status) === 'n') {
+            $html .= "<span class='text-danger'><i class='fa-solid fa-times-circle'></i> Tidak</span>";
+        } else {
+            $html .= $organisasi->oj_status;
+        }
+
+        $html .= "</td>
                     <td class='text-center'>
-                        <a class='btn btn-warning btn-sm mb-2 mt-2' href='".route('organisasijabatan.edit', $organisasi->oj_id)."'><i class='fa-solid fa-pen-to-square'></i> Ubah </a>
+                        <a class='btn btn-warning btn-sm mb-2 mt-2' href='".route('organisasijabatan.edit', $organisasi->oj_id)."'>
+                            <i class='fa-solid fa-pen-to-square'></i> Ubah
+                        </a>
                         <form id='delete-form-{$organisasi->oj_id}' method='POST' class='d-inline' action='".route('organisasijabatan.destroy', $organisasi->oj_id)."'>
                             ".csrf_field()."
                             ".method_field('DELETE')."
-                            <button class='btn btn-danger btn-sm' onclick='confirmDelete(event, \"{$organisasi->oj_id}\")'><i class='fa-solid fa-trash'></i> Hapus</button>
+                            <button class='btn btn-danger btn-sm' onclick='confirmDelete(event, \"{$organisasi->oj_id}\")'>
+                                <i class='fa-solid fa-trash'></i> Hapus
+                            </button>
                         </form>
                     </td>
                 </tr>";

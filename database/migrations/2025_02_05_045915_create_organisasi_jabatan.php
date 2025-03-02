@@ -17,6 +17,7 @@ return new class extends Migration
             $table->enum('oj_mengeluarkan_nomor', ['y', 'n']);
             $table->string('oj_kode', 50)->nullable();
             $table->string('oj_induk', 50)->nullable(); 
+            $table->enum('oj_status', ['y', 'n']);
             $table->timestamps();
 
             $table->foreign('oj_induk')->references('oj_id')->on('organisasi_jabatan')->onDelete('cascade');

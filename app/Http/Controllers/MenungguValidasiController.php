@@ -44,13 +44,35 @@ class MenungguValidasiController extends NomorSuratController
             $nomorSurat = $this->generateNomorSurat($suratNomor);
             $suratNomor->update([
                 'sn_nomor' => $nomorSurat,
-                'sn_status' => 'validasi'
+                'sn_status' => 'validasi',
+                'sn_revisi' => null
             ]);
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Data berhasil divalidasi.'
+        ]);
+    }
+
+    public function revisiSurat(Request $request, $id)
+    {
+        $request->validate([
+            'sn_revisi' => 'required',
+        ]);
+        
+        $suratNomor = SuratNomor::findOrFail($id);
+
+        if ($suratNomor->sn_status == 'ajukan') {
+            $suratNomor->update([
+                'sn_status' => 'revisi',
+                'sn_revisi' => $request->sn_revisi,
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Revisi surat berhasil.'
         ]);
     }
 }

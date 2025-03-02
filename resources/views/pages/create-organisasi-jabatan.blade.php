@@ -99,6 +99,24 @@
                                     </div>
 
                                     <div class="form-group">
+                                        <label for="oj_status">Status Aktif</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-toggle-on"></i>
+                                                </div>
+                                            </div>
+                                            <select class="form-control" id="oj_status" name="oj_status">
+                                                @foreach ($statuses as $status)
+                                                    <option value="{{ $status }}" {{ old('oj_status', 'y') == $status ? 'selected' : '' }}>
+                                                        {{ $status == 'y' ? 'Ya' : 'Tidak' }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Simpan</button>
                                         <a href="{{ url('organisasijabatan') }}" class="btn btn-danger">Kembali</a>
                                     </div>
