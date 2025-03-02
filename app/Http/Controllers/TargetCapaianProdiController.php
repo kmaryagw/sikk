@@ -163,7 +163,8 @@ class TargetCapaianProdiController extends Controller
             target_indikator::updateOrCreate(
                 [
                     'ik_id'=>$data["ik_id"],
-                    'th_id'=>$th_id
+                    'th_id'=>$th_id,
+                    'prodi_id'=>$prodi_id
                 ], 
                 [
                     'ti_id'=>$ti_id,
