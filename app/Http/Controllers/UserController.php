@@ -286,11 +286,10 @@ public function updateProfile(Request $request)
         'email' => 'nullable|email|max:255|unique:users,email,' . $user->id_user . ',id_user',
     ]);
 
-    $user->update([
-        'username' => $request->username,
-        'nama' => $request->nama,
-        'email' => $request->email,
-    ]);
+    $user->username = $request->username;
+    $user->nama = $request->nama;
+    $user->email = $request->email;
+    $user->save();
 
     return redirect()->route('profile')->with('success', 'Profil berhasil diperbarui');
 }
@@ -317,9 +316,6 @@ public function updatePassword(Request $request)
 }
 
 
-
-
-    
     public function destroy(user $user)
     {
         $user->delete();

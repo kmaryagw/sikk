@@ -9,51 +9,48 @@
         </ul>  
     </form>
     <ul class="navbar-nav navbar-right">
-            <li class="dropdown"><a href="#"
-                    data-toggle="dropdown"
-                    class="nav-link dropdown-toggle nav-link-lg nav-link-user">
-                    <img alt="image"
-                        src="{{ asset('img/avatar/avatar-1.png') }}"
-                        class="rounded-circle mr-1">
-                    <!-- Tampilkan nama pengguna yang sedang login -->
-                    <div class="d-sm-none d-lg-inline-block">
-                        Hi, {{ Auth::user()->username }} 
-                        <span class="text-info">({{ Auth::user()->role }})</span>
-                    </div>
-                </a>
-                <div class="dropdown-menu dropdown-menu-right">
-                    <div class="dropdown-title">
-                        @if (Auth::user()->role == 'admin')
-                            <div class="has-icon">
-                                {{ Auth::user()->role }}
-                            </div>
-                        @elseif (Auth::user()->role == 'prodi' && Auth::user()->programStudi)
-                            <div class="has-icon">
-                                {{ Auth::user()->programStudi->nama_prodi }}
-                            </div>
-                        @elseif (Auth::user()->role == 'unit kerja' && Auth::user()->unitKerja)
-                            <div class="has-icon">
-                                {{ Auth::user()->unitKerja->unit_nama }}
-                            </div>
-                        @elseif (Auth::user()->role == 'fakultas' && Auth::user()->fakultas)
-                            <div class="has-icon">
-                                {{ Auth::user()->fakultas->nama_fakultas }}
-                            </div>
-                        @endif
-                    </div>
-                    <a href="{{ route('profile') }}" class="dropdown-item has-icon">
-                        <i class="fas fa-user"></i> Profil
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="{{ route('logout') }}"
-                        class="dropdown-item has-icon text-danger"
-                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </a>
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                        @csrf
-                    </form>
+        <li class="dropdown">
+            <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
+                <img alt="image" src="{{ asset('img/avatar/avatar-1.png') }}" class="rounded-circle mr-1">
+                <!-- Menampilkan nama jika ada, jika tidak gunakan username -->
+                <div class="d-sm-none d-lg-inline-block">
+                    Hi, {{ Auth::user()->nama ?? Auth::user()->username }} 
+                    <span class="text-info">({{ Auth::user()->role }})</span>
                 </div>
-            </li>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right">
+                <div class="dropdown-title">
+                    @if (Auth::user()->role == 'admin')
+                        <div class="has-icon">
+                            {{ Auth::user()->role }}
+                        </div>
+                    @elseif (Auth::user()->role == 'prodi' && Auth::user()->programStudi)
+                        <div class="has-icon">
+                            {{ Auth::user()->programStudi->nama_prodi }}
+                        </div>
+                    @elseif (Auth::user()->role == 'unit kerja' && Auth::user()->unitKerja)
+                        <div class="has-icon">
+                            {{ Auth::user()->unitKerja->unit_nama }}
+                        </div>
+                    @elseif (Auth::user()->role == 'fakultas' && Auth::user()->fakultas)
+                        <div class="has-icon">
+                            {{ Auth::user()->fakultas->nama_fakultas }}
+                        </div>
+                    @endif
+                </div>
+                <a href="{{ route('profile') }}" class="dropdown-item has-icon">
+                    <i class="fas fa-user"></i> Profil
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="{{ route('logout') }}" class="dropdown-item has-icon text-danger"
+                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
+            </div>
+        </li>
+        
     </ul>
 </nav>
