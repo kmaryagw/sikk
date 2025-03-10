@@ -11,14 +11,15 @@ use RealRashid\SweetAlert\Facades\Alert;
 
 class TahunController extends Controller
 {
+    public function __construct()
+    {
+        if (Auth::check() && Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized access');
+        }
+    }
+    
     public function index(Request $request)
     {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-        
         $title = 'Data Tahun Kerja';
         $q = $request->query('q');
         $tahuns = tahun_kerja::where('th_tahun', 'like', '%' . $q . '%')
@@ -40,12 +41,6 @@ class TahunController extends Controller
 
     public function create()
     {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-        
         $title = 'Tambah Tahun';
         
         $th_is_aktifs = ['y', 'n'];
@@ -92,12 +87,6 @@ class TahunController extends Controller
 
     public function edit(tahun_kerja $tahun)
     {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-        
         $title = 'Ubah tahun';
         $th_is_aktifs = ['y', 'n'];
         $renstras = Renstra::orderBy('ren_nama', 'asc')->get();

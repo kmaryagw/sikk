@@ -16,9 +16,9 @@ return new class extends Migration
             $table->string('mtid_id', 50);  
             $table->string('ti_id', 50);
             $table->string('hmi_target', 100);
-            $table->string('hmi_capaian', 100);
-            $table->string('hmi_keterangan');
-            $table->enum('hmi_status', ['tercapai', 'tidak tercapai', 'tidak terlaksana']);
+            $table->string('hmi_capaian', 100)->nullable();
+            $table->string('hmi_keterangan')->nullable();
+            $table->enum('hmi_status', ['tercapai', 'tidak tercapai', 'tidak terlaksana'])->nullable();
             $table->string('hmi_url', 255)->nullable();
             $table->foreign('mtid_id')->references('mtid_id')->on('monitoring_iku_detail')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('ti_id')->references('ti_id')->on('target_indikator')->onDelete('cascade')->onUpdate('cascade');  

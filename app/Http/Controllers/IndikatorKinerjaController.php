@@ -16,14 +16,15 @@ use Illuminate\Support\Str;
 
 class IndikatorKinerjaController extends Controller
 {
-    public function index(Request $request)
+    public function __construct()
     {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
+        if (Auth::check() && Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized access');
         }
-        
+    }
+    
+    public function index(Request $request)
+    {   
         $title = 'Data Indikator Kinerja Utama';
         $q = $request->query('q');
 
@@ -49,48 +50,45 @@ class IndikatorKinerjaController extends Controller
     }
 
     public function import(Request $request)
-{
-    $request->validate([
-        'file' => 'required|mimes:xlsx'
-    ]);
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx'
+        ]);
 
-    try {
-        $file = $request->file('file');
-        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getPathname());
-        $sheet = $spreadsheet->getActiveSheet();
-        $rows = $sheet->toArray();
+        try {
+            $file = $request->file('file');
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getPathname());
+            $sheet = $spreadsheet->getActiveSheet();
+            $rows = $sheet->toArray();
 
-        // Lewati baris pertama jika itu header
-        array_shift($rows);
+            // Lewati baris pertama jika itu header
+            array_shift($rows);
 
-        foreach ($rows as $row) {
-            $stdNama = trim($row[2]); // Ambil `std_nama` dari kolom ke-3
-            $standar = \App\Models\Standar::where('std_nama', $stdNama)->first();
+            foreach ($rows as $row) {
+                $stdNama = trim($row[2]); // Ambil `std_nama` dari kolom ke-3
+                $standar = \App\Models\Standar::where('std_nama', $stdNama)->first();
 
-            if (!$standar) {
-                return back()->with('error', "$stdNama tidak ditemukan.");
+                if (!$standar) {
+                    return back()->with('error', "$stdNama tidak ditemukan.");
+                }
+
+                IndikatorKinerja::create([
+                    'ik_id' => Str::uuid()->toString(),
+                    'ik_kode' => trim($row[0]), 
+                    'ik_nama' => trim($row[1]), 
+                    'std_id' => $standar->std_id, // Menggunakan `std_id` dari hasil pencarian
+                    'ik_jenis' => trim($row[3]),
+                    'ik_ketercapaian' => trim($row[4]),
+                    'ik_baseline' => trim($row[5]),
+                    'ik_is_aktif' => strtolower(trim($row[6])) == 'y' ? 'y' : 'n',
+                ]);
             }
 
-            IndikatorKinerja::create([
-                'ik_id' => Str::uuid()->toString(),
-                'ik_kode' => trim($row[0]), 
-                'ik_nama' => trim($row[1]), 
-                'std_id' => $standar->std_id, // Menggunakan `std_id` dari hasil pencarian
-                'ik_jenis' => trim($row[3]),
-                'ik_ketercapaian' => trim($row[4]),
-                'ik_baseline' => trim($row[5]),
-                'ik_is_aktif' => strtolower(trim($row[6])) == 'y' ? 'y' : 'n',
-            ]);
+            return back()->with('success', 'Data berhasil diimport!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-
-        return back()->with('success', 'Data berhasil diimport!');
-    } catch (\Exception $e) {
-        return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
     }
-}
-
-
-
 
 
     public function downloadTemplate()
@@ -99,17 +97,11 @@ class IndikatorKinerjaController extends Controller
     }
 
     public function create()
-    {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-        
+    {   
         $title = 'Tambah Indikator Kinerja Utama';
         $jeniss = ['IKU', 'IKT'];
         $ik_is_aktifs = ['y', 'n'];
-        $ketercapaians = ['nilai', 'persentase', 'ketersediaan'];
+        $ketercapaians = ['nilai', 'persentase', 'ketersediaan', 'rasio'];
         $standar = Standar::orderBy('std_nama')->get();
 
         return view('pages.create-indikatorkinerja', [
@@ -132,7 +124,7 @@ class IndikatorKinerjaController extends Controller
             'ik_jenis' => 'required|in:IKU,IKT',
             'ik_baseline' => 'required',
             'ik_is_aktif' => 'required|in:y,n',
-            'ik_ketercapaian' => 'required|in:nilai,persentase,ketersediaan',
+            'ik_ketercapaian' => 'required|in:nilai,persentase,ketersediaan,rasio',
         ];
 
         if ($request) {
@@ -141,6 +133,8 @@ class IndikatorKinerjaController extends Controller
             } elseif ($request->ik_ketercapaian == 'persentase') {
                 $validationRules['ik_baseline'] = 'required|numeric|min:0|max:100';
             } elseif ($request->ik_ketercapaian == 'ketersediaan') {
+                $validationRules['ik_baseline'] = 'required|string';
+            } elseif ($request->ik_ketercapaian == 'rasio') {
                 $validationRules['ik_baseline'] = 'required|string';
             }
         }
@@ -170,17 +164,11 @@ class IndikatorKinerjaController extends Controller
     }
 
     public function edit(IndikatorKinerja $indikatorkinerja)
-    {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-        
+    {   
         $title = 'Ubah Indikator Kinerja Utama';
         $standar = Standar::orderBy('std_nama')->get();
         $jeniss = ['IKU', 'IKT'];
-        $ketercapaians = ['nilai', 'persentase', 'ketersediaan'];
+        $ketercapaians = ['nilai', 'persentase', 'ketersediaan', 'rasio'];
         $ik_is_aktifs = ['y', 'n'];
         
         return view('pages.edit-indikatorkinerja', [
@@ -205,14 +193,8 @@ class IndikatorKinerjaController extends Controller
             'ik_baseline' => 'required',
             'ik_is_aktif' => 'required|in:y,n',
 
-            'ik_ketercapaian' => 'required|in:nilai,persentase,ketersediaan',
+            'ik_ketercapaian' => 'required|in:nilai,persentase,ketersediaan, rasio',
         ];
-
-        // if ($request->ik_is_aktif == 'y') {
-        //     IndikatorKinerja::where('ik_is_aktif', 'y')
-        //         ->where('ik_id', '!=', $indikatorkinerja->ik_id)
-        //         ->update(['ik_is_aktif' => 'n']);
-        // }
 
 
         if ($request) {
@@ -221,6 +203,8 @@ class IndikatorKinerjaController extends Controller
             } elseif ($request->ik_ketercapaian == 'persentase') {
                 $validationRules['ik_baseline'] = 'required|numeric|min:0|max:100';
             } elseif ($request->ik_ketercapaian == 'ketersediaan') {
+                $validationRules['ik_baseline'] = 'required|string';
+            } elseif ($request->ik_ketercapaian == 'rasio') {
                 $validationRules['ik_baseline'] = 'required|string';
             }
         }

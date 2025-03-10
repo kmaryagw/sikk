@@ -9,14 +9,15 @@ use RealRashid\SweetAlert\Facades\Alert;
 
 class OrganisasiJabatanController extends Controller
 {
-    public function index(Request $request)
+    public function __construct()
     {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
+        if (Auth::check() && Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized access');
         }
-        
+    }
+    
+    public function index(Request $request)
+    {   
         $title = 'Data Organisasi Jabatan';
         $q = $request->query('q');
 
@@ -25,8 +26,6 @@ class OrganisasiJabatanController extends Controller
             ->where('oj_nama', 'like', '%' . $q . '%')
             ->orderBy('created_at', 'asc')
             ->get();
-
-            
         
         return view('pages.index-organisasi-jabatan', [
             'title' => $title,
@@ -38,13 +37,7 @@ class OrganisasiJabatanController extends Controller
     }
 
     public function create()
-    {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-        
+    {   
         $organisasis = OrganisasiJabatan::all();
         $nomors = ['y', 'n'];
         $statuses = ['y', 'n'];
@@ -91,13 +84,7 @@ class OrganisasiJabatanController extends Controller
     }
 
     public function edit(OrganisasiJabatan $organisasijabatan)
-    {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-        
+    {   
         $title = 'Ubah Organisasi';
         $organisasies = OrganisasiJabatan::all();
         $nomors = ['y', 'n'];

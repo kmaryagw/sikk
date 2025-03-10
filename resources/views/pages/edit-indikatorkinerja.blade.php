@@ -167,6 +167,7 @@
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
+                                        <small id="ti_baseline_hint" class="form-text text-muted">Isi sesuai dengan jenis ketercapaian.</small>
                                     </div>
 
                                 </div>
@@ -206,20 +207,31 @@
         function updateBaselinePlaceholder() {
             const ketercapaian = document.getElementById('ik_ketercapaian').value;
             const baselineInput = document.getElementById('ik_baseline');
-    
+            const tibaselineHint = document.getElementById("ti_baseline_hint");
+
             if (ketercapaian === 'nilai') {
-                baselineInput.placeholder = 'Isi dengan angka (contoh: 1.1, 1.2)';
+                baselineInput.placeholder = 'Menggunakan Ketercapaian Nilai';
+                tibaselineHint.textContent = "Isi dengan angka (contoh: 1.1, 1.2)";
                 baselineInput.type = 'number';
                 baselineInput.min = 0;
                 baselineInput.step = '0.1';
             } else if (ketercapaian === 'persentase') {
-                baselineInput.placeholder = 'Isi dengan angka 1-100%';
+                baselineInput.placeholder = 'Menggunakan Ketercapaian Persentase';
+                tibaselineHint.textContent = "Isi dengan angka 1-100%";
                 baselineInput.type = 'number';
                 baselineInput.min = 0;
                 baselineInput.max = 100;
                 baselineInput.step = '1';
             } else if (ketercapaian === 'ketersediaan') {
-                baselineInput.placeholder = 'Isi dengan "ada" atau "draft"';
+                baselineInput.placeholder = 'Menggunakan Ketercapaian Ketersediaan';
+                tibaselineHint.textContent = 'Isi dengan "ada" atau "draft"';
+                baselineInput.type = 'text';
+                baselineInput.removeAttribute('min');
+                baselineInput.removeAttribute('max');
+                baselineInput.removeAttribute('step');
+            } else if (ketercapaian === 'rasio') {
+                baselineInput.placeholder = 'Menggunakan Ketercapaian Rasio';
+                tibaselineHint.textContent = "Isi dengan rasio (contoh: 1:20, 1:25)";
                 baselineInput.type = 'text';
                 baselineInput.removeAttribute('min');
                 baselineInput.removeAttribute('max');

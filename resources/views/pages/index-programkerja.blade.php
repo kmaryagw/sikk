@@ -100,7 +100,7 @@
                                     <td>
                                         @if($programkerja->periodes->isNotEmpty())
                                             @foreach ($programkerja->periodes as $periode)
-                                                <span class="badge badge-info">{{ $periode->pm_nama }}</span>
+                                                <span class="badge badge-info mt-2 mb-2">{{ $periode->pm_nama }}</span>
                                             @endforeach
                                         @else
                                             <span class="text-muted">Tidak ada periode</span>

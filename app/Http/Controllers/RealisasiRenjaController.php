@@ -14,6 +14,13 @@ use Illuminate\Support\Facades\Storage;
 
 class RealisasiRenjaController extends Controller
 {
+    public function __construct()
+    {
+        if (Auth::check() && Auth::user()->role !== 'admin' && Auth::user()->role !== 'prodi' && Auth::user()->role !== 'unit kerja') {
+            abort(403, 'Unauthorized access');
+        }
+    }
+    
     public function index(Request $request)
     {
         $title = 'Data Realisasi Renja';

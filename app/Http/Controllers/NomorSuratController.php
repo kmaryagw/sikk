@@ -14,6 +14,13 @@ use RealRashid\SweetAlert\Facades\Alert;
 
 class NomorSuratController extends Controller
 {
+    public function __construct()
+    {
+        if (Auth::check() && Auth::user()->role !== 'unit kerja') {
+            abort(403, 'Unauthorized access');
+        }
+    }
+    
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -107,7 +114,7 @@ class NomorSuratController extends Controller
             'sn_perihal' => $request->sn_perihal,
             'sn_keterangan' => $request->sn_keterangan,
             'sn_status' => 'draft',
-            'sn_revisi' => 'null',
+            'sn_revisi' => null,
         ]);
     
         Alert::success('Sukses', 'Data Berhasil Ditambah');

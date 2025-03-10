@@ -11,6 +11,13 @@ use RealRashid\SweetAlert\Facades\Alert;
 
 class ProdiController extends Controller
 {
+    public function __construct()
+    {
+        if (Auth::check() && Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized access');
+        }
+    }
+    
     public function index(Request $request)
     {
         $user = Auth::user();

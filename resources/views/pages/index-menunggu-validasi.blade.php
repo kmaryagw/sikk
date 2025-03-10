@@ -22,6 +22,19 @@
                             <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>
                         <div class="col-auto">
+                            <input type="date" class="form-control" name="tanggal" value="{{ request('tanggal') }}" />
+                        </div>
+                        <div class="col-auto">
+                            <select class="form-control" name="unit">
+                                <option value="">-- Pilih Unit Kerja --</option>
+                                @foreach ($units as $u)
+                                    <option value="{{ $u->unit_id }}" {{ request('unit') == $u->unit_id ? 'selected' : '' }}>
+                                        {{ $u->unit_nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-auto">
                             <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
                         </div>
                     </form>
@@ -67,7 +80,7 @@
                                         <span class="badge bg-success text-light"><i class="fa-solid fa-check-circle"></i> Valid</span>
                                     @endif
                                 </td>
-                                <td>{{ $ajukan->sn_revisi }}</td>
+                                <td>{{ $ajukan->sn_revisi ?? '-' }}</td>
                                 <td>
                                     @if($ajukan->sn_status == 'ajukan')
                                         <button class="btn btn-sm btn-success mt-2 mb-2" onclick="validasiSurat('{{ $ajukan->sn_id }}')"><i class="fa-solid fa-lock"></i> Valid</button>
@@ -82,7 +95,7 @@
 
                             @if ($ajukans->isEmpty())
                                 <tr>
-                                    <td colspan="10" class="text-center">Tidak ada data</td>
+                                    <td colspan="11" class="text-center">Tidak ada data</td>
                                 </tr>
                             @endif
                         </tbody>

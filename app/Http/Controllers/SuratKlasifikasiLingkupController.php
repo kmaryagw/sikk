@@ -10,14 +10,15 @@ use RealRashid\SweetAlert\Facades\Alert;
 
 class SuratKlasifikasiLingkupController extends Controller
 {
+    public function __construct()
+    {
+        if (Auth::check() && Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized access');
+        }
+    }
+    
     public function index(Request $request)
     {
-        $user = Auth::user();
-
-            if ($user->role !== 'admin') {
-                abort(403, 'Unauthorized action.');
-            }
-    
         $title = 'Data Surat Klasifikasi Perihal';
         $q = $request->query('q');
         $lingkups = SuratKlasifikasiLingkup::with('perihal')
@@ -25,7 +26,6 @@ class SuratKlasifikasiLingkupController extends Controller
             ->orderBy('skp_id', 'asc')
             ->paginate(10)
             ->withQueryString();
-            // ->get();
     
         return view('pages.index-surat-klasifikasi-lingkup', [
             'title' => $title,
@@ -39,12 +39,6 @@ class SuratKlasifikasiLingkupController extends Controller
 
     public function create()
     {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-
         $title = 'Tambah Surat Klasifikasi Lingkup';
         $suratperihal = SuratKlasifikasiPerihal::where('skp_aktif', 'y')->get();
         $sklaktifs = ['y', 'n'];
@@ -87,13 +81,7 @@ class SuratKlasifikasiLingkupController extends Controller
     }
 
     public function edit(SuratKlasifikasiLingkup $suratlingkup)
-    {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-        
+    {   
         $title = 'Ubah Surat Klasifikasi Lingkup';
         $sklaktifs = ['y', 'n'];
         $suratperihal = SuratKlasifikasiPerihal::where('skp_aktif', 'y')->get();

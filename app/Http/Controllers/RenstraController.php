@@ -8,14 +8,15 @@ use Illuminate\Support\Facades\Auth;
 
 class RenstraController extends Controller
 {
-    public function index(Request $request)
+    public function __construct()
     {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
+        if (Auth::check() && Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized access');
         }
-        
+    }
+    
+    public function index(Request $request)
+    {   
         $title = 'Data Rencana Strategis';
         $q = $request->query('q');
         $renstras = Renstra::where('ren_nama', 'like', '%' . $q . '%')
@@ -34,13 +35,7 @@ class RenstraController extends Controller
     }
 
     public function create()
-    {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-        
+    {   
         $title = 'Tambah Rencana Strategis';
         
         $ren_is_aktifs = ['y', 'n'];
@@ -78,13 +73,7 @@ class RenstraController extends Controller
     }
 
     public function edit(Renstra $renstra)
-    {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-        
+    {        
         $title = 'Ubah Rencana Strategis';
         $ren_is_aktifs = ['y', 'n'];
     

@@ -73,7 +73,7 @@
 
                             @if ($dataSurats->isEmpty())
                                 <tr>
-                                    <td colspan="9" class="text-center">Tidak ada data</td>
+                                    <td colspan="10" class="text-center">Tidak ada data</td>
                                 </tr>
                             @endif
                         </tbody>

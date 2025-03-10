@@ -81,10 +81,10 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/monitoringiku/final/{id}', [MonitoringIKUController::class, 'final'])->name('monitoringiku.final');
     Route::get('monitoringiku/{mti_id}/index-detail', [MonitoringIKUController::class, 'indexDetail'])->name('monitoringiku.index-detail');
-    // Route::get('monitoringiku/{mti_id}/create-detail', [MonitoringIKUController::class, 'createDetail'])->name('monitoringiku.create-detail');
-    // Route::post('/monitoringiku/{mti_id}/store-detail', [MonitoringIKUController::class, 'storeDetail'])->name('monitoringiku.store-detail');
-    Route::get('monitoringiku/{mti_id}/edit-detail', [MonitoringIKUController::class, 'editDetail'])->name('monitoringiku.edit-detail');
-    Route::put('monitoringiku/{mti_id}/update-detail', [MonitoringIKUController::class, 'updateDetail'])->name('monitoringiku.update-detail');
+    Route::get('monitoringiku/{mti_id}/create-detail', [MonitoringIKUController::class, 'createDetail'])->name('monitoringiku.create-detail');
+    Route::post('monitoringiku/{mti_id}/store-detail', [MonitoringIKUController::class, 'storeDetail'])->name('monitoringiku.store-detail');
+    Route::get('monitoringiku/{mti_id}/edit-detail/{ti_id}', [MonitoringIKUController::class, 'editDetail'])->name('monitoringiku.edit-detail');
+    Route::put('monitoringiku/{mti_id}/update-detail/{ti_id}', [MonitoringIKUController::class, 'updateDetail'])->name('monitoringiku.update-detail');
     Route::get('monitoringiku/{mti_id}/show-monitoringiku', [MonitoringIKUController::class, 'show'])->name('monitoringiku.show-monitoringiku');
 
     // // Rute untuk Setting

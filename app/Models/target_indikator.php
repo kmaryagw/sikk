@@ -47,4 +47,10 @@ class target_indikator extends Model
         return $this->belongsToMany(RencanaKerja::class, 'rencana_kerja_target_indikator', 'ti_id', 'rk_id');
     }
 
+    public function monitoringDetail()
+    {
+        return $this->hasOne(MonitoringIKU_Detail::class, 'ti_id', 'ti_id');
+    }
+
+
 }

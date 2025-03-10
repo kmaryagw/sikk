@@ -98,7 +98,31 @@
                                         @endif
                                     </td>                                    
                                     <td>{{ $indikatorkinerja->ik_ketercapaian }}</td>
-                                    <td>{{ $indikatorkinerja->ik_baseline }}</td>
+                                    {{-- <td>{{ $indikatorkinerja->ik_baseline }}</td> --}}
+                                    <td>
+                                        @if ($indikatorkinerja->ik_ketercapaian == 'persentase' && is_numeric($indikatorkinerja->ik_baseline))
+                                            <div class="progress">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     style="width: {{ intval($indikatorkinerja->ik_baseline) }}%;" 
+                                                     aria-valuenow="{{ intval($indikatorkinerja->ik_baseline) }}" 
+                                                     aria-valuemin="0" aria-valuemax="100">
+                                                    {{ $indikatorkinerja->ik_baseline }}%
+                                                </div>
+                                            </div>
+                                        @elseif ($indikatorkinerja->ik_ketercapaian == 'nilai' && is_numeric($indikatorkinerja->ik_baseline))
+                                            <span class="badge badge-primary">{{ $indikatorkinerja->ik_baseline }}</span>
+                                        @elseif (in_array(strtolower($indikatorkinerja->ik_baseline), ['ada', 'draft']))
+                                            @if (strtolower($indikatorkinerja->ik_baseline) === 'ada')
+                                                <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
+                                            @else
+                                                <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
+                                            @endif
+                                        @elseif ($indikatorkinerja->ik_ketercapaian == 'rasio')
+                                            <span class="badge badge-info">{{ $indikatorkinerja->ik_baseline }}</span>
+                                        @else
+                                            {{ $indikatorkinerja->ik_baseline }}
+                                        @endif
+                                    </td>
                                     <td>
                                         @if (strtolower($indikatorkinerja->ik_is_aktif) === 'y')
                                             <span class="text-success"><i class="fa-solid fa-check-circle"></i> Aktif</span>
