@@ -70,10 +70,10 @@
                                     <h4>Data Indikator</h4>
                                 </div>
                                 <div class="card-body">
-                                    <div class="form-footer text-right">
+                                    {{-- <div class="form-footer text-right">
                                         <button type="submit" class="btn btn-primary">Simpan</button>
                                         <a href="{{ url('targetcapaianprodi') }}" class="btn btn-danger">Kembali</a>
-                                    </div>
+                                    </div> --}}
                                     <br/>
 
                                     <div class="table-responsive">

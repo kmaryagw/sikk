@@ -95,6 +95,8 @@
                                             @else
                                                 <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
                                             @endif
+                                        @elseif ($targetcapaian->ik_ketercapaian == 'rasio')
+                                            <span class="badge badge-info">{{ $targetcapaian->ik_baseline }}</span>
                                         @else
                                             {{ $targetcapaian->ik_baseline }}
                                         @endif
@@ -117,6 +119,8 @@
                                             @else
                                                 <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
                                             @endif
+                                        @elseif ($targetcapaian->ik_ketercapaian == 'rasio')
+                                            <span class="badge badge-info">{{ $targetcapaian->ti_target }}</span>
                                         @else
                                             {{ $targetcapaian->ti_target }}
                                         @endif

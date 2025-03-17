@@ -121,6 +121,8 @@ class TargetCapaianController extends Controller
                 $validationRules['ti_target'] = 'required|numeric|min:0|max:100';
             } elseif ($indikatorkinerjas->ik_ketercapaian == 'ketersediaan') {
                 $validationRules['ti_target'] = 'required|string';
+            } elseif ($indikatorkinerjas->ik_ketercapaian == 'rasio') {
+                $validationRules['ti_target'] = 'required|string';
             }
         }
 
@@ -149,7 +151,7 @@ class TargetCapaianController extends Controller
 {
     $title = 'Edit Target Capaian';
 
-    $indikatorkinerjautamas = IndikatorKinerja::orderBy('ik_nama')->get();
+    $indikatorkinerjautamas = IndikatorKinerja::where('ik_is_aktif','y')->orderBy('ik_nama')->get();
     $prodis = program_studi::orderBy('nama_prodi')->get();
     $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
 
@@ -194,6 +196,8 @@ class TargetCapaianController extends Controller
             } elseif ($indikatorKinerjas->ik_ketercapaian == 'persentase') {
                 $validationRules['ti_target'] = 'required|numeric|min:0|max:100';
             } elseif ($indikatorKinerjas->ik_ketercapaian == 'ketersediaan') {
+                $validationRules['ti_target'] = 'required|string';
+            } elseif ($indikatorKinerjas->ik_ketercapaian == 'rasio') {
                 $validationRules['ti_target'] = 'required|string';
             }
         }

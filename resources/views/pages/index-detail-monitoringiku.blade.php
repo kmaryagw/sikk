@@ -17,6 +17,11 @@
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4>Data Monitoring IKU dari Prodi: <span class="badge badge-info">{{ $Monitoringiku->targetIndikator->prodi->nama_prodi }}</span> Tahun: <span class="badge badge-primary">{{ $Monitoringiku->targetIndikator->tahunKerja->th_tahun }}</span></h4>
+                @if (Auth::user()->role == 'admin' || Auth::user()->role == 'fakultas')
+                    <a class="btn btn-primary" href="{{ route('monitoringiku.create-detail', ['mti_id' => $Monitoringiku->mti_id]) }}">
+                        <i class="fa-solid fa-plus"></i> Isi/Ubah Semua
+                    </a>
+                @endif           
             </div>
         
             @if($targetIndikators->isEmpty())
@@ -63,6 +68,8 @@
                                             @else
                                                 <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
                                             @endif
+                                        @elseif ($target->indikatorKinerja->ik_ketercapaian == 'rasio')
+                                            <span class="badge badge-info">{{ $target->indikatorKinerja->ik_baseline }}</span>
                                         @else
                                             {{ $target->indikatorKinerja->ik_baseline }}
                                         @endif
@@ -85,33 +92,77 @@
                                             @else
                                                 <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
                                             @endif
+                                        @elseif ($target->indikatorKinerja->ik_ketercapaian == 'rasio')
+                                            <span class="badge badge-info">{{ $target->ti_target }}</span>
                                         @else
                                             {{ $target->ti_target }}
                                         @endif
                                     </td> 
                                     <td>{{ $target->ti_keterangan }}</td>  
-                                    <td>{{ $monitoringikuDetail->mtid_capaian ?? 'Belum ada capaian' }}</td>                                                                
                                     <td>
-                                        @if (strtolower($monitoringikuDetail->mtid_status) === 'tercapai')
+                                        @if(isset($target->indikatorKinerja->ik_ketercapaian) && $target->indikatorKinerja->ik_ketercapaian == 'persentase')
+                                            @if(isset($target->monitoringDetail->mtid_capaian) && $target->monitoringDetail->mtid_capaian > 0)
+                                                <div class="progress">
+                                                    <div class="progress-bar" role="progressbar" 
+                                                        style="width: {{ intval($target->monitoringDetail->mtid_capaian) }}%;" 
+                                                        aria-valuenow="{{ intval($target->monitoringDetail->mtid_capaian) }}" 
+                                                        aria-valuemin="0" aria-valuemax="100">
+                                                        {{ intval($target->monitoringDetail->mtid_capaian) }}%
+                                                    </div>
+                                                </div>
+                                            @else
+                                                <span>Belum ada Capaian</span>
+                                            @endif
+                                        @elseif(isset($target->indikatorKinerja->ik_ketercapaian) && $target->indikatorKinerja->ik_ketercapaian == 'nilai')
+                                            <span class="badge badge-primary">{{ $target->monitoringDetail->mtid_capaian ?? 'Belum ada Capaian' }}</span>
+                                        @elseif(isset($target->monitoringDetail->mtid_capaian) && in_array(strtolower($target->monitoringDetail->mtid_capaian), ['ada', 'draft']))
+                                            @if(strtolower($target->monitoringDetail->mtid_capaian) === 'ada')
+                                                <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
+                                            @else
+                                                <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
+                                            @endif
+                                        @elseif(isset($target->indikatorKinerja->ik_ketercapaian) && $target->indikatorKinerja->ik_ketercapaian == 'rasio')
+                                            <span class="badge badge-info">{{ $target->monitoringDetail->mtid_capaian ?? 'Belum ada Capaian' }}</span>
+                                        @else
+                                            Belum ada Capaian
+                                        @endif
+                                    </td>                                                                
+                                    <td>
+                                        @php
+                                            $status = isset($target->monitoringDetail->mtid_status) ? strtolower($target->monitoringDetail->mtid_status) : null;
+                                        @endphp
+                                    
+                                        @if($status === 'tercapai')
                                             <span class="text-success"><i class="fa-solid fa-check-circle"></i> Tercapai</span>
-                                        @elseif (strtolower($monitoringikuDetail->mtid_status) === 'tidak tercapai')
+                                        @elseif($status === 'tidak tercapai')
                                             <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Tidak Tercapai</span>
-                                        @elseif (strtolower($monitoringikuDetail->mtid_status) === 'tidak terlaksana')
+                                        @elseif($status === 'tidak terlaksana')
                                             <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak Terlaksana</span>
                                         @else
-                                            <span></i>Belum ada status</span>
+                                            Belum ada Status
                                         @endif
                                     </td>
-                                    <td>
-                                        @if($monitoringikuDetail->mtid_url)
-                                            <a href="{{ $monitoringikuDetail->mtid_url}}" target="_blank" class="btn btn-success">Lihat URL</a>
+                                    
+                                    {{-- <td>
+                                        @if($target->monitoringDetail->mtid_url ?? 'Belum ada Capaian')
+                                            <a href="{{ $target->monitoringDetail->mtid_url ?? 'Belum ada Capaian'}}" target="_blank" class="btn btn-sm btn-success">Lihat URL</a>
                                         @else
                                             Belum Ada URL
                                         @endif
-                                    </td>                                   
-                                    <td class="text-center">
-                                        <a href="{{ route('monitoringiku.edit-detail', ['mti_id' => $Monitoringiku->mti_id]) }}" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Isi/Ubah</a>                                      
+                                    </td>   --}}
+                                    <td>
+                                        @if(isset($target->monitoringDetail->mtid_url) && $target->monitoringDetail->mtid_url)
+                                            <a href="{{ $target->monitoringDetail->mtid_url }}" target="_blank" class="btn btn-sm btn-success">Lihat URL</a>
+                                        @else
+                                            Belum Ada URL
+                                        @endif
                                     </td>
+                                    
+                                                                     
+                                    <td class="text-center">
+                                        <a href="{{ route('monitoringiku.edit-detail', ['mti_id' => $Monitoringiku->mti_id, 'ti_id' => $target->ti_id]) }}" class="btn btn-sm btn-warning"><i class="fa-solid fa-pen-to-square"></i> Isi/Ubah</a>                                      
+                                    </td>
+                                    
                                 </tr>
                             @endforeach
                         </tbody>
@@ -130,7 +181,7 @@
         function confirmDelete(event, formid) {
             event.preventDefault();
             Swal.fire({
-                title: 'Yakin menghapus Evaluasi ini?',
+                title: 'Yakin menghapus Data ini?',
                 text: "Data yang dihapus tidak bisa dikembalikan!",
                 icon: 'warning',
                 showCancelButton: true,

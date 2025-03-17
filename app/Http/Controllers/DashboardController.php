@@ -30,6 +30,15 @@ class DashboardController extends Controller
             }])
             ->where('prodi_id', $user->prodi_id)
             ->get();
+        } elseif ($user->role === 'fakultas') {
+            $jumlahiku = program_studi::withCount(['targetIndikator' => function ($query) {
+                $query->whereHas('indikatorKinerja', function ($q) {
+                    $q->where('ik_jenis', 'IKU');
+                });
+            }])
+            ->where('id_fakultas', $user->id_fakultas)
+            ->orderBy('nama_prodi')
+            ->get();
         } else {
             $jumlahiku = program_studi::withCount(['targetIndikator' => function ($query) {
                 $query->whereHas('indikatorKinerja', function ($q) {
@@ -48,6 +57,15 @@ class DashboardController extends Controller
             }])
             ->where('prodi_id', $user->prodi_id)
             ->get();
+        } elseif ($user->role === 'fakultas') {
+            $jumlahikt = program_studi::withCount(['targetIndikator' => function ($query) {
+                $query->whereHas('indikatorKinerja', function ($q) {
+                    $q->where('ik_jenis', 'IKT');
+                });
+            }])
+            ->where('id_fakultas', $user->id_fakultas)
+            ->orderBy('nama_prodi')
+            ->get();
         } else {
             $jumlahikt = program_studi::withCount(['targetIndikator' => function ($query) {
                 $query->whereHas('indikatorKinerja', function ($q) {
@@ -60,9 +78,16 @@ class DashboardController extends Controller
         //RENJA
         $totalrenja = RencanaKerja::count();
 
-        $unitKerjarenja = UnitKerja::withCount(['rencanaKerja'])
+        if ($user->role === 'unit kerja') {
+            $unitKerjarenja = UnitKerja::withCount(['rencanaKerja'])
+                ->orderBy('unit_nama', 'asc')
+                ->where('unit_id', $user->unit_id)
+                ->get();
+        } else {
+            $unitKerjarenja = UnitKerja::withCount(['rencanaKerja'])
             ->orderBy('unit_nama', 'asc')
             ->get();
+        }
 
         //PERIODE MONITORING RENJA
         $periodemonevrenja = periode_monev::withCount(['rencanaKerjas'])
@@ -70,15 +95,60 @@ class DashboardController extends Controller
             ->get();
         
         // REALISASI
-        $realisasi = UnitKerja::with(['rencanaKerja', 'rencanaKerja.realisasi'])
-            ->get()
-            ->map(function ($unit) {
-                $unit->jumlah_renja = $unit->rencanaKerja->count();
-                $unit->jumlah_realisasi = $unit->rencanaKerja->reduce(function ($carry, $renja) {
-                    return $carry + $renja->realisasi->count();
-                }, 0);
-                return $unit;
-            });
+        // $realisasi = UnitKerja::with(['rencanaKerja', 'rencanaKerja.realisasi'])
+        //     ->get()
+        //     ->map(function ($unit) {
+        //         $unit->jumlah_renja = $unit->rencanaKerja->count();
+        //         $unit->jumlah_realisasi = $unit->rencanaKerja->reduce(function ($carry, $renja) {
+        //             return $carry + $renja->realisasi->count();
+        //         }, 0);
+        //         return $unit;
+        //     });
+        if ($user->role === 'unit kerja') {
+            $realisasi = UnitKerja::where('unit_id', $user->unit_id)
+                ->with(['rencanaKerja', 'rencanaKerja.realisasi'])
+                ->get()
+                ->map(function ($unit) {
+                    $unit->jumlah_renja = $unit->rencanaKerja->count();
+                    $unit->jumlah_realisasi = $unit->rencanaKerja->reduce(function ($carry, $renja) {
+                        return $carry + $renja->realisasi->count();
+                    }, 0);
+                    return $unit;
+                });
+        } else {
+            // Jika role adalah admin atau lainnya, tampilkan semua unit kerja
+            $realisasi = UnitKerja::with(['rencanaKerja', 'rencanaKerja.realisasi'])
+                ->get()
+                ->map(function ($unit) {
+                    $unit->jumlah_renja = $unit->rencanaKerja->count();
+                    $unit->jumlah_realisasi = $unit->rencanaKerja->reduce(function ($carry, $renja) {
+                        return $carry + $renja->realisasi->count();
+                    }, 0);
+                    return $unit;
+                });
+        }
+        
+
+        //Monitoring
+        $renjaPerPeriode = periode_monev::with(['rencanaKerjas' => function ($query) {
+            $query->select('pm_id', 'rencana_kerja.rk_id')
+                ->withCount([
+                    'monitoring as tercapai' => function ($query) {
+                        $query->where('mtg_status', 'y');
+                    },
+                    'monitoring as belum_tercapai' => function ($query) {
+                        $query->where('mtg_status', 'n');
+                    },
+                    'monitoring as tidak_terlaksana' => function ($query) {
+                        $query->where('mtg_status', 't');
+                    },
+                    'monitoring as perlu_tindak_lanjut' => function ($query) {
+                        $query->where('mtg_status', 'p');
+                    }
+                ]);
+        }])
+        ->orderBy('pm_nama', 'asc')
+        ->get();
 
         return view('pages.dashboard', [
             'title' => $title,
@@ -89,6 +159,7 @@ class DashboardController extends Controller
             'unitKerjarenja' => $unitKerjarenja,
             'periodemonevrenja' => $periodemonevrenja,
             'realisasi' => $realisasi,
+            'renjaPerPeriode' => $renjaPerPeriode,
             'type_menu' => 'dashboard',
         ]);
     }

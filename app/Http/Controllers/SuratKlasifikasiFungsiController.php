@@ -9,14 +9,15 @@ use RealRashid\SweetAlert\Facades\Alert;
 
 class SuratKlasifikasiFungsiController extends Controller
 {
+    public function __construct()
+    {
+        if (Auth::check() && Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized access');
+        }
+    }
+    
     public function index(Request $request)
     {
-        $user = Auth::user();
-
-            if ($user->role !== 'admin') {
-                abort(403, 'Unauthorized action.');
-            }
-    
         $title = 'Data Surat Klasifikasi Fungsi';
         $q = $request->query('q');
         $fungsis = SuratKlasifikasiFungsi::where('skf_nama', 'like', '%'. $q. '%')
@@ -36,12 +37,6 @@ class SuratKlasifikasiFungsiController extends Controller
 
     public function create()
     {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-
         $title = 'Tambah Surat Klasifikasi Fungsi';
         
         $skfaktifs = ['y', 'n'];
@@ -83,13 +78,7 @@ class SuratKlasifikasiFungsiController extends Controller
     }
 
     public function edit(SuratKlasifikasiFungsi $suratfungsi)
-    {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-        
+    {   
         $title = 'Ubah Surat Klasifikasi Fungsi';
         $skfaktifs = ['y', 'n'];
         

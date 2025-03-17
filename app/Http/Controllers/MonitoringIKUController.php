@@ -18,13 +18,16 @@ use Symfony\Contracts\Service\Attribute\Required;
 
 class MonitoringIKUController extends Controller
 {
+    public function __construct()
+    {
+        if (Auth::check() && Auth::user()->role !== 'admin' && Auth::user()->role !== 'fakultas') {
+            abort(403, 'Unauthorized access');
+        }
+    }
+    
     public function index(Request $request)
     {
         $user = Auth::user();
-
-        if (!in_array($user->role, ['admin', 'fakultas'])) {
-            abort(403, 'Unauthorized action.');
-        }
 
         $title = 'Data Monitoring IKU';
         $q = $request->query('q');
@@ -108,7 +111,7 @@ class MonitoringIKUController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Data Evaluasi berhasil disimpan!',
+                'message' => 'Data berhasil disimpan!',
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -120,38 +123,155 @@ class MonitoringIKUController extends Controller
 
     public function indexDetail($mti_id)
     {
-        // $Monitoringikus = MonitoringIKU_Detail::where('mti_id', $mti_id)->get(); //Evaluasis
-
-        $Monitoringiku = MonitoringIKU::find($mti_id); //Evaluasi
+        $Monitoringiku = MonitoringIKU::find($mti_id);
         $prodi_id = $Monitoringiku->prodi_id;
         $th_id = $Monitoringiku->th_id;
 
-        $targetIndikators = target_indikator::with('indikatorKinerja')
+        $targetIndikators = target_indikator::with('indikatorKinerja', 'monitoringDetail')
             ->where('prodi_id', $prodi_id)
             ->where('th_id', $th_id)
             ->get();
-        
-        $monitoringikuDetail = MonitoringIKU_Detail::where('mti_id', $mti_id)->first() ?? new MonitoringIKU_Detail();
 
         return view('pages.index-detail-monitoringiku', [
             'Monitoringiku' => $Monitoringiku,
-            // 'Monitoringikus' => $Monitoringikus,
             'targetIndikators' => $targetIndikators,
+            'type_menu' => 'monitoringiku',
+        ]);
+    }
+
+    public function createDetail($mti_id)
+    {
+        $monitoringiku = MonitoringIKU::with(['prodi', 'tahunKerja'])->findOrFail($mti_id);
+        $status = ['tercapai', 'tidak tercapai', 'tidak terlaksana'];
+
+        $targetIndikator = target_indikator::where('prodi_id', $monitoringiku->prodi_id)
+            ->where('th_id', $monitoringiku->th_id)
+            ->with('indikatorKinerja')
+            ->get();
+
+        if ($targetIndikator->isEmpty()) {
+            return redirect()->route('monitoringiku.index')->with('error', 'Indikator Kinerja tidak ditemukan.');
+        }
+
+        $indikatorKinerja = $targetIndikator->pluck('indikatorKinerja');
+
+        $monitoringikuDetail = MonitoringIKU_Detail::whereIn('ti_id', $targetIndikator->pluck('ti_id'))->get();
+
+        return view('pages.create-detail-monitoringiku', [
+            'monitoringiku' => $monitoringiku,
+            'targetIndikator' => $targetIndikator,
+            'status' => $status,
             'monitoringikuDetail' => $monitoringikuDetail,
             'type_menu' => 'monitoringiku',
         ]);
     }
 
-    public function editDetail($mti_id)
+    public function storeDetail(Request $request, $mti_id) 
+    {
+        $validated = $request->validate([
+            'ti_id' => 'required|array',
+            'ti_id.*' => 'required|string',
+            'mtid_capaian' => 'nullable|array',
+            'mtid_capaian.*' => [
+                'nullable',
+                function ($attribute, $value, $fail) use ($request) {
+                    $index = explode('.', $attribute)[1];
+                    $type = $request->input("items.$index.type");
+            
+                    if ($type === 'number' && !is_numeric($value)) {
+                        $fail("The $attribute must be a number.");
+                    }
+                }
+            ],
+            'mtid_keterangan' => 'nullable|array',
+            'mtid_keterangan.*' => 'nullable|string',
+            'mtid_status' => 'nullable|array',
+            'mtid_status.*' => 'nullable|in:tercapai,tidak tercapai,tidak terlaksana',
+            'mtid_url' => 'nullable|array',
+            'mtid_url.*' => 'nullable|url',
+        ]);
+
+        try {
+            $monitoringiku = MonitoringIKU::findOrFail($mti_id);
+    
+            foreach ($request->ti_id as $index => $ti_id) {
+                $targetIndikator = target_indikator::findOrFail($ti_id);
+        
+                if ($monitoringiku->status == 1) {
+                    return redirect()->route('monitoringiku.index')->with('error', 'Monitoring IKU ini sudah final dan tidak dapat diubah.');
+                }
+        
+                $customPrefix = 'MTID';
+                $timestamp = time();
+                $uuid = strtoupper(md5($timestamp . $index));
+                $mtid_id = $customPrefix . $uuid;
+        
+                $mtid_capaian = $request->mtid_capaian[$index] ?? null;
+                $mtid_keterangan = $request->mtid_keterangan[$index] ?? null;
+                $mtid_status = $request->mtid_status[$index] ?? null;
+                $mtid_url = $request->mtid_url[$index] ?? null;
+        
+                $existingDetail = MonitoringIKU_Detail::where('mti_id', $mti_id)
+                    ->where('ti_id', $ti_id)
+                    ->first();
+        
+                $detail = MonitoringIKU_Detail::updateOrCreate(
+                    [
+                        'mti_id' => $mti_id,
+                        'ti_id' => $ti_id
+                    ],
+                    [
+                        'mtid_id' => $mtid_id,
+                        'mtid_target' => $targetIndikator->ti_target,
+                        'mtid_capaian' => $mtid_capaian,
+                        'mtid_keterangan' => $mtid_keterangan,
+                        'mtid_status' => $mtid_status,
+                        'mtid_url' => $mtid_url,
+                    ]
+                );
+        
+                if (!$existingDetail || 
+                    ($existingDetail->mtid_capaian != $mtid_capaian ||
+                    $existingDetail->mtid_keterangan != $mtid_keterangan ||
+                    $existingDetail->mtid_status != $mtid_status ||
+                    $existingDetail->mtid_url != $mtid_url)) {
+
+                    if (!is_null($mtid_capaian) || !is_null($mtid_keterangan) || !is_null($mtid_status) || !is_null($mtid_url)) {
+                        HistoryMonitoringIKU::create([
+                            'hmi_id' => 'HMI' . strtoupper(md5(time() . $mtid_id)),
+                            'mtid_id' => $detail->mtid_id,
+                            'ti_id' => $ti_id,
+                            'hmi_target' => $targetIndikator->ti_target,
+                            'hmi_capaian' => $mtid_capaian,
+                            'hmi_keterangan' => $mtid_keterangan,
+                            'hmi_status' => $mtid_status,
+                            'hmi_url' => $mtid_url,
+                        ]);
+                    }
+                }
+            }        
+    
+            Alert::success('Sukses', 'Data Berhasil Ditambah');
+            return redirect()->route('monitoringiku.index-detail', $mti_id);
+    
+        } catch (\Exception $e) {
+            Alert::error('Error', 'Terjadi Kesalahan: ' . $e->getMessage());
+            return redirect()->route('monitoringiku.index-detail', $mti_id);
+        }
+    }
+
+
+    public function editDetail($mti_id, $ti_id)
     {
         $monitoringiku = MonitoringIKU::with(['prodi', 'tahunKerja'])->findOrFail($mti_id);
         $status = ['tercapai','tidak tercapai','tidak terlaksana'];
         $targetIndikator = target_indikator::where('prodi_id', $monitoringiku->prodi_id)
             ->where('th_id', $monitoringiku->th_id)
+            ->where('ti_id', $ti_id)
             ->with('indikatorKinerja')
             ->first();
 
-        $monitoringikuDetail = MonitoringIKU_Detail::where('mti_id', $mti_id)->first() ?? new MonitoringIKU_Detail();
+        $monitoringikuDetail = MonitoringIKU_Detail::where('ti_id', $ti_id)->first() ?? new MonitoringIKU_Detail();
 
         $indikatorKinerja = $targetIndikator->indikatorKinerja;
             if (!$indikatorKinerja) {
@@ -176,7 +296,7 @@ class MonitoringIKUController extends Controller
         ]);
     }
 
-    public function updateDetail(Request $request, $mti_id)
+    public function updateDetail(Request $request, $mti_id, $ti_id)
     {
         $validated = $request->validate([
             'mtid_capaian' => 'required',
@@ -189,6 +309,7 @@ class MonitoringIKUController extends Controller
             $monitoringiku = MonitoringIKU::findOrFail($mti_id);
             $targetIndikator = target_indikator::where('prodi_id', $monitoringiku->prodi_id)
                 ->where('th_id', $monitoringiku->th_id)
+                ->where('ti_id', $ti_id)
                 ->first();
 
             if (!$targetIndikator) {
@@ -199,7 +320,7 @@ class MonitoringIKUController extends Controller
                 return redirect()->route('monitoringiku.index')->with('error', 'Monitoring IKU ini sudah final dan tidak dapat diubah.');
             }
 
-            $monitoringIKUDetail = MonitoringIKU_Detail::where('mti_id', $mti_id)->first();
+            $monitoringIKUDetail = MonitoringIKU_Detail::where('mti_id', $mti_id)->where('ti_id', $ti_id)->first();
 
             if ($monitoringIKUDetail) {
                 $monitoringIKUDetail->update([
@@ -210,7 +331,7 @@ class MonitoringIKUController extends Controller
                 ]);
             } else {
                 $monitoringIKUDetail = MonitoringIKU_Detail::create([
-                    'mtid_id' => Str::uuid(),
+                    'mtid_id' => 'MTID' . Str::uuid(),
                     'mti_id' => $mti_id,
                     'ti_id' => $targetIndikator->ti_id,
                     'mtid_target' => $targetIndikator->ti_target,
@@ -222,7 +343,7 @@ class MonitoringIKUController extends Controller
             }
 
             HistoryMonitoringIKU::create([
-                'hmi_id' => Str::uuid(),
+                'hmi_id' => 'HMI' . Str::uuid(),
                 'mtid_id' => $monitoringIKUDetail->mtid_id,
                 'ti_id' => $targetIndikator->ti_id,
                 'hmi_target' => $targetIndikator->ti_target,
@@ -261,25 +382,19 @@ class MonitoringIKUController extends Controller
 
     public function show($mti_id)
     {
-        $Evaluasis = MonitoringIKU_Detail::where('mti_id', $mti_id)->get();
-
         $Monitoringiku = MonitoringIKU::find($mti_id);
         $prodi_id = $Monitoringiku->prodi_id;
         $th_id = $Monitoringiku->th_id;
 
-        $targetIndikators = target_indikator::with('indikatorKinerja')
+        $targetIndikators = target_indikator::with('indikatorKinerja', 'monitoringDetail')
             ->where('prodi_id', $prodi_id)
             ->where('th_id', $th_id)
             ->get();
-        
-        $monitoringikuDetail = MonitoringIKU_Detail::where('mti_id', $mti_id)->first() ?? new MonitoringIKU_Detail();
 
         return view('pages.index-show-monitoringiku', [
             'Monitoringiku' => $Monitoringiku,
-            'Evaluasis' => $Evaluasis,
             'targetIndikators' => $targetIndikators,
-            'monitoringikuDetail' => $monitoringikuDetail,
-            'type_menu' => 'evaluasi',
+            'type_menu' => 'monitoringiku',
         ]);
     }
 }
