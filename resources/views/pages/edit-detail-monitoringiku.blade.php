@@ -203,8 +203,9 @@
                     <div class="card">
                         <div class="card-body">
                             <h4 class="text-danger mt-3 mb-4">Data Program Kerja yang Terkait dengan 
-                                <span class="badge badge-success">{{ $targetIndikator->indikatorKinerja->ik_nama }}</span>
+                                <div class="bg-success text-white p-3 rounded shadow-sm text-left" style="max-width: 100%; word-wrap: break-word; white-space: normal; font-size: 1.1rem;">{{ $targetIndikator->indikatorKinerja->ik_nama }}</div>
                             </h4>
+                            
                             <div class="table-responsive">
                                 @foreach($programKerja as $index => $program)
                                     <div class="mb-4 p-3" style="background-color: #f4f4f4; border-radius: 8px;">
@@ -284,7 +285,7 @@
                                                 <table class="table table-bordered table-hover table-striped text-center">
                                                     <thead>
                                                         <tr>
-                                                            <th>Deskripsi</th>
+                                                            <th style="width:50%;">Deskripsi</th>
                                                             <th>Capaian</th>
                                                             <th>Tanggal</th>
                                                             <th>URL</th>
@@ -294,7 +295,7 @@
                                                     <tbody>
                                                         @foreach ($program->realisasi as $real)
                                                             <tr>
-                                                                <td>{{ $real->rkr_deskripsi }}</td>
+                                                                <td style="padding: 1.5rem;">{{ $real->rkr_deskripsi }}</td>
                                                                 <td>
                                                                     <div class="progress" style="height: 20px;">
                                                                         <div class="progress-bar" role="progressbar" style="width: {{ $real->rkr_capaian }}%;" aria-valuenow="{{ $real->rkr_capaian }}" aria-valuemin="0" aria-valuemax="100">{{ $real->rkr_capaian }}%</div>

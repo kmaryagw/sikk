@@ -20,7 +20,7 @@
                                 <tr>
                                     <th>Tahun</th>
                                     <th>Program Studi</th>
-                                    <th>Indikator Kinerja</th>
+                                    <th style="width: 50%;">Indikator Kinerja</th>
                                     <th>Nama Rencana Kerja</th>
                                     <th>Unit Kerja</th>
                                     <th>Periode Monev</th>
@@ -44,7 +44,7 @@
                                         @if($rencana->targetindikators->isNotEmpty())
                                             <ul class="list-unstyled">
                                                 @foreach ($rencana->targetindikators as $iku)
-                                                    <li class="my-2">{{ $iku->indikatorKinerja->ik_kode }} - {{ $iku->indikatorKinerja->ik_nama }}</li>
+                                                    <li class="my-2" >{{ $iku->indikatorKinerja->ik_kode }} - {{ $iku->indikatorKinerja->ik_nama }}</li>
                                                 @endforeach
                                             </ul>
                                         @else
@@ -89,7 +89,7 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Deskripsi</th>
+                                <th style="width: 50%;">Deskripsi</th>
                                 <th>Capaian</th>
                                 <th>Tanggal</th>
                                 <th>Url</th>
@@ -101,7 +101,7 @@
                             @foreach ($realisasi as $item)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $item->rkr_deskripsi }}</td>
+                                    <td style="padding: 1rem;">{{ $item->rkr_deskripsi }}</td>
                                     <td>
                                         <div class="progress" style="height: 20px;">
                                             <div class="progress-bar" role="progressbar" style="width: {{ $item->rkr_capaian }}%;" aria-valuenow="{{ $item->rkr_capaian }}" aria-valuemin="0" aria-valuemax="100">{{ $item->rkr_capaian }}%</div>

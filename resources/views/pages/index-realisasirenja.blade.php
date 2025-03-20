@@ -37,7 +37,7 @@
                             <th>No</th>
                             <th>Tahun</th>
                             <th>Program Studi</th>
-                            <th>Indikator Kinerja</th>
+                            <th style="width : 40%">Indikator Kinerja</th>
                             <th>Program Kerja</th>
                             <th>Unit Kerja</th>
                             <th>Periode Monev</th>
@@ -65,7 +65,7 @@
                                     @if($rencanaKerja->targetindikators->isNotEmpty())
                                         <ul class="list-unstyled">
                                             @foreach ($rencanaKerja->targetindikators as $iku)
-                                                <li class="my-2">{{ $iku->indikatorKinerja->ik_kode }} - {{ $iku->indikatorKinerja->ik_nama }}</li>
+                                                <li class="my-2" style="padding: .5rem;">{{ $iku->indikatorKinerja->ik_kode }} - {{ $iku->indikatorKinerja->ik_nama }}</li>
                                             @endforeach
                                         </ul>
                                     @else

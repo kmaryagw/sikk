@@ -69,7 +69,7 @@
                             <tr>
                                 <th>No</th>
                                 <th>Kode IKU</th>
-                                <th>Nama IKU/T</th>
+                                <th style="width : 30%">Nama IKU/T</th>
                                 <th>Standar</th>
                                 <th>Jenis</th>
                                 <th>Ketercapaian</th>
@@ -87,7 +87,7 @@
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $indikatorkinerja->ik_kode }}</td>
                                     <td>{{ $indikatorkinerja->ik_nama }}</td>
-                                    <td>{{ $indikatorkinerja->std_nama ?? '-' }}</td>
+                                    <td style="padding: 3rem;">{{ $indikatorkinerja->std_nama ?? '-' }}</td>
                                     <td>
                                         @if (strtolower($indikatorkinerja->ik_jenis) === 'iku')
                                             <span class="badge badge-success">IKU</span>

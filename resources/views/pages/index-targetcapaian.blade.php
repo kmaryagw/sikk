@@ -43,7 +43,7 @@
                         </div>
                         @endif
                     </form>
-                </div>
+                </div>  
 
                 <div class="table-responsive text-center">
                     <table class="table table-hover table-bordered table-striped m-0">
@@ -52,7 +52,7 @@
                                 <th>No</th>
                                 <th>Tahun</th>
                                 <th>Prodi</th>
-                                <th>Indikator Kinerja</th>
+                                <th style="width : 39%">Indikator Kinerja</th>
                                 <th>Jenis</th>
                                 <th>Nilai Baseline</th>
                                 <th>Target Capaian</th>
@@ -67,7 +67,7 @@
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $targetcapaian->th_tahun }}</td>
                                     <td>{{ $targetcapaian->nama_prodi }}</td>
-                                    <td>{{ $targetcapaian->ik_kode }} - {{ $targetcapaian->ik_nama }}</td>
+                                    <td style="padding: 1rem;">{{ $targetcapaian->ik_kode }} - {{ $targetcapaian->ik_nama }}</td>
                                     <td>
                                         @if (strtolower($targetcapaian->ik_jenis == 'IKU'))
                                             <span class="badge badge-success">IKU</span>

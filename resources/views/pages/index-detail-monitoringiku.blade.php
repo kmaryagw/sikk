@@ -29,7 +29,7 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Indikator Kinerja</th>
+                                <th style="width: 39%;">Indikator Kinerja</th>
                                 <th>Baseline</th>
                                 <th>Target</th>
                                 <th>Keterangan Indikator</th>
@@ -44,7 +44,7 @@
                             @foreach ($targetIndikators as $target)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $target->indikatorKinerja->ik_kode }} - {{ $target->indikatorKinerja->ik_nama }}</td>
+                                    <td style="padding: 2rem;">{{ $target->indikatorKinerja->ik_kode }} - {{ $target->indikatorKinerja->ik_nama }}</td>
                                     <td>
                                         @if ($target->indikatorKinerja->ik_ketercapaian == 'persentase' && is_numeric($target->indikatorKinerja->ik_baseline))
                                             <div class="progress">
