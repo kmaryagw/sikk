@@ -103,7 +103,7 @@
                     {{-- MONITORING --}}
                     <div class="card shadow-sm">
                         <div class="card-header">
-                            <h4 class="mb-0">Monitoring Periode Renja</h4>
+                            <h4 class="mb-0">Monitoring</h4>
                             <div class="card-header-action">
                                 <a class="btn btn-primary" href="{{ route('programkerja.index') }}"><i class="fa-solid fa-eye"></i> Lihat Detail </a>
                             </div>
@@ -256,44 +256,7 @@
                     @endif
                     
                     {{-- REALISASI ADMIN --}}
-
                     @if (Auth::user()->role == 'admin')
-                    <div class="card shadow-sm">
-                        <div class="card-header">
-                            <h4 class="mb-0">Realisasi</h4>
-                            <div class="card-header-action">
-                                <a class="btn btn-primary" href="{{ route('realisasirenja.index') }}"><i class="fa-solid fa-eye"></i> Lihat Detail </a>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-striped table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Unit Kerja</th>
-                                            <th style="text-align: center;">Jumlah Renja</th>
-                                            <th style="text-align: center;">Jumlah Realisasi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse ($realisasi as $realisasi)
-                                            <tr>
-                                                <td>{{ $realisasi->unit_nama }}</td>
-                                                <td style="text-align: center;">{{ $realisasi->jumlah_renja }}</td>
-                                                <td style="text-align: center;">{{ $realisasi->jumlah_realisasi }}</td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="3" class="text-center text-muted">Tidak ada data tersedia</td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>    
-                    @endif
-                    @if(Auth::user()->role == 'prodi')
                     <div class="card shadow-sm">
                         <div class="card-header">
                             <h4 class="mb-0">Realisasi</h4>
@@ -328,10 +291,10 @@
                             </div>
                         </div>
                     </div>
-                    @endif     
+                    @endif                                      
                 </div>
 
-                @if (Auth::user()->role == 'admin')
+                {{-- MONITORING --}}
                 <div class="col-lg-12 col-md-12 col-12">
                     @if (Auth::user()->role == 'admin')
                     <div class="card shadow-sm">
@@ -348,7 +311,7 @@
                                         <tr>
                                             <th rowspan="2">Periode</th>
                                             <th rowspan="2">Total Renja</th>
-                                            <th rowspan="2">Status</th>
+                                            <th colspan="4" style="background-color :#EAEAEA;">Status</th>
                                         </tr>
                                         <tr>
                                             <th>Tercapai</th>
@@ -358,20 +321,18 @@
                                         </tr>
                                     </thead>
                                     <tbody class="text-center">
-                                         @forelse ($periodemonevrenja as $monitoring)
-                                        <tr>
-                                            <td>{{ $monitoring->pm_nama }}</td><!-- Periode-->
-                                            <td>{{ $monitoring->rencana_kerjas_count }}</td><!-- Total Renja-->
-                                            <!-- Isi jumlah sesuai kategori status -->
-                                            <td></td>   <!--Status-->
-                                            <td></td>   <!-- Tercapai-->
-                                            <td></td>   <!-- Belum Tercapai -->
-                                            <td></td>   <!-- Tidak Terlaksana -->
-                                            <td></td>   <!-- Perlu Tindak Lanjut -->
-                                        @empty
-                                        @endforelse
-                                        </tr>
-                                    </tbody>                                    
+                                        @foreach($renjaPerPeriode as $periode)
+                                            <tr>
+                                                <td>{{ $periode->pm_nama }}</td>
+                                                <td>{{ $periode->rencanaKerjas->count() }}</td>
+                                                <td>{{ $periode->rencanaKerjas->sum('tercapai') }}</td>
+                                                <td>{{ $periode->rencanaKerjas->sum('belum_tercapai') }}</td>
+                                                <td>{{ $periode->rencanaKerjas->sum('tidak_terlaksana') }}</td>
+                                                <td>{{ $periode->rencanaKerjas->sum('perlu_tindak_lanjut') }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                                                        
                                 </table>
                             </div>
                         </div>
