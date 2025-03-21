@@ -9,14 +9,15 @@ use RealRashid\SweetAlert\Facades\Alert;
 
 class FakultasnController extends Controller
 {
-    public function index(Request $request)
+    public function __construct()
     {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
+        if (Auth::check() && Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized access');
         }
-        
+    }
+    
+    public function index(Request $request)
+    {   
         $title = 'Data Falkutas';
         $q = $request->query('q');
         $fakultasns = Fakultasn::where('nama_fakultas', 'like', '%' . $q . '%')
@@ -36,14 +37,8 @@ class FakultasnController extends Controller
 
     }
 
-        public function create()
-    {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-        
+    public function create()
+    {   
         $title = 'Tambah Fakultas';
 
         return view('pages.create-fakultasn', [
@@ -76,13 +71,7 @@ class FakultasnController extends Controller
     }
 
     public function edit($id)
-    {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-        
+    {   
         $title = 'Ubah Fakultas';
         $fakultasn = Fakultasn::findOrFail($id);
     

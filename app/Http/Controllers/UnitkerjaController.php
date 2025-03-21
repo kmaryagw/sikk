@@ -9,14 +9,15 @@ use RealRashid\SweetAlert\Facades\Alert;
 
 class UnitkerjaController extends Controller
 {
+    public function __construct()
+    {
+        if (Auth::check() && Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized access');
+        }
+    }
+    
     public function index(Request $request)
     {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-        
         $title = 'Data Unit';
         $q = $request->query('q');
         $units = UnitKerja::where('unit_nama', 'like', '%'. $q. '%')
@@ -38,12 +39,6 @@ class UnitkerjaController extends Controller
     
     public function create()
     {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-        
         $title = 'Tambah User';
         $unit_kerjas = ['y', 'n'];
 
@@ -79,13 +74,7 @@ class UnitkerjaController extends Controller
     }
 
     public function edit(UnitKerja $unit)
-    {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-        
+    {   
         $title = 'Ubah Unit';
         $unit_kerjas = ['y', 'n'];
     
@@ -105,7 +94,6 @@ class UnitkerjaController extends Controller
             'unit_kerja' => 'required', 
             
         ]);
-    
     
         $unit->unit_nama = $request->unit_nama;
         $unit->unit_kerja = $request->unit_kerja;

@@ -236,6 +236,8 @@ class TargetCapaianProdiController extends Controller
                 $validationRules['ti_target'] = 'required|numeric|min:0|max:100';
             } elseif ($indikatorKinerjas->ik_ketercapaian == 'ketersediaan') {
                 $validationRules['ti_target'] = 'required|string';
+            } elseif ($indikatorKinerjas->ik_ketercapaian == 'rasio') {
+                $validationRules['ti_target'] = 'required|string';
             }
         }
 

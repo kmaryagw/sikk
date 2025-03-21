@@ -184,6 +184,9 @@
                 } else if (jenis === "ketersediaan") {
                     tiTargetInput.placeholder = "Indikator ini menggunakan ketercapaian ketersediaan";
                     tiTargetHint.textContent = "Isi dengan 'Ada' atau 'Draft'.";
+                } else if (jenis === "rasio") {
+                    tiTargetInput.placeholder = "Indikator ini menggunakan ketercapaian rasio";
+                    tiTargetHint.textContent = "Isi dengan rasio (contoh: 1:20, 1:25)";
                 } else {
                     tiTargetInput.placeholder = "Isi Target Capaian";
                     tiTargetHint.textContent = "Isi sesuai dengan jenis ketercapaian.";

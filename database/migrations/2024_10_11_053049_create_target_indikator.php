@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('target_indikator', function (Blueprint $table) {
             $table->string('ti_id', 50)->primary();
             $table->string('ik_id', 50);
-            $table->string('ti_target', 100);
-            $table->text('ti_keterangan');
+            $table->string('ti_target', 100)->nullable();
+            $table->text('ti_keterangan')->nullable();
             $table->string('prodi_id', 50);
             $table->string('th_id', 50);
             $table->timestamps();

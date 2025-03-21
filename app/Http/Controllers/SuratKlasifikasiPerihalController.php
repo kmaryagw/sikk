@@ -10,14 +10,15 @@ use RealRashid\SweetAlert\Facades\Alert;
 
 class SuratKlasifikasiPerihalController extends Controller
 {
+    public function __construct()
+    {
+        if (Auth::check() && Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized access');
+        }
+    }
+    
     public function index(Request $request)
     {
-        $user = Auth::user();
-
-            if ($user->role !== 'admin') {
-                abort(403, 'Unauthorized action.');
-            }
-    
         $title = 'Data Surat Klasifikasi Perihal';
         $q = $request->query('q');
         $perihals = SuratKlasifikasiPerihal::with('fungsi')
@@ -25,7 +26,6 @@ class SuratKlasifikasiPerihalController extends Controller
             ->orderBy('skf_id', 'asc')
             ->paginate(10)
             ->withQueryString();
-            // ->get();
     
         return view('pages.index-surat-klasifikasi-perihal', [
             'title' => $title,
@@ -39,12 +39,6 @@ class SuratKlasifikasiPerihalController extends Controller
 
     public function create()
     {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-
         $title = 'Tambah Surat Klasifikasi Perihal';
         $suratfungsi = SuratKlasifikasiFungsi::where('skf_aktif', 'y')->get();
         $skpaktifs = ['y', 'n'];
@@ -88,12 +82,6 @@ class SuratKlasifikasiPerihalController extends Controller
 
     public function edit(SuratKlasifikasiPerihal $suratperihal)
     {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-        
         $title = 'Ubah Surat Klasifikasi Perihal';
         $skpaktifs = ['y', 'n'];
         $suratfungsi = SuratKlasifikasiFungsi::where('skf_aktif', 'y')->get();

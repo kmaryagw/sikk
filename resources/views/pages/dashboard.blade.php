@@ -30,7 +30,7 @@
                 <div class="col-lg-6 col-md-6 col-12">
 
                     {{-- IKU --}}
-                    @if (Auth::user()->role == 'admin' || Auth::user()->role == 'prodi')
+                    @if (Auth::user()->role == 'admin' || Auth::user()->role == 'prodi' || Auth::user()->role == 'fakultas')
                     <div class="card shadow-sm">
                         <div class="card-header">
                             <h4 class="mb-0">Set IKU</h4>
@@ -134,11 +134,49 @@
                         </div>
                     </div>
                     @endif
+
+                    {{-- REALISASI UNIT --}}
+                    @if (Auth::user()->role == 'unit kerja')
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h4 class="mb-0">Realisasi</h4>
+                            <div class="card-header-action">
+                                <a class="btn btn-primary" href="{{ route('realisasirenja.index') }}"><i class="fa-solid fa-eye"></i> Lihat Detail </a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Unit Kerja</th>
+                                            <th style="text-align: center;">Jumlah Renja</th>
+                                            <th style="text-align: center;">Jumlah Realisasi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($realisasi as $realisasi)
+                                            <tr>
+                                                <td>{{ $realisasi->unit_nama }}</td>
+                                                <td style="text-align: center;">{{ $realisasi->jumlah_renja }}</td>
+                                                <td style="text-align: center;">{{ $realisasi->jumlah_realisasi }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="3" class="text-center text-muted">Tidak ada data tersedia</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    @endif 
                 </div>
 
                 <div class="col-lg-6 col-md-6 col-12">
                     {{-- IKT --}}
-                    @if (Auth::user()->role == 'prodi')
+                    @if (Auth::user()->role == 'prodi' || Auth::user()->role == 'fakultas')
                     <div class="card shadow-sm">
                         <div class="card-header">
                             <h4 class="mb-0">Set IKT</h4>
@@ -174,7 +212,7 @@
                     @endif
 
                     {{-- RENCANA KERJA --}}
-                    @if (Auth::user()->role == 'admin')
+                    @if (Auth::user()->role == 'admin' || Auth::user()->role == 'unit kerja')
                     <div class="card shadow-sm">
                         <div class="card-header">
                             <h4 class="mb-0">Rencana Kerja</h4>
@@ -184,9 +222,11 @@
                         </div>
                         <div class="card-body">
                             <!-- Total Renja -->
+                            @if (Auth::user()->role == 'admin')
                             <div class="mb-4 text-center">
                                 <h5>Total Renja: <span class="badge bg-success">{{ $totalrenja }}</span></h5>
                             </div>
+                            @endif
                         
                             <!-- Tabel Unit Kerja -->
                             <div class="table-responsive">
@@ -214,7 +254,9 @@
                         </div>                   
                     </div>
                     @endif
-                    {{-- REALISASI --}}
+                    
+                    {{-- REALISASI ADMIN --}}
+
                     @if (Auth::user()->role == 'admin')
                     <div class="card shadow-sm">
                         <div class="card-header">
@@ -291,6 +333,7 @@
 
                 @if (Auth::user()->role == 'admin')
                 <div class="col-lg-12 col-md-12 col-12">
+                    @if (Auth::user()->role == 'admin')
                     <div class="card shadow-sm">
                         <div class="card-header">
                             <h4 class="mb-0">Monitoring</h4>
@@ -333,8 +376,8 @@
                             </div>
                         </div>
                     </div>
+                    @endif
                 </div>
-                @endif
 
             </div>
         </section>

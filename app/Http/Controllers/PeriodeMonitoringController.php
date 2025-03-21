@@ -6,16 +6,24 @@ use App\Models\periode_monev;
 use App\Models\PeriodeMonitoring;
 use App\Models\tahun_kerja;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class PeriodeMonitoringController extends Controller
 {
+    public function __construct()
+    {
+        if (Auth::check() && Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized access');
+        }
+    }
+    
     public function index(Request $request)
     {
         $title = 'Data Periode Monitoring';
         $q = $request->query('q');
         $tahunId = $request->query('th_tahun');
-        $query = PeriodeMonitoring::with('tahunKerja', 'periodeMonev'); // Memuat relasi 'tahunKerja' dan 'periodes'
+        $query = PeriodeMonitoring::with('tahunKerja', 'periodeMonev');
         
         if ($q) {
             $query->whereHas('periodeMonev', function ($subQuery) use ($q) {
@@ -27,11 +35,9 @@ class PeriodeMonitoringController extends Controller
             $query->where('th_id', $tahunId); 
         }
 
-        // Ambil data periode monitoring beserta periode yang terkait
         $perides = $query->orderBy('th_id', 'asc')->paginate(10);
         $no = $perides->firstItem();
 
-        // Ambil data tahun kerja dan periode monev
         $th_tahun = tahun_kerja::orderBy('th_tahun')->get();
         $periodes = periode_monev::orderBy('pm_nama', 'asc')->get();
         

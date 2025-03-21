@@ -8,10 +8,18 @@ use App\Models\tahun_kerja;
 use App\Models\UnitKerja;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LaporanRenjaController extends Controller
 {
 
+    public function __construct()
+    {
+        if (Auth::check() && Auth::user()->role !== 'prodi') {
+            abort(403, 'Unauthorized access');
+        }
+    }
+    
     public function index(Request $request)
     {
         $units = UnitKerja::all();

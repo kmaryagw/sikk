@@ -8,14 +8,15 @@ use Illuminate\Support\Facades\Auth;
 
 class PeriodeMonevController extends Controller
 {
-    public function index(Request $request)
+    public function __construct()
     {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
+        if (Auth::check() && Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized access');
         }
-        
+    }
+    
+    public function index(Request $request)
+    {   
         $title = 'Data Rencana Strategis';
         $q = $request->query('q');
         $periodems = periode_monev::where('pm_nama', 'like', '%' . $q . '%')
@@ -35,16 +36,9 @@ class PeriodeMonevController extends Controller
     }
 
     public function create()
-    {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-        
+    {   
         $title = 'Tambah Periode Monev';
         
-
         return view('pages.create-periode-monev', [
             'title' => $title,
             
@@ -75,13 +69,7 @@ class PeriodeMonevController extends Controller
     }
 
     public function edit(periode_monev $periodemonev)
-    {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-        
+    {   
         $title = 'Ubah Periode Monev';
         return view('pages.edit-periode-monev', [
             'title' => $title,

@@ -28,7 +28,7 @@
                             @endif
                     
                             <!-- Form -->
-                            <form action="{{ route('monitoringiku.update-detail', $monitoringiku->mti_id) }}" method="POST">
+                            <form action="{{ route('monitoringiku.update-detail', ['mti_id' => $monitoringiku->mti_id, 'ti_id' => $targetIndikator->ti_id]) }}" method="POST">
                                 @csrf
                                 @method('PUT')
                     
@@ -150,17 +150,19 @@
                                                             </span>
                                                         </div>
                                                         <select class="form-control" name="mtid_status" required>
-                                                            <option value="" disabled {{ is_null($monitoringikuDetail->mtid_status) ? 'selected' : '' }}>Pilih Status</option>
+                                                            <option value="" disabled {{ old('mtid_status', $monitoringikuDetail->mtid_status) == null ? 'selected' : '' }}>
+                                                                Pilih Status
+                                                            </option>
                                                             @foreach ($status as $statuses)
                                                                 <option value="{{ $statuses }}" 
                                                                     {{ old('mtid_status', $monitoringikuDetail->mtid_status) == $statuses ? 'selected' : '' }}>
-                                                                    {{ $statuses }}
+                                                                    {{ ucfirst($statuses) }}
                                                                 </option>
                                                             @endforeach
                                                         </select>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div>                                            
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="mtid_url">URL</label>

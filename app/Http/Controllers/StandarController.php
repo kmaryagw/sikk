@@ -12,14 +12,15 @@ use RealRashid\SweetAlert\Facades\Alert;
 
 class StandarController extends Controller
 {
-    public function index(Request $request)
+    public function __construct()
     {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
+        if (Auth::check() && Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized access');
         }
-        
+    }
+    
+    public function index(Request $request)
+    {   
         $title = 'Data Unit';
         $q = $request->query('q');
         $standars = standar::where('std_nama', 'like', '%'. $q. '%')
@@ -38,13 +39,7 @@ class StandarController extends Controller
     }
 
     public function create()
-    {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-        
+    {   
         $title = 'Tambah Standar';
 
         return view('pages.create-standar', [
@@ -78,13 +73,7 @@ class StandarController extends Controller
     }
 
     public function edit(standar $standar)
-    {
-        $user = Auth::user();
-
-        if ($user->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
-        
+    {   
         $title = 'Ubah Standar';
 
         return view('pages.edit-standar', [

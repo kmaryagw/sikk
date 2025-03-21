@@ -24,7 +24,8 @@ class SuratNomor extends Model
         'sn_tanggal', 
         'sn_perihal', 
         'sn_keterangan', 
-        'sn_status'
+        'sn_status',
+        'sn_revisi'
     ];
 
     public function unitKerja()
