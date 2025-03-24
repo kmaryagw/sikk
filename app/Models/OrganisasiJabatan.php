@@ -18,8 +18,10 @@ class OrganisasiJabatan extends Model
         'oj_nama',
         'oj_mengeluarkan_nomor',
         'oj_kode',
-        'oj_induk'
+        'oj_induk',
+        'oj_status',
     ];
+    
 
     public function parent()
     {

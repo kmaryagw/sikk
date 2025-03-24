@@ -71,7 +71,7 @@
                             <th>No</th>
                             <th>Tahun</th>
                             <th>Prodi</th>
-                            <th>Indikator Kinerja</th>
+                            <th style="width: 50%;">Indikator Kinerja</th>
                             <th>Target Capaian</th>
                             <th>Keterangan</th>
                         </tr>
@@ -80,7 +80,7 @@
                         @php $no = $target_capaians->firstItem(); @endphp
                         @foreach ($target_capaians as $targetcapaian)
                             <tr>
-                                <td>{{ $no++ }}</td>
+                                <td style="padding: 3rem;">{{ $no++ }}</td>
                                 <td>{{ $targetcapaian->th_tahun }}</td>
                                 <td>{{ $targetcapaian->nama_prodi }}</td>
                                 <td>{{ $targetcapaian->ik_nama }}</td>
