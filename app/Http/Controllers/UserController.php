@@ -197,9 +197,10 @@ class UserController extends Controller
 
     public function edit(user $user)
     {
-        $user = Auth::user();
+        
+        $userCheck = Auth::user();
 
-        if ($user->role !== 'admin') {
+        if ($userCheck->role !== 'admin') {
             abort(403, 'Unauthorized action.');
         }
         
@@ -208,6 +209,7 @@ class UserController extends Controller
         $prodis = program_studi::orderBy('nama_prodi')->get();
         $units = UnitKerja::orderBy('unit_nama')->get();
         $fakultasns = Fakultasn::orderBy('nama_fakultas')->get();
+        
         return view('pages.edit-user', [
             'title' => $title,
             'prodis' => $prodis,
