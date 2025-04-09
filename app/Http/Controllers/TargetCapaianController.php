@@ -30,31 +30,38 @@ class TargetCapaianController extends Controller
         $tahun = tahun_kerja::where('th_is_aktif', 'y')->get();
         $prodis = program_studi::all();
 
-        $query = target_indikator::where('ti_target', 'like', '%' . $q . '%')
-            ->leftjoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
-            ->leftjoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
-            ->leftjoin('tahun_kerja as aktif_tahun', function($join) {
+        $query = target_indikator::query()
+            ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
+            ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
+            ->leftJoin('tahun_kerja as aktif_tahun', function($join) {
                 $join->on('aktif_tahun.th_id', '=', 'target_indikator.th_id')
                     ->where('aktif_tahun.th_is_aktif', 'y');
             });
 
+        // Jika user adalah prodi, filter sesuai prodi mereka
         if (Auth::user()->role == 'prodi') {
             $query->where('target_indikator.prodi_id', Auth::user()->prodi_id);
             $prodis = program_studi::where('prodi_id', Auth::user()->prodi_id)->get();
         } 
 
+        // Filter pencarian (q) dengan lebih fleksibel
         if ($q) {
-            $query->where('ik_nama', 'like', '%' . $q . '%');
+            $query->where(function($subQuery) use ($q) {
+                $subQuery->where('target_indikator.ti_target', 'like', '%' . $q . '%')
+                        ->orWhere('indikator_kinerja.ik_nama', 'like', '%' . $q . '%')
+                        ->orWhere('indikator_kinerja.ik_kode', 'like', '%' . $q . '%');
+            });
         }
 
         if ($tahunId) {
-            $query->where('tahun_kerja.th_id', $tahunId);
+            $query->where('aktif_tahun.th_id', $tahunId);
         }
 
         if ($prodiId) {
             $query->where('program_studi.prodi_id', $prodiId);
         }
 
+        // Urutkan hasil berdasarkan indikator kinerja
         $query->orderBy('indikator_kinerja.ik_nama', 'asc');
 
         $target_capaians = $query->paginate(10)->withQueryString();
