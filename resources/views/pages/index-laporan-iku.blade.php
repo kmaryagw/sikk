@@ -6,6 +6,7 @@
     <!-- Tambahkan CSS Libraries jika diperlukan -->
     <link rel="stylesheet" href="{{ asset('library/jqvmap/dist/jqvmap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('library/summernote/dist/summernote-bs4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/circular-progress-bar.css') }}">
 @endpush
 
 @section('main')
@@ -71,45 +72,106 @@
                             <th>No</th>
                             <th>Tahun</th>
                             <th>Prodi</th>
-                            <th style="width: 50%;">Indikator Kinerja</th>
-                            <th>Target Capaian</th>
+                            <th style="width: 30%;">Indikator Kinerja</th>
+                            <th style="width: 10%;">Target Capaian</th>
+                            <th style="width: 15%;">Capaian</th> 
                             <th>Keterangan</th>
                         </tr>
                     </thead>
+                    
                     <tbody>
                         @php $no = $target_capaians->firstItem(); @endphp
                         @foreach ($target_capaians as $targetcapaian)
-                            <tr>
-                                <td style="padding: 3rem;">{{ $no++ }}</td>
-                                <td>{{ $targetcapaian->th_tahun }}</td>
-                                <td>{{ $targetcapaian->nama_prodi }}</td>
-                                <td>{{ $targetcapaian->ik_nama }}</td>
-                                <td>
-                                    @if ($targetcapaian->indikatorKinerja->ik_ketercapaian == 'persentase' && is_numeric($targetcapaian->ti_target))
-                                        <div class="progress">
-                                            <div class="progress-bar" role="progressbar" 
-                                                 style="width: {{ intval($targetcapaian->ti_target) }}%;" 
-                                                 aria-valuenow="{{ intval($targetcapaian->ti_target) }}" 
-                                                 aria-valuemin="0" aria-valuemax="100">
-                                                {{ $targetcapaian->ti_target }}%
+                        <tr>
+                            <td style="padding: 3rem;">{{ $no++ }}</td>
+                            <td>{{ $targetcapaian->th_tahun }}</td>
+                            <td>{{ $targetcapaian->nama_prodi }}</td>
+                            <td>{{ $targetcapaian->ik_nama }}</td>
+                            
+                            {{-- Target Capaian --}}
+                            <td>
+                                @php
+                                    $ketercapaian = strtolower(optional($targetcapaian->indikatorKinerja)->ik_ketercapaian ?? '');
+                                    $targetValue = trim($targetcapaian->ti_target);
+                                    $numericValue = (float) str_replace('%', '', $targetValue);
+                                    $progressColor = $numericValue == 0 ? '#dc3545' : '#28a745'; // Bisa diatur dinamis
+                                @endphp
+                            
+                                @if ($ketercapaian === 'persentase' && is_numeric($numericValue))
+                                    <div class="ring-progress-wrapper">
+                                        <div class="ring-progress" style="--value: {{ $numericValue }}; --progress-color: {{ $progressColor }};">
+                                            <div class="ring-inner">
+                                                <span class="ring-text">{{ $numericValue }}%</span>
                                             </div>
                                         </div>
-                                    @elseif ($targetcapaian->indikatorKinerja->ik_ketercapaian == 'nilai' && is_numeric($targetcapaian->ti_target))
-                                        <span class="badge badge-primary">{{ $targetcapaian->ti_target }}</span>
-                                    @elseif (in_array(strtolower($targetcapaian->ti_target), ['ada', 'tidak']))
-                                        @if (strtolower($targetcapaian->ti_target) === 'ada')
-                                            <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
-                                        @else
-                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak</span>
-                                        @endif
+                                    </div>
+                                @elseif ($ketercapaian === 'nilai' && is_numeric($targetValue))
+                                    <span class="badge badge-primary">{{ $targetValue }}</span>
+                                @elseif (in_array(strtolower($targetValue), ['ada', 'tidak']))
+                                    @if (strtolower($targetValue) === 'ada')
+                                        <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
                                     @else
-                                        {{ $targetcapaian->ti_target }}
+                                        <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak</span>
                                     @endif
-                                </td> 
-                                <td>{{ $targetcapaian->ti_keterangan }}</td>
-                            </tr>
-                        @endforeach
+                                
+                                @elseif ($ketercapaian === 'rasio')
+                                    <span class="badge badge-info"><i class="fa-solid fa-balance-scale"></i> {{ $targetValue }}</span> 
+                                @else
+                                    {{ $targetValue }}
+                                @endif
+                            </td>
+                            
 
+                            {{-- Capaian --}}
+                            <td>
+                                @php
+                                    $capaian = optional($targetcapaian->monitoringDetail)->mtid_capaian;
+                                    $ketercapaian = optional($targetcapaian->indikatorKinerja)->ik_ketercapaian;
+                                    $numericValue = (float) str_replace('%', '', $capaian);
+                                    $progressColor = $numericValue == 0 ? '#dc3545' : '#28a745'; // merah jika 0, hijau jika ada nilai
+                                @endphp
+
+                                @if(strpos($capaian, '%') !== false)
+                                    <div class="ring-progress-wrapper">
+                                        <div class="ring-progress" style="--value: {{ $numericValue }}; --progress-color: {{ $progressColor }};">
+                                            <div class="ring-inner">
+                                                <span class="ring-text">{{ $numericValue }}%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @elseif(is_numeric($capaian) && $ketercapaian == 'nilai')
+                                    <span class="badge badge-primary"><i class="fa-solid fa-circle"></i> {{ $capaian }}</span>
+                                @elseif(preg_match('/^\d+:\d+$/', $capaian))
+                                    <span class="badge badge-info"><i class="fa-solid fa-balance-scale"></i> {{ $capaian }}</span>
+                                @elseif(strtolower($capaian) === 'ada')
+                                    <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
+                                @elseif(strtolower($capaian) === 'draft')
+                                    <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
+                                @elseif(!empty($capaian))
+                                    <span class="badge badge-primary">{{ $capaian }}</span>
+                                @else
+                                    <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Belum ada Capaian</span>
+                                @endif
+                            </td>
+
+                            <td>
+                                @php
+                                    $status = strtolower(optional($targetcapaian->monitoringDetail)->mtid_status ?? '');
+                                @endphp
+                            
+                                @if ($status === 'tercapai')
+                                    <span class="text-success"><i class="fa-solid fa-check-circle"></i> Tercapai</span>
+                                @elseif ($status === 'tidak tercapai')
+                                    <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Tidak Tercapai</span>
+                                @elseif ($status === 'tidak terlaksana')
+                                    <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak Terlaksana</span>
+                                @else
+                                    <span>Belum ada Status</span>
+                                @endif
+                            </td>
+                            
+                        </tr>
+                    @endforeach
                         @if ($target_capaians->isEmpty())
                                 <tr>
                                     <td colspan="6" class="text-center">Tidak ada data</td>
