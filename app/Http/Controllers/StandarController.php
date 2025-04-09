@@ -24,6 +24,7 @@ class StandarController extends Controller
         $title = 'Data Unit';
         $q = $request->query('q');
         $standars = standar::where('std_nama', 'like', '%'. $q. '%')
+                            ->orWhere('std_deskripsi', 'like', '%'. $q. '%')
             ->orderBy('std_nama', 'asc')
             ->paginate(10)
             ->withQueryString();

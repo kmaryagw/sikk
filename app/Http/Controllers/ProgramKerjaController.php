@@ -30,24 +30,15 @@ class ProgramKerjaController extends Controller
         $unit_id = $request->query('unit_id');
         $tahunId = $request->query('tahun');
 
-        $units = UnitKerja::where('unit_kerja', 'y')->get();
+        $units = UnitKerja::where('unit_kerja', 'aktif')->get();
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
         $periodes = periode_monev::orderBy('pm_nama', 'asc')->get();
 
         $query = RencanaKerja::with(['targetindikators.indikatorKinerja', 'periodes'])
-            ->where('rk_nama', 'like', '%' . $q . '%')
-            ->orderBy('rk_nama', 'asc')
-            ->leftJoin('unit_kerja', function ($join) {
-                $join->on('unit_kerja.unit_id', '=', 'rencana_kerja.unit_id')
-                    ->where('unit_kerja.unit_kerja', 'y');
-            })
-            ->leftJoin('tahun_kerja', function ($join) {
-                $join->on('tahun_kerja.th_id', '=', 'rencana_kerja.th_id');
-            });
-
-        $query->where(function ($query) {
-            $query->where('tahun_kerja.th_is_aktif', 'y');
-        });
+            ->leftJoin('unit_kerja', 'unit_kerja.unit_id', '=', 'rencana_kerja.unit_id')
+            ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'rencana_kerja.th_id')
+            ->where('tahun_kerja.th_is_aktif', 'y')
+            ->orderBy('rencana_kerja.rk_nama', 'asc');
 
         if (Auth::user()->role == 'unit kerja') {
             $query->where('rencana_kerja.unit_id', Auth::user()->unit_id);
@@ -55,11 +46,18 @@ class ProgramKerjaController extends Controller
 
         if (Auth::user()->role == 'prodi') {
             $query->join('rencana_kerja_program_studi', 'rencana_kerja.rk_id', '=', 'rencana_kerja_program_studi.rk_id')
-                  ->where('rencana_kerja_program_studi.prodi_id', Auth::user()->prodi_id);
+                ->where('rencana_kerja_program_studi.prodi_id', Auth::user()->prodi_id);
         }
 
+        // Filter pencarian (rk_nama, indikator_kinerja)
         if ($q) {
-            $query->where('rk_nama', 'like', '%' . $q . '%');
+            $query->where(function ($subQuery) use ($q) {
+                $subQuery->where('rencana_kerja.rk_nama', 'like', '%' . $q . '%')
+                        ->orWhereHas('targetindikators.indikatorKinerja', function ($query) use ($q) {
+                            $query->where('ik_kode', 'like', '%' . $q . '%')
+                                  ->orWhere('ik_nama', 'like', '%' . $q . '%');
+                        });
+            });
         }
 
         if ($unit_id) {
@@ -86,6 +84,7 @@ class ProgramKerjaController extends Controller
             'type_menu' => 'programkerja',
         ]);
     }
+
 
     public function create()
     {
