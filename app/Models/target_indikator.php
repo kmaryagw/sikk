@@ -53,4 +53,5 @@ class target_indikator extends Model
     }
 
 
+
 }
