@@ -141,11 +141,15 @@
                                                 </div>
                                             </div>
                                             <select id="ik_ketercapaian" name="ik_ketercapaian" class="form-control" required onchange="updateBaselinePlaceholder()">
-                                                <option value="nilai" {{ old('ik_ketercapaian', $indikatorkinerja->ik_ketercapaian ?? '') == 'nilai' ? 'selected' : '' }}>Nilai</option>
-                                                <option value="persentase" {{ old('ik_ketercapaian', $indikatorkinerja->ik_ketercapaian ?? '') == 'persentase' ? 'selected' : '' }}>Persentase</option>
-                                                <option value="ketersediaan" {{ old('ik_ketercapaian', $indikatorkinerja->ik_ketercapaian ?? '') == 'ketersediaan' ? 'selected' : '' }}>Ketersediaan</option>
-                                                <option value="rasio" {{ old('ik_ketercapaian', $indikatorkinerja->ik_ketercapaian ?? '') == 'rasio' ? 'selected' : '' }}>Rasio</option>                                                
+                                                @php
+                                                    $selectedKetercapaian = strtolower(old('ik_ketercapaian', $indikatorkinerja->ik_ketercapaian ?? ''));
+                                                @endphp
+                                                <option value="nilai" {{ $selectedKetercapaian == 'nilai' ? 'selected' : '' }}>Nilai</option>
+                                                <option value="persentase" {{ $selectedKetercapaian == 'persentase' ? 'selected' : '' }}>Persentase</option>
+                                                <option value="ketersediaan" {{ $selectedKetercapaian == 'ketersediaan' ? 'selected' : '' }}>Ketersediaan</option>
+                                                <option value="rasio" {{ $selectedKetercapaian == 'rasio' ? 'selected' : '' }}>Rasio</option>
                                             </select>
+                                            
                                         </div> 
                                     </div>
 
