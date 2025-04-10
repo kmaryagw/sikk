@@ -128,18 +128,36 @@
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="mtid_capaian">Capaian</label>
-                                                    <div class="input-group">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text">
-                                                                <i class="fa-solid fa-award"></i>
-                                                            </span>
-                                                        </div>
-                                                        <input type="text" class="form-control" name="mtid_capaian" id="mtid_capaian"
-                                                            placeholder="Isi Capaian" value="{{ old('mtid_capaian', $monitoringikuDetail->mtid_capaian) }}" required>
-                                                    </div>
-                                                    <small id="mtid_capaian_hint" class="form-text text-muted">Isi sesuai dengan jenis ketercapaian.</small>
+                                                    <select class="form-control" name="mtid_capaian" id="mtid_capaian" required>
+                                                        @php
+                                                            $capaian_terakhir = old('mtid_capaian', $monitoringikuDetail->mtid_capaian);
+                                                            $capaian_clean = is_string($capaian_terakhir) ? rtrim($capaian_terakhir, '%') : $capaian_terakhir;
+                                                            $is_persentase = is_numeric($capaian_clean) && str_ends_with($capaian_terakhir, '%');
+                                                            $is_nilai = is_numeric($capaian_clean) && !$is_persentase;
+                                                            $is_ratio = preg_match('/^\d+:\d+$/', $capaian_terakhir);
+                                                            $input_value = $is_persentase || $is_nilai || $is_ratio ? $capaian_clean : '';
+                                                        @endphp
+                                                        <option value="" disabled {{ is_null($capaian_terakhir) ? 'selected' : '' }}>Pilih Capaian</option>
+                                                        <option value="ada" {{ $capaian_terakhir === 'ada' ? 'selected' : '' }}>Ada</option>
+                                                        <option value="draft" {{ $capaian_terakhir === 'draft' ? 'selected' : '' }}>Draft</option>
+                                                        <option value="persentase" {{ $is_persentase ? 'selected' : '' }}>Persentase</option>
+                                                        <option value="nilai" {{ $is_nilai ? 'selected' : '' }}>Nilai</option>
+                                                        <option value="rasio" {{ $is_ratio ? 'selected' : '' }}>Rasio</option>
+                                                    </select>
                                                 </div>
                                             </div>
+                                            
+                                            {{-- Input tambahan untuk persentase, nilai, dan rasio --}}
+                                            <div class="col-md-6" id="capaian_value_group" style="display: none;">
+                                                <div class="form-group">
+                                                    <label for="capaian_value">Masukkan Value</label>
+                                                    <input type="text" class="form-control" name="capaian_value" id="capaian_value"
+                                                        value="{{ old('capaian_value', $input_value) }}">
+                                                </div>
+                                            </div>
+                                                
+                                            
+
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="mtid_status">Status</label>
@@ -372,5 +390,24 @@
                 mtidCapaianHint.textContent = "Isi sesuai dengan jenis ketercapaian.";
             }
         });
+
+        document.addEventListener("DOMContentLoaded", function () {
+        let capaianDropdown = document.getElementById('mtid_capaian');
+        let capaianInputGroup = document.getElementById('capaian_value_group');
+        let capaianInput = document.getElementById('capaian_value');
+
+        function toggleInputVisibility() {
+            let selectedValue = capaianDropdown.value;
+            if (selectedValue === 'persentase' || selectedValue === 'nilai' || selectedValue === 'rasio') {
+                capaianInputGroup.style.display = 'block';
+            } else {
+                capaianInputGroup.style.display = 'none';
+                capaianInput.value = '';
+            }
+        }
+
+        capaianDropdown.addEventListener('change', toggleInputVisibility);
+        toggleInputVisibility(); // Panggil saat halaman dimuat
+    });
     </script>
 @endpush
