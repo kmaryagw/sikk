@@ -25,14 +25,31 @@ class RealisasiRenjaController extends Controller
     {
         $title = 'Data Realisasi Renja';
         $q = $request->query('q');
+        $tahunId = $request->query('tahun');
+
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
 
-        $query = RencanaKerja::with('tahunKerja', 'UnitKerja', 'targetIndikators.indikatorKinerja')
-            ->where('rk_nama', 'like', '%' . $q . '%')
-            ->whereHas('tahunKerja', function ($subQuery) {
-                $subQuery->where('th_is_aktif', 'y');
-            })
-            ->orderBy('rk_nama', 'asc');
+        $query = RencanaKerja::with([
+            'tahunKerja',
+            'UnitKerja',
+            'targetIndikators.indikatorKinerja',
+            'programStudis', // relasi program studi
+        ])
+        ->whereHas('tahunKerja', function ($subQuery) {
+            $subQuery->where('th_is_aktif', 'y');
+        })
+        ->orderBy('rk_nama', 'asc');
+
+        // Filter berdasarkan pencarian
+        if (!empty($q)) {
+            $query->where(function ($searchQuery) use ($q) {
+                $searchQuery->where('rk_nama', 'like', '%' . $q . '%')
+                    ->orWhereHas('targetIndikators.indikatorKinerja', function ($subQuery) use ($q) {
+                        $subQuery->where('ik_kode', 'like', '%' . $q . '%')
+                                ->orWhere('ik_nama', 'like', '%' . $q . '%');
+                    });
+            });
+        }
 
         if (Auth::user()->role == 'unit kerja') {
             $query->whereHas('UnitKerja', function ($subQuery) {
@@ -41,22 +58,30 @@ class RealisasiRenjaController extends Controller
         }
 
         if (Auth::user()->role == 'prodi') {
-            $query->join('rencana_kerja_program_studi', 'rencana_kerja.rk_id', '=', 'rencana_kerja_program_studi.rk_id')
-                  ->where('rencana_kerja_program_studi.prodi_id', Auth::user()->prodi_id);
+            $query->whereHas('programStudis', function ($subQuery) {
+                $subQuery->where('rencana_kerja_program_studi.prodi_id', Auth::user()->prodi_id);
+            });
+            
         }
 
-        $rencanaKerjas = $query->paginate(10);
+        if (!empty($tahunId)) {
+            $query->where('rencana_kerja.th_id', $tahunId);
+        }
+
+        $rencanaKerjas = $query->paginate(10)->withQueryString();
         $no = $rencanaKerjas->firstItem();
 
         return view('pages.index-realisasirenja', [
             'title' => $title,
             'rencanaKerjas' => $rencanaKerjas,
             'q' => $q,
+            'tahunId' => $tahunId,
             'tahuns' => $tahuns,
             'no' => $no,
             'type_menu' => 'realisasirenja',
-        ]); 
+        ]);
     }
+
     
     public function showRealisasi($rk_id)
     {

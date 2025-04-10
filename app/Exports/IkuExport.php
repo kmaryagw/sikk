@@ -13,11 +13,18 @@ class IkuExport implements FromCollection, WithHeadings, WithMapping
 
     public function collection()
     {
-        return target_indikator::select('indikator_kinerja.ik_nama', 'target_indikator.ti_target', 'target_indikator.ti_keterangan', 'program_studi.nama_prodi', 'tahun_kerja.th_tahun')
-            ->leftjoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
-            ->leftjoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
-            ->leftjoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id')
-            ->where('tahun_kerja.ren_is_aktif', 'y')
+        return target_indikator::select(
+                'target_indikator.*',
+                'indikator_kinerja.ik_nama',
+                'indikator_kinerja.ik_ketercapaian',
+                'program_studi.nama_prodi',
+                'tahun_kerja.th_tahun'
+            )
+            ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
+            ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
+            ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id')
+            ->with(['monitoringDetail'])
+            ->where('tahun_kerja.th_is_aktif', 'y')
             ->get();
     }
 
@@ -27,6 +34,7 @@ class IkuExport implements FromCollection, WithHeadings, WithMapping
             'No',
             'Indikator Kinerja',
             'Target Capaian',
+            'Capaian',
             'Keterangan',
             'Prodi',
             'Tahun'
@@ -35,10 +43,13 @@ class IkuExport implements FromCollection, WithHeadings, WithMapping
 
     public function map($targetIndikator): array
     {
+        $capaian = optional($targetIndikator->monitoringDetail)->mtid_capaian;
+
         return [
             $this->rowNumber++,
             $targetIndikator->ik_nama,
             $targetIndikator->ti_target,
+            $capaian ?? 'Belum Ada',
             $targetIndikator->ti_keterangan,
             $targetIndikator->nama_prodi ?? '-',
             $targetIndikator->th_tahun ?? '-',

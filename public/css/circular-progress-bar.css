@@ -1,0 +1,38 @@
+.ring-progress-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ring-progress {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: conic-gradient(
+        var(--progress-color, #28a745) calc(var(--value) * 1%),
+        #e0e0e0 0%
+        
+    );
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto; /* Agar tetap di tengah */
+}
+
+.ring-inner {
+    width: 80%;
+    height: 80%;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ring-text {
+    font-weight: 700;
+    font-size: 11px;
+    color: #495057;
+}
+

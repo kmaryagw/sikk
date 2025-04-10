@@ -28,13 +28,14 @@ class IndikatorKinerjaController extends Controller
         $title = 'Data Indikator Kinerja Utama';
         $q = $request->query('q');
 
-        $query = IndikatorKinerja::where('ik_nama', 'like', '%'. $q. '%')
-            ->orderBy('ik_kode', 'asc')
-            ->leftJoin('standar', 'standar.std_id', '=', 'indikator_kinerja.std_id');
+        $query = IndikatorKinerja::select('indikator_kinerja.*', 'standar.std_nama')
+            ->leftJoin('standar', 'standar.std_id', '=', 'indikator_kinerja.std_id')
+            ->orderBy('ik_kode', 'asc');
 
         if ($q) {
             $query->where('ik_nama', 'like', '%' . $q . '%');
         }
+
 
         $indikatorkinerjas = $query->paginate(10)->withQueryString();
         $no = $indikatorkinerjas->firstItem();
@@ -157,6 +158,9 @@ class IndikatorKinerjaController extends Controller
         $indikatorkinerja->ik_ketercapaian = $request->ik_ketercapaian;
 
         $indikatorkinerja->save();
+        // dd($indikatorkinerja);
+
+        
 
         Alert::success('Sukses', 'Data Berhasil Ditambah');
 
@@ -165,6 +169,7 @@ class IndikatorKinerjaController extends Controller
 
     public function edit(IndikatorKinerja $indikatorkinerja)
     {   
+        // dd($indikatorkinerja->ik_ketercapaian); // Cek apakah nilai yang dikirim sesuai
         $title = 'Ubah Indikator Kinerja Utama';
         $standar = Standar::orderBy('std_nama')->get();
         $jeniss = ['IKU', 'IKT'];
@@ -185,6 +190,7 @@ class IndikatorKinerjaController extends Controller
 
     public function update(IndikatorKinerja $indikatorkinerja, Request $request)
     {
+        // dd($request->all()); // Cek apakah data ik_ketercapaian terkirim dengan benar
         $validationRules = [
             'ik_kode' => 'required|string|max:255',
             'ik_nama' => 'required|string|max:255',
@@ -192,10 +198,8 @@ class IndikatorKinerjaController extends Controller
             'ik_jenis' => 'required|in:IKU,IKT',
             'ik_baseline' => 'required',
             'ik_is_aktif' => 'required|in:y,n',
-
-            'ik_ketercapaian' => 'required|in:nilai,persentase,ketersediaan, rasio',
+            'ik_ketercapaian' => 'required|in:nilai,persentase,ketersediaan,rasio',
         ];
-
 
         if ($request) {
             if ($request->ik_ketercapaian == 'nilai') {
@@ -225,6 +229,7 @@ class IndikatorKinerjaController extends Controller
 
         return redirect()->route('indikatorkinerja.index');
     }
+
 
     public function destroy(IndikatorKinerja $indikatorkinerja)
     {

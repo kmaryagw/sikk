@@ -53,4 +53,8 @@ class MonitoringIKU_Detail extends Model
         return $this->belongsTo(RencanaKerja::class, 'rk_id', 'rk_id');
     }
     
+    public function indikatorKinerja()
+    {
+        return $this->belongsTo(IndikatorKinerja::class, 'ik_id', 'ik_id');
+    }
 }

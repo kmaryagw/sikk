@@ -78,5 +78,10 @@ class RencanaKerja extends Model
         return $this->hasMany(RencanaKerjaProgramStudi::class, 'rk_id', 'rk_id');
     }
 
+    public function rencanaKerjaProgramStudi()
+    {
+        return $this->hasMany(RencanaKerjaProgramStudi::class, 'rk_id', 'rk_id');
+    }
+
 
 }
