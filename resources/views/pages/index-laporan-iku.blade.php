@@ -58,9 +58,9 @@
                         </a>
                     </div>
                     <div class="col-auto">
-                        <a href="{{ route('export-pdf.iku') }}" class="btn btn-danger">
+                        <a href="{{ route('export-pdf.iku') }}" class="btn btn-danger" target="_blank">
                             <i class="fa-solid fa-file-pdf"></i> Export PDF
-                        </a>
+                        </a>                        
                     </div>
                 </form>                
             </div>

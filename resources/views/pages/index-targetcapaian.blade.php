@@ -5,6 +5,7 @@
     <!-- CSS Libraries -->
     <link rel="stylesheet" href="{{ asset('library/jqvmap/dist/jqvmap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('library/summernote/dist/summernote-bs4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/circular-progress-bar.css') }}">
 @endpush
 
 
@@ -78,53 +79,65 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if ($targetcapaian->ik_ketercapaian == 'persentase' && is_numeric($targetcapaian->ik_baseline))
-                                            <div class="progress">
-                                                <div class="progress-bar" role="progressbar" 
-                                                     style="width: {{ intval($targetcapaian->ik_baseline) }}%;" 
-                                                     aria-valuenow="{{ intval($targetcapaian->ik_baseline) }}" 
-                                                     aria-valuemin="0" aria-valuemax="100">
-                                                    {{ $targetcapaian->ik_baseline }}%
+                                        @php
+                                            $ketercapaian = strtolower($targetcapaian->ik_ketercapaian);
+                                            $baselineRaw = trim($targetcapaian->ik_baseline);
+                                            $baselineValue = (float) str_replace('%', '', $baselineRaw);
+                                            $progressColor = $baselineValue == 0 ? '#dc3545' : '#28a745';
+                                        @endphp
+                                    
+                                        @if ($ketercapaian === 'persentase' && is_numeric($baselineValue))
+                                            <div class="ring-progress-wrapper">
+                                                <div class="ring-progress" style="--value: {{ $baselineValue }}; --progress-color: {{ $progressColor }};">
+                                                    <div class="ring-inner">
+                                                        <span class="ring-text">{{ $baselineValue }}%</span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        @elseif ($targetcapaian->ik_ketercapaian == 'nilai' && is_numeric($targetcapaian->ik_baseline))
-                                            <span class="badge badge-primary">{{ $targetcapaian->ik_baseline }}</span>
-                                        @elseif (in_array(strtolower($targetcapaian->ik_baseline), ['ada', 'draft']))
-                                            @if (strtolower($targetcapaian->ik_baseline) === 'ada')
+                                        @elseif ($ketercapaian === 'nilai' && is_numeric($baselineRaw))
+                                            <span class="badge badge-primary">{{ $baselineRaw }}</span>
+                                        @elseif (in_array(strtolower($baselineRaw), ['ada', 'draft']))
+                                            @if (strtolower($baselineRaw) === 'ada')
                                                 <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
                                             @else
                                                 <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
                                             @endif
-                                        @elseif ($targetcapaian->ik_ketercapaian == 'rasio')
-                                            <span class="badge badge-info">{{ $targetcapaian->ik_baseline }}</span>
+                                        @elseif ($ketercapaian === 'rasio')
+                                            <span class="badge badge-info">{{ $baselineRaw }}</span>
                                         @else
-                                            {{ $targetcapaian->ik_baseline }}
+                                            {{ $baselineRaw }}
                                         @endif
-                                    </td>
+                                    </td>                                    
                                     <td>
-                                        @if ($targetcapaian->ik_ketercapaian == 'persentase' && is_numeric($targetcapaian->ti_target))
-                                            <div class="progress">
-                                                <div class="progress-bar" role="progressbar" 
-                                                     style="width: {{ intval($targetcapaian->ti_target) }}%;" 
-                                                     aria-valuenow="{{ intval($targetcapaian->ti_target) }}" 
-                                                     aria-valuemin="0" aria-valuemax="100">
-                                                    {{ $targetcapaian->ti_target }}%
+                                        @php
+                                            $ketercapaian = strtolower($targetcapaian->ik_ketercapaian);
+                                            $targetValue = trim($targetcapaian->ti_target);
+                                            $numericValue = (float) str_replace('%', '', $targetValue);
+                                            $progressColor = $numericValue == 0 ? '#dc3545' : '#28a745'; // Bisa diatur dinamis
+                                        @endphp
+                                    
+                                        @if ($ketercapaian === 'persentase' && is_numeric($numericValue))
+                                            <div class="ring-progress-wrapper">
+                                                <div class="ring-progress" style="--value: {{ $numericValue }}; --progress-color: {{ $progressColor }};">
+                                                    <div class="ring-inner">
+                                                        <span class="ring-text">{{ $numericValue }}%</span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        @elseif ($targetcapaian->ik_ketercapaian == 'nilai' && is_numeric($targetcapaian->ti_target))
-                                            <span class="badge badge-primary">{{ $targetcapaian->ti_target }}</span>
-                                        @elseif (in_array(strtolower($targetcapaian->ti_target), ['ada', 'draft']))
-                                            @if (strtolower($targetcapaian->ti_target) === 'ada')
+                                        @elseif ($ketercapaian === 'nilai' && is_numeric($targetValue))
+                                            <span class="badge badge-primary">{{ $targetValue }}</span>
+                                        @elseif (in_array(strtolower($targetValue), ['ada', 'draft']))
+                                            @if (strtolower($targetValue) === 'ada')
                                                 <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
                                             @else
                                                 <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
                                             @endif
-                                        @elseif ($targetcapaian->ik_ketercapaian == 'rasio')
-                                            <span class="badge badge-info">{{ $targetcapaian->ti_target }}</span>
+                                        @elseif ($ketercapaian === 'rasio')
+                                            <span class="badge badge-info">{{ $targetValue }}</span>
                                         @else
-                                            {{ $targetcapaian->ti_target }}
+                                            {{ $targetValue }}
                                         @endif
-                                    </td>                                                                       
+                                    </td>                                                                                                                                                                                  
                                     <td>{{ $targetcapaian->ti_keterangan }}</td>
 
                                     @if (Auth::user()->role== 'admin' || Auth::user()->role == 'prodi')

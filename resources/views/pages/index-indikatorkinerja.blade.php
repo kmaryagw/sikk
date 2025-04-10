@@ -4,7 +4,7 @@
 @push('style')
     <link rel="stylesheet" href="{{ asset('library/jqvmap/dist/jqvmap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('library/summernote/dist/summernote-bs4.min.css') }}">
-    
+    <link rel="stylesheet" href="{{ asset('css/circular-progress-bar.css') }}"> 
 @endpush
 
 @section('main')
@@ -98,29 +98,34 @@
                                         @endif
                                     </td>                                    
                                     <td>{{ $indikatorkinerja->ik_ketercapaian }}</td>
-                                    {{-- <td>{{ $indikatorkinerja->ik_baseline }}</td> --}}
                                     <td>
-                                        @if ($indikatorkinerja->ik_ketercapaian == 'persentase' && is_numeric($indikatorkinerja->ik_baseline))
-                                            <div class="progress">
-                                                <div class="progress-bar" role="progressbar" 
-                                                     style="width: {{ intval($indikatorkinerja->ik_baseline) }}%;" 
-                                                     aria-valuenow="{{ intval($indikatorkinerja->ik_baseline) }}" 
-                                                     aria-valuemin="0" aria-valuemax="100">
-                                                    {{ $indikatorkinerja->ik_baseline }}%
+                                        @php
+                                            $ketercapaian = strtolower($indikatorkinerja->ik_ketercapaian);
+                                            $baselineRaw = trim($indikatorkinerja->ik_baseline);
+                                            $baselineValue = (float) str_replace('%', '', $baselineRaw);
+                                            $progressColor = $baselineValue == 0 ? '#dc3545' : '#28a745'; // Merah jika 0, hijau jika > 0
+                                        @endphp
+                                    
+                                        @if ($ketercapaian === 'persentase' && is_numeric($baselineValue))
+                                            <div class="ring-progress-wrapper">
+                                                <div class="ring-progress" style="--value: {{ $baselineValue }}; --progress-color: {{ $progressColor }};">
+                                                    <div class="ring-inner">
+                                                        <span class="ring-text">{{ $baselineValue }}%</span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        @elseif ($indikatorkinerja->ik_ketercapaian == 'nilai' && is_numeric($indikatorkinerja->ik_baseline))
-                                            <span class="badge badge-primary">{{ $indikatorkinerja->ik_baseline }}</span>
-                                        @elseif (in_array(strtolower($indikatorkinerja->ik_baseline), ['ada', 'draft']))
-                                            @if (strtolower($indikatorkinerja->ik_baseline) === 'ada')
+                                        @elseif ($ketercapaian === 'nilai' && is_numeric($baselineRaw))
+                                            <span class="badge badge-primary">{{ $baselineRaw }}</span>
+                                        @elseif (in_array(strtolower($baselineRaw), ['ada', 'draft']))
+                                            @if (strtolower($baselineRaw) === 'ada')
                                                 <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
                                             @else
                                                 <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
                                             @endif
-                                        @elseif ($indikatorkinerja->ik_ketercapaian == 'rasio')
-                                            <span class="badge badge-info">{{ $indikatorkinerja->ik_baseline }}</span>
+                                        @elseif ($ketercapaian === 'rasio')
+                                            <span class="badge badge-info"><i class="fa-solid fa-balance-scale"></i> {{ $baselineRaw }} </span>
                                         @else
-                                            {{ $indikatorkinerja->ik_baseline }}
+                                            {{ $baselineRaw }}
                                         @endif
                                     </td>
                                     <td>
@@ -133,7 +138,7 @@
                                     @if (Auth::user()->role== 'admin')
                                     <td>
                                         <a class="btn btn-warning btn-sm mb-3 mt-3" href="{{ route('indikatorkinerja.edit', $indikatorkinerja->ik_id) }}">
-                                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                                            <i class="fa-solid fa-pen-to-square"></i> Ubah
                                         </a>
                                         <form id="delete-form-{{ $indikatorkinerja->ik_id }}" method="POST" class="d-inline" action="{{ route('indikatorkinerja.destroy', $indikatorkinerja->ik_id) }}">
                                             @csrf

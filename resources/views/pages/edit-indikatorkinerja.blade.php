@@ -16,7 +16,7 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Edit Indikator Kinerja Utama</h1>
+                <h1>Edit Indikator Kinerja Utama/Tambahan</h1>
             </div>
 
             <div class="section-body">
@@ -141,13 +141,10 @@
                                                 </div>
                                             </div>
                                             <select id="ik_ketercapaian" name="ik_ketercapaian" class="form-control" required onchange="updateBaselinePlaceholder()">
-                                            <option value="" disabled>Pilih Ketercapaian</option>
-                                                @foreach ($ketercapaians as $ketercapaian)
-                                                    <option value="{{ $ketercapaian }}" 
-                                                        {{ old('ik_ketercapaian', $indikatorkinerja->ik_ketercapaian) == $ketercapaian ? 'selected' : '' }}>
-                                                        {{ $ketercapaian }}
-                                                    </option>
-                                                @endforeach
+                                                <option value="nilai" {{ old('ik_ketercapaian', $indikatorkinerja->ik_ketercapaian ?? '') == 'nilai' ? 'selected' : '' }}>Nilai</option>
+                                                <option value="persentase" {{ old('ik_ketercapaian', $indikatorkinerja->ik_ketercapaian ?? '') == 'persentase' ? 'selected' : '' }}>Persentase</option>
+                                                <option value="ketersediaan" {{ old('ik_ketercapaian', $indikatorkinerja->ik_ketercapaian ?? '') == 'ketersediaan' ? 'selected' : '' }}>Ketersediaan</option>
+                                                <option value="rasio" {{ old('ik_ketercapaian', $indikatorkinerja->ik_ketercapaian ?? '') == 'rasio' ? 'selected' : '' }}>Rasio</option>                                                
                                             </select>
                                         </div> 
                                     </div>

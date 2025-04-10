@@ -131,6 +131,20 @@
                                                 </div>
                                             </div>
 
+                                            <!-- Jenis Ketercapaian -->
+                                            <div class="form-group">
+                                                <label for="jenis_ketercapaian">Jenis Ketercapaian</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fa-solid fa-info-circle"></i>
+                                                        </div>
+                                                    </div>
+                                                    <input type="text" id="jenis_ketercapaian" class="form-control" value="" disabled>
+                                                </div>
+                                            </div>
+
+
                                             <!-- Target Capaian -->
                                             <div class="form-group">
                                                 <label for="ti_target">Target Capaian</label>
@@ -174,6 +188,8 @@
             function updateTargetFields() {
                 const selectedOption = ikSelect.options[ikSelect.selectedIndex];
                 const jenis = selectedOption.getAttribute("data-jenis");
+                const jenisInput = document.getElementById("jenis_ketercapaian");
+                jenisInput.value = jenis ?? '';
 
                 if (jenis === "nilai") {
                     tiTargetInput.placeholder = "Indikator ini menggunakan ketercapaian nilai";
@@ -192,6 +208,7 @@
                     tiTargetHint.textContent = "Isi sesuai dengan jenis ketercapaian.";
                 }
             }
+
 
             ikSelect.addEventListener("change", updateTargetFields);
 
