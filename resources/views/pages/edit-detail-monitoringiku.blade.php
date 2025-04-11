@@ -128,16 +128,23 @@
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="mtid_capaian">Capaian</label>
+                                                    @php
+                                                        $capaian_terakhir = old('mtid_capaian', $monitoringikuDetail->mtid_capaian);
+
+                                                        // Hilangkan spasi dan '%' untuk analisis
+                                                        $cleaned = is_string($capaian_terakhir) ? trim(str_replace('%', '', $capaian_terakhir)) : '';
+
+                                                        // Deteksi jenis capaian
+                                                        $is_persentase = is_numeric($cleaned) && str_ends_with($capaian_terakhir, '%');
+                                                        $is_nilai = is_numeric($cleaned) && !$is_persentase;
+                                                        $is_ratio = preg_match('/^\d+\s*:\s*\d+$/', $capaian_terakhir);
+
+                                                        // Pilih value input (hanya nilai numerik atau rasio saja)
+                                                        $input_value = ($is_persentase || $is_nilai || $is_ratio) ? $cleaned : '';
+                                                    @endphp
+
                                                     <select class="form-control" name="mtid_capaian" id="mtid_capaian" required>
-                                                        @php
-                                                            $capaian_terakhir = old('mtid_capaian', $monitoringikuDetail->mtid_capaian);
-                                                            $capaian_clean = is_string($capaian_terakhir) ? rtrim($capaian_terakhir, '%') : $capaian_terakhir;
-                                                            $is_persentase = is_numeric($capaian_clean) && str_ends_with($capaian_terakhir, '%');
-                                                            $is_nilai = is_numeric($capaian_clean) && !$is_persentase;
-                                                            $is_ratio = preg_match('/^\d+:\d+$/', $capaian_terakhir);
-                                                            $input_value = $is_persentase || $is_nilai || $is_ratio ? $capaian_clean : '';
-                                                        @endphp
-                                                        <option value="" disabled {{ is_null($capaian_terakhir) ? 'selected' : '' }}>Pilih Capaian</option>
+                                                        <option value="" disabled {{ empty($capaian_terakhir) ? 'selected' : '' }}>Pilih Capaian</option>
                                                         <option value="ada" {{ $capaian_terakhir === 'ada' ? 'selected' : '' }}>Ada</option>
                                                         <option value="draft" {{ $capaian_terakhir === 'draft' ? 'selected' : '' }}>Draft</option>
                                                         <option value="persentase" {{ $is_persentase ? 'selected' : '' }}>Persentase</option>
@@ -373,41 +380,63 @@
             const ikNamaInput = document.getElementById("ik_nama");
             const mtidCapaianInput = document.getElementById("mtid_capaian");
             const mtidCapaianHint = document.getElementById("mtid_capaian_hint");
+            const capaianInputGroup = document.getElementById('capaian_value_group');
+            const capaianInput = document.getElementById('capaian_value');
     
             const jenis = "{{ $targetIndikator->indikatorKinerja->ik_ketercapaian }}";
     
-            if (jenis === "nilai") {
-                mtidCapaianInput.placeholder = "Indikator ini menggunakan ketercapaian nilai";
-                mtidCapaianHint.textContent = "Isi nilai ketercapaian seperti 1.2 atau 1.3.";
-            } else if (jenis === "persentase") {
-                mtidCapaianInput.placeholder = "Indikator ini menggunakan ketercapaian persentase";
-                mtidCapaianHint.textContent = "Isi angka dalam rentang 0 hingga 100.";
-            } else if (jenis === "ketersediaan") {
-                mtidCapaianInput.placeholder = "Indikator ini menggunakan ketercapaian ketersediaan";
-                mtidCapaianHint.textContent = "Isi dengan 'Ada' atau 'Draft'.";
-            } else {
-                mtidCapaianInput.placeholder = "Isi Capaian";
-                mtidCapaianHint.textContent = "Isi sesuai dengan jenis ketercapaian.";
+            // Tampilkan hint dan placeholder sesuai jenis ketercapaian
+            function setPlaceholderAndHint(jenis) {
+                if (jenis === "nilai") {
+                    capaianInput.placeholder = "Contoh: 3.5 atau 4.0";
+                    mtidCapaianHint.textContent = "Isi nilai ketercapaian seperti 1.2 atau 4.0.";
+                } else if (jenis === "persentase") {
+                    capaianInput.placeholder = "Contoh: 80 atau 100";
+                    mtidCapaianHint.textContent = "Isi angka dalam rentang 0 hingga 100.";
+                } else if (jenis === "rasio") {
+                    capaianInput.placeholder = "Contoh: 3 : 2";
+                    mtidCapaianHint.textContent = "Gunakan format angka : angka, misalnya 3 : 2.";
+                } else if (jenis === "ketersediaan") {
+                    capaianInput.placeholder = "Tidak perlu diisi";
+                    mtidCapaianHint.textContent = "Tidak memerlukan input capaian (gunakan 'Ada' atau 'Draft').";
+                } else {
+                    capaianInput.placeholder = "Isi capaian sesuai jenis";
+                    mtidCapaianHint.textContent = "Isi sesuai dengan jenis ketercapaian.";
+                }
             }
+    
+            // Tampilkan atau sembunyikan input capaian
+            function toggleInputVisibility() {
+                const selectedValue = mtidCapaianInput.value;
+    
+                if (selectedValue === 'persentase' || selectedValue === 'nilai' || selectedValue === 'rasio') {
+                    capaianInputGroup.style.display = 'block';
+                } else {
+                    capaianInputGroup.style.display = 'none';
+                    capaianInput.value = '';
+                }
+    
+                setPlaceholderAndHint(selectedValue);
+            }
+    
+            // Tambahan validasi ringan untuk rasio
+            capaianInput.addEventListener('input', function () {
+                if (mtidCapaianInput.value === 'rasio') {
+                    // Auto-format: bersihkan spasi dan tambahkan spasi standar
+                    let cleaned = this.value.replace(/\s*/g, ''); // 3:2
+                    if (/^\d+:\d+$/.test(cleaned)) {
+                        let [left, right] = cleaned.split(':');
+                        this.value = `${left} : ${right}`;
+                    }
+                }
+            });
+    
+            // Event listener
+            mtidCapaianInput.addEventListener('change', toggleInputVisibility);
+    
+            // Inisialisasi saat halaman dimuat
+            toggleInputVisibility();
         });
-
-        document.addEventListener("DOMContentLoaded", function () {
-        let capaianDropdown = document.getElementById('mtid_capaian');
-        let capaianInputGroup = document.getElementById('capaian_value_group');
-        let capaianInput = document.getElementById('capaian_value');
-
-        function toggleInputVisibility() {
-            let selectedValue = capaianDropdown.value;
-            if (selectedValue === 'persentase' || selectedValue === 'nilai' || selectedValue === 'rasio') {
-                capaianInputGroup.style.display = 'block';
-            } else {
-                capaianInputGroup.style.display = 'none';
-                capaianInput.value = '';
-            }
-        }
-
-        capaianDropdown.addEventListener('change', toggleInputVisibility);
-        toggleInputVisibility(); // Panggil saat halaman dimuat
-    });
     </script>
+    
 @endpush

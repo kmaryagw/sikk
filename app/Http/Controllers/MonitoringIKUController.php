@@ -324,8 +324,17 @@ class MonitoringIKUController extends Controller
                     if (in_array($request->mtid_capaian, ['persentase', 'nilai']) && !is_numeric($value)) {
                         $fail('Nilai harus berupa angka.');
                     }
-                    if ($request->mtid_capaian === 'rasio' && !preg_match('/^\d+:\d+$/', $value)) {
-                        $fail('Format rasio harus dalam bentuk angka:angka, misalnya 5:2.');
+
+                    if ($request->mtid_capaian === 'rasio') {
+                        $cleaned = preg_replace('/\s*/', '', $value); // hilangkan semua spasi
+                        if (!preg_match('/^\d+:\d+$/', $cleaned)) {
+                            $fail('Format rasio harus dalam bentuk angka:angka, misalnya 5:2.');
+                        } else {
+                            [$left, $right] = explode(':', $cleaned);
+                            if ((int)$left === 0 && (int)$right === 0) {
+                                $fail('Rasio tidak boleh 0:0.');
+                            }
+                        }
                     }
                 }
             ],
@@ -334,22 +343,38 @@ class MonitoringIKUController extends Controller
             'mtid_url' => 'required|url',
         ]);
 
+        // dd([
+        //     'Jenis Capaian' => $validated['mtid_capaian'],
+        //     'Nilai Input Asli' => $validated['capaian_value'],
+        //     'Setelah Trim' => trim($validated['capaian_value'] ?? ''),
+        // ]);
+        
+
         try {
             $monitoringikuDetail = MonitoringIKU_Detail::where('mti_id', $mti_id)
                 ->where('ti_id', $ti_id)
                 ->first();
 
-            // Proses capaian_final berdasarkan jenis input
-            $capaianFinal = $validated['mtid_capaian'];
-            if ($capaianFinal === 'persentase') {
-                $capaianFinal = is_numeric($validated['capaian_value']) ? $validated['capaian_value'] . '%' : '0%';
-            } elseif ($capaianFinal === 'nilai') {
-                $capaianFinal = is_numeric($validated['capaian_value']) ? (float) $validated['capaian_value'] : 0;
-            } elseif ($capaianFinal === 'rasio') {
-                $capaianFinal = preg_match('/^\d+:\d+$/', $validated['capaian_value']) ? $validated['capaian_value'] : '0:0';
+            // Ambil jenis capaian
+            $jenisCapaian = $validated['mtid_capaian'];
+            $inputCapaian = trim($validated['capaian_value'] ?? '');
+
+            // Proses nilai akhir mtid_capaian berdasarkan jenisnya
+            if ($jenisCapaian === 'persentase') {
+                $capaianFinal = is_numeric($inputCapaian) ? $inputCapaian . '%' : '0%';
+            } elseif ($jenisCapaian === 'nilai') {
+                $capaianFinal = is_numeric($inputCapaian) ? (float) $inputCapaian : 0;
+            } elseif ($jenisCapaian === 'rasio') {
+                $cleaned = preg_replace('/\s*/', '', $inputCapaian); // "1:50"
+                $capaianFinal = preg_replace('/(\d+):(\d+)/', '$1 : $2', $cleaned); // "1 : 50"
+
+                [$left, $right] = explode(':', $cleaned);
+                $capaianFinal = $left . ' : ' . $right; // Tambahkan spasi sesuai keinginan
+            } else {
+                $capaianFinal = $inputCapaian; // fallback
             }
 
-            // Update atau buat data baru
+            // Update atau buat baru
             if ($monitoringikuDetail) {
                 $monitoringikuDetail->update([
                     'mtid_capaian' => $capaianFinal,
@@ -390,6 +415,7 @@ class MonitoringIKUController extends Controller
             return redirect()->route('monitoringiku.index-detail', $mti_id);
         }
     }
+
 
 
 

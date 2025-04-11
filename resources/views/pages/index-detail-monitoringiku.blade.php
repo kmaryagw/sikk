@@ -140,8 +140,8 @@
                                             </div>
                                         @elseif(is_numeric($capaian) && $ketercapaian == 'nilai')
                                             <span class="badge badge-primary"><i class="fa-solid fa-circle"></i> {{ $capaian }}</span>
-                                        @elseif(preg_match('/^\d+:\d+$/', $capaian)) {{-- Jika format rasio (misalnya 1:2) --}}
-                                            <span class="badge badge-info"><i class="fa-solid fa-balance-scale"></i> {{ $capaian }}</span>
+                                            @elseif(preg_match('/^\d+\s*:\s*\d+$/', $capaian)) {{-- Jika format rasio (misalnya 1 : 2) --}}
+                                            <span class="badge badge-info">  <i class="fa-solid fa-balance-scale"></i> {{ $capaian }}</span>
                                         @elseif(strtolower($capaian) === 'ada')
                                             <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
                                         @elseif(strtolower($capaian) === 'draft')
