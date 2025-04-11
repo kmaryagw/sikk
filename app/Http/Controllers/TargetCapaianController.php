@@ -198,21 +198,39 @@ class TargetCapaianController extends Controller
         ];
 
         if ($indikatorKinerjas) {
-            if ($indikatorKinerjas->ik_ketercapaian == 'nilai') {
+            $ketercapaian = strtolower($indikatorKinerjas->ik_ketercapaian);
+
+            if ($ketercapaian === 'nilai') {
                 $validationRules['ti_target'] = 'required|numeric|min:0';
-            } elseif ($indikatorKinerjas->ik_ketercapaian == 'persentase') {
+            } elseif ($ketercapaian === 'persentase') {
                 $validationRules['ti_target'] = 'required|numeric|min:0|max:100';
-            } elseif ($indikatorKinerjas->ik_ketercapaian == 'ketersediaan') {
-                $validationRules['ti_target'] = 'required|string';
-            } elseif ($indikatorKinerjas->ik_ketercapaian == 'rasio') {
-                $validationRules['ti_target'] = 'required|string';
+            } elseif ($ketercapaian === 'ketersediaan') {
+                $validationRules['ti_target'] = 'required|in:ada,draft';
+            } elseif ($ketercapaian === 'rasio') {
+                $validationRules['ti_target'] = [
+                    'required',
+                    'regex:/^\d+\s*:\s*\d+$/'
+                ];
             }
         }
 
-        $request->validate($validationRules);
+        $customMessages = [
+            'ti_target.regex' => 'Format rasio harus dalam bentuk angka : angka (contoh: 3 : 1)',
+            'ti_target.in' => 'Untuk jenis ketersediaan, hanya boleh diisi "ada" atau "draft".',
+        ];
+
+        $request->validate($validationRules, $customMessages);
+
+        // Normalisasi nilai target untuk rasio (hilangkan spasi, beri format konsisten)
+        $ti_target = $request->ti_target;
+        if ($indikatorKinerjas && $indikatorKinerjas->ik_ketercapaian === 'rasio') {
+            $cleaned = preg_replace('/\s*/', '', $ti_target);
+            [$left, $right] = explode(':', $cleaned);
+            $ti_target = $left . ' : ' . $right;
+        }
 
         $targetcapaian->ik_id = $request->ik_id;
-        $targetcapaian->ti_target = $request->ti_target;
+        $targetcapaian->ti_target = $ti_target;
         $targetcapaian->ti_keterangan = $request->ti_keterangan;
         $targetcapaian->prodi_id = $request->prodi_id;
         $targetcapaian->th_id = $request->th_id;
@@ -222,6 +240,7 @@ class TargetCapaianController extends Controller
 
         return redirect()->route('targetcapaian.index');
     }
+
 
     public function destroy(target_indikator $targetcapaian)
     {
