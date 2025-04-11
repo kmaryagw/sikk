@@ -103,7 +103,7 @@
                                                 <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
                                             @endif
                                         @elseif ($ketercapaian === 'rasio')
-                                            <span class="badge badge-info">{{ $baselineRaw }}</span>
+                                            <span class="badge badge-info"><i class="fa-solid fa-balance-scale"></i> {{ $baselineRaw }}</span>
                                         @else
                                             {{ $baselineRaw }}
                                         @endif
@@ -111,9 +111,9 @@
                                     <td>
                                         @php
                                             $ketercapaian = strtolower($targetcapaian->ik_ketercapaian);
-                                            $targetValue = trim($targetcapaian->ti_target);
-                                            $numericValue = (float) str_replace('%', '', $targetValue);
-                                            $progressColor = $numericValue == 0 ? '#dc3545' : '#28a745'; // Bisa diatur dinamis
+                                            $targetRaw = trim($targetcapaian->ti_target);
+                                            $numericValue = (float) str_replace('%', '', $targetRaw);
+                                            $progressColor = $numericValue == 0 ? '#dc3545' : '#28a745'; // Merah jika 0, hijau jika > 0
                                         @endphp
                                     
                                         @if ($ketercapaian === 'persentase' && is_numeric($numericValue))
@@ -124,20 +124,28 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                        @elseif ($ketercapaian === 'nilai' && is_numeric($targetValue))
-                                            <span class="badge badge-primary">{{ $targetValue }}</span>
-                                        @elseif (in_array(strtolower($targetValue), ['ada', 'draft']))
-                                            @if (strtolower($targetValue) === 'ada')
+                                        @elseif ($ketercapaian === 'nilai' && is_numeric($targetRaw))
+                                            <span class="badge badge-primary">{{ $targetRaw }}</span>
+                                        @elseif (in_array(strtolower($targetRaw), ['ada', 'draft']))
+                                            @if (strtolower($targetRaw) === 'ada')
                                                 <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
                                             @else
                                                 <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
                                             @endif
                                         @elseif ($ketercapaian === 'rasio')
-                                            <span class="badge badge-info">{{ $targetValue }}</span>
+                                            @php
+                                                $formattedRasio = 'Format salah';
+                                                $cleaned = preg_replace('/\s*/', '', $targetRaw);
+                                                if (preg_match('/^\d+:\d+$/', $cleaned)) {
+                                                    [$left, $right] = explode(':', $cleaned);
+                                                    $formattedRasio = $left . ' : ' . $right;
+                                                }
+                                            @endphp
+                                            <span class="badge badge-info"><i class="fa-solid fa-balance-scale"></i> {{ $formattedRasio }} </span>
                                         @else
-                                            {{ $targetValue }}
+                                            {{ $targetRaw }}
                                         @endif
-                                    </td>                                                                                                                                                                                  
+                                    </td>                                                                                                                                                                                                                      
                                     <td>{{ $targetcapaian->ti_keterangan }}</td>
 
                                     @if (Auth::user()->role== 'admin' || Auth::user()->role == 'prodi')

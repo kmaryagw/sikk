@@ -123,7 +123,23 @@
                                                 <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
                                             @endif
                                         @elseif ($ketercapaian === 'rasio')
-                                            <span class="badge badge-info"><i class="fa-solid fa-balance-scale"></i> {{ $baselineRaw }} </span>
+                                            @php
+                                                // Default jika format salah
+                                                $formattedRasio = 'Format salah';
+                                                $cleaned = preg_replace('/\s*/', '', $baselineRaw); // Hilangkan semua spasi dari input rasio
+                                                // Cek apakah format memenuhi pola angka:angka (contoh: 5:2)
+                                                if (preg_match('/^\d+:\d+$/', $cleaned)) {
+                                                    $parts = explode(':', $cleaned); // Pisahkan nilai kiri dan kanan dengan explode
+                                                    // Pastikan explode menghasilkan dua elemen (angka kiri dan kanan)
+                                                    if (count($parts) === 2) {
+                                                        $formattedRasio = $parts[0] . ' : ' . $parts[1]; // Format ulang menjadi 'X : Y' dengan spasi di tengah
+                                                    }
+                                                }
+                                            @endphp
+                                            {{-- Tampilkan hasil rasio yang sudah diformat atau "Format salah" --}}
+                                            <span class="badge badge-info">
+                                                <i class="fa-solid fa-balance-scale"></i> {{ $formattedRasio }}
+                                            </span>
                                         @else
                                             {{ $baselineRaw }}
                                         @endif

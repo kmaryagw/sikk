@@ -199,30 +199,58 @@ class IndikatorKinerjaController extends Controller
             'ik_baseline' => 'required',
             'ik_is_aktif' => 'required|in:y,n',
             'ik_ketercapaian' => 'required|in:nilai,persentase,ketersediaan,rasio',
+            'ik_is_aktif' => 'required|in:y,n',
         ];
 
-        if ($request) {
-            if ($request->ik_ketercapaian == 'nilai') {
-                $validationRules['ik_baseline'] = 'required|numeric|min:0';
-            } elseif ($request->ik_ketercapaian == 'persentase') {
-                $validationRules['ik_baseline'] = 'required|numeric|min:0|max:100';
-            } elseif ($request->ik_ketercapaian == 'ketersediaan') {
-                $validationRules['ik_baseline'] = 'required|string';
-            } elseif ($request->ik_ketercapaian == 'rasio') {
-                $validationRules['ik_baseline'] = 'required|string';
-            }
-        }
+        $ketercapaian = strtolower($request->ik_ketercapaian); // normalize lowercase
 
-        $request->validate($validationRules);
+        if ($ketercapaian == 'nilai') {
+            $validationRules['ik_baseline'] = 'required|numeric|min:0';
+        } elseif ($ketercapaian == 'persentase') {
+            $validationRules['ik_baseline'] = 'required|numeric|min:0|max:100';
+        } elseif ($ketercapaian == 'ketersediaan') {
+            $validationRules['ik_baseline'] = [
+                'required',
+                'in:ada,draft'
+            ];
+        } elseif ($ketercapaian === 'rasio') {
+            $cleaned = preg_replace('/\s*/', '', $request->ik_baseline); // hapus semua spasi
+        
+            if (!preg_match('/^\d+:\d+$/', $cleaned)) {
+                return back()->withErrors(['ik_baseline' => 'Format rasio harus dalam bentuk angka:angka, misalnya 3:1.'])->withInput();
+            }
+        
+            [$left, $right] = explode(':', $cleaned);
+        
+            if ((int)$left === 0 && (int)$right === 0) {
+                return back()->withErrors(['ik_baseline' => 'Rasio tidak boleh 0:0.'])->withInput();
+            }
+        
+            // Format ulang jadi konsisten (misal: 3 : 1)
+            $formatted = $left . ' : ' . $right;
+            $request->merge([
+                'ik_baseline' => $formatted,
+            ]);
+        }      
+            
+        $customMessages = [
+            'ik_baseline.regex' => 'Format rasio harus dalam bentuk angka : angka (contoh: 3 : 1)',
+            'ik_baseline.in' => 'Untuk jenis ketersediaan, hanya boleh diisi "ada" atau "draft".',
+        ];
+
+        $request->validate($validationRules, $customMessages);
 
         $indikatorkinerja->ik_kode = $request->ik_kode;
         $indikatorkinerja->ik_nama = $request->ik_nama;
         $indikatorkinerja->std_id = $request->std_id;
         $indikatorkinerja->ik_jenis = $request->ik_jenis;
         $indikatorkinerja->ik_baseline = $request->ik_baseline;
+        $indikatorkinerja->ik_baseline = strtolower($request->ik_baseline); // normalisasi untuk disimpan
         $indikatorkinerja->ik_is_aktif = $request->ik_is_aktif;
-        $indikatorkinerja->ik_ketercapaian = $request->ik_ketercapaian;
-
+        // $indikatorkinerja->ik_is_aktif = $request->ik_is_aktif;
+        // $indikatorkinerja->ik_ketercapaian = $request->ik_ketercapaian;
+        // $indikatorkinerja->ik_ketercapaian = $ketercapaian;
+        
         $indikatorkinerja->save();
 
         Alert::success('Sukses', 'Data Berhasil Diubah');
