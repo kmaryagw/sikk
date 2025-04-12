@@ -1,6 +1,11 @@
 @extends('layouts.app')
 @section('title', 'Detail Realisasi Renja')
 
+@push('style')
+    <!-- CSS Libraries -->
+    <link rel="stylesheet" href="{{ asset('css/circular-progress-bar.css') }}">
+@endpush
+
 @section('main')
 <div class="main-content">
     <section class="section">
@@ -103,10 +108,25 @@
                                     <td>{{ $no++ }}</td>
                                     <td style="padding: 1rem;">{{ $item->rkr_deskripsi }}</td>
                                     <td>
-                                        <div class="progress" style="height: 20px;">
-                                            <div class="progress-bar" role="progressbar" style="width: {{ $item->rkr_capaian }}%;" aria-valuenow="{{ $item->rkr_capaian }}" aria-valuemin="0" aria-valuemax="100">{{ $item->rkr_capaian }}%</div>
-                                        </div>
+                                        @php
+                                            $capaianRaw = trim($item->rkr_capaian);
+                                            $capaianValue = (float) str_replace('%', '', $capaianRaw);
+                                            $progressColor = $capaianValue == 0 ? '#dc3545' : '#28a745';
+                                        @endphp
+                                    
+                                        @if (is_numeric($capaianValue))
+                                            <div class="ring-progress-wrapper">
+                                                <div class="ring-progress" style="--value: {{ $capaianValue }}; --progress-color: {{ $progressColor }};">
+                                                    <div class="ring-inner">
+                                                        <span class="ring-text">{{ $capaianValue }}%</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            {{ $capaianRaw }}
+                                        @endif
                                     </td>
+                                    
                                     <td>
                                         @if($item->rkr_tanggal instanceof \Carbon\Carbon)
                                             {{ $item->rkr_tanggal->format('d-m-Y') }}

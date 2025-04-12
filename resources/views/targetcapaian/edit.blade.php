@@ -131,6 +131,19 @@
                                                 </div>
                                             </div>
 
+                                            <!-- Jenis Ketercapaian -->
+                                            <div class="form-group">
+                                                <label for="jenis_ketercapaian">Jenis Ketercapaian</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <div class="input-group-text">
+                                                            <i class="fa-solid fa-info-circle"></i>
+                                                        </div>
+                                                    </div>
+                                                    <input type="text" id="jenis_ketercapaian" class="form-control" value="" disabled>
+                                                </div>
+                                            </div>
+
                                             <!-- Target Capaian -->
                                             <div class="form-group">
                                                 <label for="ti_target">Target Capaian</label>
@@ -167,37 +180,39 @@
     @include('sweetalert::alert')
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const ikSelect = document.getElementById("ik_id");
-            const tiTargetInput = document.getElementById("ti_target");
-            const tiTargetHint = document.getElementById("ti_target_hint");
-
-            function updateTargetFields() {
-                const selectedOption = ikSelect.options[ikSelect.selectedIndex];
+            const selectIK = document.getElementById("ik_id");
+            const jenisInput = document.getElementById("jenis_ketercapaian");
+            const targetHint = document.getElementById("ti_target_hint");
+    
+            function updateJenisKetercapaian() {
+                const selectedOption = selectIK.options[selectIK.selectedIndex];
                 const jenis = selectedOption.getAttribute("data-jenis");
-
-                if (jenis === "nilai") {
-                    tiTargetInput.placeholder = "Indikator ini menggunakan ketercapaian nilai";
-                    tiTargetHint.textContent = "Isi nilai ketercapaian seperti 1.2 atau 1.3.";
-                } else if (jenis === "persentase") {
-                    tiTargetInput.placeholder = "Indikator ini menggunakan ketercapaian persentase";
-                    tiTargetHint.textContent = "Isi angka dalam rentang 0 hingga 100.";
-                } else if (jenis === "ketersediaan") {
-                    tiTargetInput.placeholder = "Indikator ini menggunakan ketercapaian ketersediaan";
-                    tiTargetHint.textContent = "Isi dengan 'Ada' atau 'Draft'.";
-                } else if (jenis === "rasio") {
-                    tiTargetInput.placeholder = "Indikator ini menggunakan ketercapaian rasio";
-                    tiTargetHint.textContent = "Isi dengan rasio (contoh: 1:20, 1:25)";
+    
+                if (jenis) {
+                    jenisInput.value = jenis.charAt(0).toUpperCase() + jenis.slice(1); // Kapitalisasi
+                    if (jenis === 'nilai') {
+                        targetHint.textContent = "Isi dengan angka, contoh: 2.5 atau 80";
+                    } else if (jenis === 'persentase') {
+                        targetHint.textContent = "Isi angka antara 0 sampai 100.";
+                    } else if (jenis === 'ketersediaan') {
+                        targetHint.textContent = "Isi dengan 'ada' atau 'draft'.";
+                    } else if (jenis === 'rasio') {
+                        targetHint.textContent = "Isi dengan format x : y, contoh: 2 : 1";
+                    } else {
+                        targetHint.textContent = "Isi sesuai dengan jenis ketercapaian.";
+                    }
                 } else {
-                    tiTargetInput.placeholder = "Isi Target Capaian";
-                    tiTargetHint.textContent = "Isi sesuai dengan jenis ketercapaian.";
+                    jenisInput.value = "";
+                    targetHint.textContent = "Isi sesuai dengan jenis ketercapaian.";
                 }
             }
-
-            ikSelect.addEventListener("change", updateTargetFields);
-
-            updateTargetFields();
+    
+            // Trigger saat load dan saat ganti indikator
+            selectIK.addEventListener("change", updateJenisKetercapaian);
+            updateJenisKetercapaian(); // Set nilai awal saat halaman pertama kali dimuat
         });
-    </script>    
+    </script>
+       
     <script>
         document.getElementById('baseline').value = '{{ $baseline ?? 'Pilih Indikator Kinerja Terlebih Dahulu' }}';
     

@@ -24,32 +24,39 @@ class TargetCapaianProdiController extends Controller
 
     public function index(Request $request)
     {
-        $title = 'Data Target Capaian';
+        $title = 'Data Target Capaian Prodi';
         $q = $request->query('q');
         $tahunId = $request->query('tahun');
         $prodiId = $request->query('prodi');
 
-        $tahun = tahun_kerja::where('th_is_aktif', 'y')->first();
+        $tahun = tahun_kerja::where('th_is_aktif', 'y')->get();
         $prodis = program_studi::all();
 
-        $query = target_indikator::leftjoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
-            ->leftjoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
-            ->leftjoin('tahun_kerja', 'tahun_kerja.th_id','=','target_indikator.th_id');
-        
-        //hanya tahun aktif
-        $query->where('target_indikator.th_id', $tahun->th_id);
+        $query = target_indikator::query()
+            ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
+            ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
+            ->leftJoin('tahun_kerja as aktif_tahun', function ($join) {
+                $join->on('aktif_tahun.th_id', '=', 'target_indikator.th_id')
+                    ->where('aktif_tahun.th_is_aktif', 'y');
+            });
 
+        // Jika user prodi, batasi ke prodi mereka
         if (Auth::user()->role == 'prodi') {
             $query->where('target_indikator.prodi_id', Auth::user()->prodi_id);
             $prodis = program_studi::where('prodi_id', Auth::user()->prodi_id)->get();
-        } 
+        }
 
+        // Filter pencarian fleksibel
         if ($q) {
-            $query->where('ik_nama', 'like', '%' . $q . '%');
+            $query->where(function ($sub) use ($q) {
+                $sub->where('target_indikator.ti_target', 'like', "%$q%")
+                    ->orWhere('indikator_kinerja.ik_nama', 'like', "%$q%")
+                    ->orWhere('indikator_kinerja.ik_kode', 'like', "%$q%");
+            });
         }
 
         if ($tahunId) {
-            $query->where('tahun_kerja.th_id', $tahunId);
+            $query->where('aktif_tahun.th_id', $tahunId);
         }
 
         if ($prodiId) {
@@ -230,21 +237,45 @@ class TargetCapaianProdiController extends Controller
         ];
 
         if ($indikatorKinerjas) {
-            if ($indikatorKinerjas->ik_ketercapaian == 'nilai') {
+            $ketercapaian = strtolower($indikatorKinerjas->ik_ketercapaian);
+
+            if ($ketercapaian === 'nilai') {
                 $validationRules['ti_target'] = 'required|numeric|min:0';
-            } elseif ($indikatorKinerjas->ik_ketercapaian == 'persentase') {
+            } elseif ($ketercapaian === 'persentase') {
                 $validationRules['ti_target'] = 'required|numeric|min:0|max:100';
-            } elseif ($indikatorKinerjas->ik_ketercapaian == 'ketersediaan') {
-                $validationRules['ti_target'] = 'required|string';
-            } elseif ($indikatorKinerjas->ik_ketercapaian == 'rasio') {
-                $validationRules['ti_target'] = 'required|string';
+            } elseif ($ketercapaian === 'ketersediaan') {
+                $validationRules['ti_target'] = 'required|in:ada,draft';
+            } elseif ($ketercapaian === 'rasio') {
+                $validationRules['ti_target'] = [
+                    'required',
+                    'regex:/^\d+\s*:\s*\d+$/'
+                ];
             }
         }
 
-        $request->validate($validationRules);
+        $customMessages = [
+            'ti_target.regex' => 'Format rasio harus dalam bentuk angka : angka (contoh: 3 : 1)',
+            'ti_target.in' => 'Untuk jenis ketersediaan, hanya boleh diisi "ada" atau "draft".',
+        ];
+
+        $request->validate($validationRules, $customMessages);
+
+        // Normalisasi nilai target untuk rasio agar hasil akhir konsisten (x : y)
+        $ti_target = $request->ti_target;
+        if ($indikatorKinerjas && strtolower($indikatorKinerjas->ik_ketercapaian) === 'rasio') {
+            // Ambil angka kiri dan kanan dari input
+            preg_match('/^(\d+)\s*:\s*(\d+)$/', $ti_target, $matches);
+            if (count($matches) === 3) {
+                $left = $matches[1];
+                $right = $matches[2];
+                $ti_target = $left . ' : ' . $right;
+            } else {
+                $ti_target = '0 : 0'; // fallback jika regex gagal
+            }
+        }
 
         $targetcapaian->ik_id = $request->ik_id;
-        $targetcapaian->ti_target = $request->ti_target;
+        $targetcapaian->ti_target = $ti_target;
         $targetcapaian->ti_keterangan = $request->ti_keterangan;
         $targetcapaian->prodi_id = $request->prodi_id;
         $targetcapaian->th_id = $request->th_id;
