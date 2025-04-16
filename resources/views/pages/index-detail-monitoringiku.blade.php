@@ -130,7 +130,7 @@
                                             $progressColor = $numericValue == 0 ? '#dc3545' : '#28a745'; // Warna bisa kamu sesuaikan
                                         @endphp
 
-                                        @if (strpos($capaian, '%') !== false) {{-- Jika ada "%" berarti persentase --}}
+                                        @if (strpos($capaian, '%') !== false || $ketercapaian === 'persentase'){{-- Jika ada "%" berarti persentase --}}
                                             <div class="ring-progress-wrapper">
                                                 <div class="ring-progress" style="--value: {{ $numericValue }}; --progress-color: {{ $progressColor }};">
                                                     <div class="ring-inner">
@@ -139,7 +139,7 @@
                                                 </div>
                                             </div>
                                         @elseif(is_numeric($capaian) && $ketercapaian == 'nilai')
-                                            <span class="badge badge-primary"><i class="fa-solid fa-circle"></i> {{ $capaian }}</span>
+                                            <span class="badge badge-primary"> {{ $capaian }}</span>
                                             @elseif(preg_match('/^\d+\s*:\s*\d+$/', $capaian)) {{-- Jika format rasio (misalnya 1 : 2) --}}
                                             <span class="badge badge-info">  <i class="fa-solid fa-balance-scale"></i> {{ $capaian }}</span>
                                         @elseif(strtolower($capaian) === 'ada')
