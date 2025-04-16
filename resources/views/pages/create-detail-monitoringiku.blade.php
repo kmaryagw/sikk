@@ -78,13 +78,8 @@
                                                                 <i class="{{ $icon }}"></i>
                                                             </span>
                                                         </div>
-                                                        <input type="text" 
-                                                               class="form-control text-capitalize" 
-                                                               value="{{ $indikatorKinerja->ik_ketercapaian ?? '-' }}" 
-                                                               readonly>
-                                                        <input type="hidden" 
-                                                               name="mtid_ketercapaian[]" 
-                                                               value="{{ $indikatorKinerja->ik_ketercapaian }}">
+                                                        <input type="text" class="form-control text-capitalize" value="{{ $indikatorKinerja->ik_ketercapaian ?? '-' }}" readonly>
+                                                        <input type="hidden" name="mtid_ketercapaian[]" value="{{ $indikatorKinerja->ik_ketercapaian }}">
                                                     </div>
                                                 </td>
                                                 <td>

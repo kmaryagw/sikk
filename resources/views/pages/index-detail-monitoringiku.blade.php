@@ -127,7 +127,7 @@
                                             $capaian = optional($target->monitoringDetail)->mtid_capaian;
                                             $ketercapaian = optional($target->indikatorKinerja)->ik_ketercapaian;
                                             $numericValue = (float) str_replace('%', '', $capaian);
-                                            $progressColor = $numericValue == 0 ? '#dc3545' : '#28a745'; // Warna bisa kamu sesuaikan
+                                            $progressColor = $numericValue == 0 ? '#dc3545' : '#28a745';
                                         @endphp
 
                                         @if (strpos($capaian, '%') !== false || $ketercapaian === 'persentase'){{-- Jika ada "%" berarti persentase --}}
@@ -140,8 +140,13 @@
                                             </div>
                                         @elseif(is_numeric($capaian) && $ketercapaian == 'nilai')
                                             <span class="badge badge-primary"> {{ $capaian }}</span>
-                                            @elseif(preg_match('/^\d+\s*:\s*\d+$/', $capaian)) {{-- Jika format rasio (misalnya 1 : 2) --}}
-                                            <span class="badge badge-info">  <i class="fa-solid fa-balance-scale"></i> {{ $capaian }}</span>
+                                        @elseif(preg_match('/^\d+\s*:\s*\d+$/', $capaian))
+                                            @php
+                                                $cleanedRasio = preg_replace('/\s*/', '', $capaian);
+                                                [$left, $right] = explode(':', $cleanedRasio);
+                                                $formattedRasio = $left . ' : ' . $right;
+                                            @endphp
+                                            <span class="badge badge-info"><i class="fa-solid fa-balance-scale"></i> {{ $formattedRasio }}</span>
                                         @elseif(strtolower($capaian) === 'ada')
                                             <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
                                         @elseif(strtolower($capaian) === 'draft')
@@ -152,8 +157,6 @@
                                             <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Belum ada Capaian</span>
                                         @endif
                                     </td>
-                                                                        
-                             
                                     <td>
                                         @php
                                             $status = strtolower(optional($target->monitoringDetail)->mtid_status ?? '');
@@ -169,24 +172,13 @@
                                             <span>Belum ada Status</span>
                                         @endif
                                     </td>
-                                    
-                                    
-                                    {{-- <td>
-                                        @if($target->monitoringDetail->mtid_url ?? 'Belum ada Capaian')
-                                            <a href="{{ $target->monitoringDetail->mtid_url ?? 'Belum ada Capaian'}}" target="_blank" class="btn btn-sm btn-success">Lihat URL</a>
-                                        @else
-                                            Belum Ada URL
-                                        @endif
-                                    </td>   --}}
                                     <td>
                                         @if(isset($target->monitoringDetail->mtid_url) && $target->monitoringDetail->mtid_url)
                                             <a href="{{ $target->monitoringDetail->mtid_url }}" target="_blank" class="btn btn-sm btn-success">Lihat URL</a>
                                         @else
                                             Belum Ada URL
                                         @endif
-                                    </td>
-                                    
-                                                                     
+                                    </td>                                                                
                                     <td class="text-center">
                                         <a href="{{ route('monitoringiku.edit-detail', ['mti_id' => $Monitoringiku->mti_id, 'ti_id' => $target->ti_id]) }}" class="btn btn-sm btn-warning"><i class="fa-solid fa-pen-to-square"></i> Isi/Ubah</a>                                      
                                     </td>
