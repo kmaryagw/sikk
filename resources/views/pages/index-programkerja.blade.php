@@ -55,13 +55,13 @@
                     <table class="table table-hover table-bordered table-striped m-0">
                         <thead>
                             <tr>
-                                <th>No</th>
-                                <th>Tahun</th>
-                                <th>Program Studi</th>
-                                <th style="width: 35%;">Indikator Kinerja</th>
-                                <th>Nama Program Kerja</th>
-                                <th>Unit Kerja</th>
-                                <th>Periode</th>
+                                <th style="width : 1%">No</th>
+                                <th style="width : 1%">Tahun</th>
+                                <th style="width : 10%">Program Studi</th>
+                                <th style="width : 35%">Indikator Kinerja</th>
+                                <th style="width : 15%">Program Kerja</th>
+                                <th style="width : 10%">Unit Kerja</th>
+                                <th style="width : 15%">Periode Monev</th>
                                 @if (Auth::user()->role == 'admin' || Auth::user()->role == 'unit kerja')
                                     <th>Aksi</th>
                                 @endif

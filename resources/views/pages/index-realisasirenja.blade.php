@@ -34,14 +34,14 @@
                 <table class="table table-hover table-bordered table-striped m-0">
                     <thead>
                         <tr>
-                            <th>No</th>
-                            <th>Tahun</th>
-                            <th>Program Studi</th>
-                            <th style="width : 40%">Indikator Kinerja</th>
-                            <th>Program Kerja</th>
-                            <th>Unit Kerja</th>
-                            <th>Periode Monev</th>
-                            <th>Aksi</th>
+                            <th style="width : 1%">No</th>
+                            <th style="width : 1%">Tahun</th>
+                            <th style="width : 10%">Program Studi</th>
+                            <th style="width : 35%">Indikator Kinerja</th>
+                            <th style="width : 15%">Program Kerja</th>
+                            <th style="width : 10%">Unit Kerja</th>
+                            <th style="width : 15%">Periode Monev</th>
+                            <th style="width : 3%">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -65,7 +65,7 @@
                                     @if($rencanaKerja->targetindikators->isNotEmpty())
                                         <ul class="list-unstyled">
                                             @foreach ($rencanaKerja->targetindikators as $iku)
-                                                <li class="my-2" style="padding: .5rem;">{{ $iku->indikatorKinerja->ik_kode }} - {{ $iku->indikatorKinerja->ik_nama }}</li>
+                                                <li class="my-2" style="padding: 1.5rem;">{{ $iku->indikatorKinerja->ik_kode }} - {{ $iku->indikatorKinerja->ik_nama }}</li>
                                             @endforeach
                                         </ul>
                                     @else
