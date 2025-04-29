@@ -47,10 +47,25 @@
                             @php $no = $dataSurats->firstItem(); @endphp
                             @foreach($dataSurats as $surat)
                             <tr>
-                                <td>{{ $no++ }}</td>
+                                <td style="padding: 3rem ">{{ $no++ }}</td>
                                 <td>{{ $surat->sn_nomor ?? 'Belum Valid '}}</td>
                                 <td>{{ $surat->organisasiJabatan->oj_nama }} ({{ $surat->organisasiJabatan->parent->oj_nama ?? '-' }}, {{ $surat->organisasiJabatan->parent->parent->oj_nama ?? '-' }})</td>
-                                <td>{{ $surat->lingkup->skl_nama }} ({{ $surat->lingkup->perihal->skp_nama ?? '' }}, {{ $surat->lingkup->perihal->fungsi->skf_nama ?? '' }})</td>
+                                <td>
+                                    <div class="d-flex align-items-center text-truncate" style="max-width: 250px;">
+                                        <span class="text-truncate" style="max-width: 220px;"
+                                              data-bs-toggle="tooltip" 
+                                              data-bs-placement="top" 
+                                              title="{{ $surat->lingkup->skl_nama }} ({{ $surat->lingkup->perihal->skp_nama ?? '' }}, {{ $surat->lingkup->perihal->fungsi->skf_nama ?? '' }})">
+                                            {{ $surat->lingkup->skl_nama }} ({{ $surat->lingkup->perihal->skp_nama ?? '' }}, {{ $surat->lingkup->perihal->fungsi->skf_nama ?? '' }})
+                                        </span>
+                                        <i class="fa-solid fa-circle-info ms-2 text-primary"
+                                           data-bs-toggle="tooltip" 
+                                           data-bs-placement="top" 
+                                           title="{{ $surat->lingkup->skl_nama }} ({{ $surat->lingkup->perihal->skp_nama ?? '' }}, {{ $surat->lingkup->perihal->fungsi->skf_nama ?? '' }})"
+                                           style="cursor: pointer;">
+                                        </i>
+                                    </div>
+                                </td>                                
                                 <td>{{ $surat->sn_tanggal }}</td>
                                 <td>{{ $surat->sn_perihal }}</td>
                                 <td>{{ $surat->unitKerja->unit_nama }}</td>
@@ -101,6 +116,18 @@
 
     <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/index-0.js') }}"></script>
-
+    {{-- js buat truncate + tooltip --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+    </script>
+    {{-- js buat truncate + tooltip --}}
+        
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 @endpush

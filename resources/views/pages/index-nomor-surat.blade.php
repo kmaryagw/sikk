@@ -50,10 +50,25 @@
                             @php $no = $suratNomors->firstItem(); @endphp
                             @foreach($suratNomors as $surat)
                             <tr>
-                                <td>{{ $no++}}</td>
+                                <td style="padding :3rem;">{{ $no++}}</td>
                                 <td>{{ $surat->sn_nomor ?? 'Belum Valid '}}</td>
                                 <td>{{ $surat->organisasiJabatan->oj_nama }} ({{ $surat->organisasiJabatan->parent->oj_nama ?? '-' }}, {{ $surat->organisasiJabatan->parent->parent->oj_nama ?? '-' }})</td>
-                                <td>{{ $surat->lingkup->skl_nama }} ({{ $surat->lingkup->perihal->skp_nama ?? '' }}, {{ $surat->lingkup->perihal->fungsi->skf_nama ?? '' }})</td>
+                                <td>
+                                    <div class="d-flex align-items-center text-truncate" style="max-width: 250px;">
+                                        <span class="text-truncate" style="max-width: 220px;" 
+                                              data-bs-toggle="tooltip" 
+                                              data-bs-placement="top" 
+                                              title="{{ $surat->lingkup->skl_nama }} ({{ $surat->lingkup->perihal->skp_nama ?? '' }}, {{ $surat->lingkup->perihal->fungsi->skf_nama ?? '' }})">
+                                            {{ $surat->lingkup->skl_nama }} ({{ $surat->lingkup->perihal->skp_nama ?? '' }}, {{ $surat->lingkup->perihal->fungsi->skf_nama ?? '' }})
+                                        </span>
+                                        <i class="fa-solid fa-circle-info ms-2 text-primary" 
+                                           data-bs-toggle="tooltip" 
+                                           data-bs-placement="top" 
+                                           title="{{ $surat->lingkup->skl_nama }} ({{ $surat->lingkup->perihal->skp_nama ?? '' }}, {{ $surat->lingkup->perihal->fungsi->skf_nama ?? '' }})"
+                                           style="cursor: pointer;">
+                                        </i>
+                                    </div>
+                                </td>                                
                                 <td>{{ $surat->sn_tanggal }}</td>
                                 <td>{{ $surat->sn_perihal }}</td>
                                 <td>{{ $surat->sn_keterangan }}</td>
@@ -77,44 +92,71 @@
                                         $is_rektor_senat = in_array($oj_nama_lower, ['rektor', 'senat akademik']) || in_array($oj_induk_lower, ['rektor', 'senat akademik']);
                                     @endphp
                                 
-                                    @if ($sn_status_lower == 'draft' || $sn_status_lower == 'revisi')
-                                        @if ($is_rektor_senat)
-                                            <a href="{{ route('nomorsurat.edit', $surat->sn_id) }}" class="btn btn-sm btn-warning mt-2 mb-2">
-                                                <i class="fa-solid fa-pen-to-square"></i> Edit
-                                            </a>
-                                            <button class="btn btn-sm btn-danger mt-2 mb-2" onclick="hapusSurat('{{ $surat->sn_id }}')">
-                                                <i class="fa-solid fa-trash"></i> Hapus
-                                            </button>
-                                            <button class="btn btn-sm btn-primary mt-2 mb-2" onclick="ajukanSurat('{{ $surat->sn_id }}')">
-                                                <i class="fa-solid fa-paper-plane"></i> Ajukan
-                                            </button>
-                                        @else
-                                            <a href="{{ route('nomorsurat.edit', $surat->sn_id) }}" class="btn btn-sm btn-warning mt-2 mb-2">
-                                                <i class="fa-solid fa-pen-to-square"></i> Edit
-                                            </a>
-                                            <button class="btn btn-sm btn-danger mt-2 mb-2" onclick="hapusSurat('{{ $surat->sn_id }}')">
-                                                <i class="fa-solid fa-trash"></i> Hapus
-                                            </button>
-                                            <button class="btn btn-sm btn-success mt-2 mb-2" onclick="validasiSurat('{{ $surat->sn_id }}')">
-                                                <i class="fa-solid fa-lock"></i> Valid
-                                            </button>
-                                        @endif
-                                    @elseif ($sn_status_lower == 'validasi')
-                                        <button class="btn btn-sm btn-secondary mt-2 mb-2" disabled>
-                                            <i class="fa-solid fa-check"></i> Sudah Valid
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Aksi
                                         </button>
-                                        <button class="btn btn-sm btn-danger mt-2 mb-2" onclick="hapusSurat('{{ $surat->sn_id }}')">
-                                            <i class="fa-solid fa-trash"></i> Hapus
-                                        </button>
-                                    @elseif ($sn_status_lower == 'ajukan')
-                                        <button class="btn btn-sm btn-secondary mt-2 mb-2" disabled>
-                                            <i class="fa-solid fa-paper-plane"></i> Sudah Diajukan
-                                        </button>
-                                        <button class="btn btn-sm btn-danger mt-2 mb-2" onclick="hapusSurat('{{ $surat->sn_id }}')">
-                                            <i class="fa-solid fa-trash"></i> Hapus
-                                        </button>
-                                    @endif
-                                </td>
+                                        <ul class="dropdown-menu">
+                                            @if ($sn_status_lower == 'draft' || $sn_status_lower == 'revisi')
+                                                @if ($is_rektor_senat)
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ route('nomorsurat.edit', $surat->sn_id) }}">
+                                                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <button class="dropdown-item text-danger" onclick="hapusSurat('{{ $surat->sn_id }}')">
+                                                            <i class="fa-solid fa-trash"></i> Hapus
+                                                        </button>
+                                                    </li>
+                                                    <li>
+                                                        <button class="dropdown-item text-primary" onclick="ajukanSurat('{{ $surat->sn_id }}')">
+                                                            <i class="fa-solid fa-paper-plane"></i> Ajukan
+                                                        </button>
+                                                    </li>
+                                                @else
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ route('nomorsurat.edit', $surat->sn_id) }}">
+                                                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <button class="dropdown-item text-danger" onclick="hapusSurat('{{ $surat->sn_id }}')">
+                                                            <i class="fa-solid fa-trash"></i> Hapus
+                                                        </button>
+                                                    </li>
+                                                    <li>
+                                                        <button class="dropdown-item text-success" onclick="validasiSurat('{{ $surat->sn_id }}')">
+                                                            <i class="fa-solid fa-lock"></i> Valid
+                                                        </button>
+                                                    </li>
+                                                @endif
+                                            @elseif ($sn_status_lower == 'validasi')
+                                                <li>
+                                                    <button class="dropdown-item text-secondary" disabled>
+                                                        <i class="fa-solid fa-check"></i> Sudah Valid
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button class="dropdown-item text-danger" onclick="hapusSurat('{{ $surat->sn_id }}')">
+                                                        <i class="fa-solid fa-trash"></i> Hapus
+                                                    </button>
+                                                </li>
+                                            @elseif ($sn_status_lower == 'ajukan')
+                                                <li>
+                                                    <button class="dropdown-item text-secondary" disabled>
+                                                        <i class="fa-solid fa-paper-plane"></i> Sudah Diajukan
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button class="dropdown-item text-danger" onclick="hapusSurat('{{ $surat->sn_id }}')">
+                                                        <i class="fa-solid fa-trash"></i> Hapus
+                                                    </button>
+                                                </li>
+                                            @endif
+                                        </ul>
+                                    </div>
+                                </td>                                
                                 
                             </tr>
                             @endforeach
@@ -273,6 +315,13 @@
             }
         });
     }
-</script>
 
+    document.addEventListener('DOMContentLoaded', function () {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 @endpush
