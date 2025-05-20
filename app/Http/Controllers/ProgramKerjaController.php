@@ -30,7 +30,7 @@ class ProgramKerjaController extends Controller
         $unit_id = $request->query('unit_id');
         $tahunId = $request->query('tahun');
 
-        $units = UnitKerja::where('unit_kerja', 'aktif')->get();
+        $units = UnitKerja::where('unit_kerja', 'y')->get();
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
         $periodes = periode_monev::orderBy('pm_nama', 'asc')->get();
 

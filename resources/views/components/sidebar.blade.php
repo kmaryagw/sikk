@@ -179,7 +179,7 @@
             @endif
 
             {{-- Monitoring Renja--}}
-            @if (Auth::user()->role == 'admin')
+            @if (Auth::user()->role == 'admin' || Auth::user()->role == 'unit kerja')
             <li class="{{ $type_menu === 'monitoring' ? 'active' : '' }}">
                 <a class="nav-link"
                     href="{{ url('monitoring') }}"><i class="fa fa-eye" aria-hidden="true"></i> <span>Monitoring Renja</span>

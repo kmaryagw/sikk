@@ -88,7 +88,7 @@
                                         @if($programkerja->targetindikators->isNotEmpty())
                                             <ul class="list-unstyled">
                                                 @foreach ($programkerja->targetindikators as $iku)
-                                                    <li class="my-2" style="padding: .5rem;">{{ $iku->indikatorKinerja->ik_kode }} - {{ $iku->indikatorKinerja->ik_nama }}</li>
+                                                    <li class="my-2" style="padding: 1rem;">{{ $iku->indikatorKinerja->ik_kode }} - {{ $iku->indikatorKinerja->ik_nama }}</li>
                                                 @endforeach
                                             </ul>
                                         @else
