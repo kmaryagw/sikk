@@ -40,7 +40,7 @@
     </script>
     <!-- END GA -->
 
-    <!-- CSS untuk Loading Screen -->
+    {{-- <!-- CSS untuk Loading Screen -->
     <style>
         #loading-screen {
             position: fixed;
@@ -113,13 +113,13 @@
             text-shadow: 0 0 10px rgba(255, 71, 71, 0.8);
         }
     </style>
-    
+     --}}
 </head>
 
 <body>
 
     <!-- Loading Screen -->
-    <div id="loading-screen">
+    {{-- <div id="loading-screen">
         <div class="spinner"></div>
         <div class="loading-text">Loading...</div>
         <div class="dot-wave">
@@ -128,7 +128,7 @@
             <div class="dot"></div>
             <div class="dot"></div>
         </div>
-    </div>
+    </div> --}}
 
     <div id="app">
         <div class="main-wrapper">
@@ -148,7 +148,7 @@
         </div>
     </div>
 
-    <!-- Script untuk menghilangkan loading setelah halaman selesai dimuat -->
+    {{-- <!-- Script untuk menghilangkan loading setelah halaman selesai dimuat -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             let loadingScreen = document.getElementById("loading-screen");
@@ -215,7 +215,7 @@
                 });
             });
         });
-    </script>
+    </script> --}}
 
 
     

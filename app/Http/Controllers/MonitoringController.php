@@ -64,18 +64,33 @@ class MonitoringController extends Controller
 
     public function show($pmo_id)
     {
-        $periodeMonitoring = PeriodeMonitoring::with('tahunKerja', 'periodeMonev')->findOrFail($pmo_id);
+        // Ambil Periode Monitoring beserta Tahun Kerja dan Periode Monev-nya
+        $periodeMonitoring = PeriodeMonitoring::with(['tahunKerja', 'periodeMonev'])->findOrFail($pmo_id);
 
-        $rencanaKerja = RencanaKerja::with(['monitoring' => function ($query) use ($pmo_id) {
-            $query->where('pmo_id', $pmo_id);
-        }, 'unitKerja'])
-            ->whereHas('periodes', function ($query) use ($periodeMonitoring) {
-                $query->where('rencana_kerja_pelaksanaan.pm_id', $periodeMonitoring->pm_id);
-            })->get();
+        // Ambil semua ID periode_monev terkait periode_monitoring
+        $periodeMonevIds = $periodeMonitoring->periodeMonev->pluck('pm_id')->toArray();
 
+        // Ambil semua Rencana Kerja yang terkait dengan periode_monev dari periode_monitoring
+        $rencanaKerja = RencanaKerja::with([
+                'unitKerja',
+                'monitoring' => function ($query) use ($pmo_id) {
+                    $query->where('pmo_id', $pmo_id);
+                }
+            ])
+            ->whereHas('periodes', function ($query) use ($periodeMonevIds) {
+                $query->whereIn('rencana_kerja_pelaksanaan.pm_id', $periodeMonevIds);
+            })
+            ->get();
+
+        // Tandai apakah masing-masing rencana sudah dimonitoring
         foreach ($rencanaKerja as $rencana) {
             $rencana->is_monitored = $rencana->monitoring->isNotEmpty();
         }
+
+        foreach ($rencanaKerja as $rencana) {
+            \Log::info("Rencana Kerja: $rencana->rk_nama, Monitored: " . $rencana->monitoring->count());
+        }
+        
 
         return view('pages.monitoring-show', [
             'periodeMonitoring' => $periodeMonitoring,
@@ -93,38 +108,36 @@ class MonitoringController extends Controller
         $periodeMonitoring = PeriodeMonitoring::with('tahunKerja', 'periodeMonev')->findOrFail($pmo_id);
 
         // Ambil data rencana kerja yang sesuai dengan periode monitoring
-        $rencanaKerjaQuery = RencanaKerja::with(['periodes', 'monitoring' => function ($query) use ($pmo_id) {
-            $query->where('pmo_id', $pmo_id);
-        }, 'unitKerja', 'realisasi'])
-            ->whereHas('periodes', function ($query) use ($periodeMonitoring) {
-                $query->whereIn('rencana_kerja_pelaksanaan.pm_id', $periodeMonitoring->periodeMonev->pluck('pm_id')->toArray());
-            });
+        $periodeMonevIds = $periodeMonitoring->periodeMonev->pluck('pm_id');
 
-        // Jika role yang login adalah 'unit kerja', filter berdasarkan unit_id
+        $rencanaKerjaQuery = RencanaKerja::with([
+                'periodes',
+                'monitoring' => fn ($query) => $query->where('pmo_id', $pmo_id),
+                'unitKerja',
+                'realisasi',
+            ])
+            ->whereHas('periodes', fn ($query) => $query->whereIn('rencana_kerja_pelaksanaan.pm_id', $periodeMonevIds));
+
         if (Auth::user()->role == 'unit kerja') {
-            $rencanaKerjaQuery->whereHas('unitKerja', function ($query) {
-                $query->where('unit_id', Auth::user()->unit_id);
-            });
+            $rencanaKerjaQuery->whereHas('unitKerja', fn ($query) =>
+                $query->where('unit_id', Auth::user()->unit_id)
+            );
         }
 
         // Ambil data rencana kerja yang sudah difilter
         $rencanaKerja = $rencanaKerjaQuery->get();
-        
-        // Tandai apakah rencana kerja telah memiliki monitoring
+
+        // Tambahkan flag
         $rencanaKerja->each(function ($rencana) {
             $rencana->is_submitted = $rencana->monitoring->isNotEmpty();
         });
 
-        // Ambil periode yang sudah dipilih sebelumnya
-        $selectedPeriodes = [];
-        if ($rencanaKerja->isNotEmpty()) {
-            // Ambil data monitoring pertama dari rencana kerja pertama
-            $monitoring = $rencanaKerja->first()->monitoring->first();
-            if ($monitoring) {
-                // Ambil ID periode yang sudah dipilih sebelumnya
-                $selectedPeriodes = $monitoring->periodes->pluck('pm_id')->toArray();
-            }
-        }
+        // Buat mapping selected periode per rk_id
+        $selectedPeriodes = $rencanaKerja->mapWithKeys(function ($rencana) {
+            $monitoring = $rencana->monitoring->first();
+            $selected = $monitoring ? $monitoring->periodes->pluck('pm_id')->toArray() : [];
+            return [$rencana->rk_id => $selected];
+        });
 
         // ID periode yang harus dihapus dari dropdown
         $restrictedIds = [
@@ -132,14 +145,13 @@ class MonitoringController extends Controller
             'PM0A1C8847BC9316A6FC058F47C1EC7682', // Q4
         ];
 
-        // Tentukan apakah perlu menghapus opsi "Perlu Tindak Lanjut"
-        $hideTindakLanjut = in_array($periodeMonitoring->periodeMonev->first()->pm_id, $restrictedIds);
+        $hideTindakLanjut = in_array(optional($periodeMonitoring->periodeMonev->first())->pm_id, $restrictedIds);
 
         return view('pages.monitoring-fill', [
             'periodes' => $periodes,
             'periodeMonitoring' => $periodeMonitoring,
             'rencanaKerja' => $rencanaKerja,
-            'selectedPeriodes' => $selectedPeriodes, // Kirim data periode yang sudah dipilih
+            'selectedPeriodes' => $selectedPeriodes,
             'hideTindakLanjut' => $hideTindakLanjut,
             'type_menu' => 'monitoring',
         ]);
@@ -208,6 +220,9 @@ class MonitoringController extends Controller
             } else {
                 $monitoring->periodes()->detach(); // Hapus semua relasi periode jika status bukan 'p'
             }
+
+            \Log::info('Saved Monitoring Data:', $monitoring->toArray());
+
        
             DB::commit(); // Simpan transaksi
     
@@ -228,6 +243,19 @@ class MonitoringController extends Controller
             ], 500);
         }
     }
+
+    // public function lihatMonitoring()
+    // {
+    //     $rencanaKerja = RencanaKerja::with([
+    //         'monitoring',
+    //         'unitKerja',
+    //         'periodes',
+    //         'tahunKerja',
+    //     ])->get();
+
+    //     return view('monitoring.lihat', compact('rencanaKerja'));
+    // }
+
 
 
 public function getData($pmo_id, $rk_id)

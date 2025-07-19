@@ -2,11 +2,12 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Laporan Indikator Kinerja Utama/Tambahan</title>
+    <title>Laporan IKU - Program Studi Bisnis Digital</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             font-size: 12px;
+            margin: 20px;
         }
 
         h1 {
@@ -23,6 +24,7 @@
             border: 1px solid #000;
             padding: 6px;
             text-align: center;
+            vertical-align: middle;
         }
 
         th {
@@ -48,33 +50,37 @@
 
         .text-success {
             color: green;
+            font-weight: bold;
         }
 
         .text-danger {
             color: red;
+            font-weight: bold;
         }
 
         .text-warning {
             color: orange;
+            font-weight: bold;
         }
 
         .text-primary {
             color: #007bff;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <h1>Laporan Indikator Kinerja Utama/Tambahan</h1>
+    <h1>Laporan IKU - Program Studi Bisnis Digital</h1>
 
     <table>
         <thead>
             <tr>
                 <th style="width: 1%;">No</th>
                 <th style="width: 10%;">Tahun</th>
-                <th style="width: 10%;">Prodi</th>
-                <th style="width: 35%;">Indikator Kinerja</th>
-                <th style="width: 10%;">Target Capaian</th>
+                <th>Indikator Kinerja</th>
+                <th style="width: 10%;">Satuan</th>
+                <th style="width: 10%;">Target</th>
                 <th style="width: 10%;">Capaian</th>
                 <th style="width: 15%;">Status</th>
             </tr>
@@ -82,32 +88,35 @@
         <tbody>
             @forelse ($target_capaians as $index => $target)
                 @php
-                    $ketercapaian = strtolower(optional($target->indikatorKinerja)->ik_ketercapaian ?? '');
-                    $targetValue = trim($target->ti_target ?? '');
-                    $capaian = trim(optional($target->monitoringDetail)->mtid_capaian ?? '');
-                    $status = strtolower(optional($target->monitoringDetail)->mtid_status ?? '');
+                    $ik = $target->indikatorKinerja;
+                    $monitoring = $target->monitoringDetail;
+
+                    $satuan = strtolower($ik->ik_ketercapaian ?? '-');
+                    $targetVal = trim($target->ti_target ?? '-');
+                    $capaian = trim($monitoring->mtid_capaian ?? '');
+                    $status = strtolower($monitoring->mtid_status ?? '');
                 @endphp
 
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $target->th_tahun }}</td>
-                    <td>{{ $target->nama_prodi }}</td>
-                    <td>{{ $target->ik_nama }}</td>
+                    <td>{{ $ik->ik_nama ?? '-' }}</td>
+                    <td>{{ ucfirst($satuan) }}</td>
 
                     {{-- Target --}}
                     <td>
-                        @if ($ketercapaian === 'persentase' && is_numeric(str_replace('%', '', $targetValue)))
-                            {{ floatval(str_replace('%', '', $targetValue)) }}%
-                        @elseif ($ketercapaian === 'nilai' && is_numeric($targetValue))
-                            <span class="badge badge-primary">{{ $targetValue }}</span>
-                        @elseif (in_array(strtolower($targetValue), ['ada', 'tidak']))
-                            <span class="{{ strtolower($targetValue) === 'ada' ? 'text-success' : 'text-danger' }}">
-                                {{ ucfirst(strtolower($targetValue)) }}
+                        @if ($satuan === 'persentase' && is_numeric(str_replace('%', '', $targetVal)))
+                            {{ floatval(str_replace('%', '', $targetVal)) }}%
+                        @elseif ($satuan === 'nilai' && is_numeric($targetVal))
+                            <span class="badge badge-primary">{{ $targetVal }}</span>
+                        @elseif (in_array(strtolower($targetVal), ['ada', 'tidak']))
+                            <span class="{{ strtolower($targetVal) === 'ada' ? 'text-success' : 'text-danger' }}">
+                                {{ ucfirst(strtolower($targetVal)) }}
                             </span>
-                        @elseif ($ketercapaian === 'rasio')
+                        @elseif ($satuan === 'rasio')
                             @php
                                 $formattedRasio = 'Format salah';
-                                $cleaned = preg_replace('/\s*/', '', $targetValue);
+                                $cleaned = preg_replace('/\s*/', '', $targetVal);
                                 if (preg_match('/^\d+:\d+$/', $cleaned)) {
                                     [$left, $right] = explode(':', $cleaned);
                                     $formattedRasio = $left . ' : ' . $right;
@@ -115,17 +124,17 @@
                             @endphp
                             <span class="badge badge-info">{{ $formattedRasio }}</span>
                         @else
-                            {{ $targetValue }}
+                            {{ $targetVal }}
                         @endif
                     </td>
 
                     {{-- Capaian --}}
                     <td>
-                        @if ($ketercapaian === 'persentase' && is_numeric(str_replace('%', '', $capaian)))
+                        @if ($satuan === 'persentase' && is_numeric(str_replace('%', '', $capaian)))
                             {{ floatval(str_replace('%', '', $capaian)) }}%
-                        @elseif ($ketercapaian === 'nilai' && is_numeric($capaian))
+                        @elseif ($satuan === 'nilai' && is_numeric($capaian))
                             <span class="badge badge-primary">{{ $capaian }}</span>
-                        @elseif ($ketercapaian === 'rasio')
+                        @elseif ($satuan === 'rasio')
                             @php
                                 $formattedRasio = 'Format salah';
                                 $cleaned = preg_replace('/\s*/', '', $capaian);
@@ -146,7 +155,7 @@
                         @endif
                     </td>
 
-                    {{-- Keterangan --}}
+                    {{-- Status --}}
                     <td>
                         @if ($status === 'tercapai')
                             <span class="text-success">Tercapai</span>

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Edit Monitoring IKU')
+@section('title', 'Edit Monitoring Indikator Kinerja')
 
 @push('style')
     <link rel="stylesheet" href="{{ asset('library/select2/dist/css/select2.min.css') }}">
@@ -9,7 +9,7 @@
 <div class="main-content">
     <section class="section">
         <div class="section-header">
-            <h1>Tambah Monitoring IKU</h1>
+            <h1>Tambah Monitoring Indikator Kinerja</h1>
         </div>
 
         <div class="section-body">
@@ -123,7 +123,7 @@
                                 <!-- Card 2: Form Input -->
                                 <div class="card">
                                     <div class="card-body">
-                                        <h4 class="text-danger mb-3">Data Monitoring IKU</h4>
+                                        <h4 class="text-danger mb-3">Data Monitoring Indikator Kinerja</h4>
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
@@ -165,7 +165,7 @@
                                                 
                                             
 
-                                            <div class="col-md-6">
+                                            {{-- <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="mtid_status">Status</label>
                                                     <div class="input-group">
@@ -186,7 +186,7 @@
                                                             @endforeach
                                                         </select>
                                                     </div>
-                                                </div>
+                                                </div> --}}
                                             </div>                                            
                                             <div class="col-md-6">
                                                 <div class="form-group">

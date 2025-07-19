@@ -110,6 +110,18 @@
                                             </div>
 
                                             <div class="form-group">
+                                                <label for="std_id">Standar</label>
+                                                <select name="std_id" id="std_id" class="form-control select2" required>
+                                                    <option value="">Pilih Standar</option>
+                                                    @foreach($standars as $standar)
+                                                        <option value="{{ $standar->std_id }}" {{ old('std_id') == $standar->std_id ? 'selected' : '' }}>
+                                                            {{ $standar->std_nama }} - {{ $standar->std_deskripsi }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            <div class="form-group">
                                                 <label for="unit_id">Unit Kerja</label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
@@ -134,6 +146,14 @@
                                                         </select>
                                                     @endif
                                                 </div>
+
+                                                <div class="form-group pt-4">
+                                                    <label for="anggaran">Anggaran (Rp)</label>
+                                                    <input type="number" name="anggaran" id="anggaran" class="form-control"
+                                                           value="{{ old('anggaran', $programkerja->anggaran ?? '') }}" step="0.01" min="0">
+                                                </div>
+                                                
+
                                             </div>
 
                                         </div>

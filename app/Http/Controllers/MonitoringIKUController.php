@@ -20,7 +20,7 @@ class MonitoringIKUController extends Controller
 {
     public function __construct()
     {
-        if (Auth::check() && Auth::user()->role !== 'admin' && Auth::user()->role !== 'fakultas') {
+        if (Auth::check() && Auth::user()->role !== 'admin' && Auth::user()->role !== 'fakultas' && Auth::user()->role !== 'unit kerja') {
             abort(403, 'Unauthorized access');
         }
     }
@@ -146,8 +146,6 @@ class MonitoringIKUController extends Controller
 
     public function createDetail($mti_id)
     {
-
-
         $monitoringiku = MonitoringIKU::with(['prodi', 'tahunKerja'])->findOrFail($mti_id);
         $status = ['tercapai', 'tidak tercapai', 'tidak terlaksana'];
 
@@ -186,7 +184,7 @@ class MonitoringIKUController extends Controller
                 function ($attribute, $value, $fail) use ($request) {
                     $index = explode('.', $attribute)[1];
                     $type = $request->input("items.$index.type");
-            
+
                     if ($type === 'number' && !is_numeric($value)) {
                         $fail("The $attribute must be a number.");
                     }
@@ -194,36 +192,37 @@ class MonitoringIKUController extends Controller
             ],
             'mtid_keterangan' => 'nullable|array',
             'mtid_keterangan.*' => 'nullable|string',
-            'mtid_status' => 'nullable|array',
-            'mtid_status.*' => 'nullable|in:tercapai,tidak tercapai,tidak terlaksana',
             'mtid_url' => 'nullable|array',
             'mtid_url.*' => 'nullable|url',
         ]);
 
         try {
             $monitoringiku = MonitoringIKU::findOrFail($mti_id);
-    
+
             foreach ($request->ti_id as $index => $ti_id) {
-                $targetIndikator = target_indikator::findOrFail($ti_id);
-        
+                $targetIndikator = target_indikator::with('indikatorKinerja')->findOrFail($ti_id);
+                $jenis = strtolower($targetIndikator->indikatorKinerja->ik_ketercapaian ?? 'nilai'); // fallback
+
                 if ($monitoringiku->status == 1) {
                     return redirect()->route('monitoringiku.index')->with('error', 'Monitoring IKU ini sudah final dan tidak dapat diubah.');
                 }
-        
+
                 $customPrefix = 'MTID';
                 $timestamp = time();
                 $uuid = strtoupper(md5($timestamp . $index));
                 $mtid_id = $customPrefix . $uuid;
-        
+
                 $mtid_capaian = $request->mtid_capaian[$index] ?? null;
                 $mtid_keterangan = $request->mtid_keterangan[$index] ?? null;
-                $mtid_status = $request->mtid_status[$index] ?? null;
                 $mtid_url = $request->mtid_url[$index] ?? null;
-        
+
+                // Hitung status secara otomatis
+                $mtid_status = $this->hitungStatus($mtid_capaian, $targetIndikator->ti_target, $jenis);
+
                 $existingDetail = MonitoringIKU_Detail::where('mti_id', $mti_id)
                     ->where('ti_id', $ti_id)
                     ->first();
-        
+
                 $detail = MonitoringIKU_Detail::updateOrCreate(
                     [
                         'mti_id' => $mti_id,
@@ -238,14 +237,15 @@ class MonitoringIKUController extends Controller
                         'mtid_url' => $mtid_url,
                     ]
                 );
-        
-                if (!$existingDetail || 
+
+                if (
+                    !$existingDetail ||
                     ($existingDetail->mtid_capaian != $mtid_capaian ||
                     $existingDetail->mtid_keterangan != $mtid_keterangan ||
                     $existingDetail->mtid_status != $mtid_status ||
-                    $existingDetail->mtid_url != $mtid_url)) {
-
-                    if (!is_null($mtid_capaian) || !is_null($mtid_keterangan) || !is_null($mtid_status) || !is_null($mtid_url)) {
+                    $existingDetail->mtid_url != $mtid_url)
+                ) {
+                    if (!is_null($mtid_capaian) || !is_null($mtid_keterangan) || !is_null($mtid_url)) {
                         HistoryMonitoringIKU::create([
                             'hmi_id' => 'HMI' . strtoupper(md5(time() . $mtid_id)),
                             'mtid_id' => $detail->mtid_id,
@@ -259,10 +259,10 @@ class MonitoringIKUController extends Controller
                     }
                 }
             }        
-    
+
             Alert::success('Sukses', 'Data Berhasil Ditambah');
             return redirect()->route('monitoringiku.index-detail', $mti_id);
-    
+
         } catch (\Exception $e) {
             Alert::error('Error', 'Terjadi Kesalahan: ' . $e->getMessage());
             return redirect()->route('monitoringiku.index-detail', $mti_id);
@@ -416,7 +416,62 @@ class MonitoringIKUController extends Controller
         }
     }
 
+    private function hitungStatus($capaian, $target, $jenis)
+    {
+        $jenis = strtolower($jenis);
 
+        if (is_null($capaian) || $capaian === '') {
+            return 'Tidak Terlaksana';
+        }
+
+        // Untuk jenis numerik
+        if (in_array($jenis, ['nilai', 'persentase'])) {
+            $capaian = floatval($capaian);
+            $target = floatval($target);
+
+            if ($capaian > $target) {
+                return 'Terlampaui';
+            } elseif ($capaian == $target) {
+                return 'Tercapai';
+            } else {
+                return 'Tidak Tercapai';
+            }
+        }
+
+        // Untuk jenis rasio
+        if ($jenis === 'rasio') {
+            // Format yang valid adalah "a : b"
+            if (preg_match('/^\s*(\d+)\s*:\s*(\d+)\s*$/', $capaian, $matchCapaian) &&
+                preg_match('/^\s*(\d+)\s*:\s*(\d+)\s*$/', $target, $matchTarget)) {
+        
+                // Ambil nilai kanan dari rasio, yaitu pembilang b
+                $capaianRight = (int) $matchCapaian[2];
+                $targetRight = (int) $matchTarget[2];
+        
+                if ($capaianRight > $targetRight) {
+                    return 'Terlampaui';
+                } elseif ($capaianRight == $targetRight) {
+                    return 'Tercapai';
+                } else {
+                    return 'Tidak Tercapai';
+                }
+            }
+
+            return 'Tidak Tercapai'; // jika format tidak valid
+        }
+
+        // Untuk jenis ketersediaan (string)
+        if ($jenis === 'ketersediaan') {
+            $capaian = strtolower($capaian);
+            if ($capaian === 'ada') {
+                return 'Tercapai';
+            } elseif ($capaian === 'draft') {
+                return 'Tidak Tercapai';
+            }
+        }
+
+        return 'Tidak Tercapai';
+    }
 
 
     

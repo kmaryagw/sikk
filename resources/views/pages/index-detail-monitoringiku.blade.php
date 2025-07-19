@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Detail Monitoring IKU')
+@section('title', 'Detail Monitoring Indikator Kinerja')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -23,10 +23,10 @@
         </div>
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h4>Data Monitoring IKU dari Prodi : <span class="badge badge-info">{{ $Monitoringiku->targetIndikator->prodi->nama_prodi }}</span> Tahun : <span class="badge badge-primary">{{ $Monitoringiku->targetIndikator->tahunKerja->th_tahun }}</span></h4>
-                @if (Auth::user()->role == 'admin' || Auth::user()->role == 'fakultas')
+                <h4>Data Monitoring Indikator Kinerja dari Prodi : <span class="badge badge-info">{{ $Monitoringiku->targetIndikator->prodi->nama_prodi }}</span> Tahun : <span class="badge badge-primary">{{ $Monitoringiku->targetIndikator->tahunKerja->th_tahun }}</span></h4>
+                @if (Auth::user()->role == 'unit kerja')
                     <a class="btn btn-primary" href="{{ route('monitoringiku.create-detail', ['mti_id' => $Monitoringiku->mti_id]) }}">
-                        <i class="fa-solid fa-plus"></i> Isi/Ubah Semua
+                        <i class="fa-solid fa-plus"></i> Isi Monitoring
                     </a>
                 @endif           
             </div>
@@ -44,11 +44,13 @@
                                 <th style="width: 39%;">Indikator Kinerja</th>
                                 <th>Baseline</th>
                                 <th>Target</th>
-                                <th>Keterangan Indikator</th>
+                                {{-- <th>Keterangan Indikator</th> --}}
                                 <th>Capaian</th>
                                 <th>Status</th>
                                 <th>URL</th>
-                                <th class="text-center">Aksi</th>
+                                {{-- @if (Auth::user()->role == 'unit kerja')
+                                    <th class="text-center">Aksi</th>
+                                @endif --}}
                             </tr>
                         </thead>
                         <tbody>
@@ -120,8 +122,7 @@
                                             {{ $targetValue }}
                                         @endif
                                     </td>                                     
-                                    <td>{{ $target->ti_keterangan }}</td>  
-                                    {{-- <pre>{{ json_encode($target->monitoringDetail) }}</pre> --}}
+                                    
                                     <td>
                                         @php
                                             $capaian = optional($target->monitoringDetail)->mtid_capaian;
@@ -164,6 +165,8 @@
                                     
                                         @if($status === 'tercapai')
                                             <span class="text-success"><i class="fa-solid fa-check-circle"></i> Tercapai</span>
+                                        @elseif($status === 'terlampaui')
+                                            <span class="text-primary"><i class="fa-solid fa-arrow-up"></i> Terlampaui</span>
                                         @elseif($status === 'tidak tercapai')
                                             <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Tidak Tercapai</span>
                                         @elseif($status === 'tidak terlaksana')
@@ -171,18 +174,19 @@
                                         @else
                                             <span>Belum ada Status</span>
                                         @endif
-                                    </td>
+                                    </td>                                    
                                     <td>
                                         @if(isset($target->monitoringDetail->mtid_url) && $target->monitoringDetail->mtid_url)
                                             <a href="{{ $target->monitoringDetail->mtid_url }}" target="_blank" class="btn btn-sm btn-success">Lihat URL</a>
                                         @else
                                             Belum Ada URL
                                         @endif
-                                    </td>                                                                
+                                    </td>   
+                                    {{-- @if (Auth::user()->role == 'unit kerja')                                                             
                                     <td class="text-center">
                                         <a href="{{ route('monitoringiku.edit-detail', ['mti_id' => $Monitoringiku->mti_id, 'ti_id' => $target->ti_id]) }}" class="btn btn-sm btn-warning"><i class="fa-solid fa-pen-to-square"></i> Isi/Ubah</a>                                      
                                     </td>
-                                    
+                                    @endif --}}
                                 </tr>
                             @endforeach
                         </tbody>

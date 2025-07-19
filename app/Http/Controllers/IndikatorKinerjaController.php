@@ -33,10 +33,15 @@ class IndikatorKinerjaController extends Controller
             ->orderBy('ik_kode', 'asc');
 
         if ($q) {
-            $query->where('ik_nama', 'like', '%' . $q . '%');
+            $query->where('ik_kode', 'like', '%' . $q . '%');
         }
-
-
+        if ($q) {
+            $query->orWhere('ik_nama', 'like', '%' . $q . '%');
+        }
+        if ($q) {
+            $query->orWhere('std_nama', 'like', '%' . $q . '%');
+        }
+        
         $indikatorkinerjas = $query->paginate(10)->withQueryString();
         $no = $indikatorkinerjas->firstItem();
     

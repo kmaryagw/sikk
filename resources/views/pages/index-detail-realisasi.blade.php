@@ -77,7 +77,7 @@
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4>Data Realisasi</h4>
-                @if (Auth::user()->role == 'admin')
+                @if (Auth::user()->role == 'unit kerja')
                     <a class="btn btn-primary" href="{{ route('realisasirenja.create', ['rk_id' => $rencana->rk_id]) }}">
                         <i class="fa-solid fa-plus"></i> Tambah Realisasi
                     </a>

@@ -52,16 +52,33 @@
                     <div class="col-auto">
                         <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
                     </div>
-                    <div class="col-auto">
-                        <a href="{{ route('export-excel.iku') }}" class="btn btn-success">
+                    <div class="dropdown col-auto">
+                        <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fa-solid fa-file-excel"></i> Export Excel
-                        </a>
-                    </div>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ route('export-excel.iku') }}" target="_blank">Semua Prodi</a></li>
+                            <li><a class="dropdown-item" href="{{ route('export-excel.iku.if') }}" target="_blank">Informatika</a></li>
+                            <li><a class="dropdown-item" href="{{ route('export-excel.iku.rsk') }}" target="_blank">Rekayasa Sistem Komputer</a></li>
+                            <li><a class="dropdown-item" href="{{ route('export-excel.iku.bd') }}" target="_blank">Bisnis Digital</a></li>
+                            <li><a class="dropdown-item" href="{{ route('export-excel.iku.dkv') }}" target="_blank">Desain Komunikasi Visual</a></li>
+                        </ul>
+                    </div>                  
+                    
                     <div class="col-auto">
-                        <a href="{{ route('export-pdf.iku') }}" class="btn btn-danger" target="_blank">
-                            <i class="fa-solid fa-file-pdf"></i> Export PDF
-                        </a>                        
-                    </div>
+                        <div class="dropdown">
+                            <button class="btn btn-danger dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa-solid fa-file-pdf"></i> Export Pdf
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ route('export-pdf.iku') }}" target="_blank">Semua Prodi</a></li>
+                                <li><a class="dropdown-item" href="{{ route('export-pdf.iku.if') }}" target="_blank">Informatika</a></li>
+                                <li><a class="dropdown-item" href="{{ route('export-pdf.iku.rsk') }}" target="_blank">Rekayasa Sistem Komputer</a></li>
+                                <li><a class="dropdown-item" href="{{ route('export-pdf.iku.bd') }}" target="_blank">Bisnis Digital</a></li>
+                                <li><a class="dropdown-item" href="{{ route('export-pdf.iku.dkv') }}" target="_blank">Desain Komunikasi Visual</a></li>
+                            </ul>
+                        </div>
+                    </div>                    
                 </form>                
             </div>
 
@@ -75,7 +92,7 @@
                             <th style="width: 30%;">Indikator Kinerja</th>
                             <th style="width: 10%;">Target Capaian</th>
                             <th style="width: 15%;">Capaian</th> 
-                            <th>Keterangan</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     
@@ -175,11 +192,16 @@
 
                             <td>
                                 @php
-                                    $status = strtolower(optional($targetcapaian->monitoringDetail)->mtid_status ?? '');
+                                    $capaian = optional($targetcapaian->monitoringDetail)->mtid_capaian ?? null;
+                                    $target = $targetcapaian->ti_target;
+                                    $jenis = optional($targetcapaian->indikatorKinerja)->ik_ketercapaian;
+                                    $status = hitungStatus($capaian, $target, $jenis);
                                 @endphp
                             
                                 @if ($status === 'tercapai')
                                     <span class="text-success"><i class="fa-solid fa-check-circle"></i> Tercapai</span>
+                                @elseif ($status === 'terlampaui')
+                                    <span class="text-primary"><i class="fa-solid fa-arrow-up"></i> Terlampaui</span>
                                 @elseif ($status === 'tidak tercapai')
                                     <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Tidak Tercapai</span>
                                 @elseif ($status === 'tidak terlaksana')
@@ -187,8 +209,7 @@
                                 @else
                                     <span>Belum ada Status</span>
                                 @endif
-                            </td>
-                            
+                            </td>                            
                         </tr>
                     @endforeach
                         @if ($target_capaians->isEmpty())
@@ -217,6 +238,7 @@
     <script src="{{ asset('library/jqvmap/dist/maps/jquery.vmap.world.js') }}"></script>
     <script src="{{ asset('library/summernote/dist/summernote-bs4.min.js') }}"></script>
     <script src="{{ asset('library/chocolat/dist/js/jquery.chocolat.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/index-0.js') }}"></script>

@@ -18,11 +18,11 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Detail Monitoring IKU</h1>
+                <h1>Detail Monitoring Indikator Kinerja</h1>
             </div>
                 <div class="card">
                     <div class="card-header">
-                        <h4>Data Monitoring IKU dari Prodi: 
+                        <h4>Data Monitoring Indikator Kinerja dari Prodi: 
                             <span class="badge badge-info">{{ optional($monitoringiku->prodi)->nama_prodi ?? 'N/A' }}</span> 
                             Tahun: <span class="badge badge-primary">{{ optional($monitoringiku->tahunKerja)->th_tahun ?? 'N/A' }}</span>
                         </h4>
@@ -41,7 +41,7 @@
                                             <th width="5%">Target</th>
                                             <th width="15%">Jenis Ketercapaian</th>
                                             <th width="5%">Capaian</th>
-                                            <th width="10%">Status</th>
+                                            {{-- <th width="10%">Status</th> --}}
                                             <th width="15%">Keterangan</th>
                                             <th width="10%">URL</th>
                                         </tr>
@@ -95,7 +95,7 @@
                                                     @endif
                                                 </td>
                                                
-                                                <td>
+                                                {{-- <td>
                                                     <select name="mtid_status[]" class="form-control select2" style="max-width: 150px;">
                                                         <option value="">-- Pilih Status --</option>
                                                         <option value="tercapai" 
@@ -108,7 +108,7 @@
                                                             {{ old('mtid_status.' . $loop->index, $detail->mtid_status ?? '') == 'tidak terlaksana' ? 'selected' : '' }}>Tidak Terlaksana
                                                         </option>
                                                     </select>
-                                                </td>
+                                                </td> --}}
                                                 <td>
                                                     <input type="text" class="form-control" style="max-width: 200px;" 
                                                            name="mtid_keterangan[]" 

@@ -29,97 +29,33 @@
                 
                 <div class="col-lg-6 col-md-6 col-12">
 
-                    {{-- IKU --}}
+                    {{-- IKU - ADMIN --}}
                     @if (Auth::user()->role == 'admin')
-                    <div class="card shadow-sm">
-                        <div class="card-header">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
                             <h4 class="mb-0">Set IKU</h4>
-                            <div class="card-header-action">
-                                <a class="btn btn-primary" href="{{ route('targetcapaian.index') }}"><i class="fa-solid fa-eye"></i> Lihat Detail </a>
-                            </div>
+                            <a class="btn btn-primary" href="{{ route('targetcapaian.index') }}">
+                                <i class="fa-solid fa-eye"></i> Lihat Detail
+                            </a>
                         </div>
-                        <div class="mt-4 text-center">
-                            {{-- <h5>Total IKU: <span class="badge bg-primary text-light">{{ $totaliku }}</span></h5> --}}
-                        </div>
-                        <!-- Column Chart Jumlah IKU -->
-                        <div class="mb-4">
-                            <canvas id="ikuColumnChart" height="250"></canvas>
-                        </div>                                                                  
-                        <!-- Column Chart Jumlah IKU -->
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table table-striped table-bordered">
-                                    <thead class="text-center">
+                                <table class="table table-striped table-bordered text-center">
+                                    <thead>
                                         <tr>
                                             <th>Nama Program Studi</th>
-                                            <th style="text-align: center;">Jumlah IKU</th>
+                                            <th>Jumlah IKU</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="text-center">
+                                    <tbody>
                                         @forelse ($jumlahiku as $prodi)
                                             <tr>
                                                 <td>{{ $prodi->nama_prodi }}</td>
-                                                <td style="text-align: center;">{{ $prodi->target_indikator_count }}</td>
+                                                <td>{{ $prodi->target_indikator_count }}</td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="3" class="text-center text-muted">Tidak ada data tersedia</td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div> 
-                    @endif     
-                    
-                    {{-- IKU PRODI FAKULTAS --}}
-                    @if (Auth::user()->role == 'prodi' || Auth::user()->role == 'fakultas')
-                    <div class="card shadow-sm">
-                        <div class="card-header">
-                            <h4 class="mb-0">Set IKU</h4>
-                            <div class="card-header-action">
-                                {{-- <a class="btn btn-primary" href="{{ route('targetcapaian.index') }}"><i class="fa-solid fa-eye"></i> Lihat Detail </a> --}}
-                            </div>
-                        </div>
-                        <div class="mt-4 text-center">
-                            {{-- <h5>Total IKU: <span class="badge bg-primary text-light">{{ $totaliku }}</span></h5> --}}
-                        </div>
-                        <!-- Bar Chart Jumlah IKU -->
-                        <div class="row justify-content-center">
-                            <div class="col-md-8 col-lg-7">
-                                <div class="rounded-4">
-                                    <div class="card-body px-4 py-4">
-                                        <div class="text-center mb-3">
-                                            <h5 class="fw-bold text-dark mb-1">Distribusi IKU per Program Studi</h5>
-                                            <p class="text-muted small mb-0">Jumlah indikator kinerja utama</p>
-                                        </div>
-                                        <div class="d-flex justify-content-center align-items-center" style="height: 400px;">
-                                            <canvas id="barIKU" style="width: 60rem; height: 60rem;"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Bar Chart Jumlah IKU -->
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-striped table-bordered">
-                                    <thead class="text-center">
-                                        <tr>
-                                            <th>Nama Program Studi</th>
-                                            <th style="text-align: center;">Jumlah IKU</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="text-center">
-                                        @forelse ($jumlahiku as $prodi)
-                                            <tr>
-                                                <td>{{ $prodi->nama_prodi }}</td>
-                                                <td style="text-align: center;">{{ $prodi->target_indikator_count }}</td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="3" class="text-center text-muted">Tidak ada data tersedia</td>
+                                                <td colspan="2" class="text-muted">Tidak ada data tersedia</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
@@ -128,16 +64,51 @@
                         </div>
                     </div>
                     @endif
-                    {{-- IKU PRODI FAKULTAS --}}
-
-                    {{-- RENCANA KERJA --}}
-                    @if (Auth::user()->role == 'admin' || Auth::user()->role == 'unit kerja')
-                    <div class="card shadow-sm">
-                        <div class="card-header">
-                            <h4 class="mb-0">Rencana Kerja</h4>
-                            <div class="card-header-action">
-                                <a class="btn btn-primary" href="{{ route('programkerja.index') }}"><i class="fa-solid fa-eye"></i> Lihat Detail </a>
+                
+                    {{-- IKU - PRODI & FAKULTAS --}}
+                    @if (Auth::user()->role == 'prodi' || Auth::user()->role == 'fakultas')
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">Set IKU</h4>
+                            <a class="btn btn-primary" href="{{ route('targetcapaian.index') }}">
+                                <i class="fa-solid fa-eye"></i> Lihat Detail
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered text-center">
+                                    <thead>
+                                        <tr>
+                                            <th>Nama Program Studi</th>
+                                            <th>Jumlah IKU</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($jumlahiku as $prodi)
+                                            <tr>
+                                                <td>{{ $prodi->nama_prodi }}</td>
+                                                <td>{{ $prodi->target_indikator_count }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="2" class="text-muted">Tidak ada data tersedia</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
                             </div>
+                        </div>
+                    </div>
+                    @endif
+                
+                    {{-- RENCANA KERJA --}}
+                    @if (Auth::user()->role == 'admin')
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">Rencana Kerja</h4>
+                            <a class="btn btn-primary" href="{{ route('programkerja.index') }}">
+                                <i class="fa-solid fa-eye"></i> Lihat Detail
+                            </a>
                         </div>
                         <div class="card-body">
                             <!-- Total Renja -->
@@ -146,7 +117,7 @@
                                 {{-- <h5>Total Renja: <span class="badge bg-primary text-light">{{ $totalrenja }}</span></h5> --}}
                             </div>
                              <!-- Pie Chart -->
-                             <div class="row justify-content-center mb-3">
+                             {{-- <div class="row justify-content-center mb-3">
                                 <div class="col-md-8 col-lg-7">
                                     <div class="rounded-4">
                                         <div >
@@ -160,41 +131,38 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                             <!-- Pie Chart -->
                             @endif
                             <!-- Tabel Unit Kerja -->
                             <div class="table-responsive">
-                            @if (Auth::user()->role == 'unit kerja')
-                                <div class="mb-4">
-                                    <canvas id="unitKerjaChart" height="150"></canvas>
-                                </div>   
-                            @endif                             
-                                <table class="table table-striped table-bordered">
-                                    <thead class="text-center">
+                                <table class="table table-striped table-bordered text-center">
+                                    <thead>
                                         <tr>
                                             <th>Nama Unit Kerja</th>
-                                            <th style="text-align: center;">Jumlah Renja</th>
+                                            <th>Jumlah Renja</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="text-center">
+                                    <tbody>
                                         @forelse ($unitKerjarenja as $unit)
                                             <tr>
                                                 <td>{{ $unit->unit_nama }}</td>
-                                                <td style="text-align: center;">{{ $unit->rencana_kerja_count }}</td>
+                                                <td>{{ $unit->rencana_kerja_count }}</td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="3" class="text-center text-muted">Tidak ada data tersedia</td>
+                                                <td colspan="2" class="text-muted">Tidak ada data tersedia</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
                                 </table>
                             </div>
-                        </div>                   
+                        </div>
                     </div>
                     @endif
+                
                 </div>
+                
 
                 <div class="col-lg-6 col-md-6 col-12">
                     {{-- IKT PRODI FAKULTAS--}}
@@ -203,14 +171,14 @@
                         <div class="card-header">
                             <h4 class="mb-0">Set IKT</h4>
                             <div class="card-header-action">
-                                {{-- <a class="btn btn-primary" href="{{ route('targetcapaian.index') }}"><i class="fa-solid fa-eye"></i> Lihat Detail </a> --}}
+                                <a class="btn btn-primary" href="{{ route('targetcapaian.index') }}"><i class="fa-solid fa-eye"></i> Lihat Detail </a>
                             </div>
                         </div>
-                        <div class="mt-4 text-center">
-                            {{-- <h5>Total IKT: <span class="badge bg-primary text-light">{{ $totalikt }}</span></h5> --}}
-                        </div>
+                        {{-- <div class="mt-4 text-center">
+                            <h5>Total IKT: <span class="badge bg-primary text-light">{{ $totalikt }}</span></h5>
+                        </div> --}}
                         <!-- Bar Chart Jumlah IKT -->
-                        <div class="row justify-content-center">
+                        {{-- <div class="row justify-content-center">
                             <div class="col-md-8 col-lg-7">
                                 <div class="rounded-4">
                                     <div class="card-body px-4 py-4">
@@ -224,7 +192,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>                                                                        
+                        </div>--}}
                         <!-- Bar Chart Jumlah IKT -->
                         <div class="card-body">
                             <div class="table-responsive">
@@ -253,7 +221,8 @@
                     </div>
                     @endif
                     {{-- IKT PRODI FAKULTAS--}}
-                    {{-- IKT --}}
+
+                    {{-- IKT Admin --}}
                     @if (Auth::user()->role == 'admin')
                     <div class="card shadow-sm">
                         <div class="card-header">
@@ -262,13 +231,13 @@
                                 <a class="btn btn-primary" href="{{ route('targetcapaian.index') }}"><i class="fa-solid fa-eye"></i> Lihat Detail </a>
                             </div>
                         </div>
-                        <div class="mt-4 text-center">
-                            {{-- <h5>Total IKT: <span class="badge bg-primary text-light">{{ $totalikt }}</span></h5> --}}
-                        </div>
+                        {{-- <div class="mt-4 text-center">
+                            <h5>Total IKT: <span class="badge bg-primary text-light">{{ $totalikt }}</span></h5>
+                        </div> --}}
                         <!-- Column Chart Jumlah IKT -->                        
-                        <div class="mb-4">
+                        {{-- <div class="mb-4">
                             <canvas id="iktColumnChart" height="250"></canvas>
-                        </div>
+                        </div> --}}
                         <!-- Column Chart Jumlah IKT -->                        
                         <div class="card-body">
                             <div class="table-responsive">
@@ -295,9 +264,129 @@
                             </div>
                         </div>
                     </div>
+                    @endif     
+                    
+                    @if(Auth::user()->role == 'admin')
+                        <div class="card shadow-sm">
+                            <div class="card-header">
+                                <h4>Realisasi</h4>
+                                <div class="card-header-action">
+                                    <a class="btn btn-primary" href="{{ route('realisasirenja.index') }}"><i class="fa-solid fa-eye"></i> Lihat Detail </a>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                            {{-- Chart section --}}
+                                {{-- <div class="row">
+                                    @foreach ($realisasi as $r)
+                                        <div class="col-md-6">
+                                            <div class="card shadow-sm">
+                                                <div class="card-body">
+                                                    <h6 class="card-title">{{ $r->unit_nama }}</h6>
+                                                    <canvas id="chart-{{ $loop->index }}" height="120"></canvas>
+                                                    <!-- Menampilkan jumlah nilai di bawah chart -->
+                                                    <div id="value-{{ $loop->index }}" class="mt-3 text-center">
+                                                        <span class="value-text" style="font-size: 16px; font-weight: bold;">
+                                                           Renja: {{ $r->jumlah_renja }} | Realisasi: {{ $r->jumlah_realisasi }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div> --}}
+                                {{-- Chart section --}}
+                                {{-- Table moved above chart --}}
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-bordered">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th class="text-center">Unit Kerja</th>
+                                                <th class="text-center">Jumlah Renja</th>
+                                                <th class="text-center">Jumlah Realisasi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse ($realisasi as $r)
+                                            <tr>
+                                                <td class="text-center">{{ $r->unit_nama }}</td>
+                                                <td class="text-center">{{ $r->jumlah_renja }}</td>
+                                                <td class="text-center">{{ $r->jumlah_realisasi }}</td>
+                                            </tr>
+                                            @empty
+                                            <tr>
+                                                <td colspan="3" class="text-center text-muted">Tidak ada data tersedia</td>
+                                            </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {{-- Table moved above chart --}}
+                    
+                            </div>                         
+                        </div>
                     @endif
+                </div>
                     
-                    
+                <div class="col-lg-12 col-md-12 col-12">
+                    @if (Auth::user()->role == 'unit kerja')
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">Rencana Kerja</h4>
+                            <a class="btn btn-primary" href="{{ route('programkerja.index') }}">
+                                <i class="fa-solid fa-eye"></i> Lihat Detail
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <!-- Total Renja -->
+                            @if (Auth::user()->role == 'admin')
+                            <div class="text-center">
+                                {{-- <h5>Total Renja: <span class="badge bg-primary text-light">{{ $totalrenja }}</span></h5> --}}
+                            </div>
+                             <!-- Pie Chart -->
+                             {{-- <div class="row justify-content-center mb-3">
+                                <div class="col-md-8 col-lg-7">
+                                    <div class="rounded-4">
+                                        <div >
+                                            <div class="text-center">
+                                                <h5 class="fw-bold text-dark">Rencana Kerja</h5>
+                                                <p class="text-muted small">Berdasarkan Unit Kerja</p>
+                                            </div>
+                                            <div class="d-flex justify-content-center align-items-center" style="height: 308px;">
+                                                <canvas id="pieRenja" style="width: 60rem; height: 60rem;"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> --}}
+                            <!-- Pie Chart -->
+                            @endif
+                            <!-- Tabel Unit Kerja -->
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered text-center">
+                                    <thead>
+                                        <tr>
+                                            <th>Nama Unit Kerja</th>
+                                            <th>Jumlah Renja</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($unitKerjarenja as $unit)
+                                            <tr>
+                                                <td>{{ $unit->unit_nama }}</td>
+                                                <td>{{ $unit->rencana_kerja_count }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="2" class="text-muted">Tidak ada data tersedia</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
                     {{-- Peroide Monev --}}
                     @if (Auth::user()->role == 'admin')
                     <div class="card shadow-sm">
@@ -307,9 +396,9 @@
                                 <a class="btn btn-primary" href="{{ route('periode-monitoring.index') }}"><i class="fa-solid fa-eye"></i> Lihat Detail </a>
                             </div>
                         </div>
-                        <div class="mb-4">
+                        {{-- <div class="mb-4">
                             <canvas id="monitoringChart" height="190.5"></canvas>
-                        </div>                        
+                        </div>--}}
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-striped table-bordered">
@@ -336,55 +425,52 @@
                         </div>
                     </div>
                     @endif
-                    {{-- Peroide Monev --}}  
+                    {{-- Peroide Monev --}}
                     {{-- SURAT NOMOR --}}
-                    @if (Auth::user()->role == 'unit kerja')
-                    <div class="card shadow-sm">
-                        <div class="card-header">
-                            <h4 class="mb-0">Surat Nomor</h4>
-                            <div class="card-header-action">
-                                <a class="btn btn-primary" href="{{ route('nomorsurat.index') }}"><i class="fa-solid fa-eye"></i> Lihat Detail </a>
+                        @if (Auth::user()->role == 'unit kerja')
+                        <div class="card shadow-sm">
+                            <div class="card-header">
+                                <h4 class="mb-0">Surat Nomor</h4>
+                                <div class="card-header-action">
+                                    <a class="btn btn-primary" href="{{ route('nomorsurat.index') }}"><i class="fa-solid fa-eye"></i> Lihat Detail </a>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive mt-2" style="max-height: 505px; overflow-y: auto;">
+                                    <table class="table table-striped table-bordered">
+                                        <!-- Sticky header hanya diterapkan pada tabel Surat -->
+                                        <thead class="thead-dark text-center" style="position: sticky; top: 0; background-color: #fff; z-index: 2;">
+                                            <tr>
+                                                <th>Organisasi Jabatan</th>
+                                                <th>Jumlah Surat</th>
+                                                <th>Jumlah Revisi</th>
+                                                <th>Jumlah Valid</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="text-center">
+                                            @foreach($suratSummary as $summary)
+                                            <tr>
+                                                <td>{{ $summary->organisasiJabatan->oj_nama }}</td>
+                                                <td>{{ $summary->jumlah_surat }}</td>
+                                                <td>{{ $summary->jumlah_revisi }}</td>
+                                                <td>{{ $summary->jumlah_valid }}</td>
+                                            </tr>
+                                            @endforeach
+                                            
+                                            @if ($suratSummary->isEmpty())
+                                            <tr>
+                                                <td colspan="4" class="text-center">Tidak ada data</td>
+                                            </tr>
+                                            @endif
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
-                        <div class="card-body">
-                            <div class="table-responsive mt-4" style="max-height: 505px; overflow-y: auto;">
-                                <table class="table table-striped table-bordered">
-                                    <!-- Sticky header hanya diterapkan pada tabel Surat -->
-                                    <thead class="thead-dark text-center" style="position: sticky; top: 0; background-color: #fff; z-index: 2;">
-                                        <tr>
-                                            <th>Organisasi Jabatan</th>
-                                            <th>Jumlah Surat</th>
-                                            <th>Jumlah Revisi</th>
-                                            <th>Jumlah Valid</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="text-center">
-                                        @foreach($suratSummary as $summary)
-                                        <tr>
-                                            <td>{{ $summary->organisasiJabatan->oj_nama }}</td>
-                                            <td>{{ $summary->jumlah_surat }}</td>
-                                            <td>{{ $summary->jumlah_revisi }}</td>
-                                            <td>{{ $summary->jumlah_valid }}</td>
-                                        </tr>
-                                        @endforeach
-                                        
-                                        @if ($suratSummary->isEmpty())
-                                        <tr>
-                                            <td colspan="4" class="text-center">Tidak ada data</td>
-                                        </tr>
-                                        @endif
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
+                        @endif
                     {{-- SURAT NOMOR --}}
-                     
-                </div>
                     {{-- REALISASI ADMIN DAN UNIT KERJA --}}
-                    <div class="col-lg-12 col-md-12 col-12">
-                        @if (Auth::user()->role == 'admin' || Auth::user()->role == 'unit kerja')
+                        @if (Auth::user()->role == 'unit kerja' || Auth::user()->role == 'fakultas' || Auth::user()->role == 'prodi')                      
                         <div class="card shadow-sm">
                             <div class="card-header">
                                 <h4 class="mb-0">Realisasi</h4>
@@ -394,7 +480,7 @@
                             </div>
                             <div class="card-body">
                             {{-- Chart section --}}
-                                <div class="row">
+                                {{-- <div class="row">
                                     @foreach ($realisasi as $r)
                                         <div class="col-md-6">
                                             <div class="card shadow-sm">
@@ -411,14 +497,14 @@
                                             </div>
                                         </div>
                                     @endforeach
-                                </div>
+                                </div> --}}
                                 {{-- Chart section --}}
                                 {{-- Table moved above chart --}}
                                 <div class="table-responsive mb-4">
                                     <table class="table table-striped table-bordered">
                                         <thead class="thead-dark">
                                             <tr>
-                                                <th>Unit Kerja</th>
+                                                <th class="text-center">Unit Kerja</th>
                                                 <th class="text-center">Jumlah Renja</th>
                                                 <th class="text-center">Jumlah Realisasi</th>
                                             </tr>
@@ -507,7 +593,7 @@
                         @endif --}}
 
                     {{-- MONITORING --}}
-                        @if (Auth::user()->role == 'admin')
+                        @if (Auth::user()->role == 'admin' || Auth::user()->role == 'unit kerja' || Auth::user()->role == 'fakultas' || Auth::user()->role == 'prodi')
                         <div class="card shadow-sm">
                             <div class="card-header">
                                 <h4 class="mb-0">Monitoring</h4>
@@ -516,7 +602,7 @@
                                 </div>
                             </div>
                             <div class="card-body">
-                                <div class="table-responsive mt-4">
+                                <div class="table-responsive">
                                     <table class="table table-striped table-bordered">
                                         <thead class="text-center">
                                             <tr>

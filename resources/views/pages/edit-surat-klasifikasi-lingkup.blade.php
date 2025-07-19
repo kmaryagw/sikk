@@ -16,7 +16,7 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Edit Organisasi Jabatan</h1>
+                <h1>Edit Surat Klasifikasi Lingkup</h1>
             </div>
 
             <div class="section-body">
