@@ -34,4 +34,9 @@ class program_studi extends Model
         return $this->hasMany(target_indikator::class, 'prodi_id', 'prodi_id');
     }
 
+    public function rencanaKerjas()
+    {
+        return $this->belongsToMany(RencanaKerja::class, 'rencana_kerja_program_studi', 'prodi_id', 'rk_id');
+    }
+
 }

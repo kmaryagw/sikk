@@ -19,5 +19,6 @@ class standar extends Model
         'std_nama',
         'std_deskripsi',
         'std_url',
+        'std_kategori',
     ];
 }

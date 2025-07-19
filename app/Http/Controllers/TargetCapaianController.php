@@ -27,41 +27,48 @@ class TargetCapaianController extends Controller
         $tahunId = $request->query('tahun');
         $prodiId = $request->query('prodi');
 
-        $tahun = tahun_kerja::where('th_is_aktif', 'y')->get();
+        // Ambil semua tahun & prodi
+        $tahunList = tahun_kerja::all();
         $prodis = program_studi::all();
 
+        // Ambil tahun aktif
+        $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->first();
+
+        // Jika tidak ada filter tahun, gunakan tahun aktif sebagai default
+        if (!$tahunId && $tahunAktif) {
+            $tahunId = $tahunAktif->th_id;
+        }
+
+        // Query data
         $query = target_indikator::query()
             ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
             ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
-            ->leftJoin('tahun_kerja as aktif_tahun', function($join) {
-                $join->on('aktif_tahun.th_id', '=', 'target_indikator.th_id')
-                    ->where('aktif_tahun.th_is_aktif', 'y');
-            });
+            ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id');
 
-        // Jika user adalah prodi, filter sesuai prodi mereka
+        // Filter untuk role prodi
         if (Auth::user()->role == 'prodi') {
             $query->where('target_indikator.prodi_id', Auth::user()->prodi_id);
             $prodis = program_studi::where('prodi_id', Auth::user()->prodi_id)->get();
-        } 
+        }
 
-        // Filter pencarian (q) dengan lebih fleksibel
+        // Filter pencarian
         if ($q) {
             $query->where(function($subQuery) use ($q) {
-                $subQuery->where('target_indikator.ti_target', 'like', '%' . $q . '%')
-                        ->orWhere('indikator_kinerja.ik_nama', 'like', '%' . $q . '%')
-                        ->orWhere('indikator_kinerja.ik_kode', 'like', '%' . $q . '%');
+                $subQuery->where('target_indikator.ti_target', 'like', "%$q%")
+                        ->orWhere('indikator_kinerja.ik_nama', 'like', "%$q%")
+                        ->orWhere('indikator_kinerja.ik_kode', 'like', "%$q%");
             });
         }
 
+        // Filter berdasarkan tahun aktif atau request
         if ($tahunId) {
-            $query->where('aktif_tahun.th_id', $tahunId);
+            $query->where('target_indikator.th_id', $tahunId);
         }
 
         if ($prodiId) {
             $query->where('program_studi.prodi_id', $prodiId);
         }
 
-        // Urutkan hasil berdasarkan indikator kinerja
         $query->orderBy('indikator_kinerja.ik_nama', 'asc');
 
         $target_capaians = $query->paginate(10)->withQueryString();
@@ -70,9 +77,10 @@ class TargetCapaianController extends Controller
         return view('pages.index-targetcapaian', [
             'title' => $title,
             'target_capaians' => $target_capaians,
-            'tahun' => $tahun,
-            'prodis' => $prodis,
+            'tahun' => $tahunList,
+            'tahunAktif' => $tahunAktif,
             'tahunId' => $tahunId,
+            'prodis' => $prodis,
             'prodiId' => $prodiId,
             'q' => $q,
             'no' => $no,

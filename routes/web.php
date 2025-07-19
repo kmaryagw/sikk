@@ -114,11 +114,31 @@ Route::middleware('auth')->group(function () {
     // Rute untuk laporan
     Route::resource('laporan-renja', LaporanRenjaController::class);
     Route::get('/export-excel-renja', [LaporanRenjaController::class, 'exportExcel'])->name('export-excel.renja');
+    Route::get('/laporan-renja/export-excel/rsk', [LaporanRenjaController::class, 'exportExcelRsk'])->name('export-excel.renja.rsk');
+    Route::get('/laporan-renja/export-excel/informatika', [LaporanRenjaController::class, 'exportExcelIf'])->name('export-excel.renja.if');
+    Route::get('/laporan-renja/export-excel/bisnis-digital', [LaporanRenjaController::class, 'exportExcelBd'])->name('export-excel.renja.bd');
+    Route::get('/laporan-renja/export-excel/dkv', [LaporanRenjaController::class, 'exportExcelDkv'])->name('export-excel.renja.dkv');
+
     Route::get('/export-pdf-renja', [LaporanRenjaController::class, 'exportPdf'])->name('export-pdf.renja');
+    Route::get('/export/pdf/renja/informatika', [LaporanRenjaController::class, 'exportPdfInformatika'])->name('export-pdf.renja.if');
+    Route::get('/export/pdf/renja/rekayasa-sistem-komputer', [LaporanRenjaController::class, 'exportPdfRSK'])->name('export-pdf.renja.rsk');
+    Route::get('/export/pdf/renja/bisnis-digital', [LaporanRenjaController::class, 'exportPdfBD'])->name('export-pdf.renja.bd');
+    Route::get('/export/pdf/renja/desain-komunikasi-visual', [LaporanRenjaController::class, 'exportPdfDKV'])->name('export-pdf.renja.dkv');
+
 
     Route::resource('laporan-iku', LaporanIkuController::class);
     Route::get('/export-excel-iku', [LaporanIkuController::class, 'exportExcel'])->name('export-excel.iku');
+    Route::get('/export-excel/iku/informatika', [LaporanIkuController::class, 'exportExcelIF'])->name('export-excel.iku.if');
+    Route::get('/export-excel/iku/rsk', [LaporanIkuController::class, 'exportExcelRSK'])->name('export-excel.iku.rsk');
+    Route::get('/export-excel/iku/bd', [LaporanIkuController::class, 'exportExcelBD'])->name('export-excel.iku.bd');
+    Route::get('/export-excel/iku/dkv', [LaporanIkuController::class, 'exportExcelDKV'])->name('export-excel.iku.dkv');
+
     Route::get('/export-pdf-iku', [LaporanIkuController::class, 'exportPdf'])->name('export-pdf.iku');
+    Route::get('/export-pdf/iku/informatika', [LaporanIKUController::class, 'exportPdfIF'])->name('export-pdf.iku.if');
+    Route::get('/export-pdf/iku/rsk', [LaporanIKUController::class, 'exportPdfRSK'])->name('export-pdf.iku.rsk');
+    Route::get('/export-pdf/iku/bd', [LaporanIKUController::class, 'exportPdfBD'])->name('export-pdf.iku.bd');
+    Route::get('/export-pdf/iku/dkv', [LaporanIKUController::class, 'exportPdfDKV'])->name('export-pdf.iku.dkv');
+
 
 
     // Dashboard

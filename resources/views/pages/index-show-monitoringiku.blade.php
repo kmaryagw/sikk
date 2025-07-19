@@ -1,6 +1,13 @@
 @extends('layouts.app')
 @section('title', 'Detail Monitoring IKU')
 
+@push('style')
+    <!-- CSS Libraries -->
+    <link rel="stylesheet" href="{{ asset('library/jqvmap/dist/jqvmap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('library/summernote/dist/summernote-bs4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/circular-progress-bar.css') }}">
+@endpush
+
 @section('main')
 <div class="main-content">
     <section class="section">
@@ -45,95 +52,117 @@
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $target->indikatorKinerja->ik_kode }} - {{ $target->indikatorKinerja->ik_nama }}</td>
                                     <td>
-                                        @if ($target->indikatorKinerja->ik_ketercapaian == 'persentase' && is_numeric($target->indikatorKinerja->ik_baseline))
-                                            <div class="progress">
-                                                <div class="progress-bar" role="progressbar" 
-                                                     style="width: {{ intval($target->indikatorKinerja->ik_baseline) }}%;" 
-                                                     aria-valuenow="{{ intval($target->indikatorKinerja->ik_baseline) }}" 
-                                                     aria-valuemin="0" aria-valuemax="100">
-                                                    {{ $target->indikatorKinerja->ik_baseline }}%
+                                        @php
+                                            $ketercapaian = strtolower(optional($target->indikatorKinerja)->ik_ketercapaian ?? '');
+                                            $baselineRaw = trim($target->indikatorKinerja->ik_baseline ?? '');
+                                            $baselineValue = (float) str_replace('%', '', $baselineRaw);
+                                            $progressColor = $baselineValue == 0 ? '#dc3545' : '#28a745';
+                                        @endphp
+                                    
+                                        @if ($ketercapaian === 'persentase' && is_numeric($baselineValue))
+                                            <div class="ring-progress-wrapper">
+                                                <div class="ring-progress" style="--value: {{ $baselineValue }}; --progress-color: {{ $progressColor }};">
+                                                    <div class="ring-inner">
+                                                        <span class="ring-text">{{ $baselineValue }}%</span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        @elseif ($target->indikatorKinerja->ik_ketercapaian == 'nilai' && is_numeric($target->indikatorKinerja->ik_baseline))
-                                            <span class="badge badge-primary">{{ $target->indikatorKinerja->ik_baseline }}</span>
-                                        @elseif (in_array(strtolower($target->indikatorKinerja->ik_baseline), ['ada', 'draft']))
-                                            @if (strtolower($target->indikatorKinerja->ik_baseline) === 'ada')
+                                        @elseif ($ketercapaian === 'nilai' && is_numeric($baselineRaw))
+                                            <span class="badge badge-primary">{{ $baselineRaw }}</span>
+                                        @elseif (in_array(strtolower($baselineRaw), ['ada', 'draft']))
+                                            @if (strtolower($baselineRaw) === 'ada')
                                                 <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
                                             @else
                                                 <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
                                             @endif
-                                        @elseif ($target->indikatorKinerja->ik_ketercapaian == 'rasio')
-                                            <span class="badge badge-info">{{ $target->indikatorKinerja->ik_baseline }}</span>
+                                        @elseif ($ketercapaian === 'rasio')
+                                            <span class="badge badge-info"><i class="fa-solid fa-balance-scale"></i> {{ $baselineRaw }}</span>
                                         @else
-                                            {{ $target->indikatorKinerja->ik_baseline }}
+                                            {{ $baselineRaw }}
                                         @endif
                                     </td>
                                     <td>
-                                        @if ($target->indikatorKinerja->ik_ketercapaian == 'persentase' && is_numeric($target->ti_target))
-                                            <div class="progress">
-                                                <div class="progress-bar" role="progressbar" 
-                                                     style="width: {{ intval($target->ti_target) }}%;" 
-                                                     aria-valuenow="{{ intval($target->ti_target) }}" 
-                                                     aria-valuemin="0" aria-valuemax="100">
-                                                    {{ $target->ti_target }}%
+                                        @php
+                                            $targetRaw = trim($target->ti_target ?? '');
+                                            $targetValue = (float) str_replace('%', '', $targetRaw);
+                                            $progressColor = $targetValue == 0 ? '#dc3545' : '#28a745';
+                                        @endphp
+                                    
+                                        @if ($ketercapaian === 'persentase' && is_numeric($targetValue))
+                                            <div class="ring-progress-wrapper">
+                                                <div class="ring-progress" style="--value: {{ $targetValue }}; --progress-color: {{ $progressColor }};">
+                                                    <div class="ring-inner">
+                                                        <span class="ring-text">{{ $targetValue }}%</span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        @elseif ($target->indikatorKinerja->ik_ketercapaian == 'nilai' && is_numeric($target->ti_target))
-                                            <span class="badge badge-primary">{{ $target->ti_target }}</span>
-                                        @elseif (in_array(strtolower($target->ti_target), ['ada', 'draft']))
-                                            @if (strtolower($target->ti_target) === 'ada')
+                                        @elseif ($ketercapaian === 'nilai' && is_numeric($targetRaw))
+                                            <span class="badge badge-primary">{{ $targetRaw }}</span>
+                                        @elseif (in_array(strtolower($targetRaw), ['ada', 'draft']))
+                                            @if (strtolower($targetRaw) === 'ada')
                                                 <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
                                             @else
                                                 <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
                                             @endif
-                                        @elseif ($target->indikatorKinerja->ik_ketercapaian == 'rasio')
-                                            <span class="badge badge-info">{{ $target->ti_target }}</span>
+                                        @elseif ($ketercapaian === 'rasio')
+                                            <span class="badge badge-info"><i class="fa-solid fa-balance-scale"></i> {{ $targetRaw }}</span>
                                         @else
-                                            {{ $target->ti_target }}
+                                            {{ $targetRaw }}
                                         @endif
                                     </td> 
                                     <td>{{ $target->ti_keterangan }}</td>  
                                     <td>
-                                        @if(isset($target->indikatorKinerja->ik_ketercapaian) && $target->indikatorKinerja->ik_ketercapaian == 'persentase')
-                                            @if(isset($target->monitoringDetail->mtid_capaian) && $target->monitoringDetail->mtid_capaian > 0)
-                                                <div class="progress">
-                                                    <div class="progress-bar" role="progressbar" 
-                                                        style="width: {{ intval($target->monitoringDetail->mtid_capaian) }}%;" 
-                                                        aria-valuenow="{{ intval($target->monitoringDetail->mtid_capaian) }}" 
-                                                        aria-valuemin="0" aria-valuemax="100">
-                                                        {{ intval($target->monitoringDetail->mtid_capaian) }}%
+                                        @php
+                                            $capaian = trim(optional($target->monitoringDetail)->mtid_capaian ?? '');
+                                            $numericValue = (float) str_replace('%', '', $capaian);
+                                            $progressColor = $numericValue == 0 ? '#dc3545' : '#28a745';
+                                        @endphp
+                                    
+                                        @if (strpos($capaian, '%') !== false || $ketercapaian === 'persentase')
+                                            <div class="ring-progress-wrapper">
+                                                <div class="ring-progress" style="--value: {{ $numericValue }}; --progress-color: {{ $progressColor }};">
+                                                    <div class="ring-inner">
+                                                        <span class="ring-text">{{ $numericValue }}%</span>
                                                     </div>
                                                 </div>
-                                            @else
-                                                <span>Belum ada Capaian</span>
-                                            @endif
-                                        @elseif(isset($target->indikatorKinerja->ik_ketercapaian) && $target->indikatorKinerja->ik_ketercapaian == 'nilai')
-                                            <span class="badge badge-primary">{{ $target->monitoringDetail->mtid_capaian ?? 'Belum ada Capaian' }}</span>
-                                        @elseif(isset($target->monitoringDetail->mtid_capaian) && in_array(strtolower($target->monitoringDetail->mtid_capaian), ['ada', 'draft']))
-                                            @if(strtolower($target->monitoringDetail->mtid_capaian) === 'ada')
-                                                <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
-                                            @else
-                                                <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
-                                            @endif
-                                        @elseif(isset($target->indikatorKinerja->ik_ketercapaian) && $target->indikatorKinerja->ik_ketercapaian == 'rasio')
-                                            <span class="badge badge-info">{{ $target->monitoringDetail->mtid_capaian ?? 'Belum ada Capaian' }}</span>
+                                            </div>
+                                        @elseif (is_numeric($capaian) && $ketercapaian === 'nilai')
+                                            <span class="badge badge-primary">{{ $capaian }}</span>
+                                        @elseif (preg_match('/^\d+\s*:\s*\d+$/', $capaian))
+                                            @php
+                                                $cleaned = preg_replace('/\s*/', '', $capaian);
+                                                [$left, $right] = explode(':', $cleaned);
+                                                $formattedRasio = $left . ' : ' . $right;
+                                            @endphp
+                                            <span class="badge badge-info"><i class="fa-solid fa-balance-scale"></i> {{ $formattedRasio }}</span>
+                                        @elseif (strtolower($capaian) === 'ada')
+                                            <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
+                                        @elseif (strtolower($capaian) === 'draft')
+                                            <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
+                                        @elseif (!empty($capaian))
+                                            <span class="badge badge-primary">{{ $capaian }}</span>
                                         @else
-                                            Belum ada Capaian
+                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Belum ada Capaian</span>
                                         @endif
                                     </td>                                                                
                                     <td>
                                         @php
-                                            $status = isset($target->monitoringDetail->mtid_status) ? strtolower($target->monitoringDetail->mtid_status) : null;
+                                            $capaian = $target->monitoringDetail->mtid_capaian ?? null;
+                                            $targetVal = $target->ti_target ?? null;
+                                            $jenis = $target->indikatorKinerja->ik_ketercapaian ?? null;
+                                            $status = hitungStatus($capaian, $targetVal, $jenis);
                                         @endphp
                                     
-                                        @if($status === 'tercapai')
+                                        @if ($status === 'tercapai')
                                             <span class="text-success"><i class="fa-solid fa-check-circle"></i> Tercapai</span>
-                                        @elseif($status === 'tidak tercapai')
+                                        @elseif ($status === 'terlampaui')
+                                            <span class="text-primary"><i class="fa-solid fa-arrow-up"></i> Terlampaui</span>
+                                        @elseif ($status === 'tidak tercapai')
                                             <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Tidak Tercapai</span>
-                                        @elseif($status === 'tidak terlaksana')
+                                        @elseif ($status === 'tidak terlaksana')
                                             <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak Terlaksana</span>
                                         @else
-                                            Belum ada Status
+                                            <span>Belum ada Status</span>
                                         @endif
                                     </td>
                                     

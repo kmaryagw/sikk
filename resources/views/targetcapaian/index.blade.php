@@ -41,7 +41,7 @@
                         </div>
                         @if (Auth::user()->role== 'admin' || Auth::user()->role == 'prodi')
                         <div class="col-auto">
-                            <a class="btn btn-primary" href="{{ route('targetcapaianprodi.create') }}"><i class="fa-solid fa-plus"></i> Tambah/Update</a>
+                            <a class="btn btn-primary" href="{{ route('targetcapaianprodi.create') }}"><i class="fa-solid fa-plus"></i> Isi/Ubah Target Capaian</a>
                         </div>
                         @endif
                     </form>
@@ -59,7 +59,7 @@
                                 <th>Nilai Baseline</th>
                                 <th>Target Capaian</th>
                                 <th>Keterangan</th>
-                                <th>Aksi</th>
+                                {{-- <th>Aksi</th> --}}
                             </tr>
                         </thead>
                         <tbody>
@@ -149,7 +149,7 @@
                                     </td>                                                                                                           
                                     <td>{{ $targetcapaian->ti_keterangan }}</td>
 
-                                    @if (Auth::user()->role== 'admin' || Auth::user()->role == 'prodi')
+                                    {{-- @if (Auth::user()->role== 'admin' || Auth::user()->role == 'prodi')
                                     <td>
                                         <a class="btn btn-warning btn-sm mb-2 mt-2" href="{{ route('targetcapaianprodi.edit', $targetcapaian->ti_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
                                         <form id="delete-form-{{ $targetcapaian->ti_id }}" method="POST" class="d-inline" action="{{ route('targetcapaianprodi.destroy', $targetcapaian->ti_id) }}">
@@ -160,7 +160,7 @@
 
                                         </form>
                                     </td>
-                                    @endif
+                                    @endif --}}
                                 </tr>
                             @endforeach
                         </tbody>

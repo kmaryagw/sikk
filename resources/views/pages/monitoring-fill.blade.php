@@ -128,7 +128,7 @@
                         <td colspan="6" class="text-center text-muted">
                             <p>Belum ada data realisasi. Silakan lakukan pengisian realisasi.</p>
                             <div class="mt-2">
-                                <a href="/realisasirenja/create/${rk}" class="btn btn-primary btn-sm">
+                                <a href="/realisasirenja/create?rk_id=${rk}" class="btn btn-primary btn-sm">
                                     <i class="fa-solid fa-plus"></i> Isi Realisasi
                                 </a>
                             </div>
@@ -296,7 +296,7 @@
                                         <i class="fa-solid fa-file"></i>
                                     </div>
                                 </div>
-                                <input class="form-control" type="url" name="mtg_bukti" />
+                                <input class="form-control" type="url" name="mtg_bukti" value="${bukti ?? ''}" />
                             </div>
                         </div>
                         ${fileBuktiHTML}

@@ -47,9 +47,16 @@
                                                     <i class="fa-solid fa-calendar-alt"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="number" name="th_tahun" value="{{ old('th_tahun', $tahun->th_tahun) }}"/>
+                                            <input 
+                                                class="form-control" 
+                                                type="text" 
+                                                name="th_tahun" 
+                                                id="th_tahun"
+                                                value="{{ old('th_tahun', $tahun->th_tahun) }}"
+                                            />
                                         </div>
                                     </div>
+                                    
 
                                     <div class="form-group">
                                         <label for="ren_is_aktif">Status Aktif</label>

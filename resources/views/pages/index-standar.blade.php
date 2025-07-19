@@ -32,9 +32,9 @@
                     <table class="table table-hover table-bordered table-striped m-0">
                         <thead>
                             <tr>
-                                <th>No</th>
-                                <th>Standar</th>
-                                <th>Deskripsi</th>
+                                <th>Kategori Standar</th>
+                                <th>Nama Standar</th>
+                                <th>Pernyataan Standar</th>
                                 <th>URL</th>
                                 <th>Aksi</th>
                             </tr>
@@ -43,7 +43,7 @@
                             @php $no = $standars->firstItem(); @endphp
                             @foreach ($standars as $standar)
                                 <tr>
-                                    <td>{{ $no++ }}</td>
+                                    <td>{{ $standar->std_kategori }}</td>
                                     <td>{{ $standar->std_nama }}</td>
                                     <td>{{ $standar->std_deskripsi }}</td>
                                     <td>
@@ -52,13 +52,17 @@
                                         @else
                                             Tidak Ada URL
                                         @endif
-                                    </td>                                                                      
+                                    </td>
                                     <td>
-                                        <a class="btn btn-warning" href="{{ route('standar.edit', $standar->std_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
+                                        <a class="btn btn-warning" href="{{ route('standar.edit', $standar->std_id) }}">
+                                            <i class="fa-solid fa-pen-to-square"></i> Ubah
+                                        </a>
                                         <form id="delete-form-{{ $standar->std_id }}" method="POST" class="d-inline" action="{{ route('standar.destroy', $standar->std_id) }}">
                                             @csrf
                                             @method('DELETE')
-                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $standar->std_id }}' )"><i class="fa-solid fa-trash"></i> Hapus</button>
+                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $standar->std_id }}')">
+                                                <i class="fa-solid fa-trash"></i> Hapus
+                                            </button>
                                         </form>
                                     </td>
                                 </tr>

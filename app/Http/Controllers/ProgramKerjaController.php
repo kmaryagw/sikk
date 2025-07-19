@@ -8,6 +8,7 @@ use App\Models\RencanaKerja;
 use App\Models\tahun_kerja;
 use App\Models\target_indikator;
 use App\Models\UnitKerja;
+use App\Models\standar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -33,8 +34,9 @@ class ProgramKerjaController extends Controller
         $units = UnitKerja::where('unit_kerja', 'y')->get();
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
         $periodes = periode_monev::orderBy('pm_nama', 'asc')->get();
+        $standars = standar::orderBy('std_id', 'asc')->get();
 
-        $query = RencanaKerja::with(['targetindikators.indikatorKinerja', 'periodes'])
+        $query = RencanaKerja::with(['targetindikators.indikatorKinerja', 'periodes','standar'])
             ->leftJoin('unit_kerja', 'unit_kerja.unit_id', '=', 'rencana_kerja.unit_id')
             ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'rencana_kerja.th_id')
             ->where('tahun_kerja.th_is_aktif', 'y')
@@ -74,6 +76,7 @@ class ProgramKerjaController extends Controller
         return view('pages.index-programkerja', [
             'title' => $title,
             'programkerjas' => $programkerjas,
+            'standars' => $standars,
             'units' => $units,
             'tahuns' => $tahuns,
             'periodes' => $periodes,
@@ -101,6 +104,8 @@ class ProgramKerjaController extends Controller
             ->orderBy('indikator_kinerja.ik_nama', 'asc')
             ->get(['target_indikator.ti_id', 'indikator_kinerja.ik_kode', 'indikator_kinerja.ik_nama']);
         
+        $standars = standar::orderBy('std_id', 'asc')->get();
+
         $loggedInUser = Auth::user();
         $userRole = $loggedInUser->role;
         $userUnit = null;
@@ -115,6 +120,7 @@ class ProgramKerjaController extends Controller
             'units' => $units,
             'tahuns' => $tahuns,
             'periodes' => $periodes,
+            'standars' => $standars,
             'targetindikators' => $targetindikators,
             'programStudis' => $programStudis,
             'type_menu' => 'programkerja',
@@ -125,10 +131,14 @@ class ProgramKerjaController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request->all());
+
         $request->validate([
             'rk_nama' => 'required|string|max:255',
             'unit_id' => 'required|exists:unit_kerja,unit_id',
             'th_id' => 'required|exists:tahun_kerja,th_id',
+            'std_id' => 'required|exists:standar,std_id',
+            'anggaran' => 'nullable|numeric|min:0',
             'pm_id' => 'array',
             'ti_id' => 'array',
             'prodi_id' => 'required|array',
@@ -152,7 +162,9 @@ class ProgramKerjaController extends Controller
         $programkerja->rk_id = $rk_id;
         $programkerja->rk_nama = $request->rk_nama;
         $programkerja->unit_id = $request->unit_id;
+        $programkerja->std_id = $request->std_id;
         $programkerja->th_id = $request->th_id;
+        $programkerja->anggaran = $request->anggaran;
         $programkerja->save();
 
         if ($request->has('pm_id')) {
@@ -202,10 +214,14 @@ class ProgramKerjaController extends Controller
 
     public function edit(RencanaKerja $programkerja)
     {
+        // dd($programkerja->all());
+
         $title = 'Ubah Program Kerja';
         $units = UnitKerja::where('unit_kerja', 'y')->get();
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
         $periodes = periode_monev::orderBy('pm_nama', 'asc')->get();
+        $standars = standar::orderBy('std_id', 'asc')->get();
+        
         $programStudis = program_studi::whereHas('targetIndikator')
             ->orderBy('nama_prodi', 'asc')
             ->get();
@@ -213,10 +229,16 @@ class ProgramKerjaController extends Controller
         $targetindikators = target_indikator::with('indikatorKinerja')
             ->join('indikator_kinerja', 'target_indikator.ik_id', '=', 'indikator_kinerja.ik_id')
             ->orderBy('indikator_kinerja.ik_nama', 'asc')
-            ->get(['target_indikator.ti_id', 'indikator_kinerja.ik_kode', 'indikator_kinerja.ik_nama']);
+            ->get([
+                'target_indikator.ti_id', 
+                'indikator_kinerja.ik_kode', 
+                'indikator_kinerja.ik_nama'
+            ]);
 
+        // Mengambil data yang sudah dipilih
+        $selectedStandar = $programkerja->std_id;
         $selectedPeriodes = $programkerja->periodes->pluck('pm_id')->toArray();
-        $selectedIndikators = $programkerja->targetindikators()->pluck('target_indikator.ti_id')->toArray();
+        $selectedIndikators = $programkerja->targetindikators->pluck('ti_id')->toArray();
         $selectedProgramStudis = $programkerja->programStudis->pluck('prodi_id')->toArray();
 
         $loggedInUser = Auth::user();
@@ -233,13 +255,15 @@ class ProgramKerjaController extends Controller
             'units' => $units,
             'tahuns' => $tahuns,
             'periodes' => $periodes,
+            'standars' => $standars,
+            'selectedStandar' => $selectedStandar,
             'selectedPeriodes' => $selectedPeriodes,
             'selectedIndikators' => $selectedIndikators,
             'targetindikators' => $targetindikators,
             'programStudis' => $programStudis,
             'selectedProgramStudis' => $selectedProgramStudis,
-            'userRole' => $userRole,
-            'userUnit' => $userUnit,
+            'userRole' => Auth::user()->role,
+            'userUnit' => Auth::user()->unitKerja ?? null,
             'type_menu' => 'programkerja',
         ]);
     }
@@ -251,6 +275,8 @@ class ProgramKerjaController extends Controller
             'rk_nama' => 'required|string|max:255',
             'unit_id' => 'required|exists:unit_kerja,unit_id',
             'th_id' => 'required|exists:tahun_kerja,th_id',
+            'std_id' => 'required|exists:standar,std_id',
+            'anggaran' => 'nullable|numeric|min:0',
             'pm_id' => 'array',
             'ti_id' => 'array',
             'prodi_id' => 'array',
@@ -266,6 +292,8 @@ class ProgramKerjaController extends Controller
 
         $programkerja->rk_nama = $request->rk_nama;
         $programkerja->unit_id = $request->unit_id;
+        $programkerja->std_id = $request->std_id;
+        $programkerja->anggaran = $request->anggaran;
         $programkerja->th_id = $request->th_id;
         $programkerja->save();
 

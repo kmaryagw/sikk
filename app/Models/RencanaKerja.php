@@ -15,6 +15,7 @@ class RencanaKerja extends Model
     protected $fillable = [
         'rk_id',
         'rk_nama',
+        'std_id',
         'th_id',
         'unit_id',
     ];
@@ -81,6 +82,11 @@ class RencanaKerja extends Model
     public function rencanaKerjaProgramStudi()
     {
         return $this->hasMany(RencanaKerjaProgramStudi::class, 'rk_id', 'rk_id');
+    }
+
+    public function standar()
+    {
+        return $this->belongsTo(Standar::class, 'std_id', 'std_id');
     }
 
 

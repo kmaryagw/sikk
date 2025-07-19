@@ -21,6 +21,7 @@ class TahunController extends Controller
     public function index(Request $request)
     {
         $title = 'Data Tahun Kerja';
+        $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
         $q = $request->query('q');
         $tahuns = tahun_kerja::where('th_tahun', 'like', '%' . $q . '%')
             ->orderBy('th_tahun', 'asc')
@@ -58,7 +59,7 @@ class TahunController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'th_tahun' => 'required|integer|min:1900|max:2100',
+            'th_tahun' => 'required|regex:/^[a-zA-Z0-9\/\s\-]+$/|max:20',
             'th_is_aktif' => 'required|in:y,n',
             'ren_id' => 'required',
             

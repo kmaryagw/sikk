@@ -39,6 +39,17 @@
                                 <form method="POST" action="{{ route('standar.store') }}" enctype="multipart/form-data">
                                     @csrf
                                     <div class="form-group">
+                                        <label>Kategori Standar</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-layer-group"></i>
+                                                </div>
+                                            </div>
+                                            <input class="form-control" type="text" name="std_kategori" value="{{ old('std_kategori') }}" required/>
+                                        </div>
+                                    </div>                                    
+                                    <div class="form-group">
                                         <label>Nama Standar</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">

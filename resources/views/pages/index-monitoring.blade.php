@@ -38,7 +38,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @php $no = 1; @endphp
+                            @php $no = $no ?? $periodemonitorings->firstItem(); @endphp
                             @foreach ($periodemonitorings as $item)
                                 <tr>
                                     <td>{{ $no++ }}</td>

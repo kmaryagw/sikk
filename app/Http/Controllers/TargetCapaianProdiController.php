@@ -29,16 +29,19 @@ class TargetCapaianProdiController extends Controller
         $tahunId = $request->query('tahun');
         $prodiId = $request->query('prodi');
 
-        $tahun = tahun_kerja::where('th_is_aktif', 'y')->get();
+        $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->first();
+        $tahun = tahun_kerja::all();
         $prodis = program_studi::all();
+
+        if (!$tahunId && $tahunAktif) {
+            $tahunId = $tahunAktif->th_id;
+        }
 
         $query = target_indikator::query()
             ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
             ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
-            ->leftJoin('tahun_kerja as aktif_tahun', function ($join) {
-                $join->on('aktif_tahun.th_id', '=', 'target_indikator.th_id')
-                    ->where('aktif_tahun.th_is_aktif', 'y');
-            });
+            ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id');
+            
 
         // Jika user prodi, batasi ke prodi mereka
         if (Auth::user()->role == 'prodi') {
@@ -56,7 +59,7 @@ class TargetCapaianProdiController extends Controller
         }
 
         if ($tahunId) {
-            $query->where('aktif_tahun.th_id', $tahunId);
+            $query->where('target_indikator.th_id', $tahunId);
         }
 
         if ($prodiId) {
@@ -66,15 +69,13 @@ class TargetCapaianProdiController extends Controller
         $query->orderBy('indikator_kinerja.ik_nama', 'asc');
 
         $target_capaians = $query->paginate(10)->withQueryString();
-        // dd($target_capaians);
-        // $query->dump();
-        // dd($query->toSql());
         $no = $target_capaians->firstItem();
 
         return view('targetcapaian.index', [
             'title' => $title,
             'target_capaians' => $target_capaians,
             'tahun' => $tahun,
+            'tahunAktif' => $tahunAktif,
             'prodis' => $prodis,
             'tahunId' => $tahunId,
             'prodiId' => $prodiId,

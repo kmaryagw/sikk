@@ -52,6 +52,7 @@ class StandarController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'std_kategori' => 'required|string|max:50',
             'std_nama' => 'required|string|max:20',
             'std_deskripsi' => 'required',
             'std_url' => 'required|url',
@@ -64,6 +65,7 @@ class StandarController extends Controller
 
         $standar = new standar();
         $standar->std_id = $std_id;
+        $standar->std_kategori = $request->std_kategori;
         $standar->std_nama = $request->std_nama;
         $standar->std_deskripsi = $request->std_deskripsi;
         $standar->std_url = $request->std_url;
@@ -72,6 +74,7 @@ class StandarController extends Controller
         Alert::success('Sukses', 'Data Berhasil Ditambah');
         return redirect()->route('standar.index');
     }
+
 
     public function edit(standar $standar)
     {   
@@ -87,11 +90,13 @@ class StandarController extends Controller
     public function update(standar $standar, Request $request)
     {
         $request->validate([
+            'std_kategori' => 'required|string|max:50',
             'std_nama' => 'required|string|max:20',
             'std_deskripsi' => 'required',
             'std_url' => 'required|url',
         ]);
 
+        $standar->std_kategori = $request->std_kategori;
         $standar->std_nama = $request->std_nama;
         $standar->std_deskripsi = $request->std_deskripsi;
         $standar->std_url = $request->std_url;
@@ -100,6 +105,7 @@ class StandarController extends Controller
         Alert::success('Sukses', 'Data Berhasil Diubah');
         return redirect()->route('standar.index');
     }
+
 
 
     public function destroy(standar $standar)
