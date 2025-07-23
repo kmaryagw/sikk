@@ -123,8 +123,14 @@
                                                             <span class="text-success"> {{ $ik->ik_baseline }}</span>
                                                         </td>                                                                       
                                                         <td>
-                                                            @if($ik->ik_ketercapaian=='nilai' || $ik->ik_ketercapaian=='persentase')
+                                                            @if($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase')
                                                                 <input type="number" class="form-control" name="indikator[{{ $no }}][target]" step="any" value="{{ $target_value }}">
+                                                            @elseif($ik->ik_ketercapaian == 'ketersediaan')
+                                                                <select class="form-control" name="indikator[{{ $no }}][target]">
+                                                                    <option value="" disabled selected {{ $target_value == '' ? 'selected' : '' }}>-- Pilih --</option>
+                                                                    <option value="ada" {{ $target_value == 'ada' ? 'selected' : '' }}>Ada</option>
+                                                                    <option value="draft" {{ $target_value == 'draft' ? 'selected' : '' }}>Draft</option>
+                                                                </select>
                                                             @else
                                                                 <input type="text" class="form-control" name="indikator[{{ $no }}][target]" value="{{ $target_value }}">
                                                             @endif

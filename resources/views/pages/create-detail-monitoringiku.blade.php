@@ -84,17 +84,26 @@
                                                 </td>
                                                 <td>
                                                     <input type="hidden" name="ti_id[]" value="{{ $indikator->ti_id }}">
+                                                    @php
+                                                        $capaianValue = old('mtid_capaian.' . $loop->index, $detail->mtid_capaian ?? '');
+                                                    @endphp
+
                                                     @if(in_array($indikatorKinerja->ik_ketercapaian, ['nilai', 'persentase']))
                                                         <input type="number" class="form-control" style="max-width: 100px;" 
-                                                               name="mtid_capaian[]" step="any" 
-                                                               value="{{ old('mtid_capaian.' . $loop->index, $detail->mtid_capaian ?? '') }}">
+                                                            name="mtid_capaian[]" step="any" 
+                                                            value="{{ $capaianValue }}">
+                                                    @elseif(strtolower($indikatorKinerja->ik_ketercapaian) === 'ketersediaan')
+                                                        <select name="mtid_capaian[]" class="form-control" style="max-width: 120px;">
+                                                            <option value="" disabled {{ $capaianValue ? '' : 'selected' }}>Pilih</option>
+                                                            <option value="ada" {{ $capaianValue == 'ada' ? 'selected' : '' }}>Ada</option>
+                                                            <option value="draft" {{ $capaianValue == 'draft' ? 'selected' : '' }}>Draft</option>
+                                                        </select>
                                                     @else
                                                         <input type="text" class="form-control" style="max-width: 100px;" 
-                                                               name="mtid_capaian[]" 
-                                                               value="{{ old('mtid_capaian.' . $loop->index, $detail->mtid_capaian ?? '') }}">
+                                                            name="mtid_capaian[]" 
+                                                            value="{{ $capaianValue }}">
                                                     @endif
                                                 </td>
-                                               
                                                 {{-- <td>
                                                     <select name="mtid_status[]" class="form-control select2" style="max-width: 150px;">
                                                         <option value="">-- Pilih Status --</option>
