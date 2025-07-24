@@ -33,6 +33,14 @@ class TargetCapaianProdiController extends Controller
         $tahun = tahun_kerja::all();
         $prodis = program_studi::all();
 
+        $tahunLabel = '-';
+        if ($tahunId) {
+            $tahunModel = tahun_kerja::find($tahunId);
+            $tahunLabel = $tahunModel ? $tahunModel->th_tahun : '-';
+        } elseif ($tahunAktif) {
+            $tahunLabel = $tahunAktif->th_tahun;
+        }
+
         if (!$tahunId && $tahunAktif) {
             $tahunId = $tahunAktif->th_id;
         }
@@ -76,6 +84,7 @@ class TargetCapaianProdiController extends Controller
             'target_capaians' => $target_capaians,
             'tahun' => $tahun,
             'tahunAktif' => $tahunAktif,
+            'tahunLabel' => $tahunLabel,
             'prodis' => $prodis,
             'tahunId' => $tahunId,
             'prodiId' => $prodiId,

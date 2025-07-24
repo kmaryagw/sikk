@@ -70,14 +70,14 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @php $no = $programkerjas->firstItem(); @endphp
+                            {{-- @php $no = $programkerjas->firstItem(); @endphp --}}
                             @php
-                                $no = $programkerjas->firstItem();
+                                $no = 1;
                                 $totalAnggaran = $programkerjas->sum('anggaran');
                             @endphp
                             @foreach ($programkerjas as $programkerja)
                                 <tr>
-                                    <td>{{ $no++ }}</td>
+                                     <td>{{ $loop->iteration + $no - 1 }}</td> {{-- <td>{{ $no++ }}</td> --}}
                                     <td>{{ $programkerja->th_tahun }}</td>
                                     <td>
                                         @if($programkerja->programStudis->isNotEmpty())
@@ -141,11 +141,11 @@
                     </table>
                 </div>
 
-                @if ($programkerjas->hasPages())
+                {{-- @if ($programkerjas->hasPages())
                     <div class="card-footer">
                         {{ $programkerjas->links('pagination::bootstrap-5') }}
                     </div>
-                @endif
+                @endif --}}
             </div>
         </section>
     </div>

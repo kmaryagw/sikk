@@ -31,7 +31,19 @@
                                 @endforeach
                             </select>
                         </div>
-                        @endif                                             
+                        @endif   
+                        @if (Auth::user()->role== 'admin' || Auth::user()->role == 'prodi')
+                        <div class="col-auto">
+                            <select class="form-control" name="tahun">
+                                <option value="">Semua Tahun</option>
+                                @foreach ($tahun as $th)
+                                    <option value="{{ $th->th_id }}" {{ request('tahun') == $th->th_id ? 'selected' : '' }}>
+                                        {{ $th->th_tahun }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @endif                                          
                         <div class="col-auto">
                             <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>
@@ -164,8 +176,18 @@
                             @endforeach
 
                             @if ($target_capaians->isEmpty())
+                                @php
+                                    $tahunText = $tahun->firstWhere('th_id', $tahunId)?->th_tahun ?? 'ini';
+                                    $prodiText = $prodis->firstWhere('prodi_id', $prodiId)?->nama_prodi ?? null;
+                                @endphp
                                 <tr>
-                                    <td colspan="10" class="text-center">Tidak ada data</td>
+                                    <td colspan="10" class="text-center alert alert-danger m-0">
+                                        Prodi {{ $prodiText }}
+                                        @if ($tahunText)
+                                            di Tahun {{ $tahunText }}
+                                        @endif
+                                        tidak memiliki Target Capaian.
+                                    </td>
                                 </tr>
                             @endif
                         </tbody>

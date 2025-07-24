@@ -21,13 +21,11 @@
                     <form class="row g-2 align-items-center">
                         @if (Auth::user()->role== 'admin' || Auth::user()->role == 'prodi')
                         <div class="col-auto">
-                            <select class="form-control" name="prodi">
-                                <option value="">Semua Prodi</option>
-                                @foreach ($prodis as $prodi)
-                                    <option value="{{ $prodi->prodi_id }}" 
-                                        {{ request('prodi') == $prodi->prodi_id ? 'selected' : '' }} 
-                                        {{ Auth::user()->prodi_id == $prodi->prodi_id ? 'selected' : '' }}>
-                                        {{ $prodi->nama_prodi }}
+                            <select class="form-control" name="tahun">
+                                <option value="" disabled selected>Tahun</option>
+                                @foreach ($tahun as $th)
+                                    <option value="{{ $th->th_id }}" {{ request('tahun') == $th->th_id ? 'selected' : '' }}>
+                                        {{ $th->th_tahun }}
                                     </option>
                                 @endforeach
                             </select>
@@ -63,7 +61,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @php $no = $target_capaians->firstItem(); @endphp
+                        @php $no = $target_capaians->firstItem(); @endphp
                             @foreach ($target_capaians as $targetcapaian)
                                 <tr>
                                     <td>{{ $no++ }}</td>
@@ -165,6 +163,15 @@
                             @endforeach
                         </tbody>
                     </table>
+                    @if ($target_capaians->isEmpty())
+                        <tr>
+                            <td colspan="8" class="text-center">
+                                <div class="alert alert-danger m-0">
+                                    Tahun {{ $tahunLabel }} tidak memiliki Target Capaian.
+                                </div>
+                            </td>
+                        </tr>
+                    @endif
                 </div>
 
                 @if ($target_capaians->hasPages())
