@@ -23,17 +23,36 @@ class StandarController extends Controller
     {   
         $title = 'Data Unit';
         $q = $request->query('q');
-        $standars = standar::where('std_nama', 'like', '%'. $q. '%')
-                            ->orWhere('std_deskripsi', 'like', '%'. $q. '%')
-                            ->orWhere('std_kategori', 'like', '%' . $q . '%')
-            ->orderBy('std_nama', 'asc')
-            ->paginate(10)
-            ->withQueryString();
+        $namaFilter = $request->query('nama');
+        $kategoriFilter = $request->query('kategori');
+
+        $query = Standar::query();
+
+        if ($q) {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('std_nama', 'like', '%' . $q . '%')
+                    ->orWhere('std_deskripsi', 'like', '%' . $q . '%')
+                    ->orWhere('std_kategori', 'like', '%' . $q . '%');
+            });
+        }
+
+        if ($namaFilter) {
+            $query->where('std_nama', $namaFilter);
+        }
+
+        if ($kategoriFilter) {
+            $query->where('std_kategori', $kategoriFilter);
+        }
+
+        $standars = $query->orderBy('std_nama', 'asc')->paginate(10)->withQueryString();
         $no = $standars->firstItem();
+
+        $namaStandarList = Standar::select('std_nama')->distinct()->orderBy('std_nama')->pluck('std_nama');
+        $kategoriStandarList = Standar::select('std_kategori')->distinct()->orderBy('std_kategori')->pluck('std_kategori');
 
         if ($request->ajax()) {
             return response()->json([
-                'html' => view('pages.standar_table', compact('standars'))->render(),
+                'html' => view('pages.standar_table', compact('standars', 'no'))->render(),
                 'pagination' => view('pages.standar_pagination', compact('standars'))->render(),
             ]);
         }
@@ -42,11 +61,14 @@ class StandarController extends Controller
             'title' => $title,
             'standars' => $standars,
             'q' => $q,
+            'namaStandarList' => $namaStandarList,
+            'kategoriStandarList' => $kategoriStandarList,
             'no' => $no,
             'type_menu' => 'masterdata',
             'sub_menu' => 'standar',
         ]);
     }
+
 
     public function create()
     {   

@@ -1,6 +1,12 @@
 @if ($standars->isEmpty())
     <tr>
-        <td colspan="5" class="text-center">Tidak ada data</td>
+        <td colspan="5" class="text-center">
+            @if (request('q') || request('nama') || request('kategori'))
+                Data tidak ditemukan untuk pencarian atau filter yang dipilih.
+            @else
+                Tidak ada data tersedia.
+            @endif
+        </td>
     </tr>
 @else
     @php $no = $standars->firstItem(); @endphp

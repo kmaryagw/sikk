@@ -20,8 +20,24 @@
                             <input class="form-control" name="q" id="searchInput" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>
                         <div class="col-auto">
-                            <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
+                            <select class="form-control" id="filterKategoriStandar" name="kategori">
+                                <option value="">Semua Kategori Standar</option>
+                                @foreach ($kategoriStandarList as $kategori)
+                                    <option value="{{ $kategori }}">{{ $kategori }}</option>
+                                @endforeach
+                            </select>
                         </div>
+                        <div class="col-auto">
+                            <select class="form-control" id="filterNamaStandar">
+                                <option value="">Semua Nama Standar</option>
+                                @foreach ($namaStandarList as $nama)
+                                    <option value="{{ $nama }}" {{ request('nama') == $nama ? 'selected' : '' }}>{{ $nama }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        {{-- <div class="col-auto">
+                            <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
+                        </div> --}}
                         <div class="col-auto">
                             <a class="btn btn-primary" href="{{ route('standar.create') }}"><i class="fa-solid fa-plus"></i> Tambah</a>
                         </div>
@@ -81,40 +97,36 @@
         $(document).ready(function () {
             let delayTimer;
 
-            $('#searchInput').on('input', function () {
+            // Trigger AJAX saat input berubah
+            $('#searchInput, #filterNamaStandar, #filterKategoriStandar').on('input change', function () {
                 clearTimeout(delayTimer);
-                let query = $(this).val();
-
                 delayTimer = setTimeout(function () {
-                    $.ajax({
-                        url: "{{ route('standar.index') }}",
-                        type: "GET",
-                        data: {
-                            q: query
-                        },
-                        success: function (response) {
-                            $('#tableBody').html(response.html);
-                            $('#paginationLinks').html(response.pagination);
-                        },
-                        error: function () {
-                            alert('Gagal memuat data');
-                        }
-                    });
-                }, 100); // delay ketik
+                    fetchData(1); // Reset ke halaman 1 saat filter berubah
+                }, 100);
             });
 
-            // AJAX pagination
+            // Handle pagination klik
             $(document).on('click', '#paginationLinks a', function (e) {
                 e.preventDefault();
                 let url = $(this).attr('href');
-                let page = url.split('page=')[1];
-                let query = $('#searchInput').val();
-                fetchData(page, query);
+                let page = new URLSearchParams(url.split('?')[1]).get('page') || 1;
+                fetchData(page);
             });
 
-            function fetchData(page, query) {
+            function fetchData(page = 1) {
+                let query = $('#searchInput').val();
+                let nama = $('#filterNamaStandar').val();
+                let kategori = $('#filterKategoriStandar').val();
+
                 $.ajax({
-                    url: "{{ route('standar.index') }}" + '?page=' + page + '&q=' + encodeURIComponent(query),
+                    url: "{{ route('standar.index') }}",
+                    type: "GET",
+                    data: {
+                        page: page,
+                        q: query,
+                        nama: nama,
+                        kategori: kategori
+                    },
                     success: function (response) {
                         $('#tableBody').html(response.html);
                         $('#paginationLinks').html(response.pagination);
@@ -126,5 +138,6 @@
             }
         });
     </script>
+
 
 @endpush
