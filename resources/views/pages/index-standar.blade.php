@@ -17,7 +17,7 @@
                 <div class="card-header">
                     <form class="row g-2 align-items-center">
                         <div class="col-auto">
-                            <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
+                            <input class="form-control" name="q" id="searchInput" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>
                         <div class="col-auto">
                             <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
@@ -28,58 +28,27 @@
                     </form>
                 </div>
 
-                <div class="table-responsive text-center">
+                <div class="table-responsive">
                     <table class="table table-hover table-bordered table-striped m-0">
                         <thead>
-                            <tr>
-                                <th>Kategori Standar</th>
-                                <th>Nama Standar</th>
-                                <th>Pernyataan Standar</th>
-                                <th>URL</th>
-                                <th>Aksi</th>
+                            <tr class="text-center">
+                                <th style="width: 1%;">No</th>
+                                <th style="width: 15%;">Kategori Standar</th>
+                                <th style="width: 25%;">Nama Standar</th>
+                                <th style="width: 50%;">Pernyataan Standar</th>
+                                {{-- <th>URL</th> --}}
+                                <th style="width: 5%;">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @php $no = $standars->firstItem(); @endphp
-                            @foreach ($standars as $standar)
-                                <tr>
-                                    <td>{{ $standar->std_kategori }}</td>
-                                    <td>{{ $standar->std_nama }}</td>
-                                    <td>{{ $standar->std_deskripsi }}</td>
-                                    <td>
-                                        @if($standar->std_url)
-                                            <a href="{{ $standar->std_url}}" target="_blank" class="btn btn-success">Lihat URL</a>
-                                        @else
-                                            Tidak Ada URL
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <a class="btn btn-warning" href="{{ route('standar.edit', $standar->std_id) }}">
-                                            <i class="fa-solid fa-pen-to-square"></i> Ubah
-                                        </a>
-                                        <form id="delete-form-{{ $standar->std_id }}" method="POST" class="d-inline" action="{{ route('standar.destroy', $standar->std_id) }}">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-danger" onclick="confirmDelete(event, '{{ $standar->std_id }}')">
-                                                <i class="fa-solid fa-trash"></i> Hapus
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-
-                            @if ($standars->isEmpty())
-                                <tr>
-                                    <td colspan="5" class="text-center">Tidak ada data</td>
-                                </tr>
-                            @endif
+                        <tbody id="tableBody">
+                            @include('pages.standar_table', ['standars' => $standars])
                         </tbody>
                     </table>
                 </div>
 
                 @if ($standars->hasPages())
-                    <div class="card-footer">
-                        {{ $standars->links('pagination::bootstrap-5') }}
+                    <div class="card-footer" id="paginationLinks">
+                        @include('pages.standar_pagination', ['standars' => $standars])
                     </div>
                 @endif
             </div>
@@ -107,4 +76,55 @@
             });
         }
     </script>
+
+    <script>
+        $(document).ready(function () {
+            let delayTimer;
+
+            $('#searchInput').on('input', function () {
+                clearTimeout(delayTimer);
+                let query = $(this).val();
+
+                delayTimer = setTimeout(function () {
+                    $.ajax({
+                        url: "{{ route('standar.index') }}",
+                        type: "GET",
+                        data: {
+                            q: query
+                        },
+                        success: function (response) {
+                            $('#tableBody').html(response.html);
+                            $('#paginationLinks').html(response.pagination);
+                        },
+                        error: function () {
+                            alert('Gagal memuat data');
+                        }
+                    });
+                }, 100); // delay ketik
+            });
+
+            // AJAX pagination
+            $(document).on('click', '#paginationLinks a', function (e) {
+                e.preventDefault();
+                let url = $(this).attr('href');
+                let page = url.split('page=')[1];
+                let query = $('#searchInput').val();
+                fetchData(page, query);
+            });
+
+            function fetchData(page, query) {
+                $.ajax({
+                    url: "{{ route('standar.index') }}" + '?page=' + page + '&q=' + encodeURIComponent(query),
+                    success: function (response) {
+                        $('#tableBody').html(response.html);
+                        $('#paginationLinks').html(response.pagination);
+                    },
+                    error: function () {
+                        alert('Gagal memuat data');
+                    }
+                });
+            }
+        });
+    </script>
+
 @endpush

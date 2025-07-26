@@ -25,17 +25,26 @@ class StandarController extends Controller
         $q = $request->query('q');
         $standars = standar::where('std_nama', 'like', '%'. $q. '%')
                             ->orWhere('std_deskripsi', 'like', '%'. $q. '%')
+                            ->orWhere('std_kategori', 'like', '%' . $q . '%')
             ->orderBy('std_nama', 'asc')
             ->paginate(10)
             ->withQueryString();
         $no = $standars->firstItem();
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('pages.standar_table', compact('standars'))->render(),
+                'pagination' => view('pages.standar_pagination', compact('standars'))->render(),
+            ]);
+        }
 
         return view('pages.index-standar', [
             'title' => $title,
             'standars' => $standars,
             'q' => $q,
             'no' => $no,
-            'type_menu' => 'standar',
+            'type_menu' => 'masterdata',
+            'sub_menu' => 'standar',
         ]);
     }
 
@@ -45,15 +54,17 @@ class StandarController extends Controller
 
         return view('pages.create-standar', [
             'title' => $title,
-            'type_menu' => 'standar',
+            'type_menu' => 'masterdata',
+            'sub_menu' => 'standar',
+
         ]);
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'std_kategori' => 'required|string|max:50',
-            'std_nama' => 'required|string|max:20',
+            'std_kategori' => 'required|string|max:255',
+            'std_nama' => 'required|string|max:255',
             'std_deskripsi' => 'required',
             'std_url' => 'required|url',
         ]);
@@ -83,15 +94,16 @@ class StandarController extends Controller
         return view('pages.edit-standar', [
             'title' => $title,
             'standar' => $standar,
-            'type_menu' => 'standar',
+            'type_menu' => 'masterdata',
+            'sub_menu' => 'standar',
         ]);
     }
 
     public function update(standar $standar, Request $request)
     {
         $request->validate([
-            'std_kategori' => 'required|string|max:50',
-            'std_nama' => 'required|string|max:20',
+            'std_kategori' => 'required|string|max:255',
+            'std_nama' => 'required|string|max:250',
             'std_deskripsi' => 'required',
             'std_url' => 'required|url',
         ]);
