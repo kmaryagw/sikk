@@ -134,6 +134,8 @@ class TargetCapaianProdiController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request->all());
+
         $indikatorkinerjas = IndikatorKinerja::find($request->ik_id);
 
         $validationRules = [
@@ -186,8 +188,8 @@ class TargetCapaianProdiController extends Controller
                 [
                     'ti_id'=>$ti_id,
                     'ik_id'=>$data["ik_id"],
-                    'ti_target'=>$data["target"],
-                    'ti_keterangan'=>$data["keterangan"],
+                    'ti_target' => $data["target"] ?? 'Target Belum Ditentukan',
+                    'ti_keterangan'=>$data["keterangan"] ?? '-',
                     'prodi_id'=>$prodi_id,
                     'th_id'=>$th_id
                 ]

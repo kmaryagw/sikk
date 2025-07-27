@@ -30,7 +30,8 @@ class LaporanIkuController extends Controller
         $tahunId = $request->query('tahun');
         $prodiId = $request->query('prodi');
 
-        $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
+        // $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
+        $tahuns = tahun_kerja::orderBy('th_tahun', 'desc')->get();
         $prodis = program_studi::all();
 
         $query = target_indikator::select('target_indikator.*', 'indikator_kinerja.ik_nama', 'program_studi.nama_prodi', 'aktif_tahun.th_tahun')

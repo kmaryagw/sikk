@@ -36,11 +36,11 @@
                                     <thead>
                                         <tr class="text-center">
                                             <th width="3%">No</th>
-                                            <th width="20%">Indikator</th>
+                                            <th width="25%">Indikator</th>
                                             <th width="5%">Baseline</th>
-                                            <th width="5%">Target</th>
+                                            <th width="15%">Target</th>
                                             <th width="15%">Jenis Ketercapaian</th>
-                                            <th width="5%">Capaian</th>
+                                            <th width="10%">Capaian</th>
                                             {{-- <th width="10%">Status</th> --}}
                                             <th width="15%">Keterangan</th>
                                             <th width="10%">URL</th>
@@ -86,14 +86,15 @@
                                                     <input type="hidden" name="ti_id[]" value="{{ $indikator->ti_id }}">
                                                     @php
                                                         $capaianValue = old('mtid_capaian.' . $loop->index, $detail->mtid_capaian ?? '');
+                                                        $isTargetEmpty = trim(strtolower($indikator->ti_target)) === 'target belum ditentukan';
                                                     @endphp
 
                                                     @if(in_array($indikatorKinerja->ik_ketercapaian, ['nilai', 'persentase']))
-                                                        <input type="number" class="form-control" style="max-width: 100px;" 
+                                                        <input type="number" class="form-control" style="max-width: 150px;" 
                                                             name="mtid_capaian[]" step="any" 
-                                                            value="{{ $capaianValue }}">
+                                                            value="{{ $capaianValue }}" @if($isTargetEmpty) disabled @endif>
                                                     @elseif(strtolower($indikatorKinerja->ik_ketercapaian) === 'ketersediaan')
-                                                        <select name="mtid_capaian[]" class="form-control" style="max-width: 120px;">
+                                                        <select name="mtid_capaian[]" class="form-control" style="max-width: 150px;" @if($isTargetEmpty) disabled @endif>
                                                             <option value="" disabled {{ $capaianValue ? '' : 'selected' }}>Pilih</option>
                                                             <option value="ada" {{ $capaianValue == 'ada' ? 'selected' : '' }}>Ada</option>
                                                             <option value="draft" {{ $capaianValue == 'draft' ? 'selected' : '' }}>Draft</option>
@@ -121,12 +122,12 @@
                                                 <td>
                                                     <input type="text" class="form-control" style="max-width: 200px;" 
                                                            name="mtid_keterangan[]" 
-                                                           value="{{ old('mtid_keterangan.' . $loop->index, $detail->mtid_keterangan ?? '') }}">
+                                                           value="{{ old('mtid_keterangan.' . $loop->index, $detail->mtid_keterangan ?? '') }}" @if($isTargetEmpty) disabled @endif>
                                                 </td>
                                                 <td>
                                                     <input type="url" class="form-control" style="max-width: 200px;" 
                                                            name="mtid_url[]" 
-                                                           value="{{ old('mtid_url.' . $loop->index, $detail->mtid_url ?? '') }}">
+                                                           value="{{ old('mtid_url.' . $loop->index, $detail->mtid_url ?? '') }}" @if($isTargetEmpty) disabled @endif>
                                                 </td>
                                             </tr>
                                         @endforeach

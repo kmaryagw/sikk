@@ -177,16 +177,20 @@
 
                             @if ($target_capaians->isEmpty())
                                 @php
-                                    $tahunText = $tahun->firstWhere('th_id', $tahunId)?->th_tahun ?? 'ini';
+                                    $tahunText = $tahun->firstWhere('th_id', $tahunId)?->th_tahun ?? null;
                                     $prodiText = $prodis->firstWhere('prodi_id', $prodiId)?->nama_prodi ?? null;
                                 @endphp
                                 <tr>
-                                    <td colspan="10" class="text-center alert alert-danger m-0">
-                                        Prodi {{ $prodiText }}
-                                        @if ($tahunText)
-                                            di Tahun {{ $tahunText }}
+                                    <td colspan="12">
+                                        @if ($prodiText && $tahunText)
+                                            Prodi <strong>{{ $prodiText }}</strong> di Tahun <strong>{{ $tahunText }}</strong> tidak memiliki Target Capaian.
+                                        @elseif ($prodiText)
+                                            Prodi <strong>{{ $prodiText }}</strong> tidak memiliki Target Capaian.
+                                        @elseif ($tahunText)
+                                            Tidak ada Target Capaian di Tahun <strong>{{ $tahunText }}</strong>.
+                                        @else
+                                            Tidak ada Target Capaian ditemukan.
                                         @endif
-                                        tidak memiliki Target Capaian.
                                     </td>
                                 </tr>
                             @endif

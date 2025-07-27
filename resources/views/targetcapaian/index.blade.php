@@ -161,17 +161,17 @@
                                     @endif --}}
                                 </tr>
                             @endforeach
+                            @if ($target_capaians->isEmpty())
+                                <tr>
+                                    <td colspan="12" class="text-center">
+                                        <div>
+                                            Tahun {{ $tahunLabel }} tidak memiliki Target Capaian.
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
-                    @if ($target_capaians->isEmpty())
-                        <tr>
-                            <td colspan="8" class="text-center">
-                                <div class="alert alert-danger m-0">
-                                    Tahun {{ $tahunLabel }} tidak memiliki Target Capaian.
-                                </div>
-                            </td>
-                        </tr>
-                    @endif
                 </div>
 
                 @if ($target_capaians->hasPages())
