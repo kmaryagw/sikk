@@ -151,7 +151,7 @@
                         @endif
                         @if ($rencanaKerjas->isEmpty())
                             <tr>
-                                <td colspan="5" class="text-center">Tidak ada data</td>
+                                <td colspan="12" class="text-center">Tidak ada data</td>
                             </tr>
                         @endif
                     </tbody>

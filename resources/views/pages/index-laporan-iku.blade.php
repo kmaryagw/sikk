@@ -213,10 +213,22 @@
                         </tr>
                     @endforeach
                         @if ($target_capaians->isEmpty())
-                                <tr>
-                                    <td colspan="6" class="text-center">Tidak ada data</td>
-                                </tr>
-                            @endif
+                            @php
+                                $tahunText = $tahuns->firstWhere('th_id', request('tahun'))?->th_tahun ?? null;
+                                $prodiText = $prodis->firstWhere('prodi_id', request('prodi'))?->nama_prodi ?? null;
+                            @endphp
+                            <tr>
+                                <td colspan="12" class="text-center alert alert-danger m-0">
+                                    Tidak ada data
+                                    @if ($prodiText)
+                                        untuk <strong>Program Studi {{ $prodiText }}</strong>
+                                    @endif
+                                    @if ($tahunText)
+                                        di Tahun <strong>{{ $tahunText }}</strong>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endif
                     </tbody>
                 </table>
             </div>

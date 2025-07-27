@@ -80,7 +80,7 @@
 
             {{-- Master Data --}}
             @if (Auth::user()->role == 'admin')
-             <li class="nav-item dropdown {{ $type_menu === 'masterdata' ? 'active' : '' }}">
+            <li class="nav-item dropdown {{ $type_menu === 'masterdata' ? 'active' : '' }}">
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fa-solid fa-basketball"></i> <span>Master Data</span></a>
                 <ul class="dropdown-menu">
                     <li class="{{ Request::is('user') || (isset($sub_menu) && $sub_menu === 'user') ? 'active' : '' }}">
@@ -104,6 +104,9 @@
                     <li class="{{ Request::is('periodemonev') || (isset($sub_menu) && $sub_menu === 'periodemonev') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('periodemonev') }}"><i class="fas fa-clock"></i>Periode Monev</a>
                     </li>
+                    <li class="{{ Request::is('standar') || (isset($sub_menu) && $sub_menu === 'standar') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ url('standar') }}"><i class="fa fa-paper-plane"></i>Standar</a>
+                    </li>
                     <li class="{{ Request::is('indikatorkinerja') || (isset($sub_menu) && $sub_menu === 'indikatorkinerja') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('indikatorkinerja') }}"><i class="fas fa-bullseye"></i>IKU/IKT</a>
                     </li>
@@ -116,16 +119,6 @@
                 <a class="nav-link" href="{{ url('periode-monitoring') }}">
                     <i class="fas fa-calendar-alt" aria-hidden="true"></i>
                     <span>Periode Monitoring</span>
-                </a>
-            </li>
-            @endif
-
-            {{-- Standar --}}
-            @if (Auth::user()->role == 'admin')
-            <li class="{{ $type_menu === 'standar' ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('standar') }}">
-                    <i class="fa fa-paper-plane" aria-hidden="true"></i>
-                    <span>Standar</span>
                 </a>
             </li>
             @endif
@@ -161,31 +154,31 @@
             @endif
 
             {{-- Program Kerja --}}
-            @if (Auth::user()->role == 'prodi'|| Auth::user()->role == 'unit kerja' || Auth::user()->role == 'admin')
+            {{-- @if (Auth::user()->role == 'prodi'|| Auth::user()->role == 'unit kerja' || Auth::user()->role == 'admin')
             <li class="{{ $type_menu === 'programkerja' ? 'active' : '' }}">
                 <a class="nav-link"
                     href="{{ url('programkerja') }}"><i class="fa-solid fa-book"></i> <span>Program Kerja</span>
                 </a>
             </li>
-            @endif
+            @endif --}}
 
             {{-- Realisasi Renja --}}
-            @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi'|| Auth::user()->role == 'unit kerja') {{----}}
+            {{-- @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi'|| Auth::user()->role == 'unit kerja')
             <li class="{{ $type_menu === 'realisasirenja' ? 'active' : '' }}">
                 <a class="nav-link"
                     href="{{ url('realisasirenja') }}"><i class="fa-solid fa-tasks"></i> <span>Realisasi Renja</span>
                 </a>
             </li>
-            @endif
+            @endif --}}
 
             {{-- Monitoring Renja--}}
-            @if (Auth::user()->role == 'admin' || Auth::user()->role == 'unit kerja' || Auth::user()->role == 'prodi')
+            {{-- @if (Auth::user()->role == 'admin' || Auth::user()->role == 'unit kerja' || Auth::user()->role == 'prodi')
             <li class="{{ $type_menu === 'monitoring' ? 'active' : '' }}">
                 <a class="nav-link"
                     href="{{ url('monitoring') }}"><i class="fa fa-eye" aria-hidden="true"></i> <span>Monitoring Renja</span>
                 </a>
             </li>
-            @endif
+            @endif --}}
 
             {{-- Monitoring IKU/T --}}
             @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'fakultas' || Auth::user()->role == 'unit kerja')
@@ -206,13 +199,13 @@
                         <a class="nav-link" href="{{ url('laporan-iku') }}"><i class="fas fa-bullseye"></i>IKU/IKT</a>
                     </li>
                     @endif
-                    @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi' || Auth::user()->role == 'unit kerja' || Auth::user()->role == 'fakultas')
+                    {{-- @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi' || Auth::user()->role == 'unit kerja' || Auth::user()->role == 'fakultas')
                     <li class="{{ $type_menu === 'laporan-renja' ? 'active' : '' }}">
                         <a class="nav-link" 
                             href="{{ url('laporan-renja') }}"><i class="fas fa-file-alt"></i><span>Renja</span>
                         </a>
                     </li>
-                    @endif
+                    @endif --}}
                     @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi' || Auth::user()->role == 'unit kerja' || Auth::user()->role == 'fakultas')
                     <li class="{{ Request::is('laporan-monitoring') || (isset($sub_menu) && $sub_menu === 'laporan-monitoring') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('laporan-monitoring') }}"><i class="fas fa-eye"></i>Hasil Monitoring</a>

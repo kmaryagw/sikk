@@ -32,7 +32,7 @@
                         </div>
                         <div class="col-auto">
                             <select class="form-control" name="tahun">
-                                <option value="">Pilih Tahun</option>
+                                <option value="" disabled selected >Pilih Tahun</option>
                                 @foreach ($tahuns as $tahun)
                                     <option value="{{ $tahun->th_id }}" {{ request('tahun') == $tahun->th_id ? 'selected' : '' }}>
                                         {{ $tahun->th_tahun }}
@@ -133,10 +133,25 @@
                             </tr>
                             
                             @if ($programkerjas->isEmpty())
+                                @php
+                                    $tahunText = $tahuns->firstWhere('th_id', request('tahun'))?->th_tahun ?? 'yang dipilih';
+                                    $unitText = $units->firstWhere('unit_id', request('unit_id'))?->unit_nama ?? null;
+                                @endphp
                                 <tr>
-                                    <td colspan="10" class="text-center">Tidak ada data</td>
+                                    <td colspan="12" class="text-center">
+                                        @if ($unitText && $tahunText)
+                                            Tidak ada Program Kerja untuk Unit <strong>{{ $unitText }}</strong> pada Tahun <strong>{{ $tahunText }}</strong>.
+                                        @elseif ($unitText)
+                                            Tidak ada Program Kerja untuk Unit <strong>{{ $unitText }}</strong>.
+                                        @elseif ($tahunText)
+                                            Tidak ada Program Kerja pada Tahun <strong>{{ $tahunText }}</strong>.
+                                        @else
+                                            Tidak ada Program Kerja ditemukan.
+                                        @endif
+                                    </td>
                                 </tr>
                             @endif
+
                         </tbody>
                     </table>
                 </div>

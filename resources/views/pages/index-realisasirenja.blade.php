@@ -16,10 +16,30 @@
                     </div>
                     <div class="col-auto">
                         <select class="form-control" name="tahun">
-                            <option value="">Pilih Tahun</option>
+                            <option value="" disabled selected>Pilih Tahun</option>
                             @foreach ($tahuns as $tahun)
                                 <option value="{{ $tahun->th_id }}" {{ request('tahun') == $tahun->th_id ? 'selected' : '' }}>
                                     {{ $tahun->th_tahun }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <select class="form-control" name="unit_id">
+                            <option value="">Semua Unit Kerja</option>
+                            @foreach ($units as $unit)
+                                <option value="{{ $unit->unit_id }}" {{ request('unit_id') == $unit->unit_id ? 'selected' : '' }}>
+                                    {{ $unit->unit_nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <select class="form-control" name="prodi">
+                            <option value="">Semua Program Studi</option>
+                            @foreach ($prodis as $prodi)
+                                <option value="{{ $prodi->prodi_id }}" {{ request('prodi') == $prodi->prodi_id ? 'selected' : '' }}>
+                                    {{ $prodi->nama_prodi }}
                                 </option>
                             @endforeach
                         </select>
@@ -93,8 +113,25 @@
                         @endforeach
 
                         @if ($rencanaKerjas->isEmpty())
-                             <tr>
-                                <td colspan="8" class="text-center">Tidak ada data</td>
+                            @php
+                                $tahunText = $tahuns->firstWhere('th_id', request('tahun'))?->th_tahun ?? null;
+                                $unitText = $units->firstWhere('unit_id', request('unit_id'))?->unit_nama ?? null;
+                                $prodiText = $prodis->firstWhere('prodi_id', request('prodi'))?->nama_prodi ?? null;
+                            @endphp
+                            <tr>
+                                <td colspan="12">
+                                    Tidak ada data
+                                    @if ($unitText)
+                                        untuk <strong>Unit Kerja {{ $unitText }}</strong>
+                                    @endif
+                                    @if ($prodiText)
+                                        @if ($unitText), @endif
+                                        <strong>Program Studi {{ $prodiText }}</strong>
+                                    @endif
+                                    @if ($tahunText)
+                                        di Tahun <strong>{{ $tahunText }}</strong>
+                                    @endif
+                                </td>
                             </tr>
                         @endif
                     </tbody>

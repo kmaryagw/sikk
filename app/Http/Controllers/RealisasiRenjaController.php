@@ -6,6 +6,8 @@ use Illuminate\Routing\Controller;
 use App\Models\RealisasiRenja;
 use App\Models\RencanaKerja;
 use App\Models\tahun_kerja;
+use App\Models\program_studi;
+use App\Models\UnitKerja;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -26,8 +28,12 @@ class RealisasiRenjaController extends Controller
         $title = 'Data Realisasi Renja';
         $q = $request->query('q');
         $tahunId = $request->query('tahun');
+        $prodiId = $request->query('prodi');
 
-        $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
+        // $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
+        $tahuns = tahun_kerja::orderBy('th_tahun', 'desc')->get();
+        $units = UnitKerja::orderBy('unit_nama', 'asc')->get();
+        $prodis = program_studi::orderBy('nama_prodi', 'asc')->get();
 
         $query = RencanaKerja::with([
             'tahunKerja',
@@ -68,6 +74,16 @@ class RealisasiRenjaController extends Controller
             $query->where('rencana_kerja.th_id', $tahunId);
         }
 
+        if (!empty($request->unit_id)) {
+            $query->where('rencana_kerja.unit_id', $request->unit_id);
+        }
+
+        if (!empty($prodiId)) {
+            $query->whereHas('programStudis', function ($subQuery) use ($prodiId) {
+                $subQuery->where('rencana_kerja_program_studi.prodi_id', $prodiId);
+            });
+        }
+
         $rencanaKerjas = $query->paginate(10)->withQueryString();
         $no = $rencanaKerjas->firstItem();
 
@@ -75,6 +91,9 @@ class RealisasiRenjaController extends Controller
             'title' => $title,
             'rencanaKerjas' => $rencanaKerjas,
             'q' => $q,
+            'units' => $units, 
+            'prodis' => $prodis,  
+            'prodiId' => $prodiId,
             'tahunId' => $tahunId,
             'tahuns' => $tahuns,
             'no' => $no,

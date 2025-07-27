@@ -32,7 +32,8 @@ class ProgramKerjaController extends Controller
         $tahunId = $request->query('tahun');
 
         $units = UnitKerja::where('unit_kerja', 'y')->get();
-        $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
+        // $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
+        $tahuns = tahun_kerja::orderBy('th_tahun', 'desc')->get();
         $periodes = periode_monev::orderBy('pm_nama', 'asc')->get();
         $standars = standar::orderBy('std_id', 'asc')->get();
 
@@ -70,8 +71,9 @@ class ProgramKerjaController extends Controller
             $query->where('rencana_kerja.th_id', $tahunId);
         }
 
-        $programkerjas = $query->paginate(10)->withQueryString();
-        $no = $programkerjas->firstItem();
+        $programkerjas = $query->get();
+        $no = 1;
+
 
         return view('pages.index-programkerja', [
             'title' => $title,
