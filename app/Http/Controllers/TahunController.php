@@ -59,7 +59,10 @@ class TahunController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'th_tahun' => 'required|regex:/^[a-zA-Z0-9\/\s\-]+$/|max:20',
+            'th_tahun' => [
+                'required',
+                'regex:/^\d{4}\/\d{4}$/', // hanya format 4 angka / 4 angka, misal 2024/2025
+            ],
             'th_is_aktif' => 'required|in:y,n',
             'ren_id' => 'required',
             
@@ -105,7 +108,10 @@ class TahunController extends Controller
     public function update(tahun_kerja $tahun, Request $request)
     {
         $request->validate([
-            'th_tahun' => 'required',
+            'th_tahun' => [
+                'required',
+                'regex:/^\d{4}\/\d{4}$/', // hanya format 4 angka / 4 angka, misal 2024/2025
+            ],
             'th_is_aktif' => 'required|in:y,n',
             'ren_id' => 'required',
         ]);

@@ -38,17 +38,27 @@
                                 <form method="POST" action="{{ route('tahun.store') }}">
                                     @csrf
                                     <div class="form-group">
-                                        <label>Tahun</label>
+                                        <label for="th_tahun">Tahun</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
                                                     <i class="fa-solid fa-calendar-alt"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="text" name="th_tahun" value="{{ old('th_tahun') }}"/>
+                                            <input 
+                                                id="th_tahun"
+                                                class="form-control @error('th_tahun') is-invalid @enderror" 
+                                                type="text" 
+                                                name="th_tahun" 
+                                                value="{{ old('th_tahun') }}"/>
                                         </div>
-                                    </div>
-                                    
+                                        <small class="form-text text-muted">
+                                            Format tahun harus seperti : <strong>2024/2025</strong>
+                                        </small>
+                                        @error('th_tahun')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>                               
 
                                     <div class="form-group">
                                         <label>Status Aktif</label>

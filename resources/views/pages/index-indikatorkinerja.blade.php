@@ -67,8 +67,8 @@
                     <table class="table table-hover table-bordered table-striped m-0 text-center">
                         <thead>
                             <tr>
-                                <th>No</th>
-                                <th>Kode IKU</th>
+                                <th style="width : 1%">No</th>
+                                <th style="width : 8%">Kode IKU/T</th>
                                 <th style="width : 30%">Nama IKU/T</th>
                                 <th>Standar</th>
                                 <th>Jenis</th>
@@ -93,6 +93,8 @@
                                             <span class="badge badge-success">IKU</span>
                                         @elseif (strtolower($indikatorkinerja->ik_jenis) === 'ikt')
                                             <span class="badge badge-primary">IKT</span>
+                                        @elseif (strtolower($indikatorkinerja->ik_jenis) === 'ikt/iku')
+                                            <span class="badge badge-danger">IKT/IKU</span>
                                         @else
                                             {{ $indikatorkinerja->ik_jenis }}
                                         @endif

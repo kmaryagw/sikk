@@ -55,6 +55,9 @@
                                                 value="{{ old('th_tahun', $tahun->th_tahun) }}"
                                             />
                                         </div>
+                                        <small class="form-text text-muted">
+                                            Format tahun harus seperti : <strong>2024/2025</strong>
+                                        </small>
                                     </div>
                                     
 

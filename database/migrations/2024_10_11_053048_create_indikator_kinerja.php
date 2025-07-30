@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('ik_id', 50)->primary(); // Wajib diisi dalam insert
             $table->string('ik_kode', 255);
             $table->string('ik_nama', 255);
-            $table->enum('ik_jenis', ['IKU', 'IKT']);
+            $table->enum('ik_jenis', ['IKU', 'IKT', 'IKU/IKT']);
             $table->enum('ik_ketercapaian', ['nilai', 'persentase', 'ketersediaan', 'rasio']);
             $table->string('ik_baseline', 100);
             $table->enum('ik_is_aktif', ['y', 'n'])->default('y');

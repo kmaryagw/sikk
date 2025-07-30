@@ -105,7 +105,7 @@ class IndikatorKinerjaController extends Controller
     public function create()
     {   
         $title = 'Tambah Indikator Kinerja Utama';
-        $jeniss = ['IKU', 'IKT'];
+        $jeniss = ['IKU', 'IKT', 'IKT/IKU'];
         $ik_is_aktifs = ['y', 'n'];
         $ketercapaians = ['nilai', 'persentase', 'ketersediaan', 'rasio'];
         $standar = Standar::orderBy('std_nama')->get();
@@ -127,31 +127,46 @@ class IndikatorKinerjaController extends Controller
             'ik_kode' => 'required|string|max:255',
             'ik_nama' => 'required|string|max:255',
             'std_id' => 'required|string',
-            'ik_jenis' => 'required|in:IKU,IKT',
-            'ik_baseline' => 'required',
+            'ik_jenis' => 'required|in:IKU,IKT,IKT/IKU',
             'ik_is_aktif' => 'required|in:y,n',
             'ik_ketercapaian' => 'required|in:nilai,persentase,ketersediaan,rasio',
+            'ik_baseline' => [
+                'required',
+                function ($attribute, $value, $fail) use ($request) {
+                    $ketercapaian = $request->ik_ketercapaian;
+                    $value = strtolower(trim($value));
+
+                    if ($ketercapaian === 'nilai') {
+                        if (!is_numeric($value) || $value < 0) {
+                            $fail('Nilai baseline untuk "nilai" harus berupa angka >= 0.');
+                        }
+                    } elseif ($ketercapaian === 'persentase') {
+                        if (!is_numeric($value) || $value < 0 || $value > 100) {
+                            $fail('Nilai baseline untuk "persentase" harus angka antara 0-100.');
+                        }
+                    } elseif ($ketercapaian === 'ketersediaan') {
+                        if (!in_array($value, ['ada', 'draft'])) {
+                            $fail('Baseline untuk "ketersediaan" hanya boleh "ada" atau "draft".');
+                        }
+                    } elseif ($ketercapaian === 'rasio') {
+                        // Contoh validasi rasio: format "1:20"
+                        if (!preg_match('/^\d+\s*:\s*\d+$/', $value)) {
+                            $fail('Format rasio harus seperti "1:20" atau "1 : 25".');
+                        }
+                    }
+                }
+            ],
         ];
 
-        if ($request) {
-            if ($request->ik_ketercapaian == 'nilai') {
-                $validationRules['ik_baseline'] = 'required|numeric|min:0';
-            } elseif ($request->ik_ketercapaian == 'persentase') {
-                $validationRules['ik_baseline'] = 'required|numeric|min:0|max:100';
-            } elseif ($request->ik_ketercapaian == 'ketersediaan') {
-                $validationRules['ik_baseline'] = 'required|string';
-            } elseif ($request->ik_ketercapaian == 'rasio') {
-                $validationRules['ik_baseline'] = 'required|string';
-            }
-        }
+        $validatedData = $request->validate($validationRules);
 
-        $request->validate($validationRules);
-
+        // Generate ik_id unik
         $customPrefix = 'IK';
         $timestamp = time();
         $md5Hash = md5($timestamp);
         $ik_id = $customPrefix . strtoupper($md5Hash);
 
+        // Simpan data
         $indikatorkinerja = new IndikatorKinerja();
         $indikatorkinerja->ik_id = $ik_id;
         $indikatorkinerja->ik_kode = $request->ik_kode;
@@ -163,9 +178,6 @@ class IndikatorKinerjaController extends Controller
         $indikatorkinerja->ik_ketercapaian = $request->ik_ketercapaian;
 
         $indikatorkinerja->save();
-        // dd($indikatorkinerja);
-
-        
 
         Alert::success('Sukses', 'Data Berhasil Ditambah');
 
@@ -177,7 +189,7 @@ class IndikatorKinerjaController extends Controller
         // dd($indikatorkinerja->ik_ketercapaian); // Cek apakah nilai yang dikirim sesuai
         $title = 'Ubah Indikator Kinerja Utama';
         $standar = Standar::orderBy('std_nama')->get();
-        $jeniss = ['IKU', 'IKT'];
+        $jeniss = ['IKU', 'IKT', 'IKT/IKU'];
         $ketercapaians = ['nilai', 'persentase', 'ketersediaan', 'rasio'];
         $ik_is_aktifs = ['y', 'n'];
         
@@ -200,7 +212,7 @@ class IndikatorKinerjaController extends Controller
             'ik_kode' => 'required|string|max:255',
             'ik_nama' => 'required|string|max:255',
             'std_id' => 'required|string',
-            'ik_jenis' => 'required|in:IKU,IKT',
+            'ik_jenis' => 'required|in:IKU,IKT,IKT/IKU',
             'ik_baseline' => 'required',
             'ik_is_aktif' => 'required|in:y,n',
             'ik_ketercapaian' => 'required|in:nilai,persentase,ketersediaan,rasio',
