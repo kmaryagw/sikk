@@ -23,31 +23,44 @@ class DashboardController extends Controller
 
         //TAHUN
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
+        $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->first();
         
         // IKU
         $totaliku = IndikatorKinerja::where('ik_jenis', 'IKU')->count();
         if ($user->role === 'prodi') {
-            $jumlahiku = program_studi::withCount(['targetIndikator' => function ($query) {
+            $jumlahiku = program_studi::withCount(['targetIndikator' => function ($query) use ($tahunAktif) {
                 $query->whereHas('indikatorKinerja', function ($q) {
                     $q->where('ik_jenis', 'IKU');
                 });
+                
+                if ($tahunAktif) {
+                    $query->where('th_id', $tahunAktif->th_id);
+                }
             }])
             ->where('prodi_id', $user->prodi_id)
             ->get();
         } elseif ($user->role === 'fakultas') {
-            $jumlahiku = program_studi::withCount(['targetIndikator' => function ($query) {
+            $jumlahiku = program_studi::withCount(['targetIndikator' => function ($query) use ($tahunAktif) {
                 $query->whereHas('indikatorKinerja', function ($q) {
                     $q->where('ik_jenis', 'IKU');
                 });
+                
+                if ($tahunAktif) {
+                    $query->where('th_id', $tahunAktif->th_id);
+                }
             }])
             ->where('id_fakultas', $user->id_fakultas)
             ->orderBy('nama_prodi')
             ->get();
         } else {
-            $jumlahiku = program_studi::withCount(['targetIndikator' => function ($query) {
+            $jumlahiku = program_studi::withCount(['targetIndikator' => function ($query) use ($tahunAktif) {
                 $query->whereHas('indikatorKinerja', function ($q) {
                     $q->where('ik_jenis', 'IKU');
                 });
+                
+                if ($tahunAktif) {
+                    $query->where('th_id', $tahunAktif->th_id);
+                }
             }])
             ->orderBy('nama_prodi')
             ->get();
@@ -60,27 +73,39 @@ class DashboardController extends Controller
         // IKT
         $totalikt = IndikatorKinerja::where('ik_jenis', 'IKT')->count();
         if ($user->role === 'prodi') {
-            $jumlahikt = program_studi::withCount(['targetIndikator' => function ($query) {
+            $jumlahikt = program_studi::withCount(['targetIndikator' => function ($query) use ($tahunAktif) {
                 $query->whereHas('indikatorKinerja', function ($q) {
                     $q->where('ik_jenis', 'IKT');
                 });
+                
+                if ($tahunAktif) {
+                    $query->where('th_id', $tahunAktif->th_id);
+                }
             }])
             ->where('prodi_id', $user->prodi_id)
             ->get();
         } elseif ($user->role === 'fakultas') {
-            $jumlahikt = program_studi::withCount(['targetIndikator' => function ($query) {
+            $jumlahikt = program_studi::withCount(['targetIndikator' => function ($query) use ($tahunAktif) {
                 $query->whereHas('indikatorKinerja', function ($q) {
                     $q->where('ik_jenis', 'IKT');
                 });
+                
+                if ($tahunAktif) {
+                    $query->where('th_id', $tahunAktif->th_id);
+                }
             }])
             ->where('id_fakultas', $user->id_fakultas)
             ->orderBy('nama_prodi')
             ->get();
         } else {
-            $jumlahikt = program_studi::withCount(['targetIndikator' => function ($query) {
+            $jumlahikt = program_studi::withCount(['targetIndikator' => function ($query) use ($tahunAktif) {
                 $query->whereHas('indikatorKinerja', function ($q) {
                     $q->where('ik_jenis', 'IKT');
                 });
+                
+                if ($tahunAktif) {
+                    $query->where('th_id', $tahunAktif->th_id);
+                }
             }])
             ->orderBy('nama_prodi')->get();
         }
