@@ -45,7 +45,7 @@
                             @foreach ($monitoringikus as $monitoringiku)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $monitoringiku->targetIndikator->tahunKerja->th_tahun }}</td>
+                                    <td>{{ $monitoringiku->tahunKerja->th_tahun }}</td>
                                     <td>{{ $monitoringiku->targetIndikator->prodi->nama_prodi }}</td>
                                     <td>
                                         @if($monitoringiku->status == 0)

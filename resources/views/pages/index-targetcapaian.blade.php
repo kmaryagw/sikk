@@ -95,11 +95,11 @@
                                     <td>
                                         @php
                                             $ketercapaian = strtolower($targetcapaian->ik_ketercapaian);
-                                            $baselineRaw = trim($targetcapaian->ik_baseline);
+                                            $baselineRaw = trim($targetcapaian->baseline_tahun ?? $targetcapaian->ik_baseline ?? '0');
                                             $baselineValue = (float) str_replace('%', '', $baselineRaw);
                                             $progressColor = $baselineValue == 0 ? '#dc3545' : '#28a745';
                                         @endphp
-                                    
+
                                         @if ($ketercapaian === 'persentase' && is_numeric($baselineValue))
                                             <div class="ring-progress-wrapper">
                                                 <div class="ring-progress" style="--value: {{ $baselineValue }}; --progress-color: {{ $progressColor }};">
@@ -121,7 +121,7 @@
                                         @else
                                             {{ $baselineRaw }}
                                         @endif
-                                    </td>                                    
+                                    </td>                                   
                                     <td>
                                         @php
                                             $ketercapaian = strtolower($targetcapaian->ik_ketercapaian);

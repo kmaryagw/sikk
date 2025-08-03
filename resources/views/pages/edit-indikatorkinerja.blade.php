@@ -161,10 +161,11 @@
                                                     <i class="fas fa-sort-amount-down"></i>
                                                 </div>
                                             </div>
-                                            <input type="text" id="ik_baseline" name="ik_baseline" 
-                                                class="form-control @error('ik_baseline') is-invalid @enderror" 
-                                                value="{{ old('ik_baseline', $indikatorkinerja->ik_baseline) }}" placeholder="Masukkan nilai baseline" required>
-                                            @error('ik_baseline')
+                                            <input type="text" id="ik_baseline" name="baseline_tahun" 
+                                                class="form-control @error('baseline_tahun') is-invalid @enderror" 
+                                                value="{{ old('baseline_tahun', $baseline_tahun_aktif) }}"
+                                                placeholder="Masukkan nilai baseline untuk tahun {{ $activeTahun->th_tahun ?? 'aktif' }}" required>
+                                            @error('baseline_tahun')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>

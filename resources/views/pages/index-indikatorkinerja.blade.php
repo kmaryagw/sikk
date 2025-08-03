@@ -103,11 +103,11 @@
                                     <td>
                                         @php
                                             $ketercapaian = strtolower($indikatorkinerja->ik_ketercapaian);
-                                            $baselineRaw = trim($indikatorkinerja->ik_baseline);
+                                            $baselineRaw = trim($indikatorkinerja->baseline_tahun); // ganti dari ik_baseline ke baseline_tahun
                                             $baselineValue = (float) str_replace('%', '', $baselineRaw);
                                             $progressColor = $baselineValue == 0 ? '#dc3545' : '#28a745'; // Merah jika 0, hijau jika > 0
                                         @endphp
-                                    
+
                                         @if ($ketercapaian === 'persentase' && is_numeric($baselineValue))
                                             <div class="ring-progress-wrapper">
                                                 <div class="ring-progress" style="--value: {{ $baselineValue }}; --progress-color: {{ $progressColor }};">
@@ -126,24 +126,20 @@
                                             @endif
                                         @elseif ($ketercapaian === 'rasio')
                                             @php
-                                                // Default jika format salah
                                                 $formattedRasio = 'Format salah';
-                                                $cleaned = preg_replace('/\s*/', '', $baselineRaw); // Hilangkan semua spasi dari input rasio
-                                                // Cek apakah format memenuhi pola angka:angka (contoh: 5:2)
+                                                $cleaned = preg_replace('/\s*/', '', $baselineRaw);
                                                 if (preg_match('/^\d+:\d+$/', $cleaned)) {
-                                                    $parts = explode(':', $cleaned); // Pisahkan nilai kiri dan kanan dengan explode
-                                                    // Pastikan explode menghasilkan dua elemen (angka kiri dan kanan)
+                                                    $parts = explode(':', $cleaned);
                                                     if (count($parts) === 2) {
-                                                        $formattedRasio = $parts[0] . ' : ' . $parts[1]; // Format ulang menjadi 'X : Y' dengan spasi di tengah
+                                                        $formattedRasio = $parts[0] . ' : ' . $parts[1];
                                                     }
                                                 }
                                             @endphp
-                                            {{-- Tampilkan hasil rasio yang sudah diformat atau "Format salah" --}}
                                             <span class="badge badge-info">
                                                 <i class="fa-solid fa-balance-scale"></i> {{ $formattedRasio }}
                                             </span>
                                         @else
-                                            {{ $baselineRaw }}
+                                            {{ $baselineRaw ?? 'Belum Ada' }}
                                         @endif
                                     </td>
                                     <td>

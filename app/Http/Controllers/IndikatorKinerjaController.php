@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\IndikatorKinerja;
 use App\Models\Standar;
+use App\Models\tahun_kerja;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Gate;
 use Maatwebsite\Excel\Facades\Excel;
@@ -24,27 +25,32 @@ class IndikatorKinerjaController extends Controller
     }
     
     public function index(Request $request)
-    {   
+    {
         $title = 'Data Indikator Kinerja Utama';
         $q = $request->query('q');
 
-        $query = IndikatorKinerja::select('indikator_kinerja.*', 'standar.std_nama')
+        // Ambil tahun aktif
+        $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->first();
+
+        $query = IndikatorKinerja::select('indikator_kinerja.*', 'standar.std_nama', 'ik_baseline_tahun.baseline as baseline_tahun')
             ->leftJoin('standar', 'standar.std_id', '=', 'indikator_kinerja.std_id')
+            ->leftJoin('ik_baseline_tahun', function ($join) use ($tahunAktif) {
+                $join->on('indikator_kinerja.ik_id', '=', 'ik_baseline_tahun.ik_id')
+                    ->where('ik_baseline_tahun.th_id', '=', $tahunAktif?->th_id);
+            })
             ->orderBy('ik_kode', 'asc');
 
         if ($q) {
-            $query->where('ik_kode', 'like', '%' . $q . '%');
+            $query->where(function ($subQuery) use ($q) {
+                $subQuery->where('ik_kode', 'like', '%' . $q . '%')
+                    ->orWhere('ik_nama', 'like', '%' . $q . '%')
+                    ->orWhere('std_nama', 'like', '%' . $q . '%');
+            });
         }
-        if ($q) {
-            $query->orWhere('ik_nama', 'like', '%' . $q . '%');
-        }
-        if ($q) {
-            $query->orWhere('std_nama', 'like', '%' . $q . '%');
-        }
-        
+
         $indikatorkinerjas = $query->paginate(10)->withQueryString();
         $no = $indikatorkinerjas->firstItem();
-    
+
         return view('pages.index-indikatorkinerja', [
             'title' => $title,
             'indikatorkinerjas' => $indikatorkinerjas,
@@ -185,14 +191,31 @@ class IndikatorKinerjaController extends Controller
     }
 
     public function edit(IndikatorKinerja $indikatorkinerja)
-    {   
-        // dd($indikatorkinerja->ik_ketercapaian); // Cek apakah nilai yang dikirim sesuai
+    {
         $title = 'Ubah Indikator Kinerja Utama';
+
+        // Eager load relasi untuk mencegah N+1
+        $indikatorkinerja->load('baselineTahun');
+
+        // Data referensi
         $standar = Standar::orderBy('std_nama')->get();
-        $jeniss = ['IKU', 'IKT', 'IKT/IKU'];
-        $ketercapaians = ['nilai', 'persentase', 'ketersediaan', 'rasio'];
-        $ik_is_aktifs = ['y', 'n'];
-        
+        $jeniss = ['IKU','IKT','IKT/IKU'];
+        $ketercapaians = ['nilai','persentase','ketersediaan','rasio'];
+        $ik_is_aktifs = ['y','n'];
+
+        // Tahun kerja aktif
+        $activeTahun = tahun_kerja::where('th_is_aktif', 'y')->first();
+
+        // Validasi jika tidak ada tahun aktif
+        if (!$activeTahun) {
+            return redirect()->back()->with('error', 'Tahun kerja aktif tidak ditemukan.');
+        }
+
+        // Ambil nilai baseline dari relasi berdasarkan tahun aktif
+        $baseline_tahun_aktif = optional(
+            $indikatorkinerja->baselineTahun->firstWhere('th_id', $activeTahun->th_id)
+        )->baseline;
+
         return view('pages.edit-indikatorkinerja', [
             'title' => $title,
             'type_menu' => 'masterdata',
@@ -202,6 +225,8 @@ class IndikatorKinerjaController extends Controller
             'ketercapaians' => $ketercapaians,
             'indikatorkinerja' => $indikatorkinerja,
             'standar' => $standar,
+            'baseline_tahun_aktif' => $baseline_tahun_aktif,
+            'activeTahun' => $activeTahun,
         ]);
     }
 
@@ -216,53 +241,44 @@ class IndikatorKinerjaController extends Controller
             'ik_baseline' => 'required',
             'ik_is_aktif' => 'required|in:y,n',
             'ik_ketercapaian' => 'required|in:nilai,persentase,ketersediaan,rasio',
-            'ik_is_aktif' => 'required|in:y,n',
         ];
 
-        $ketercapaian = strtolower($request->ik_ketercapaian); // normalize lowercase
+        $ketercapaian = strtolower($request->ik_ketercapaian);
 
-        if ($ketercapaian == 'nilai') {
+        // Validasi khusus berdasarkan jenis ketercapaian
+        if ($ketercapaian === 'nilai') {
             $validationRules['ik_baseline'] = 'required|numeric|min:0';
-        } elseif ($ketercapaian == 'persentase') {
+        } elseif ($ketercapaian === 'persentase') {
             $validationRules['ik_baseline'] = 'required|numeric|min:0|max:100';
-        } elseif ($ketercapaian == 'ketersediaan') {
-            $validationRules['ik_baseline'] = [
-                'required',
-                'in:ada,draft'
-            ];
+        } elseif ($ketercapaian === 'ketersediaan') {
+            $validationRules['ik_baseline'] = ['required', 'in:ada,draft'];
         } elseif ($ketercapaian === 'rasio') {
-            $cleaned = preg_replace('/\s*/', '', $request->ik_baseline); // hapus semua spasi
-        
+            $cleaned = preg_replace('/\s*/', '', $request->ik_baseline);
             if (!preg_match('/^\d+:\d+$/', $cleaned)) {
                 return back()->withErrors(['ik_baseline' => 'Format rasio harus dalam bentuk angka:angka, misalnya 3:1.'])->withInput();
             }
-        
+
             [$left, $right] = explode(':', $cleaned);
-        
             if ((int)$left === 0 && (int)$right === 0) {
                 return back()->withErrors(['ik_baseline' => 'Rasio tidak boleh 0:0.'])->withInput();
             }
-        
-            // Format ulang jadi konsisten (misal: 3 : 1)
-            $formatted = $left . ' : ' . $right;
-            $request->merge([
-                'ik_baseline' => $formatted,
-            ]);
-        }      
-            
-        $customMessages = [
+
+            // Format konsisten
+            $request->merge(['ik_baseline' => $left . ' : ' . $right]);
+        }
+
+        // Validasi input
+        $request->validate($validationRules, [
             'ik_baseline.regex' => 'Format rasio harus dalam bentuk angka : angka (contoh: 3 : 1)',
             'ik_baseline.in' => 'Untuk jenis ketersediaan, hanya boleh diisi "ada" atau "draft".',
-        ];
+        ]);
 
-        $request->validate($validationRules, $customMessages);
-
+        // Update data utama
         $indikatorkinerja->ik_kode = $request->ik_kode;
         $indikatorkinerja->ik_nama = $request->ik_nama;
         $indikatorkinerja->std_id = $request->std_id;
         $indikatorkinerja->ik_jenis = $request->ik_jenis;
-        $indikatorkinerja->ik_baseline = $request->ik_baseline;
-        $indikatorkinerja->ik_baseline = strtolower($request->ik_baseline); // normalisasi untuk disimpan
+        $indikatorkinerja->ik_ketercapaian = $ketercapaian;
         $indikatorkinerja->ik_is_aktif = $request->ik_is_aktif;
         // $indikatorkinerja->ik_is_aktif = $request->ik_is_aktif;
         // $indikatorkinerja->ik_ketercapaian = $request->ik_ketercapaian;
@@ -270,9 +286,17 @@ class IndikatorKinerjaController extends Controller
         
         $indikatorkinerja->save();
 
-        Alert::success('Sukses', 'Data Berhasil Diubah');
+        // Simpan baseline ke relasi tahun
+        $activeTahun = tahun_kerja::where('th_is_aktif', 'y')->first();
+        if ($activeTahun) {
+            $indikatorkinerja->baselineTahun()->updateOrCreate(
+                ['th_id' => $activeTahun->th_id],
+                ['baseline' => strtolower($request->ik_baseline)]
+            );
+        }
 
-        return redirect()->route('indikatorkinerja.index');
+        Alert::success('Sukses', 'Data Berhasil Diubah') ;
+        return redirect()->route('indikatorkinerja.index') ;
     }
 
 

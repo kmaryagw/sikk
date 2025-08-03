@@ -112,6 +112,8 @@
                                                                 <span class="badge badge-success">IKU</span>
                                                             @elseif (strtolower($ik->ik_jenis == 'IKT'))
                                                                 <span class="badge badge-primary">IKT</span>
+                                                            @elseif (strtolower($ik->ik_jenis == 'IKT/IKU'))
+                                                                <span class="badge badge-danger">IKT/IKU</span>
                                                             @else
                                                                 <span class="badge badge-secondary">Tidak Diketahui</span>
                                                             @endif
@@ -120,8 +122,8 @@
                                                             <span class="text-primary"> {{ $ik->ik_ketercapaian }}</span>
                                                         </td>
                                                         <td class="text-center">
-                                                            <span class="text-success"> {{ $ik->ik_baseline }}</span>
-                                                        </td>                                                                       
+                                                            <span class="text-success"> {{ $ik->baseline_tahun ?? 'Belum Ada' }}</span>
+                                                        </td>                
                                                         <td>
                                                             @if($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase')
                                                                 <input type="number" class="form-control" name="indikator[{{ $no }}][target]" step="any" value="{{ $target_value }}">

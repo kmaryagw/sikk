@@ -27,5 +27,10 @@ class IndikatorKinerja extends Model
         return $this->belongsTo(standar::class, 'std_id', 'std_id');
     }
 
+    public function baselineTahun()
+    {
+        return $this->hasMany(IkBaselineTahun::class, 'ik_id', 'ik_id');
+    }
+
     public $timestamps = true;
 }

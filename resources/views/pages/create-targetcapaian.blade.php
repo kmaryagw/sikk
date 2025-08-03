@@ -40,14 +40,12 @@
                                     
                                     <div class="form-group d-flex align-items-center">
                                         <label for="th_id" class="mr-2" style="font-size: 1rem;">Tahun Aktif:</label>
-                                        @foreach ($tahuns as $tahun)
-                                            @if ($tahun->th_is_aktif === 'y')
-                                                <span class="badge badge-primary p-3" style="font-size: 1rem;">
-                                                    <i class="fa-solid fa-calendar-alt"></i> {{ $tahun->th_tahun }}
-                                                </span>
-                                                <input type="hidden" name="th_id" value="{{ $tahun->th_id }}">
-                                            @endif
-                                        @endforeach
+                                        @if ($tahuns)
+                                            <span class="badge badge-primary p-3" style="font-size: 1rem;">
+                                                <i class="fa-solid fa-calendar-alt"></i> {{ $tahuns->th_tahun }}
+                                            </span>
+                                            <input type="hidden" name="th_id" value="{{ $tahuns->th_id }}">
+                                        @endif
                                     </div>                                                                                                     
                                     <div class="row">                                       
                                         <!-- Kolom Kiri -->
@@ -81,14 +79,14 @@
                                             
                                                                                       
                                             <div class="form-group">
-                                                <label for="baseline">Nilai Baseline</label>
+                                                <label for="baseline_display">Nilai Baseline</label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
                                                         <div class="input-group-text">
                                                             <i class="fas fa-sort-amount-down"></i>
                                                         </div>
                                                     </div>
-                                                    <input type="text" id="baseline" name="baseline_display" 
+                                                    <input type="text" id="baseline_display" name="baseline_display" 
                                                         class="form-control" value="Pilih indikator kinerja terlebih dahulu" readonly>
                                                 </div>
                                             </div> 
@@ -121,7 +119,7 @@
                                                         @foreach ($indikatorkinerjas as $indikatorkinerja)
                                                                 <option value="{{ $indikatorkinerja->ik_id }}" 
                                                                     data-jenis="{{ $indikatorkinerja->ik_ketercapaian }}"
-                                                                    data-baseline="{{ $indikatorkinerja->ik_baseline }}">
+                                                                    data-baseline="{{ $indikatorkinerja->baseline_tahun }}">
                                                                     {{ $indikatorkinerja->ik_kode }} - {{ $indikatorkinerja->ik_nama }}
                                                                 </option>
                                                         @endforeach
@@ -179,6 +177,61 @@
             const ikSelect = document.getElementById("ik_id");
             const tiTargetInput = document.getElementById("ti_target");
             const tiTargetHint = document.getElementById("ti_target_hint");
+            const baselineDisplay = document.getElementById("baseline_display"); // pastikan ID ini sesuai
+
+            // Set default nilai baseline saat halaman dimuat
+            if (baselineDisplay) {
+                baselineDisplay.value = 'Pilih Indikator Kinerja Terlebih Dahulu';
+            }
+
+            ikSelect.addEventListener("change", function () {
+                const selectedOption = this.options[this.selectedIndex];
+                const jenis = selectedOption.getAttribute("data-jenis") || '';
+                const rawBaseline = selectedOption.getAttribute("data-baseline") || '';
+
+                // Format baseline jika persentase
+                let formattedBaseline = rawBaseline;
+                if (jenis.toLowerCase() === "persentase" && rawBaseline) {
+                    const num = parseFloat(rawBaseline.replace('%', ''));
+                    formattedBaseline = isNaN(num) ? rawBaseline : num + '%';
+                }
+
+                // Tampilkan baseline
+                if (baselineDisplay) {
+                    baselineDisplay.value = formattedBaseline || '-';
+                }
+
+                // Ubah placeholder dan hint berdasarkan jenis ketercapaian
+                switch (jenis.toLowerCase()) {
+                    case "nilai":
+                        tiTargetInput.placeholder = "Indikator ini menggunakan nilai numerik (contoh: 1.2)";
+                        tiTargetHint.textContent = "Isi nilai ketercapaian seperti 1.2 atau 1.3.";
+                        break;
+                    case "persentase":
+                        tiTargetInput.placeholder = "Isi dengan angka 0 - 100";
+                        tiTargetHint.textContent = "Isi angka dalam rentang 0 hingga 100.";
+                        break;
+                    case "ketersediaan":
+                        tiTargetInput.placeholder = "Isi dengan 'Ada' atau 'Draft'";
+                        tiTargetHint.textContent = "Isi dengan teks 'Ada' atau 'Draft'.";
+                        break;
+                    case "rasio":
+                        tiTargetInput.placeholder = "Contoh: 1:25";
+                        tiTargetHint.textContent = "Isi dengan rasio seperti 1:25.";
+                        break;
+                    default:
+                        tiTargetInput.placeholder = "Isi Target Capaian";
+                        tiTargetHint.textContent = "Isi sesuai dengan jenis ketercapaian.";
+                }
+            });
+        });
+    </script>
+
+    {{-- <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const ikSelect = document.getElementById("ik_id");
+            const tiTargetInput = document.getElementById("ti_target");
+            const tiTargetHint = document.getElementById("ti_target_hint");
 
             ikSelect.addEventListener("change", function () {
                 const selectedOption = this.options[this.selectedIndex];
@@ -211,7 +264,8 @@
             document.getElementById('ik_baseline').value = baseline;
         });
     </script> --}}
-    <script>
+
+    {{--<script>
         // Kosongkan baseline saat halaman dimuat
         document.getElementById('baseline').value = 'Pilih Indikator Kinerja Terlebih Dahulu';
     
@@ -221,5 +275,5 @@
             var baseline = selectedOption.getAttribute('data-baseline');
             document.getElementById('baseline').value = baseline;
         });
-    </script>
+    </script> --}}
 @endpush

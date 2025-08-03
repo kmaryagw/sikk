@@ -6,6 +6,7 @@ use App\Models\IndikatorKinerja;
 use App\Models\program_studi;
 use App\Models\SettingIKU;
 use App\Models\tahun_kerja;
+use App\Models\IkBaselineTahun;
 use App\Models\target_indikator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -74,6 +75,18 @@ class TargetCapaianController extends Controller
         $target_capaians = $query->paginate(10)->withQueryString();
         $no = $target_capaians->firstItem();
 
+        $ikIds = $target_capaians->pluck('ik_id')->filter()->unique()->toArray();
+
+        $baselineMap = \App\Models\IkBaselineTahun::whereIn('ik_id', $ikIds)
+            ->where('th_id', $tahunId)
+            ->pluck('baseline', 'ik_id');
+
+        $target_capaians->getCollection()->transform(function ($item) use ($baselineMap) {
+            $item->baseline_tahun = $baselineMap[$item->ik_id] ?? '0';
+            return $item;
+        });
+
+
         return view('pages.index-targetcapaian', [
             'title' => $title,
             'target_capaians' => $target_capaians,
@@ -91,26 +104,53 @@ class TargetCapaianController extends Controller
     public function create()
     {
         $title = 'Tambah Target Capaian';
-        $indikatorkinerjas = IndikatorKinerja::where('ik_is_aktif','y')->orderBy('ik_nama')->get();
 
-        $baseline = null;
+        // Ambil semua indikator yang aktif
+        $indikatorkinerjas = IndikatorKinerja::where('ik_is_aktif','y')
+            ->orderBy('ik_nama')
+            ->get();
+
+        // Ambil tahun aktif (asumsikan hanya satu tahun aktif sekaligus)
+        $activeTahun = tahun_kerja::where('th_is_aktif', 'y')->first();
+
+        // Ambil seluruh data prodi untuk dropdown (atau khusus prodi, sesuai peran)
         $prodis = program_studi::orderBy('nama_prodi', 'asc')->get();
-        $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
 
+        // Pastikan data user
         $loggedInUser = Auth::user();
         $userRole = $loggedInUser->role;
         $userProdi = null;
-
         if ($userRole === 'prodi') {
             $userProdi = $loggedInUser->programStudi;
         }
 
+        // Siapkan baseline untuk setiap indikator:
+        // Pertama, ambil mapping baseline dari tabel ik_baseline_tahun untuk indikator-indikator yang aktif dan berdasarkan tahun aktif
+        $baselineMap = [];
+        if ($activeTahun) {
+            $ikIds = $indikatorkinerjas->pluck('ik_id')->unique()->toArray();
+            $baselineMap = \App\Models\IkBaselineTahun::whereIn('ik_id', $ikIds)
+                ->where('th_id', $activeTahun->th_id)
+                ->pluck('baseline', 'ik_id')
+                ->toArray();
+        }
+
+        // Tambahkan properti baseline_tahun ke tiap indikator
+        $indikatorkinerjas = $indikatorkinerjas->map(function ($item) use ($baselineMap) {
+            // Gunakan baseline dari ik_baseline_tahun jika ada, fallback ke baseline awal di tabel indikator
+            $item->baseline_tahun = $baselineMap[$item->ik_id] ?? $item->ik_baseline;
+            return $item;
+        });
+
         return view('pages.create-targetcapaian', [
             'title' => $title,
             'indikatorkinerjas' => $indikatorkinerjas,
-            'baseline' => $baseline,
+            // Baseline tidak lagi dikirim terpisah karena tiap indikator sudah punya baseline_tahun
+            // 'baseline' => null,
+            // Untuk dropdown prodi
             'prodis' => $prodis,
-            'tahuns' => $tahuns,
+            // Untuk menampilkan tahun aktif; bila dibutuhkan bisa juga kirim seluruh tahun, tetapi untuk form create biasanya hanya tahun aktif yang dipakai
+            'tahuns' => $activeTahun,
             'type_menu' => 'targetcapaian',
             'userRole' => $userRole,
             'userProdi' => $userProdi,
@@ -163,34 +203,34 @@ class TargetCapaianController extends Controller
     }
 
     public function edit(target_indikator $targetcapaian)
-{
-    $title = 'Edit Target Capaian';
+    {
+        $title = 'Edit Target Capaian';
 
-    $indikatorkinerjautamas = IndikatorKinerja::where('ik_is_aktif','y')->orderBy('ik_nama')->get();
-    $prodis = program_studi::orderBy('nama_prodi')->get();
-    $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
+        $indikatorkinerjautamas = IndikatorKinerja::where('ik_is_aktif','y')->orderBy('ik_nama')->get();
+        $prodis = program_studi::orderBy('nama_prodi')->get();
+        $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
 
-        $loggedInUser = Auth::user();
-            $userRole = $loggedInUser->role;
-            $userProdi = null;
+            $loggedInUser = Auth::user();
+                $userRole = $loggedInUser->role;
+                $userProdi = null;
 
-        if ($userRole === 'prodi') {
-            $userProdi = $loggedInUser->programStudi;
-        }
+            if ($userRole === 'prodi') {
+                $userProdi = $loggedInUser->programStudi;
+            }
 
-        $baseline = optional($targetcapaian->indikatorKinerja)->ik_baseline ?? 'Baseline tidak ditemukan';
+            $baseline = optional($targetcapaian->indikatorKinerja)->ik_baseline ?? 'Baseline tidak ditemukan';
 
-        return view('pages.edit-targetcapaian', [
-            'title' => $title,
-            'targetcapaian' => $targetcapaian,
-            'indikatorkinerjautamas' => $indikatorkinerjautamas,
-            'baseline' => $baseline,
-            'prodis' => $prodis,
-            'tahuns' => $tahuns,
-            'type_menu' => 'targetcapaian',
-            'userRole' => $userRole,
-            'userProdi' => $userProdi,
-        ]);
+            return view('pages.edit-targetcapaian', [
+                'title' => $title,
+                'targetcapaian' => $targetcapaian,
+                'indikatorkinerjautamas' => $indikatorkinerjautamas,
+                'baseline' => $baseline,
+                'prodis' => $prodis,
+                'tahuns' => $tahuns,
+                'type_menu' => 'targetcapaian',
+                'userRole' => $userRole,
+                'userProdi' => $userProdi,
+            ]);
     }
 
     public function update(target_indikator $targetcapaian, Request $request)

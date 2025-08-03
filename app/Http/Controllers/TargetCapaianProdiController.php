@@ -6,6 +6,7 @@ use App\Models\IndikatorKinerja;
 use App\Models\program_studi;
 use App\Models\SettingIKU;
 use App\Models\tahun_kerja;
+use App\Models\IkBaselineTahun;
 use App\Models\target_indikator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -79,6 +80,20 @@ class TargetCapaianProdiController extends Controller
         $target_capaians = $query->paginate(10)->withQueryString();
         $no = $target_capaians->firstItem();
 
+        // Ambil semua ik_id unik dari target capaian
+        $ikIds = $target_capaians->pluck('ik_id')->unique()->toArray();
+
+        // Ambil data baseline berdasarkan ik_id dan tahun aktif yang sedang ditampilkan
+        $baselineMap = IkBaselineTahun::whereIn('ik_id', $ikIds)
+            ->where('th_id', $tahunId)
+            ->pluck('baseline', 'ik_id');
+
+        // Tambahkan baseline ke setiap elemen koleksi
+        $target_capaians->getCollection()->transform(function ($item) use ($baselineMap) {
+            $item->baseline_tahun = $baselineMap[$item->ik_id] ?? '0'; // default 0 jika tidak ditemukan
+            return $item;
+        });
+
         return view('targetcapaian.index', [
             'title' => $title,
             'target_capaians' => $target_capaians,
@@ -100,7 +115,16 @@ class TargetCapaianProdiController extends Controller
 
         $title = 'Tambah Target Capaian';
         $indikatorkinerjas = IndikatorKinerja::where('ik_is_aktif','y')
-                                ->orderBy('ik_nama')->get();
+        ->orderBy('ik_nama')
+        ->get()
+        ->map(function ($ik) use ($tahuns) {
+            $baselineTahun = IkBaselineTahun::where('ik_id', $ik->ik_id)
+                ->where('th_id', $tahuns->th_id)
+                ->value('baseline');
+            $ik->baseline_tahun = $baselineTahun; // tambahkan properti dinamis
+            return $ik;
+        });
+
 
         //data yang sudah tersimpan
         $targetindikators = target_indikator::where('th_id', $tahuns->th_id)
