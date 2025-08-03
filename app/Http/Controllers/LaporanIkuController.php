@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\program_studi;
+use App\Exports\IkuExport;
 use App\Models\tahun_kerja;
-use App\Models\target_indikator;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use App\Models\program_studi;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\target_indikator;
+use App\Exports\LaporanIkuBdExport;
+use App\Exports\LaporanIkuIfExport;
+use App\Exports\LaporanIkuDkvExport;
+use App\Exports\LaporanIkuRskExport;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\LaporanIkuIfExport;
-use App\Exports\LaporanIkuRskExport;
-use App\Exports\LaporanIkuBdExport;
-use App\Exports\LaporanIkuDkvExport;
 
 class LaporanIkuController extends Controller
 {
@@ -30,17 +31,24 @@ class LaporanIkuController extends Controller
         $tahunId = $request->query('tahun');
         $prodiId = $request->query('prodi');
 
-        // $tahuns = tahun_kerja::where('th_is_aktif', 'y')->get();
         $tahuns = tahun_kerja::orderBy('th_tahun', 'desc')->get();
         $prodis = program_studi::all();
 
-        $query = target_indikator::select('target_indikator.*', 'indikator_kinerja.ik_nama', 'program_studi.nama_prodi', 'aktif_tahun.th_tahun')
-            ->leftjoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
-            ->leftjoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
-            ->leftjoin('tahun_kerja as aktif_tahun', function ($join) {
-                $join->on('aktif_tahun.th_id', '=', 'target_indikator.th_id')
-                    ->where('aktif_tahun.th_is_aktif', 'y');
-            })
+        // Jika tidak ada filter tahun dikirim, ambil tahun aktif
+        if (!$tahunId) {
+            $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->first();
+            $tahunId = $tahunAktif?->th_id;
+        }
+
+        $query = target_indikator::select(
+                'target_indikator.*', 
+                'indikator_kinerja.ik_nama', 
+                'program_studi.nama_prodi', 
+                'tahun_kerja.th_tahun'
+            )
+            ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
+            ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
+            ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id')
             ->orderBy('ti_target', 'asc');
 
         if ($q) {
@@ -48,7 +56,7 @@ class LaporanIkuController extends Controller
         }
 
         if ($tahunId) {
-            $query->where('aktif_tahun.th_id', $tahunId);
+            $query->where('target_indikator.th_id', $tahunId);
         }
 
         if ($prodiId) {
@@ -72,46 +80,124 @@ class LaporanIkuController extends Controller
         ]);
     }
 
-    public function exportExcel()
+    public function exportExcel(Request $request)
     {
-        return Excel::download(new \App\Exports\IkuExport, 'laporan_iku.xlsx');
+        return Excel::download(
+            new IkuExport($request->query('tahun'), $request->query('prodi'), $request->query('q')),
+            'laporan_iku.xlsx'
+        );
     }
 
-    public function exportExcelIF()
+    public function exportExcelIF(Request $request)
     {
-        return Excel::download(new LaporanIkuIfExport, 'laporan_iku_if.xlsx');
+        return Excel::download(
+            new LaporanIkuIfExport($request->query('tahun'), $request->query('q')),
+            'laporan_iku_if.xlsx'
+        );
     }
 
-    public function exportExcelRSK()
+    public function exportExcelRSK(Request $request)
     {
-        return Excel::download(new LaporanIkuRskExport, 'laporan_iku_rsk.xlsx');
+        return Excel::download(
+            new LaporanIkuRskExport($request->query('tahun'), $request->query('q')),
+            'laporan_iku_rsk.xlsx'
+        );
     }
 
-    public function exportExcelBD()
+    public function exportExcelBD(Request $request)
     {
-        return Excel::download(new LaporanIkuBdExport, 'laporan_iku_bd.xlsx');
+        return Excel::download(
+            new LaporanIkuBdExport($request->query('tahun'), $request->query('q')),
+            'laporan_iku_bd.xlsx'
+        );
     }
 
-    public function exportExcelDKV()
+    public function exportExcelDKV(Request $request)
     {
-        return Excel::download(new LaporanIkuDkvExport, 'laporan_iku_dkv.xlsx');
+        return Excel::download(
+            new LaporanIkuDkvExport($request->query('tahun'), $request->query('q')),
+            'laporan_iku_dkv.xlsx'
+        );
     }
 
-    public function exportPdf()
+    public function exportPdf(Request $request)
     {
-        $target_capaians = target_indikator::select('target_indikator.*', 'indikator_kinerja.ik_nama', 'program_studi.nama_prodi', 'tahun_kerja.th_tahun')
-            ->leftjoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
-            ->leftjoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
-            ->leftjoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id')
-            ->where('tahun_kerja.th_is_aktif', 'y')
-            ->get();
-        $pdf = Pdf::loadView('export.laporan-iku-pdf', compact('target_capaians'));
-        return $pdf->download('laporan_iku.pdf');
+        $tahunId = $request->query('tahun');
+        $prodiId = $request->query('prodi');
+        $keyword = $request->query('q');
+
+        // Gunakan tahun aktif jika parameter tahun kosong
+        if (!$tahunId) {
+            $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->first();
+            if ($tahunAktif) {
+                $tahunId = $tahunAktif->th_id;
+            }
+        }
+
+        $tahun = $tahunId ? tahun_kerja::find($tahunId) : null;
+
+        // Validasi: jika tahunId ada tapi tidak ditemukan di DB
+        if ($tahunId && !$tahun) {
+            abort(404, 'Tahun tidak ditemukan.');
+        }
+
+        $query = target_indikator::select(
+                'target_indikator.*',
+                'indikator_kinerja.ik_nama',
+                'program_studi.nama_prodi',
+                'tahun_kerja.th_tahun'
+            )
+            ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
+            ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
+            ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id');
+
+        if ($tahunId) {
+            $query->where('tahun_kerja.th_id', $tahunId);
+        }
+
+        if ($prodiId) {
+            $query->where('program_studi.prodi_id', $prodiId);
+        }
+
+        if ($keyword) {
+            $query->where('indikator_kinerja.ik_nama', 'like', '%' . $keyword . '%');
+        }
+
+        $target_capaians = $query->get();
+
+        $namaFile = 'laporan_iku';
+        if ($tahun) {
+            $namaFile .= '_' . str_replace('/', '-', $tahun->th_tahun);
+        }
+        $namaFile .= '.pdf';
+
+        $pdf = Pdf::loadView('export.laporan-iku-pdf', [
+            'target_capaians' => $target_capaians,
+            'tahun' => $tahun,
+        ]);
+
+        return $pdf->download($namaFile);
     }
 
-    public function exportPdfIF()
+    public function exportPdfIF(Request $request)
     {
-        $target_capaians = target_indikator::select(
+        $tahunId = $request->query('tahun');
+        $keyword = $request->query('q');
+
+        // Jika tidak ada tahun yang dikirimkan, ambil tahun aktif
+        if (!$tahunId) {
+            $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->first();
+            if ($tahunAktif) {
+                $tahunId = $tahunAktif->th_id;
+            }
+        }
+
+        // Validasi apakah tahun ada
+        if ($tahunId && !tahun_kerja::find($tahunId)) {
+            abort(404, 'Tahun tidak ditemukan.');
+        }
+
+        $query = target_indikator::select(
                 'target_indikator.*',
                 'indikator_kinerja.ik_nama',
                 'program_studi.nama_prodi',
@@ -120,20 +206,55 @@ class LaporanIkuController extends Controller
             ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
             ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
             ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id')
-            ->where('tahun_kerja.th_is_aktif', 'y')
-            ->where('program_studi.nama_prodi', 'Informatika')
-            ->get();
+            ->where('program_studi.nama_prodi', 'Informatika');
+
+        if ($tahunId) {
+            $query->where('tahun_kerja.th_id', $tahunId);
+            $tahun = tahun_kerja::find($tahunId);
+        } else {
+            $tahun = null;
+        }
+
+        if ($keyword) {
+            $query->where('indikator_kinerja.ik_nama', 'like', '%' . $keyword . '%');
+        }
+
+        $target_capaians = $query->get();
+
+        $namaFile = 'laporan_iku_if';
+        if ($tahun) {
+            $namaFile .= '_' . str_replace('/', '-', $tahun->th_tahun);
+        }
+        $namaFile .= '.pdf';
 
         $pdf = Pdf::loadView('export.laporan-iku-if-pdf', [
             'target_capaians' => $target_capaians,
             'namaProdi' => 'Informatika',
+            'tahun' => $tahun,
         ]);
-        return $pdf->download('laporan_iku_if.pdf');
+
+        return $pdf->download($namaFile);
     }
 
-    public function exportPdfRsk()
+    public function exportPdfRsk(Request $request)
     {
-        $target_capaians = target_indikator::select(
+        $tahunId = $request->query('tahun');
+        $keyword = $request->query('q');
+
+        // Jika tidak ada tahun yang dikirimkan, ambil tahun aktif
+        if (!$tahunId) {
+            $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->first();
+            if ($tahunAktif) {
+                $tahunId = $tahunAktif->th_id;
+            }
+        }
+
+        // Validasi apakah tahun ada
+        if ($tahunId && !tahun_kerja::find($tahunId)) {
+            abort(404, 'Tahun tidak ditemukan.');
+        }
+
+        $query = target_indikator::select(
                 'target_indikator.*',
                 'indikator_kinerja.ik_nama',
                 'program_studi.nama_prodi',
@@ -142,20 +263,55 @@ class LaporanIkuController extends Controller
             ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
             ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
             ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id')
-            ->where('tahun_kerja.th_is_aktif', 'y')
-            ->where('program_studi.nama_prodi', 'Rekayasa Sistem Komputer')
-            ->get();
+            ->where('program_studi.nama_prodi', 'Rekayasa Sistem Komputer');
+
+        if ($tahunId) {
+            $query->where('tahun_kerja.th_id', $tahunId);
+            $tahun = tahun_kerja::find($tahunId);
+        } else {
+            $tahun = null;
+        }
+
+        if ($keyword) {
+            $query->where('indikator_kinerja.ik_nama', 'like', '%' . $keyword . '%');
+        }
+
+        $target_capaians = $query->get();
+
+        $namaFile = 'laporan_iku_rsk';
+        if ($tahun) {
+            $namaFile .= '_' . str_replace('/', '-', $tahun->th_tahun);
+        }
+        $namaFile .= '.pdf';
 
         $pdf = Pdf::loadView('export.laporan-iku-rsk-pdf', [
             'target_capaians' => $target_capaians,
             'namaProdi' => 'Rekayasa Sistem Komputer',
+            'tahun' => $tahun,
         ]);
-        return $pdf->download('laporan_iku_rsk.pdf');
+
+        return $pdf->download($namaFile);
     }
 
-    public function exportPdfBd()
+    public function exportPdfBd(Request $request)
     {
-        $target_capaians = target_indikator::select(
+        $tahunId = $request->query('tahun');
+        $keyword = $request->query('q');
+
+        // Jika tidak ada tahun yang dikirimkan, ambil tahun aktif
+        if (!$tahunId) {
+            $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->first();
+            if ($tahunAktif) {
+                $tahunId = $tahunAktif->th_id;
+            }
+        }
+
+        // Validasi apakah tahun ada
+        if ($tahunId && !tahun_kerja::find($tahunId)) {
+            abort(404, 'Tahun tidak ditemukan.');
+        }
+
+        $query = target_indikator::select(
                 'target_indikator.*',
                 'indikator_kinerja.ik_nama',
                 'program_studi.nama_prodi',
@@ -164,20 +320,55 @@ class LaporanIkuController extends Controller
             ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
             ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
             ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id')
-            ->where('tahun_kerja.th_is_aktif', 'y')
-            ->where('program_studi.nama_prodi', 'Bisnis Digital')
-            ->get();
+            ->where('program_studi.nama_prodi', 'Bisnis Digital');
+
+        if ($tahunId) {
+            $query->where('tahun_kerja.th_id', $tahunId);
+            $tahun = tahun_kerja::find($tahunId);
+        } else {
+            $tahun = null;
+        }
+
+        if ($keyword) {
+            $query->where('indikator_kinerja.ik_nama', 'like', '%' . $keyword . '%');
+        }
+
+        $target_capaians = $query->get();
+
+        $namaFile = 'laporan_iku_bd';
+        if ($tahun) {
+            $namaFile .= '_' . str_replace('/', '-', $tahun->th_tahun);
+        }
+        $namaFile .= '.pdf';
 
         $pdf = Pdf::loadView('export.laporan-iku-bd-pdf', [
             'target_capaians' => $target_capaians,
             'namaProdi' => 'Bisnis Digital',
+            'tahun' => $tahun,
         ]);
-        return $pdf->download('laporan_iku_bd.pdf');
+
+        return $pdf->download($namaFile);
     }
 
-    public function exportPdfDkv()
+    public function exportPdfDkv(Request $request)
     {
-        $target_capaians = target_indikator::select(
+        $tahunId = $request->query('tahun');
+        $keyword = $request->query('q');
+
+        // Jika tidak ada tahun yang dikirimkan, ambil tahun aktif
+        if (!$tahunId) {
+            $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->first();
+            if ($tahunAktif) {
+                $tahunId = $tahunAktif->th_id;
+            }
+        }
+
+        // Validasi apakah tahun ada
+        if ($tahunId && !tahun_kerja::find($tahunId)) {
+            abort(404, 'Tahun tidak ditemukan.');
+        }
+
+        $query = target_indikator::select(
                 'target_indikator.*',
                 'indikator_kinerja.ik_nama',
                 'program_studi.nama_prodi',
@@ -186,14 +377,33 @@ class LaporanIkuController extends Controller
             ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
             ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
             ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id')
-            ->where('tahun_kerja.th_is_aktif', 'y')
-            ->where('program_studi.nama_prodi', 'Desain Komunikasi Visual')
-            ->get();
+            ->where('program_studi.nama_prodi', 'Desain Komunikasi Visual');
+
+        if ($tahunId) {
+            $query->where('tahun_kerja.th_id', $tahunId);
+            $tahun = tahun_kerja::find($tahunId);
+        } else {
+            $tahun = null;
+        }
+
+        if ($keyword) {
+            $query->where('indikator_kinerja.ik_nama', 'like', '%' . $keyword . '%');
+        }
+
+        $target_capaians = $query->get();
+
+        $namaFile = 'laporan_iku_dkv';
+        if ($tahun) {
+            $namaFile .= '_' . str_replace('/', '-', $tahun->th_tahun);
+        }
+        $namaFile .= '.pdf';
 
         $pdf = Pdf::loadView('export.laporan-iku-dkv-pdf', [
             'target_capaians' => $target_capaians,
             'namaProdi' => 'Desain Komunikasi Visual',
+            'tahun' => $tahun,
         ]);
-        return $pdf->download('laporan_iku_dkv.pdf');
+
+        return $pdf->download($namaFile);
     }
 }

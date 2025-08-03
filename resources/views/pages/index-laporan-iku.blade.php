@@ -57,25 +57,32 @@
                             <i class="fa-solid fa-file-excel"></i> Export Excel
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ route('export-excel.iku') }}" target="_blank">Semua Prodi</a></li>
-                            <li><a class="dropdown-item" href="{{ route('export-excel.iku.if') }}" target="_blank">Informatika</a></li>
-                            <li><a class="dropdown-item" href="{{ route('export-excel.iku.rsk') }}" target="_blank">Rekayasa Sistem Komputer</a></li>
-                            <li><a class="dropdown-item" href="{{ route('export-excel.iku.bd') }}" target="_blank">Bisnis Digital</a></li>
-                            <li><a class="dropdown-item" href="{{ route('export-excel.iku.dkv') }}" target="_blank">Desain Komunikasi Visual</a></li>
+                            <li><a class="dropdown-item" href="{{ route('export-excel.iku') . '?tahun=' . request('tahun') . '&prodi=' . request('prodi') . '&q=' . request('q') }}" target="_blank">Semua Prodi</a></li>
+                            <li><a class="dropdown-item" href="{{ route('export-excel.iku.if')  . '?tahun=' . request('tahun') . '&prodi=' . request('prodi') . '&q=' . request('q')}}" target="_blank">Informatika</a></li>
+                            <li><a class="dropdown-item" href="{{ route('export-excel.iku.rsk')  . '?tahun=' . request('tahun') . '&prodi=' . request('prodi') . '&q=' . request('q')}}" target="_blank">Rekayasa Sistem Komputer</a></li>
+                            <li><a class="dropdown-item" href="{{ route('export-excel.iku.bd')  . '?tahun=' . request('tahun') . '&prodi=' . request('prodi') . '&q=' . request('q')}}" target="_blank">Bisnis Digital</a></li>
+                            <li><a class="dropdown-item" href="{{ route('export-excel.iku.dkv')  . '?tahun=' . request('tahun') . '&prodi=' . request('prodi') . '&q=' . request('q')}}" target="_blank">Desain Komunikasi Visual</a></li>
                         </ul>
                     </div>                  
                     
+                    @php
+                        $query = http_build_query([
+                            'tahun' => request('tahun'),
+                            'q' => request('q'),
+                        ]);
+                    @endphp
+
                     <div class="col-auto">
                         <div class="dropdown">
                             <button class="btn btn-danger dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fa-solid fa-file-pdf"></i> Export Pdf
+                                <i class="fa-solid fa-file-pdf"></i> Export PDF
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ route('export-pdf.iku') }}" target="_blank">Semua Prodi</a></li>
-                                <li><a class="dropdown-item" href="{{ route('export-pdf.iku.if') }}" target="_blank">Informatika</a></li>
-                                <li><a class="dropdown-item" href="{{ route('export-pdf.iku.rsk') }}" target="_blank">Rekayasa Sistem Komputer</a></li>
-                                <li><a class="dropdown-item" href="{{ route('export-pdf.iku.bd') }}" target="_blank">Bisnis Digital</a></li>
-                                <li><a class="dropdown-item" href="{{ route('export-pdf.iku.dkv') }}" target="_blank">Desain Komunikasi Visual</a></li>
+                                <li><a class="dropdown-item" href="{{ route('export-pdf.iku') . '?' . $query }}" target="_blank">Semua Prodi</a></li>
+                                <li><a class="dropdown-item" href="{{ route('export-pdf.iku.if') . '?' . $query }}" target="_blank">Informatika</a></li>
+                                <li><a class="dropdown-item" href="{{ route('export-pdf.iku.rsk') . '?' . $query }}" target="_blank">Rekayasa Sistem Komputer</a></li>
+                                <li><a class="dropdown-item" href="{{ route('export-pdf.iku.bd') . '?' . $query }}" target="_blank">Bisnis Digital</a></li>
+                                <li><a class="dropdown-item" href="{{ route('export-pdf.iku.dkv') . '?' . $query }}" target="_blank">Desain Komunikasi Visual</a></li>
                             </ul>
                         </div>
                     </div>                    

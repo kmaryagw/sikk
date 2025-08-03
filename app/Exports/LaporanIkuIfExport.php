@@ -3,14 +3,25 @@
 namespace App\Exports;
 
 use App\Models\target_indikator;
+use App\Models\tahun_kerja;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
 
-class LaporanIkuIfExport implements FromCollection, WithHeadings
+class LaporanIkuIfExport implements FromCollection, WithHeadings, WithMapping
 {
+    protected $tahunId;
+    protected $keyword;
+
+    public function __construct($tahunId = null, $keyword = null)
+    {
+        $this->tahunId = $tahunId;
+        $this->keyword = $keyword;
+    }
+
     public function collection()
     {
-        return target_indikator::select(
+        $query = target_indikator::select(
                 'tahun_kerja.th_tahun',
                 'program_studi.nama_prodi',
                 'indikator_kinerja.ik_nama',
@@ -22,9 +33,22 @@ class LaporanIkuIfExport implements FromCollection, WithHeadings
             ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
             ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id')
             ->leftJoin('monitoring_iku_detail', 'monitoring_iku_detail.ti_id', '=', 'target_indikator.ti_id')
-            ->where('program_studi.nama_prodi', 'Informatika')
-            ->where('tahun_kerja.th_is_aktif', 'y')
-            ->get();
+            ->where('program_studi.nama_prodi', 'Informatika');
+
+        if ($this->tahunId) {
+            $query->where('tahun_kerja.th_id', $this->tahunId);
+        } else {
+            $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->first();
+            if ($tahunAktif) {
+                $query->where('tahun_kerja.th_id', $tahunAktif->th_id);
+            }
+        }
+
+        if ($this->keyword) {
+            $query->where('indikator_kinerja.ik_nama', 'like', '%' . $this->keyword . '%');
+        }
+
+        return $query->get();
     }
 
     public function headings(): array
@@ -36,6 +60,18 @@ class LaporanIkuIfExport implements FromCollection, WithHeadings
             'Target Capaian',
             'Capaian',
             'Status',
+        ];
+    }
+
+    public function map($target): array
+    {
+        return [
+            $target->th_tahun ?? '-',
+            $target->nama_prodi ?? '-',
+            $target->ik_nama ?? '-',
+            $target->ti_target ?? '-',
+            $target->mtid_capaian ?? 'Belum Ada',
+            $target->mtid_status ?? 'Belum Ada',
         ];
     }
 }
