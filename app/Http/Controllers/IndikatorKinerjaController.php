@@ -111,7 +111,7 @@ class IndikatorKinerjaController extends Controller
     public function create()
     {   
         $title = 'Tambah Indikator Kinerja Utama';
-        $jeniss = ['IKU', 'IKT', 'IKT/IKU'];
+        $jeniss = ['IKU', 'IKT', 'IKU/IKT'];
         $ik_is_aktifs = ['y', 'n'];
         $ketercapaians = ['nilai', 'persentase', 'ketersediaan', 'rasio'];
         $standar = Standar::orderBy('std_nama')->get();
@@ -133,7 +133,7 @@ class IndikatorKinerjaController extends Controller
             'ik_kode' => 'required|string|max:255',
             'ik_nama' => 'required|string|max:255',
             'std_id' => 'required|string',
-            'ik_jenis' => 'required|in:IKU,IKT,IKT/IKU',
+            'ik_jenis' => 'required|in:IKU,IKT,IKU/IKT',
             'ik_is_aktif' => 'required|in:y,n',
             'ik_ketercapaian' => 'required|in:nilai,persentase,ketersediaan,rasio',
             'ik_baseline' => [
@@ -199,7 +199,7 @@ class IndikatorKinerjaController extends Controller
 
         // Data referensi
         $standar = Standar::orderBy('std_nama')->get();
-        $jeniss = ['IKU','IKT','IKT/IKU'];
+        $jeniss = ['IKU','IKT','IKU/IKT'];
         $ketercapaians = ['nilai','persentase','ketersediaan','rasio'];
         $ik_is_aktifs = ['y','n'];
 
@@ -237,7 +237,7 @@ class IndikatorKinerjaController extends Controller
             'ik_kode' => 'required|string|max:255',
             'ik_nama' => 'required|string|max:255',
             'std_id' => 'required|string',
-            'ik_jenis' => 'required|in:IKU,IKT,IKT/IKU',
+            'ik_jenis' => 'required|in:IKU,IKT,IKU/IKT',
             'ik_baseline' => 'required',
             'ik_is_aktif' => 'required|in:y,n',
             'ik_ketercapaian' => 'required|in:nilai,persentase,ketersediaan,rasio',

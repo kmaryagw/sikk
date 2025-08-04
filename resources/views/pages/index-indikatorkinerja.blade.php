@@ -93,8 +93,8 @@
                                             <span class="badge badge-success">IKU</span>
                                         @elseif (strtolower($indikatorkinerja->ik_jenis) === 'ikt')
                                             <span class="badge badge-primary">IKT</span>
-                                        @elseif (strtolower($indikatorkinerja->ik_jenis) === 'ikt/iku')
-                                            <span class="badge badge-danger">IKT/IKU</span>
+                                        @elseif (strtolower($indikatorkinerja->ik_jenis) === 'iku/ikt')
+                                            <span class="badge badge-danger">IKU/IKT</span>
                                         @else
                                             {{ $indikatorkinerja->ik_jenis }}
                                         @endif

@@ -86,8 +86,8 @@
                                             <span class="badge badge-success">IKU</span>
                                         @elseif (strtolower($targetcapaian->ik_jenis == 'IKT'))
                                             <span class="badge badge-primary">IKT</span>
-                                        @elseif (strtolower($targetcapaian->ik_jenis == 'IKT/IKU'))
-                                            <span class="badge badge-danger">IKT/IKU</span>
+                                        @elseif (strtolower($targetcapaian->ik_jenis == 'IKU/IKT'))
+                                            <span class="badge badge-danger">IKU/IKT</span>
                                         @else
                                             <span class="badge badge-secondary">Tidak Diketahui</span>
                                         @endif
