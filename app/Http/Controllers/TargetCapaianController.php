@@ -40,13 +40,17 @@ class TargetCapaianController extends Controller
             $tahunId = $tahunAktif->th_id;
         }
 
-        // Query data
+        // Query data target capaian
         $query = target_indikator::query()
             ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
             ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
-            ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id');
+            ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id')
+            ->leftJoin('unit_kerja', 'unit_kerja.unit_id', '=', 'indikator_kinerja.unit_id');
 
-        // Filter untuk role prodi
+        $query->whereNotNull('indikator_kinerja.unit_id')
+            ->where('indikator_kinerja.unit_id', '!=', '');
+
+        // Jika user prodi → hanya data prodi tersebut
         if (Auth::user()->role == 'prodi') {
             $query->where('target_indikator.prodi_id', Auth::user()->prodi_id);
             $prodis = program_studi::where('prodi_id', Auth::user()->prodi_id)->get();
@@ -56,36 +60,50 @@ class TargetCapaianController extends Controller
         if ($q) {
             $query->where(function($subQuery) use ($q) {
                 $subQuery->where('target_indikator.ti_target', 'like', "%$q%")
-                        ->orWhere('indikator_kinerja.ik_nama', 'like', "%$q%")
-                        ->orWhere('indikator_kinerja.ik_kode', 'like', "%$q%");
+                    ->orWhere('indikator_kinerja.ik_nama', 'like', "%$q%")
+                    ->orWhere('indikator_kinerja.ik_kode', 'like', "%$q%");
             });
         }
 
-        // Filter berdasarkan tahun aktif atau request
+        // Filter berdasarkan tahun
         if ($tahunId) {
             $query->where('target_indikator.th_id', $tahunId);
         }
 
+        // Filter berdasarkan prodi (jika dipilih)
         if ($prodiId) {
             $query->where('program_studi.prodi_id', $prodiId);
         }
 
         $query->orderBy('indikator_kinerja.ik_nama', 'asc');
 
+        // Ambil data paginated
         $target_capaians = $query->paginate(10)->withQueryString();
         $no = $target_capaians->firstItem();
 
-        $ikIds = $target_capaians->pluck('ik_id')->filter()->unique()->toArray();
+        // Ambil semua kombinasi ik_id + prodi_id
+        $ikProdiPairs = $target_capaians->map(function ($item) {
+            return [
+                'ik_id' => $item->ik_id,
+                'prodi_id' => $item->prodi_id
+            ];
+        })->unique();
 
-        $baselineMap = \App\Models\IkBaselineTahun::whereIn('ik_id', $ikIds)
+        // Ambil baseline berdasarkan kombinasi tersebut
+        $baselineData = IkBaselineTahun::whereIn('ik_id', $ikProdiPairs->pluck('ik_id'))
             ->where('th_id', $tahunId)
-            ->pluck('baseline', 'ik_id');
+            ->whereIn('prodi_id', $ikProdiPairs->pluck('prodi_id'))
+            ->get()
+            ->keyBy(function ($item) {
+                return $item->ik_id . '_' . $item->prodi_id;
+            });
 
-        $target_capaians->getCollection()->transform(function ($item) use ($baselineMap) {
-            $item->baseline_tahun = $baselineMap[$item->ik_id] ?? '0';
+        // Tambahkan baseline sesuai prodi tiap baris
+        $target_capaians->getCollection()->transform(function ($item) use ($baselineData) {
+            $key = $item->ik_id . '_' . $item->prodi_id;
+            $item->baseline_tahun = $baselineData[$key]->baseline ?? null;
             return $item;
         });
-
 
         return view('pages.index-targetcapaian', [
             'title' => $title,
@@ -105,10 +123,13 @@ class TargetCapaianController extends Controller
     {
         $title = 'Tambah Target Capaian';
 
-        // Ambil semua indikator yang aktif
-        $indikatorkinerjas = IndikatorKinerja::where('ik_is_aktif','y')
+        // Ambil semua indikator yang aktif dan sudah diisi unit kerja
+        $indikatorkinerjas = IndikatorKinerja::where('ik_is_aktif', 'y')
+            ->whereNotNull('unit_id') // hanya yang sudah diisi unit kerja
+            ->where('unit_id', '!=', '') // pastikan tidak string kosong
             ->orderBy('ik_nama')
             ->get();
+
 
         // Ambil tahun aktif (asumsikan hanya satu tahun aktif sekaligus)
         $activeTahun = tahun_kerja::where('th_is_aktif', 'y')->first();
@@ -129,7 +150,7 @@ class TargetCapaianController extends Controller
         $baselineMap = [];
         if ($activeTahun) {
             $ikIds = $indikatorkinerjas->pluck('ik_id')->unique()->toArray();
-            $baselineMap = \App\Models\IkBaselineTahun::whereIn('ik_id', $ikIds)
+            $baselineMap = IkBaselineTahun::whereIn('ik_id', $ikIds)
                 ->where('th_id', $activeTahun->th_id)
                 ->pluck('baseline', 'ik_id')
                 ->toArray();

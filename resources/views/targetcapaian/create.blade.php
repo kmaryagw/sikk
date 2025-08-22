@@ -122,8 +122,51 @@
                                                             <span class="text-primary"> {{ $ik->ik_ketercapaian }}</span>
                                                         </td>
                                                         <td class="text-center">
-                                                            <span class="text-success"> {{ $ik->baseline_tahun ?? 'Belum Ada' }}</span>
-                                                        </td>                
+                                                            @php
+                                                                // Ambil baseline dari data tahun ini kalau ada
+                                                                if ($found && $found['baseline'] !== null && $found['baseline'] !== '') {
+                                                                    $baseline_value = old("indikator.$no.baseline", $found['baseline']);
+                                                                }
+                                                                // Kalau baseline kosong, coba isi dari tahun sebelumnya
+                                                                elseif (isset($baseline_from_prev) && isset($baseline_from_prev[$ik->ik_id])) {
+                                                                    $baseline_value = old("indikator.$no.baseline", $baseline_from_prev[$ik->ik_id]);
+                                                                }
+                                                                // Kalau dua-duanya tidak ada, biarkan kosong
+                                                                else {
+                                                                    $baseline_value = old("indikator.$no.baseline", '');
+                                                                }
+                                                            @endphp
+
+                                                            @if($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase')
+                                                                <input type="number" 
+                                                                    class="form-control" 
+                                                                    name="indikator[{{ $no }}][baseline]" 
+                                                                    step="any" 
+                                                                    value="{{ $baseline_value }}">
+                                                            @elseif($ik->ik_ketercapaian == 'ketersediaan')
+                                                                <select class="form-control" name="indikator[{{ $no }}][baseline]">
+                                                                    <option value="" disabled {{ $baseline_value == '' ? 'selected' : '' }}>-- Pilih --</option>
+                                                                    <option value="ada" {{ $baseline_value == 'ada' ? 'selected' : '' }}>Ada</option>
+                                                                    <option value="draft" {{ $baseline_value == 'draft' ? 'selected' : '' }}>Draft</option>
+                                                                </select>
+                                                            @elseif($ik->ik_ketercapaian == 'rasio')
+                                                                <input type="text" 
+                                                                    class="form-control" 
+                                                                    name="indikator[{{ $no }}][baseline]" 
+                                                                    pattern="^\d+:\d+$" 
+                                                                    placeholder="Contoh: 1:20" 
+                                                                    value="{{ $baseline_value }}">
+                                                            @else
+                                                                <input type="text" 
+                                                                    class="form-control" 
+                                                                    name="indikator[{{ $no }}][baseline]" 
+                                                                    value="{{ $baseline_value }}">
+                                                            @endif
+
+                                                            <input type="hidden" 
+                                                                name="indikator[{{ $no }}][ik_id]" 
+                                                                value="{{ $ik->ik_id }}">
+                                                        </td>     
                                                         <td>
                                                             @if($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase')
                                                                 <input type="number" class="form-control" name="indikator[{{ $no }}][target]" step="any" value="{{ $target_value }}">

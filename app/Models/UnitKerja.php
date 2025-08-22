@@ -34,4 +34,8 @@ class UnitKerja extends Model
         return $this->hasMany(RencanaKerja::class, 'unit_id', 'unit_id');
     }
     
+    public function indikatorKinerja()
+    {
+        return $this->hasMany(IndikatorKinerja::class, 'unit_id', 'unit_id');
+    }
 }

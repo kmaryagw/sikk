@@ -22,7 +22,8 @@ class target_indikator extends Model
         'ti_target',
         'ti_keterangan',
         'prodi_id',
-        'th_id'
+        'th_id',
+        'unit_id',  // jika nanti perlu
     ];
 
     public $timestamps = true;
@@ -51,6 +52,17 @@ class target_indikator extends Model
     {
         return $this->hasOne(MonitoringIKU_Detail::class, 'ti_id', 'ti_id');
     }
+
+    public function unitKerja()
+    {
+        return $this->belongsTo(UnitKerja::class, 'unit_id', 'unit_id');
+    }
+
+    public function baselineTahun()
+    {
+        return $this->hasOne(IkBaselineTahun::class, 'ik_id', 'ik_id');
+    }
+
 
 
 

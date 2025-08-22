@@ -50,7 +50,7 @@
                         <div class="col-auto">
                             <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
                         </div>
-                        @if (Auth::user()->role== 'admin' || Auth::user()->role == 'prodi')
+                        @if (Auth::user()->role == 'prodi')
                         <div class="col-auto">
                             <a class="btn btn-primary" href="{{ route('targetcapaian.create') }}"><i class="fa-solid fa-plus"></i> Tambah Target Capaian</a>
                         </div>
@@ -70,6 +70,7 @@
                                 <th>Nilai Baseline</th>
                                 <th>Target Capaian</th>
                                 <th>Keterangan</th>
+                                {{-- <th style="width : 5%">Unit Kerja</th> --}}
                                 {{-- <th>Aksi</th> --}}
                             </tr>
                         </thead>
@@ -94,13 +95,24 @@
                                     </td>
                                     <td>
                                         @php
-                                            $ketercapaian = strtolower($targetcapaian->ik_ketercapaian);
-                                            $baselineRaw = trim($targetcapaian->baseline_tahun ?? $targetcapaian->ik_baseline ?? '0');
-                                            $baselineValue = (float) str_replace('%', '', $baselineRaw);
-                                            $progressColor = $baselineValue == 0 ? '#dc3545' : '#28a745';
+                                            $ketercapaian = strtolower((string) $targetcapaian->ik_ketercapaian);
+
+                                            // Ambil baseline_tahun dan ik_baseline, buang spasi
+                                            $bt = trim((string) ($targetcapaian->baseline_tahun ?? ''));
+                                            $ib = trim((string) ($targetcapaian->ik_baseline ?? ''));
+
+                                            // Pilih baseline: prioritas baseline_tahun jika tidak kosong, kalau kosong pakai ik_baseline
+                                            $baselineRaw = $bt !== '' ? $bt : ($ib !== '' ? $ib : '0');
+
+                                            // Bersihkan % dan spasi sebelum cek angka
+                                            $cleanNum = str_replace(['%', ' '], '', $baselineRaw);
+                                            $baselineValue = is_numeric($cleanNum) ? (float) $cleanNum : null;
+
+                                            $progressColor = ($baselineValue !== null && $baselineValue == 0) ? '#dc3545' : '#28a745';
                                         @endphp
 
-                                        @if ($ketercapaian === 'persentase' && is_numeric($baselineValue))
+                                        {{-- Persentase --}}
+                                        @if ($ketercapaian === 'persentase' && $baselineValue !== null)
                                             <div class="ring-progress-wrapper">
                                                 <div class="ring-progress" style="--value: {{ $baselineValue }}; --progress-color: {{ $progressColor }};">
                                                     <div class="ring-inner">
@@ -108,20 +120,38 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                        @elseif ($ketercapaian === 'nilai' && is_numeric($baselineRaw))
+
+                                        {{-- Nilai --}}
+                                        @elseif ($ketercapaian === 'nilai' && is_numeric($cleanNum))
                                             <span class="badge badge-primary">{{ $baselineRaw }}</span>
+
+                                        {{-- Ada / Draft --}}
                                         @elseif (in_array(strtolower($baselineRaw), ['ada', 'draft']))
                                             @if (strtolower($baselineRaw) === 'ada')
                                                 <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
                                             @else
                                                 <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
                                             @endif
+
+                                        {{-- Rasio --}}
                                         @elseif ($ketercapaian === 'rasio')
-                                            <span class="badge badge-info"><i class="fa-solid fa-balance-scale"></i> {{ $baselineRaw }}</span>
+                                            @php
+                                                $formattedRasio = 'Format salah';
+                                                $cleaned = preg_replace('/\s*/', '', $baselineRaw);
+                                                if (preg_match('/^\d+:\d+$/', $cleaned)) {
+                                                    [$a, $b] = explode(':', $cleaned);
+                                                    $formattedRasio = "{$a} : {$b}";
+                                                }
+                                            @endphp
+                                            <span class="badge badge-info"><i class="fa-solid fa-balance-scale"></i> {{ $formattedRasio }}</span>
+
+                                        {{-- Default --}}
                                         @else
                                             {{ $baselineRaw }}
                                         @endif
-                                    </td>                                   
+                                    </td>
+                                    {{-- Target Capaian --}}
+                                  
                                     <td>
                                         @php
                                             $ketercapaian = strtolower($targetcapaian->ik_ketercapaian);
@@ -174,6 +204,7 @@
                                         </form>
                                     </td>
                                     @endif --}}
+                                    {{-- <td><span class="badge badge-primary">{{ $targetcapaian->unit_nama ?? '-' }}</span></td> --}}
                                 </tr>
                             @endforeach
 

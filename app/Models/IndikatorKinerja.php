@@ -21,6 +21,7 @@ class IndikatorKinerja extends Model
         'ik_baseline',
         'ik_is_aktif',
         'std_id',
+        'unit_id', // tambahkan ini
     ];
     public function standar()
     {
@@ -30,6 +31,16 @@ class IndikatorKinerja extends Model
     public function baselineTahun()
     {
         return $this->hasMany(IkBaselineTahun::class, 'ik_id', 'ik_id');
+    }
+
+    public function unitKerja()
+    {
+        return $this->belongsTo(UnitKerja::class, 'unit_id', 'unit_id');
+    }
+
+    public function targetIndikator()
+    {
+        return $this->hasMany(target_indikator::class, 'ik_id', 'ik_id');
     }
 
     public $timestamps = true;

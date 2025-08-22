@@ -26,11 +26,11 @@ class DashboardController extends Controller
         $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->first();
         
         // IKU
-        $totaliku = IndikatorKinerja::where('ik_jenis', 'IKU')->count();
+        $totaliku = IndikatorKinerja::where('ik_jenis', 'IKU/IKT')->count();
         if ($user->role === 'prodi') {
             $jumlahiku = program_studi::withCount(['targetIndikator' => function ($query) use ($tahunAktif) {
                 $query->whereHas('indikatorKinerja', function ($q) {
-                    $q->where('ik_jenis', 'IKU');
+                    $q->where('ik_jenis', 'IKU/IKT');
                 });
                 
                 if ($tahunAktif) {
@@ -42,7 +42,7 @@ class DashboardController extends Controller
         } elseif ($user->role === 'fakultas') {
             $jumlahiku = program_studi::withCount(['targetIndikator' => function ($query) use ($tahunAktif) {
                 $query->whereHas('indikatorKinerja', function ($q) {
-                    $q->where('ik_jenis', 'IKU');
+                    $q->where('ik_jenis', 'IKU/IKT');
                 });
                 
                 if ($tahunAktif) {
@@ -55,7 +55,7 @@ class DashboardController extends Controller
         } else {
             $jumlahiku = program_studi::withCount(['targetIndikator' => function ($query) use ($tahunAktif) {
                 $query->whereHas('indikatorKinerja', function ($q) {
-                    $q->where('ik_jenis', 'IKU');
+                    $q->where('ik_jenis', 'IKU/IKT');
                 });
                 
                 if ($tahunAktif) {
@@ -75,7 +75,7 @@ class DashboardController extends Controller
         if ($user->role === 'prodi') {
             $jumlahikt = program_studi::withCount(['targetIndikator' => function ($query) use ($tahunAktif) {
                 $query->whereHas('indikatorKinerja', function ($q) {
-                    $q->where('ik_jenis', 'IKT');
+                    $q->where('ik_jenis', 'IKU/IKT');
                 });
                 
                 if ($tahunAktif) {
@@ -87,7 +87,7 @@ class DashboardController extends Controller
         } elseif ($user->role === 'fakultas') {
             $jumlahikt = program_studi::withCount(['targetIndikator' => function ($query) use ($tahunAktif) {
                 $query->whereHas('indikatorKinerja', function ($q) {
-                    $q->where('ik_jenis', 'IKT');
+                    $q->where('ik_jenis', 'IKU/IKT');
                 });
                 
                 if ($tahunAktif) {
@@ -100,7 +100,7 @@ class DashboardController extends Controller
         } else {
             $jumlahikt = program_studi::withCount(['targetIndikator' => function ($query) use ($tahunAktif) {
                 $query->whereHas('indikatorKinerja', function ($q) {
-                    $q->where('ik_jenis', 'IKT');
+                    $q->where('ik_jenis', 'IKU/IKT');
                 });
                 
                 if ($tahunAktif) {

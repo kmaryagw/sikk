@@ -22,11 +22,13 @@
                         <div class="col-auto">
                             <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
                         </div>
+                        @if (Auth::user()->role== 'admin')
                         <div class="col-auto">
                             <button type="button" class="btn btn-primary" id="showModalBtn">
                                 <i class="fa-solid fa-plus"></i> Tambah
                             </button>
                         </div>
+                        @endif
                     </form>
                 </div>
 
