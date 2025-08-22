@@ -140,7 +140,7 @@
             <li class="{{ $type_menu === 'targetcapaian' ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('targetcapaianprodi') }}">
                     <i class="fa-solid fa-award"></i> 
-                    <span>Target Capaian</span>
+                    <span>Target</span>
                 </a>
             </li>
             @endif
@@ -148,7 +148,7 @@
             <li class="{{ $type_menu === 'targetcapaian' ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('targetcapaian') }}">
                     <i class="fa-solid fa-award"></i> 
-                    <span>Target Capaian</span>
+                    <span>Target</span>
                 </a>
             </li>
             @endif
