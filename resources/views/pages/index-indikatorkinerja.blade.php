@@ -68,13 +68,14 @@
                         <thead>
                             <tr>
                                 <th style="width : 1%">No</th>
-                                <th style="width : 8%">Kode IKU/T</th>
+                                <th style="width : 2%">Kode IKU/T</th>
                                 <th style="width : 30%">Nama IKU/T</th>
                                 <th>Standar</th>
                                 <th>Jenis</th>
                                 <th>Ketercapaian</th>
-                                <th>Baseline</th>
+                                {{-- <th>Baseline</th> --}}
                                 <th>Status</th>
+                                <th style="width: 1%"><i class="fa-solid fa-user" title="Unit kerja penanggung jawab sudah ditetapkan" style="color:grey; font-size:0.8em;"></i></th>
                                 @if (Auth::user()->role== 'admin')
                                 <th>Aksi</th>
                                 @endif
@@ -100,15 +101,40 @@
                                         @endif
                                     </td>                                    
                                     <td>{{ $indikatorkinerja->ik_ketercapaian }}</td>
-                                    <td>
+                                    {{-- <td>
                                         @php
-                                            $ketercapaian = strtolower($indikatorkinerja->ik_ketercapaian);
-                                            $baselineRaw = trim($indikatorkinerja->baseline_tahun); // ganti dari ik_baseline ke baseline_tahun
-                                            $baselineValue = (float) str_replace('%', '', $baselineRaw);
-                                            $progressColor = $baselineValue == 0 ? '#dc3545' : '#28a745'; // Merah jika 0, hijau jika > 0
+                                            // Normalisasi tipe ketercapaian
+                                            $ketercapaian = strtolower(trim((string) $indikatorkinerja->ik_ketercapaian));
+
+                                            // Ambil sumber baseline — prioritaskan baseline_tahun, fallback ke ik_baseline
+                                            $bt = trim((string) ($indikatorkinerja->baseline_tahun ?? ''));
+                                            $ib = trim((string) ($indikatorkinerja->ik_baseline ?? ''));
+                                            $baselineRaw = $bt !== '' ? $bt : $ib;
+
+                                            // Normalisasi string baseline untuk parsing angka
+                                            $candidate = str_replace(' ', '', $baselineRaw);
+                                            $candidate = str_replace('%', '', $candidate);
+                                            // Hapus titik ribuan, tapi biarkan titik desimal
+                                            $candidate = preg_replace('/\.(?=\d{3}(\D|$))/', '', $candidate);
+                                            // Ubah koma desimal jadi titik
+                                            $candidate = str_replace(',', '.', $candidate);
+
+                                            // Parsing angka
+                                            if (preg_match('/^-?\d+(\.\d+)?$/', $candidate)) {
+                                                $baselineValue = (float) $candidate;
+                                            } else {
+                                                $baselineValue = null;
+                                            }
+
+                                            // Warna progress (untuk persentase)
+                                            if ($baselineValue === null) {
+                                                $progressColor = '#6c757d'; // abu-abu
+                                            } else {
+                                                $progressColor = abs($baselineValue) < 1e-9 ? '#dc3545' : '#28a745';
+                                            }
                                         @endphp
 
-                                        @if ($ketercapaian === 'persentase' && is_numeric($baselineValue))
+                                        @if ($ketercapaian === 'persentase' && $baselineValue !== null)
                                             <div class="ring-progress-wrapper">
                                                 <div class="ring-progress" style="--value: {{ $baselineValue }}; --progress-color: {{ $progressColor }};">
                                                     <div class="ring-inner">
@@ -116,14 +142,17 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                        @elseif ($ketercapaian === 'nilai' && is_numeric($baselineRaw))
-                                            <span class="badge badge-primary">{{ $baselineRaw }}</span>
-                                        @elseif (in_array(strtolower($baselineRaw), ['ada', 'draft']))
-                                            @if (strtolower($baselineRaw) === 'ada')
+
+                                        @elseif ($ketercapaian === 'nilai' && $baselineValue !== null)
+                                            <span class="badge badge-primary">{{ $baselineValue }}</span>
+
+                                        @elseif (in_array(trim(strtolower($baselineRaw)), ['ada', 'draft']))
+                                            @if (trim(strtolower($baselineRaw)) === 'ada')
                                                 <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
                                             @else
                                                 <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
                                             @endif
+
                                         @elseif ($ketercapaian === 'rasio')
                                             @php
                                                 $formattedRasio = 'Format salah';
@@ -138,10 +167,11 @@
                                             <span class="badge badge-info">
                                                 <i class="fa-solid fa-balance-scale"></i> {{ $formattedRasio }}
                                             </span>
+
                                         @else
-                                            {{ $baselineRaw ?? 'Belum Ada' }}
+                                            {{ $baselineRaw !== '' ? $baselineRaw : 'Belum Ada' }}
                                         @endif
-                                    </td>
+                                    </td> --}}
                                     <td>
                                         @if (strtolower($indikatorkinerja->ik_is_aktif) === 'y')
                                             <span class="text-success"><i class="fa-solid fa-check-circle"></i> Aktif</span>
@@ -149,6 +179,13 @@
                                             <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak</span>
                                         @endif
                                     </td> 
+                                    <td>
+                                        @if (!empty($indikatorkinerja->unit_id))
+                                            <i class="fa-solid fa-user-check" title="Unit kerja penanggung jawab sudah ditetapkan" style="color:green; font-size:0.8em;"></i>
+                                        @else
+                                            <i class="fa-solid fa-user-xmark" title="Unit kerja penanggung jawab belum ditetapkan" style="color:red; font-size:0.8em;"></i>
+                                        @endif
+                                    </td>
                                     @if (Auth::user()->role== 'admin')
                                     <td>
                                         <a class="btn btn-warning btn-sm mb-3 mt-3" href="{{ route('indikatorkinerja.edit', $indikatorkinerja->ik_id) }}">

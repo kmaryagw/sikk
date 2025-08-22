@@ -113,6 +113,25 @@
                                 <!-- Kolom Kanan -->
                                 <div class="col-md-6">
                                     <div class="form-group">
+                                        <label for="unit_id">Unit Kerja Penanggung Jawab</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fas fa-building"></i>
+                                                </div>
+                                            </div>
+                                            <select id="unit_id" name="unit_id" class="form-control" required>
+                                                <option value="" disabled selected>Pilih Unit Kerja</option>
+                                                @foreach ($unitKerjas as $unit)
+                                                    <option value="{{ $unit->unit_id }}" {{ old('unit_id') == $unit->unit_id ? 'selected' : '' }}>
+                                                        {{ $unit->unit_nama }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
                                         <label for="ik_jenis">Jenis Indikator Kinerja</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
@@ -152,7 +171,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="form-group">
+                                    {{-- <div class="form-group">
                                         <label for="ik_baseline">Nilai Baseline</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
@@ -160,15 +179,16 @@
                                                     <i class="fas fa-sort-amount-down"></i>
                                                 </div>
                                             </div>
-                                            <input type="text" id="ik_baseline" name="ik_baseline" 
-                                                class="form-control @error('ik_baseline') is-invalid @enderror" 
-                                                value="{{ old('ik_baseline') }}" placeholder="Masukkan nilai baseline" required>
+                                            <input type="number" id="ik_baseline" name="ik_baseline"
+                                                class="form-control @error('ik_baseline') is-invalid @enderror"
+                                                value="{{ old('ik_baseline') }}" placeholder="Masukkan nilai baseline"
+                                                min="0" max="100" step="1" required>
                                             @error('ik_baseline')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
                                         <small id="ti_baseline_hint" class="form-text text-muted">Isi sesuai dengan jenis ketercapaian.</small>
-                                    </div>
+                                    </div> --}}
                                     
                                 </div>
                             </div>
@@ -204,7 +224,7 @@
 
     <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>
-    <script>
+    {{-- <script>
         function updateBaselinePlaceholder() {
             const ketercapaian = document.getElementById('ik_ketercapaian').value;
             const baselineInput = document.getElementById('ik_baseline');
@@ -240,4 +260,73 @@
             }
         }
     </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ketercapaianSelect = document.getElementById('ik_ketercapaian');
+            const baselineContainer = document.querySelector('#ik_baseline').parentNode;
+            let baselineInput = document.getElementById('ik_baseline');
+
+            function createSelectBaseline() {
+                const select = document.createElement('select');
+                select.name = 'ik_baseline';
+                select.id = 'ik_baseline';
+                select.className = baselineInput.className;
+
+                const options = ['ada', 'draft'];
+                options.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt;
+                    option.textContent = opt;
+                    select.appendChild(option);
+                });
+
+                baselineContainer.replaceChild(select, baselineInput);
+                baselineInput = select;
+            }
+
+            function createNumberBaseline(min, max = null) {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.name = 'ik_baseline';
+                input.id = 'ik_baseline';
+                input.className = baselineInput.className;
+                input.min = min;
+                input.step = 1;
+                if (max !== null) input.max = max;
+                input.value = "{{ old('ik_baseline') }}";
+                baselineContainer.replaceChild(input, baselineInput);
+                baselineInput = input;
+            }
+
+            function createTextBaseline(placeholder = '') {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.name = 'ik_baseline';
+                input.id = 'ik_baseline';
+                input.className = baselineInput.className;
+                input.placeholder = placeholder;
+                input.value = "{{ old('ik_baseline') }}";
+                baselineContainer.replaceChild(input, baselineInput);
+                baselineInput = input;
+            }
+
+            function updateBaselineField() {
+                const type = ketercapaianSelect.value.toLowerCase();
+
+                if (type === 'nilai') {
+                    createNumberBaseline(0);
+                } else if (type === 'persentase') {
+                    createNumberBaseline(0, 100);
+                } else if (type === 'ketersediaan') {
+                    createSelectBaseline();
+                } else if (type === 'rasio') {
+                    createTextBaseline('contoh: 1:20');
+                }
+            }
+
+            ketercapaianSelect.addEventListener('change', updateBaselineField);
+            updateBaselineField(); // initial load
+        });
+    </script> --}}
 @endpush
