@@ -7,6 +7,7 @@ use App\Models\tahun_kerja;
 use App\Models\IkBaselineTahun;
 use App\Models\MonitoringIKU;
 use App\Models\MonitoringIKU_Detail;
+use App\Models\program_studi;
 use App\Models\IndikatorKinerja;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Routing\Controller;
@@ -173,64 +174,92 @@ class TahunController extends Controller
 
     private function copyCapaianToBaseline($newThId)
     {
-        $prevYear = tahun_kerja::where('th_is_aktif', 'n')
-            ->orderByDesc('updated_at')
-            ->first();
+        // Ambil semua tahun kerja, urutkan berdasar tahun awal (4 digit pertama dari th_tahun)
+        $allYears = tahun_kerja::get()->sortBy(function ($t) {
+            return (int) substr($t->th_tahun, 0, 4);
+        })->values();
 
-        if (!$prevYear) return;
+        // Tahun pertama
+        $firstYear = $allYears->first();
 
+        // Ambil semua indikator
         $indikatorList = IndikatorKinerja::all();
 
-        foreach ($indikatorList as $indikator) {
-            $baseline = null;
+        // Ambil semua prodi
+        $prodiList = program_studi::all();
 
-            // Ambil semua detail dari tahun sebelumnya yang terkait indikator ini
-            $details = MonitoringIKU_Detail::select('monitoring_iku_detail.*')
-                ->join('target_indikator as ti', 'monitoring_iku_detail.ti_id', '=', 'ti.ti_id')
-                ->join('monitoring_iku as mi', 'monitoring_iku_detail.mti_id', '=', 'mi.mti_id')
-                ->where('mi.th_id', $prevYear->th_id)
-                ->where('ti.ik_id', $indikator->ik_id)
-                ->whereNotNull('monitoring_iku_detail.mtid_capaian')
-                ->get();
-
-            if ($details->isNotEmpty()) {
-                $ketercapaian = strtolower($indikator->ik_ketercapaian);
-
-                if (in_array($ketercapaian, ['persentase', 'nilai'])) {
-                    $numericDetails = $details->filter(function ($d) {
-                        return is_numeric($d->mtid_capaian);
-                    });
-
-                    $highest = $numericDetails->sortByDesc(function ($d) {
-                        return (float)$d->mtid_capaian;
-                    })->first();
-
-                    if ($highest) {
-                        $baseline = $highest->mtid_capaian;
-                    }
-                } else {
-                    $baseline = $details->sortByDesc('created_at')->first()->mtid_capaian;
+        // === CASE 1: Tahun pertama ===
+        if ($firstYear && $firstYear->th_id == $newThId) {
+            foreach ($indikatorList as $indikator) {
+                foreach ($prodiList as $prodi) {
+                    IkBaselineTahun::updateOrCreate(
+                        [
+                            'ik_id'    => $indikator->ik_id,
+                            'th_id'    => $newThId,
+                            'prodi_id' => $prodi->prodi_id,
+                        ],
+                        [
+                            'baseline' => $indikator->ik_baseline ?? 0
+                        ]
+                    );
                 }
             }
+            return;
+        }
 
-            // Fallback jika tetap kosong
-            if ($baseline === null) {
-                $baseline = $indikator->ik_baseline;
+        // === CASE 2: Ada tahun sebelumnya ===
+        $currentYearIndex = $allYears->search(fn($t) => $t->th_id == $newThId);
+
+        if ($currentYearIndex === false || $currentYearIndex === 0) {
+            return; // Tidak ada tahun sebelumnya
+        }
+
+        $prevYear = $allYears->get($currentYearIndex - 1);
+
+        foreach ($indikatorList as $indikator) {
+            foreach ($prodiList as $prodi) {
+                $baseline = 0;
+
+                $details = MonitoringIKU_Detail::select('monitoring_iku_detail.*')
+                    ->join('target_indikator as ti', 'monitoring_iku_detail.ti_id', '=', 'ti.ti_id')
+                    ->join('monitoring_iku as mi', 'monitoring_iku_detail.mti_id', '=', 'mi.mti_id')
+                    ->where('mi.th_id', $prevYear->th_id)
+                    ->where('ti.ik_id', $indikator->ik_id)
+                    ->where('ti.prodi_id', $prodi->prodi_id) // filter per prodi
+                    ->whereNotNull('monitoring_iku_detail.mtid_capaian')
+                    ->get();
+
+                if ($details->isNotEmpty()) {
+                    $ketercapaian = strtolower(trim($indikator->ik_ketercapaian));
+
+                    if (in_array($ketercapaian, ['persentase', 'nilai'])) {
+                        $highest = $details->filter(fn($d) => is_numeric(trim($d->mtid_capaian)))
+                            ->sortByDesc(fn($d) => (float)$d->mtid_capaian)
+                            ->first();
+                        if ($highest) {
+                            $baseline = $highest->mtid_capaian;
+                        }
+                    } else {
+                        $latest = $details->sortByDesc('created_at')->first();
+                        if ($latest && trim($latest->mtid_capaian) !== '') {
+                            $baseline = $latest->mtid_capaian;
+                        }
+                    }
+                }
+
+                IkBaselineTahun::updateOrCreate(
+                    [
+                        'ik_id'    => $indikator->ik_id,
+                        'th_id'    => $newThId,
+                        'prodi_id' => $prodi->prodi_id,
+                    ],
+                    [
+                        'baseline' => $baseline
+                    ]
+                );
             }
-
-            // Simpan
-            IkBaselineTahun::updateOrCreate(
-                [
-                    'ik_id' => $indikator->ik_id,
-                    'th_id' => $newThId,
-                ],
-                [
-                    'baseline' => $baseline,
-                ]
-            );
         }
     }
-
 
     public function destroy(tahun_kerja $tahun)
     {
