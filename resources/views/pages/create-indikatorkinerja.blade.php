@@ -80,7 +80,7 @@
                                                 <option value="" disabled selected>Pilih Standar</option>
                                                 @foreach ($standar as $s)
                                                     <option value="{{ $s->std_id }}" {{ old('std_id') == $s->std_id ? 'selected' : '' }}>
-                                                        {{ $s->std_nama }}
+                                                        {{ $s->std_nama }} - {{ $s->std_deskripsi }}
                                                     </option>
                                                 @endforeach
                                             </select>
