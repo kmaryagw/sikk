@@ -13,7 +13,7 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Daftar Target Capaian</h1>
+                <h1>Daftar Target</h1>
             </div>
 
             <div class="card mb-3">
@@ -52,7 +52,7 @@
                         </div>
                         @if (Auth::user()->role == 'prodi')
                         <div class="col-auto">
-                            <a class="btn btn-primary" href="{{ route('targetcapaian.create') }}"><i class="fa-solid fa-plus"></i> Tambah Target Capaian</a>
+                            <a class="btn btn-primary" href="{{ route('targetcapaian.create') }}"><i class="fa-solid fa-plus"></i> Tambah Target</a>
                         </div>
                         @endif
                     </form>
@@ -68,8 +68,8 @@
                                 <th style="width : 39%">Indikator Kinerja</th>
                                 <th>Jenis</th>
                                 <th>Nilai Baseline</th>
-                                <th>Target Capaian</th>
-                                <th>Keterangan</th>
+                                <th>Target</th>
+                                {{-- <th>Keterangan</th> --}}
                                 {{-- <th style="width : 5%">Unit Kerja</th> --}}
                                 {{-- <th>Aksi</th> --}}
                             </tr>
@@ -81,7 +81,7 @@
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $targetcapaian->th_tahun }}</td>
                                     <td>{{ $targetcapaian->nama_prodi }}</td>
-                                    <td style="padding: 1rem;">{{ $targetcapaian->ik_kode }} - {{ $targetcapaian->ik_nama }}</td>
+                                    <td style="padding: 1.5rem;">{{ $targetcapaian->ik_kode }} - {{ $targetcapaian->ik_nama }}</td>
                                     <td>
                                         @if (strtolower($targetcapaian->ik_jenis == 'IKU'))
                                             <span class="badge badge-success">IKU</span>
@@ -190,7 +190,7 @@
                                             {{ $targetRaw }}
                                         @endif
                                     </td>                                                                                                                                                                                                                      
-                                    <td>{{ $targetcapaian->ti_keterangan }}</td>
+                                    {{-- <td>{{ $targetcapaian->ti_keterangan }}</td> --}}
 
                                     {{-- @if (Auth::user()->role== 'admin' || Auth::user()->role == 'prodi')
                                     <td>

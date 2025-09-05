@@ -280,7 +280,7 @@ class TargetCapaianProdiController extends Controller
                 [
                     'ti_id'         => $ti_id,
                     'ik_id'         => $data["ik_id"],
-                    'ti_target'     => $data["target"] ?? 'Target Belum Ditentukan',
+                    'ti_target'     => $data["target"] ?? '-',
                     'ti_keterangan' => $data["keterangan"] ?? '-',
                     'prodi_id'      => $prodi_id,
                     'th_id'         => $th_id
@@ -339,7 +339,7 @@ class TargetCapaianProdiController extends Controller
         // Data dropdown
         $indikatorkinerjautamas = IndikatorKinerja::orderBy('ik_nama')->get();
         $prodis = program_studi::orderBy('nama_prodi')->get();
-        $tahuns = tahun_kerja::orderBy('tahun', 'desc')->get();
+        $tahuns = tahun_kerja::orderBy('th_tahun', 'desc')->get();
 
         // Role & Prodi User
         $userRole = Auth::user()->role;

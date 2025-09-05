@@ -16,7 +16,7 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Form Edit Target Capaian</h1>
+                <h1>Form Edit Target</h1>
             </div>
 
             <div class="section-body">
@@ -146,7 +146,7 @@
 
                                             <!-- Target Capaian -->
                                             <div class="form-group">
-                                                <label for="ti_target">Target Capaian</label>
+                                                <label for="ti_target">Target</label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend">
                                                         <div class="input-group-text">

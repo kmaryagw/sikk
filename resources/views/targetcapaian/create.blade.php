@@ -10,10 +10,23 @@
     <link rel="stylesheet" href="{{ asset('library/selectric/public/selectric.css') }}">
     <link rel="stylesheet" href="{{ asset('library/bootstrap-timepicker/css/bootstrap-timepicker.min.css') }}">
     <link rel="stylesheet" href="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.css') }}">
-
     <link rel="stylesheet" href="{{ asset('library/datatables/media/css/jquery.dataTables.css') }}">
     <link rel="stylesheet" href="{{ asset('library/datatables/media/css/jquery.dataTables.min.css') }}">
     
+    <style>
+        .table-responsive {
+            max-height: 50rem;   /* tinggi maksimum tabel */
+            overflow-y: auto;    /* aktifkan scroll vertikal */
+        }
+
+        .table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: #f8f9fa !important; /* biar solid, tidak transparan */
+        }
+    </style>
+
 @endpush
 
 @section('main')
@@ -85,7 +98,7 @@
                                                     <th>Jenis</th>
                                                     <th>Pengukuran</th>
                                                     <th>Nilai Baseline</th>
-                                                    <th>Target Capaian</th>
+                                                    <th>Target</th>
                                                     <th>Keterangan</th>
                                                 </tr>
                                             </thead>

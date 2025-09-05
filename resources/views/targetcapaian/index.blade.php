@@ -56,7 +56,7 @@
                                 <th>Jenis</th>
                                 <th>Nilai Baseline</th>
                                 <th>Target</th>
-                                <th>Keterangan</th>
+                                {{-- <th>Keterangan</th> --}}
                                 {{-- <th>Unit Kerja</th> --}}
                                 {{-- <th>Aksi</th> --}}
                             </tr>
@@ -175,7 +175,7 @@
                                             {{ $targetRaw }}
                                         @endif
                                     </td>                                                                                                           
-                                    <td>{{ $targetcapaian->ti_keterangan }}</td>
+                                    {{-- <td>{{ $targetcapaian->ti_keterangan }}</td> --}}
 
                                     {{-- @if (Auth::user()->role== 'admin' || Auth::user()->role == 'prodi')
                                     <td>

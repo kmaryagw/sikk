@@ -63,6 +63,11 @@ class target_indikator extends Model
         return $this->hasOne(IkBaselineTahun::class, 'ik_id', 'ik_id');
     }
 
+    public function historyMonitoring()
+    {
+        return $this->hasMany(HistoryMonitoringIKU::class, 'ti_id', 'ti_id');
+    }
+
 
 
 
