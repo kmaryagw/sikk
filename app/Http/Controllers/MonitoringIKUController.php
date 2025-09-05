@@ -15,12 +15,14 @@ use Illuminate\Support\Facades\Auth;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Str;
 use Symfony\Contracts\Service\Attribute\Required;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\MonitoringIKUDetailExport;
 
 class MonitoringIKUController extends Controller
 {
     public function __construct()
     {
-        if (Auth::check() && Auth::user()->role !== 'admin' && Auth::user()->role !== 'fakultas' && Auth::user()->role !== 'unit kerja') {
+        if (Auth::check() && Auth::user()->role !== 'admin' && Auth::user()->role !== 'unit kerja') {
             abort(403, 'Unauthorized access');
         }
     }
@@ -41,14 +43,14 @@ class MonitoringIKUController extends Controller
                 ->get();
             $allowedProdis = $prodis->pluck('prodi_id')->toArray();
 
-        } elseif ($user->role == 'unit kerja' && $user->unitKerja && $user->unitKerja->unit_nama == 'Dekan1') {
+        } elseif ($user->role == 'unit kerja' && $user->unitKerja && $user->unitKerja->unit_nama == 'Dekanat Fti') {
             $prodis = program_studi::whereIn('nama_prodi', [
                 'Informatika',
                 'Rekayasa Sistem Komputer'
             ])->get();
             $allowedProdis = $prodis->pluck('prodi_id')->toArray();
 
-        } elseif ($user->role == 'unit kerja' && $user->unitKerja && $user->unitKerja->unit_nama == 'Dekan2') {
+        } elseif ($user->role == 'unit kerja' && $user->unitKerja && $user->unitKerja->unit_nama == 'Dekanat Fbdk') {
             $prodis = program_studi::whereIn('nama_prodi', [
                 'Bisnis Digital',
                 'Desain Komunikasi Visual'
@@ -145,41 +147,54 @@ class MonitoringIKUController extends Controller
         }
     }
 
-    public function indexDetail($mti_id)
+    public function indexDetail($mti_id, Request $request)
     {
         $Monitoringiku = MonitoringIKU::findOrFail($mti_id);
         $prodi_id = $Monitoringiku->prodi_id;
         $th_id = $Monitoringiku->th_id;
         $user = Auth::user();
 
+        // ambil keyword pencarian
+        $q = trim($request->input('q', ''));
+
         $targetIndikatorsQuery = target_indikator::where('prodi_id', $prodi_id)
             ->where('th_id', $th_id)
             ->with([
                 'indikatorKinerja.unitKerja',
-                'baselineTahun' => function ($q) use ($prodi_id, $th_id) {
-                    $q->where('prodi_id', $prodi_id)
-                    ->where('th_id', $th_id);
-                }
+                'baselineTahun' => function ($sub) use ($prodi_id, $th_id) {
+                    $sub->where('prodi_id', $prodi_id)
+                        ->where('th_id', $th_id);
+                },
+                'monitoringDetail',
+                'historyMonitoring',
             ]);
 
-        // Filter jika bukan admin
+        // 🔎 filter pencarian
+        if ($q !== '') {
+            $targetIndikatorsQuery->whereHas('indikatorKinerja', function ($sub) use ($q) {
+                $sub->where('ik_nama', 'LIKE', "%{$q}%")
+                    ->orWhere('ik_kode', 'LIKE', "%{$q}%");
+            });
+        }
+
+        // 🔒 filter jika bukan admin
         if ($user->role !== 'admin') {
-            $targetIndikatorsQuery->whereHas('indikatorKinerja.unitKerja', function ($q) use ($user) {
-                $q->where('unit_id', $user->unit_id);
+            $targetIndikatorsQuery->whereHas('indikatorKinerja.unitKerja', function ($sub) use ($user) {
+                $sub->where('unit_id', $user->unit_id);
             })
-            ->whereNotNull('ti_target'); // pastikan sudah ada target
+            ->whereNotNull('ti_target'); // hanya tampilkan yg sudah ada target
         }
 
         $targetIndikators = $targetIndikatorsQuery->get();
 
-        // dd($targetIndikators->pluck('baselineTahun'));
-
         return view('pages.index-detail-monitoringiku', [
-            'Monitoringiku' => $Monitoringiku,
-            'targetIndikators' => $targetIndikators,
-            'type_menu' => 'monitoringiku',
+            'Monitoringiku'     => $Monitoringiku,
+            'targetIndikators'  => $targetIndikators,
+            'type_menu'         => 'monitoringiku',
+            'user'              => $user,
+            'q'                 => $q, // 🔑 kirim ke view biar tidak undefined
         ]);
-    }
+}
 
     public function createDetail($mti_id)
     {
@@ -187,6 +202,7 @@ class MonitoringIKUController extends Controller
         $status = ['tercapai', 'tidak tercapai', 'tidak terlaksana'];
         $user = Auth::user();
 
+        // Ambil target indikator sesuai role
         $targetIndikatorQuery = target_indikator::where('prodi_id', $monitoringiku->prodi_id)
             ->where('th_id', $monitoringiku->th_id)
             ->with([
@@ -197,29 +213,33 @@ class MonitoringIKUController extends Controller
                 }
             ]);
 
-        // Filter jika bukan admin
+        // Filter kalau bukan admin → hanya unit-nya sendiri dan yang sudah ada target
         if ($user->role !== 'admin') {
             $targetIndikatorQuery
                 ->whereHas('indikatorKinerja.unitKerja', function ($q) use ($user) {
                     $q->where('unit_id', $user->unit_id);
                 })
-                ->whereNotNull('ti_target'); // Pastikan target sudah ada
+                ->whereNotNull('ti_target');
         }
 
         $targetIndikator = $targetIndikatorQuery->get();
 
         if ($targetIndikator->isEmpty()) {
-            return redirect()->route('monitoringiku.index')->with('error', 'Tidak ada indikator yang bisa diukur.');
+            return redirect()
+                ->route('monitoringiku.index')
+                ->with('error', 'Tidak ada indikator yang bisa diukur.');
         }
 
+        // Ambil detail monitoring yang sudah ada
         $monitoringikuDetail = MonitoringIKU_Detail::whereIn('ti_id', $targetIndikator->pluck('ti_id'))->get();
 
         return view('pages.create-detail-monitoringiku', [
-            'monitoringiku' => $monitoringiku,
-            'targetIndikator' => $targetIndikator,
-            'status' => $status,
+            'monitoringiku'       => $monitoringiku,
+            'targetIndikator'     => $targetIndikator,
+            'status'              => $status,
             'monitoringikuDetail' => $monitoringikuDetail,
-            'type_menu' => 'monitoringiku',
+            'type_menu'           => 'monitoringiku',
+            'isAdmin'             => $user->role === 'admin', // 🔑 dipakai di Blade
         ]);
     }
 
@@ -228,12 +248,22 @@ class MonitoringIKUController extends Controller
         $validated = $request->validate([
             'ti_id' => 'required|array',
             'ti_id.*' => 'required|string',
+
+            // field user
             'mtid_capaian' => 'nullable|array',
             'mtid_capaian.*' => 'nullable|string',
             'mtid_keterangan' => 'nullable|array',
             'mtid_keterangan.*' => 'nullable|string',
             'mtid_url' => 'nullable|array',
             'mtid_url.*' => 'nullable|url',
+
+            // field admin
+            'mtid_evaluasi' => 'nullable|array',
+            'mtid_evaluasi.*' => 'nullable|string',
+            'mtid_tindaklanjut' => 'nullable|array',
+            'mtid_tindaklanjut.*' => 'nullable|string',
+            'mtid_peningkatan' => 'nullable|array',
+            'mtid_peningkatan.*' => 'nullable|string',
         ]);
 
         try {
@@ -266,18 +296,59 @@ class MonitoringIKUController extends Controller
 
                 $jenis = strtolower($targetIndikator->indikatorKinerja->ik_ketercapaian ?? 'nilai');
 
-                $mtid_capaian    = $request->mtid_capaian[$index] ?? null;
-                $mtid_keterangan = $request->mtid_keterangan[$index] ?? null;
-                $mtid_url        = $request->mtid_url[$index] ?? null;
+                // 🔒 Batasi input sesuai role
+                if ($user->role === 'admin') {
+                    $mtid_capaian     = null;
+                    $mtid_keterangan  = null;
+                    $mtid_url         = null;
 
-                // Hitung status secara otomatis
+                    $mtid_evaluasi     = $request->mtid_evaluasi[$index] ?? null;
+                    $mtid_tindaklanjut = $request->mtid_tindaklanjut[$index] ?? null;
+                    $mtid_peningkatan  = $request->mtid_peningkatan[$index] ?? null;
+                } else {
+                    $mtid_capaian     = $request->mtid_capaian[$index] ?? null;
+                    $mtid_keterangan  = $request->mtid_keterangan[$index] ?? null;
+                    $mtid_url         = $request->mtid_url[$index] ?? null;
+
+                    $mtid_evaluasi     = null;
+                    $mtid_tindaklanjut = null;
+                    $mtid_peningkatan  = null;
+                }
+
+                // Hitung status otomatis (hanya relevan kalau ada capaian)
                 $mtid_status = $this->hitungStatus($mtid_capaian, $targetIndikator->ti_target, $jenis);
 
+                // Cari detail lama (jika ada)
                 $existingDetail = MonitoringIKU_Detail::where('mti_id', $mti_id)
                     ->where('ti_id', $ti_id)
                     ->first();
 
                 $mtid_id = $existingDetail?->mtid_id ?? 'MTID' . strtoupper(uniqid());
+
+                // 🔒 Batasi input sesuai role
+                if ($user->role === 'admin') {
+                    // Ambil nilai lama biar tidak di-null-kan
+                    $mtid_capaian    = $existingDetail?->mtid_capaian;
+                    $mtid_keterangan = $existingDetail?->mtid_keterangan;
+                    $mtid_url        = $existingDetail?->mtid_url;
+                    $mtid_status     = $existingDetail?->mtid_status;
+
+                    // Admin hanya boleh isi 3 ini
+                    $mtid_evaluasi     = $request->mtid_evaluasi[$index] ?? null;
+                    $mtid_tindaklanjut = $request->mtid_tindaklanjut[$index] ?? null;
+                    $mtid_peningkatan  = $request->mtid_peningkatan[$index] ?? null;
+                } else {
+                    // User update capaian dkk
+                    $mtid_capaian    = $request->mtid_capaian[$index] ?? null;
+                    $mtid_keterangan = $request->mtid_keterangan[$index] ?? null;
+                    $mtid_url        = $request->mtid_url[$index] ?? null;
+                    $mtid_status     = $this->hitungStatus($mtid_capaian, $targetIndikator->ti_target, $jenis);
+
+                    // Field admin biarkan tetap
+                    $mtid_evaluasi     = $existingDetail?->mtid_evaluasi;
+                    $mtid_tindaklanjut = $existingDetail?->mtid_tindaklanjut;
+                    $mtid_peningkatan  = $existingDetail?->mtid_peningkatan;
+                }
 
                 $detail = MonitoringIKU_Detail::updateOrCreate(
                     [
@@ -285,38 +356,46 @@ class MonitoringIKUController extends Controller
                         'ti_id'  => $ti_id
                     ],
                     [
-                        'mtid_id'        => $mtid_id,
-                        'mtid_target'    => $targetIndikator->ti_target,
-                        'mtid_capaian'   => $mtid_capaian,
-                        'mtid_keterangan'=> $mtid_keterangan,
-                        'mtid_status'    => $mtid_status,
-                        'mtid_url'       => $mtid_url,
+                        'mtid_id'           => $mtid_id,
+                        'mtid_target'       => $targetIndikator->ti_target,
+                        'mtid_capaian'      => $mtid_capaian,
+                        'mtid_keterangan'   => $mtid_keterangan,
+                        'mtid_status'       => $mtid_status,
+                        'mtid_url'          => $mtid_url,
+                        'mtid_evaluasi'     => $mtid_evaluasi,
+                        'mtid_tindaklanjut' => $mtid_tindaklanjut,
+                        'mtid_peningkatan'  => $mtid_peningkatan,
                     ]
                 );
 
+                // Simpan history jika ada perubahan
                 if (
                     !$existingDetail ||
-                    ($existingDetail->mtid_capaian != $mtid_capaian ||
+                    $existingDetail->mtid_capaian    != $mtid_capaian ||
                     $existingDetail->mtid_keterangan != $mtid_keterangan ||
-                    $existingDetail->mtid_status != $mtid_status ||
-                    $existingDetail->mtid_url != $mtid_url)
+                    $existingDetail->mtid_status     != $mtid_status ||
+                    $existingDetail->mtid_url        != $mtid_url ||
+                    $existingDetail->mtid_evaluasi   != $mtid_evaluasi ||
+                    $existingDetail->mtid_tindaklanjut != $mtid_tindaklanjut ||
+                    $existingDetail->mtid_peningkatan  != $mtid_peningkatan
                 ) {
-                    if ($mtid_capaian || $mtid_keterangan || $mtid_url) {
-                        HistoryMonitoringIKU::create([
-                            'hmi_id'       => 'HMI' . strtoupper(uniqid()),
-                            'mtid_id'      => $detail->mtid_id,
-                            'ti_id'        => $ti_id,
-                            'hmi_target'   => $targetIndikator->ti_target,
-                            'hmi_capaian'  => $mtid_capaian,
-                            'hmi_keterangan'=> $mtid_keterangan,
-                            'hmi_status'   => $mtid_status,
-                            'hmi_url'      => $mtid_url,
-                        ]);
-                    }
+                    HistoryMonitoringIKU::create([
+                        'hmi_id'          => 'HMI' . strtoupper(uniqid()),
+                        'mtid_id'         => $detail->mtid_id,
+                        'ti_id'           => $ti_id,
+                        'hmi_target'      => $targetIndikator->ti_target,
+                        'hmi_capaian'     => $mtid_capaian,
+                        'hmi_keterangan'  => $mtid_keterangan,
+                        'hmi_status'      => $mtid_status,
+                        'hmi_url'         => $mtid_url,
+                        'hmi_evaluasi'    => $mtid_evaluasi,
+                        'hmi_tindaklanjut'=> $mtid_tindaklanjut,
+                        'hmi_peningkatan' => $mtid_peningkatan,
+                    ]);
                 }
             }
 
-            Alert::success('Sukses', 'Data Berhasil Ditambah');
+            Alert::success('Sukses', 'Data Berhasil Disimpan');
             return redirect()->route('monitoringiku.index-detail', $mti_id);
 
         } catch (\Exception $e) {
@@ -338,7 +417,7 @@ class MonitoringIKUController extends Controller
             ->where('ti_id', $ti_id)
             ->with(['indikatorKinerja.unitKerja']);
 
-        // Filter kalau bukan admin
+        // Filter kalau bukan admin → hanya bisa edit indikator milik unitnya sendiri
         if ($user->role !== 'admin') {
             $targetIndikatorQuery->whereHas('indikatorKinerja.unitKerja', function ($q) use ($user) {
                 $q->where('unit_id', $user->unit_id);
@@ -350,7 +429,7 @@ class MonitoringIKUController extends Controller
         // Jika target indikator tidak ditemukan → mungkin bukan jatahnya
         if (!$targetIndikator) {
             return redirect()->route('monitoringiku.index-detail', $mti_id)
-                ->with('error', 'Data target indikator tidak ditemukan atau tidak memiliki akses.');
+                ->with('error', 'Data target indikator tidak ditemukan atau Anda tidak memiliki akses.');
         }
 
         // Ambil detail monitoring
@@ -368,12 +447,13 @@ class MonitoringIKUController extends Controller
             ->get();
 
         return view('pages.edit-detail-monitoringiku', [
-            'monitoringiku' => $monitoringiku,
-            'targetIndikator' => $targetIndikator,
-            'status' => $status,
-            'programKerja' => $programKerja,
+            'monitoringiku'       => $monitoringiku,
+            'targetIndikator'     => $targetIndikator,
+            'status'              => $status,
+            'programKerja'        => $programKerja,
             'monitoringikuDetail' => $monitoringikuDetail ?? new MonitoringIKU_Detail(),
-            'type_menu' => 'monitoringiku',
+            'type_menu'           => 'monitoringiku',
+            'isAdmin'             => $user->role === 'admin', // ✅ tambahan untuk blade
         ]);
     }
 
@@ -381,105 +461,122 @@ class MonitoringIKUController extends Controller
 
     public function updateDetail(Request $request, $mti_id, $ti_id)
     {
-        $validated = $request->validate([
-            'mtid_capaian' => 'required|string',
-            'capaian_value' => [
-                'nullable',
-                function ($attribute, $value, $fail) use ($request) {
-                    if (in_array($request->mtid_capaian, ['persentase', 'nilai']) && !is_numeric($value)) {
-                        $fail('Nilai harus berupa angka.');
-                    }
+        $user = Auth::user();
 
-                    if ($request->mtid_capaian === 'rasio') {
-                        $cleaned = preg_replace('/\s*/', '', $value); // hilangkan semua spasi
-                        if (!preg_match('/^\d+:\d+$/', $cleaned)) {
-                            $fail('Format rasio harus dalam bentuk angka:angka, misalnya 5:2.');
-                        } else {
-                            [$left, $right] = explode(':', $cleaned);
-                            if ((int)$left === 0 && (int)$right === 0) {
-                                $fail('Rasio tidak boleh 0:0.');
+        // Validasi input dinamis berdasarkan role
+        $rules = [];
+        if ($user->role === 'admin') {
+            $rules = [
+                'mtid_evaluasi'     => 'nullable|string',
+                'mtid_tindaklanjut' => 'nullable|string',
+                'mtid_peningkatan'  => 'nullable|string',
+            ];
+        } else {
+            $rules = [
+                'mtid_capaian'   => 'required|string',
+                'capaian_value'  => [
+                    'nullable',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if (in_array($request->mtid_capaian, ['persentase', 'nilai']) && !is_numeric($value)) {
+                            $fail('Nilai harus berupa angka.');
+                        }
+
+                        if ($request->mtid_capaian === 'rasio') {
+                            $cleaned = preg_replace('/\s*/', '', $value);
+                            if (!preg_match('/^\d+:\d+$/', $cleaned)) {
+                                $fail('Format rasio harus dalam bentuk angka:angka, misalnya 5:2.');
+                            } else {
+                                [$left, $right] = explode(':', $cleaned);
+                                if ((int)$left === 0 && (int)$right === 0) {
+                                    $fail('Rasio tidak boleh 0:0.');
+                                }
                             }
                         }
                     }
-                }
-            ],
-            'mtid_keterangan' => 'nullable|string',
-            'mtid_status' => 'required|in:tercapai,tidak tercapai,tidak terlaksana',
-            'mtid_url' => 'required|url',
-        ]);
+                ],
+                'mtid_keterangan' => 'nullable|string',
+                'mtid_status'     => 'required|in:tercapai,tidak tercapai,tidak terlaksana',
+                'mtid_url'        => 'required|url',
+            ];
+        }
 
-        // dd([
-        //     'Jenis Capaian' => $validated['mtid_capaian'],
-        //     'Nilai Input Asli' => $validated['capaian_value'],
-        //     'Setelah Trim' => trim($validated['capaian_value'] ?? ''),
-        // ]);
-        
+        $validated = $request->validate($rules);
 
         try {
             $monitoringikuDetail = MonitoringIKU_Detail::where('mti_id', $mti_id)
                 ->where('ti_id', $ti_id)
                 ->first();
 
-            // Ambil jenis capaian
-            $jenisCapaian = $validated['mtid_capaian'];
-            $inputCapaian = trim($validated['capaian_value'] ?? '');
+            // Data default untuk update
+            $updateData = [];
 
-            // Proses nilai akhir mtid_capaian berdasarkan jenisnya
-            if ($jenisCapaian === 'persentase') {
-                $capaianFinal = is_numeric($inputCapaian) ? $inputCapaian . '%' : '0%';
-            } elseif ($jenisCapaian === 'nilai') {
-                $capaianFinal = is_numeric($inputCapaian) ? (float) $inputCapaian : 0;
-            } elseif ($jenisCapaian === 'rasio') {
-                $cleaned = preg_replace('/\s*/', '', $inputCapaian); // "1:50"
-                $capaianFinal = preg_replace('/(\d+):(\d+)/', '$1 : $2', $cleaned); // "1 : 50"
-
-                [$left, $right] = explode(':', $cleaned);
-                $capaianFinal = $left . ' : ' . $right; // Tambahkan spasi sesuai keinginan
+            if ($user->role === 'admin') {
+                // Admin hanya boleh update 3 field ini
+                $updateData['mtid_evaluasi']     = $validated['mtid_evaluasi'] ?? $monitoringikuDetail->mtid_evaluasi ?? null;
+                $updateData['mtid_tindaklanjut'] = $validated['mtid_tindaklanjut'] ?? $monitoringikuDetail->mtid_tindaklanjut ?? null;
+                $updateData['mtid_peningkatan']  = $validated['mtid_peningkatan'] ?? $monitoringikuDetail->mtid_peningkatan ?? null;
             } else {
-                $capaianFinal = $inputCapaian; // fallback
+                // User biasa update semua
+                $jenisCapaian = $validated['mtid_capaian'];
+                $inputCapaian = trim($validated['capaian_value'] ?? '');
+
+                if ($jenisCapaian === 'persentase') {
+                    $capaianFinal = is_numeric($inputCapaian) ? $inputCapaian.'%' : '0%';
+                } elseif ($jenisCapaian === 'nilai') {
+                    $capaianFinal = is_numeric($inputCapaian) ? (float)$inputCapaian : 0;
+                } elseif ($jenisCapaian === 'rasio') {
+                    $cleaned = preg_replace('/\s*/', '', $inputCapaian);
+                    [$left, $right] = explode(':', $cleaned);
+                    $capaianFinal = $left.' : '.$right;
+                } else {
+                    $capaianFinal = $inputCapaian;
+                }
+
+                $updateData = [
+                    'mtid_capaian'    => $capaianFinal,
+                    'mtid_keterangan' => $validated['mtid_keterangan'] ?? null,
+                    'mtid_status'     => $validated['mtid_status'],
+                    'mtid_url'        => $validated['mtid_url'],
+                ];
             }
 
             // Update atau buat baru
             if ($monitoringikuDetail) {
-                $monitoringikuDetail->update([
-                    'mtid_capaian' => $capaianFinal,
-                    'mtid_keterangan' => $validated['mtid_keterangan'],
-                    'mtid_status' => $validated['mtid_status'],
-                    'mtid_url' => $validated['mtid_url'],
-                ]);
+                $monitoringikuDetail->update($updateData);
             } else {
-                $monitoringikuDetail = MonitoringIKU_Detail::create([
-                    'mtid_id' => 'MTID' . Str::uuid(),
-                    'mti_id' => $mti_id,
-                    'ti_id' => $ti_id,
-                    'mtid_target' => 'ada',
-                    'mtid_capaian' => $capaianFinal,
-                    'mtid_keterangan' => $validated['mtid_keterangan'],
-                    'mtid_status' => $validated['mtid_status'],
-                    'mtid_url' => $validated['mtid_url'],
-                ]);
+                $monitoringikuDetail = MonitoringIKU_Detail::create(array_merge($updateData, [
+                    'mtid_id'    => 'MTID'.Str::uuid(),
+                    'mti_id'     => $mti_id,
+                    'ti_id'      => $ti_id,
+                    'mtid_target'=> 'ada',
+                ]));
             }
 
-
+            // Simpan ke history
+            $targetIndikator = target_indikator::findOrFail($ti_id);
             HistoryMonitoringIKU::create([
-                'hmi_id' => 'HMI' . Str::uuid(),
-                'mtid_id' => $monitoringIKUDetail->mtid_id,
-                'ti_id' => $targetIndikator->ti_id,
-                'hmi_target' => $targetIndikator->ti_target,
-                'hmi_capaian' => $validated['mtid_capaian'],
-                'hmi_keterangan' => $validated['mtid_keterangan'],
-                'hmi_status' => $validated['mtid_status'],
-                'hmi_url' => $validated['mtid_url'],
+                'hmi_id'        => 'HMI'.Str::uuid(),
+                'mtid_id'       => $monitoringikuDetail->mtid_id,
+                'ti_id'         => $targetIndikator->ti_id,
+                'hmi_target'    => $targetIndikator->ti_target,
+                'hmi_capaian'   => $updateData['mtid_capaian'] ?? $monitoringikuDetail->mtid_capaian,
+                'hmi_keterangan'=> $updateData['mtid_keterangan'] ?? $monitoringikuDetail->mtid_keterangan,
+                'hmi_status'    => $updateData['mtid_status'] ?? $monitoringikuDetail->mtid_status,
+                'hmi_url'       => $updateData['mtid_url'] ?? $monitoringikuDetail->mtid_url,
+                'hmi_evaluasi'  => $updateData['mtid_evaluasi'] ?? $monitoringikuDetail->mtid_evaluasi,
+                'hmi_tindaklanjut'=> $updateData['mtid_tindaklanjut'] ?? $monitoringikuDetail->mtid_tindaklanjut,
+                'hmi_peningkatan'=> $updateData['mtid_peningkatan'] ?? $monitoringikuDetail->mtid_peningkatan,
             ]);
 
 
-            Alert::success('Sukses', 'Data Berhasil Diperbarui');
+            Alert::success('Sukses', 'Data berhasil diperbarui');
             return redirect()->route('monitoringiku.index-detail', $mti_id);
+
         } catch (\Exception $e) {
-            Alert::error('Error', 'Terjadi Kesalahan: ' . $e->getMessage());
+            Alert::error('Error', 'Terjadi Kesalahan: '.$e->getMessage());
             return redirect()->route('monitoringiku.index-detail', $mti_id);
         }
-    }
+}
 
     private function hitungStatus($capaian, $target, $jenis)
     {
@@ -575,4 +672,24 @@ class MonitoringIKUController extends Controller
             'type_menu' => 'monitoringiku',
         ]);
     }
+
+    public function exportDetail($mti_id, $type)
+    {
+        $allowed = ['penetapan', 'pelaksanaan', 'evaluasi', 'pengendalian', 'peningkatan'];
+
+        if (!in_array($type, $allowed)) {
+            abort(404, 'Jenis export tidak valid');
+        }
+
+        // Ambil data MonitoringIKU supaya tahu prodi
+        $monitoring = MonitoringIKU::with('targetIndikator.prodi')->findOrFail($mti_id);
+
+        // Nama prodi (misalnya "Desain Komunikasi Visual" jadi dkv)
+        $prodiName = strtolower(str_replace(' ', '_', $monitoring->targetIndikator->prodi->nama_prodi ?? 'prodi'));
+
+        $fileName = "MonitoringIKU_{$type}_prodi_{$prodiName}.xlsx";
+
+        return Excel::download(new MonitoringIKUDetailExport($mti_id, $type), $fileName);
+    }
+
 }

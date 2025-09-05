@@ -6,6 +6,26 @@
     <link rel="stylesheet" href="{{ asset('library/jqvmap/dist/jqvmap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('library/summernote/dist/summernote-bs4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/circular-progress-bar.css') }}">
+    <style>
+        .keterangan-content {
+            white-space: pre-line;     /* tampilkan enter */
+            text-align: left;
+            word-break: break-word;    /* pecah kata super panjang */
+            overflow-wrap: anywhere;
+        }
+
+        .table-responsive {
+        max-height: 50rem;   /* tinggi maksimum tabel */
+        overflow-y: auto;    /* aktifkan scroll vertikal */
+        }
+
+        .table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: #f8f9fa !important; /* warna header */
+        }
+    </style>
 @endpush
 
 @section('main')
@@ -23,8 +43,39 @@
         </div>
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h4>Data Monitoring Indikator Kinerja dari Prodi : <span class="badge badge-info">{{ $Monitoringiku->targetIndikator->prodi->nama_prodi }}</span> Tahun : <span class="badge badge-primary">{{ $Monitoringiku->tahunKerja->th_tahun }}</span></h4>
-                @if (Auth::user()->role == 'unit kerja')
+                <h4>Data Monitoring Indikator Kinerja dari Prodi : <span class="badge badge-info">{{ $Monitoringiku->targetIndikator->prodi->nama_prodi }}</span> Tahun : <span class="badge badge-primary">{{ $Monitoringiku->targetIndikator->tahunKerja->th_tahun }}</span></h4>
+                <form action="{{ route('monitoringiku.index-detail', $Monitoringiku->mti_id) }}" method="GET">
+                    <div class="form-row align-items-center">
+                        <div class="col-auto">
+                        <input class="form-control form-control-sm" 
+                                name="q" 
+                                value="{{ $q }}" 
+                                placeholder="Pencarian..." />
+                        </div>
+                        <div class="col-auto">
+                        <button class="btn btn-info btn-sm">
+                            <i class="fa-solid fa-search"></i> Cari
+                        </button>
+                        </div>
+                    </div>
+                </form>
+
+                @if (Auth::user()->role == 'admin')
+                <div class="dropdown">
+                    <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fa-solid fa-file-excel"></i> Export Excel
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ route('monitoringiku.export-detail', ['mti_id' => $Monitoringiku->mti_id, 'type' => 'penetapan']) }}">Penetapan</a></li>
+                        <li><a class="dropdown-item" href="{{ route('monitoringiku.export-detail', ['mti_id' => $Monitoringiku->mti_id, 'type' => 'pelaksanaan']) }}">Pelaksanaan</a></li>
+                        <li><a class="dropdown-item" href="{{ route('monitoringiku.export-detail', ['mti_id' => $Monitoringiku->mti_id, 'type' => 'evaluasi']) }}">Evaluasi</a></li>
+                        <li><a class="dropdown-item" href="{{ route('monitoringiku.export-detail', ['mti_id' => $Monitoringiku->mti_id, 'type' => 'pengendalian']) }}">Pengendalian</a></li>
+                        <li><a class="dropdown-item" href="{{ route('monitoringiku.export-detail', ['mti_id' => $Monitoringiku->mti_id, 'type' => 'peningkatan']) }}">Peningkatan</a></li>
+                    </ul>
+                </div>
+                @endif
+
+                @if (Auth::user()->role == 'unit kerja' || Auth::user()->role == 'admin')
                     <a class="btn btn-primary" href="{{ route('monitoringiku.create-detail', ['mti_id' => $Monitoringiku->mti_id]) }}">
                         <i class="fa-solid fa-plus"></i> Isi Monitoring
                     </a>
@@ -37,28 +88,35 @@
                 </div>
             @else
                 <div class="table-responsive text-center">
-                    <table class="table table-hover table-bordered table-striped m-0">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th style="width: 39%;">Indikator Kinerja</th>
-                                <th>Baseline</th>
-                                <th>Target</th>
-                                {{-- <th>Keterangan Indikator</th> --}}
+                <table class="table table-hover table-bordered table-striped m-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>No</th>
+                            <th style="width: 30%;">Indikator Kinerja</th>
+                            <th style="width: 5%;">Baseline</th>
+                            <th>Target</th>
+                            @if (Auth::user()->role == 'admin')
+                                <th>Capaian</th>
+                                <th style="width: 9%;">URL</th>
+                                <th>Status</th>
+                                <th style="width: 9%;">Keterangan</th>
+                                <th style="width: 15%;">Evaluasi</th>
+                                <th style="width: 15%;">Tindak Lanjut</th>
+                                <th style="width: 15%;">Peningkatan</th>
+                            @else
                                 <th>Capaian</th>
                                 <th>Status</th>
+                                <th>Keterangan</th>
                                 <th>URL</th>
-                                {{-- @if (Auth::user()->role == 'unit kerja')
-                                    <th class="text-center">Aksi</th>
-                                @endif --}}
-                            </tr>
-                        </thead>
+                            @endif
+                        </tr>
+                    </thead>
                         <tbody>
                             @php $no = 1; @endphp
                             @foreach ($targetIndikators as $target)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td style="padding: 2rem;">
+                                    <td class="text-justify" style="padding: 2rem;">
                                         {{-- {{ $target->indikatorKinerja->ik_kode }} - {{ $target->indikatorKinerja->ik_nama }} --}}
                                         {{ ($target->has('indikatorKinerja') ?  $target->indikatorKinerja->ik_kode : "") }} - {{ ($target->has('indikatorKinerja') ?  $target->indikatorKinerja->ik_nama : "") }}
                                     </td>
@@ -101,7 +159,7 @@
                                         {{-- Rasio --}}
                                         @elseif ($ketercapaian === 'rasio')
                                             @php
-                                                $formattedRasio = 'Format salah';
+                                                $formattedRasio = '0:0';
                                                 $cleaned = preg_replace('/\s*/', '', $baselineRaw);
                                                 if (preg_match('/^\d+:\d+$/', $cleaned)) {
                                                     [$a, $b] = explode(':', $cleaned);
@@ -144,8 +202,113 @@
                                         @else
                                             {{ $targetValue }}
                                         @endif
-                                    </td>                                     
+                                    </td>         
+
+                                    {{-- layout kolom admin mulai dari capaian --}}
+                                    @if (Auth::user()->role == 'admin')
+                                    <td>
+                                        @php
+                                            $capaian = optional($target->monitoringDetail)->mtid_capaian;
+                                            $ketercapaian = optional($target->indikatorKinerja)->ik_ketercapaian;
+                                            $numericValue = (float) str_replace('%', '', $capaian);
+                                            $progressColor = $numericValue == 0 ? '#dc3545' : '#28a745';
+                                        @endphp
+
+                                        @if (strpos($capaian, '%') !== false || $ketercapaian === 'persentase'){{-- Jika ada "%" berarti persentase --}}
+                                            <div class="ring-progress-wrapper">
+                                                <div class="ring-progress" style="--value: {{ $numericValue }}; --progress-color: {{ $progressColor }};">
+                                                    <div class="ring-inner">
+                                                        <span class="ring-text">{{ $numericValue }}%</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @elseif(is_numeric($capaian) && $ketercapaian == 'nilai')
+                                            <span class="badge badge-primary"> {{ $capaian }}</span>
+                                        @elseif(preg_match('/^\d+\s*:\s*\d+$/', $capaian))
+                                            @php
+                                                $cleanedRasio = preg_replace('/\s*/', '', $capaian);
+                                                [$left, $right] = explode(':', $cleanedRasio);
+                                                $formattedRasio = $left . ' : ' . $right;
+                                            @endphp
+                                            <span class="badge badge-info"><i class="fa-solid fa-balance-scale"></i> {{ $formattedRasio }}</span>
+                                        @elseif(strtolower($capaian) === 'ada')
+                                            <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
+                                        @elseif(strtolower($capaian) === 'draft')
+                                            <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
+                                        @elseif(!empty($capaian))
+                                            <span class="badge badge-primary">{{ $capaian }}</span>
+                                        @else
+                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i></span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if(isset($target->monitoringDetail->mtid_url) && $target->monitoringDetail->mtid_url)
+                                            <a href="{{ $target->monitoringDetail->mtid_url }}" target="_blank" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> Lihat</a>
+                                        @else
+                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i></span>
+                                        @endif
+                                    </td>   
+                                    <td>
+                                        @php
+                                            $status = strtolower(optional($target->monitoringDetail)->mtid_status ?? '');
+                                        @endphp
                                     
+                                        @if($status === 'tercapai')
+                                            <span class="text-success"><i class="fa-solid fa-check-circle"></i> Tercapai</span>
+                                        @elseif($status === 'terlampaui')
+                                            <span class="text-primary"><i class="fa-solid fa-arrow-up"></i> Terlampaui</span>
+                                        @elseif($status === 'tidak tercapai')
+                                            <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Tidak Tercapai</span>
+                                        @elseif($status === 'tidak terlaksana')
+                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak Terlaksana</span>
+                                        @else
+                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i></span>
+
+                                        @endif
+                                    </td>         
+                                    <td>
+                                        @if(optional($target->monitoringDetail)->mtid_keterangan)
+                                            <!-- Tombol buka modal -->
+                                            <button type="button" 
+                                                    class="btn btn-info btn-sm btn-lihat-keterangan"
+                                                    data-keterangan="{{ $target->monitoringDetail->mtid_keterangan }}"
+                                                    data-indikator="{{ optional($target->indikatorKinerja)->ik_nama }}">
+                                                <i class="fa fa-eye"></i> Lihat
+                                            </button>
+                                        @else
+                                            <span class="text-muted">Belum ada keterangan</span>
+                                        @endif
+                                    </td>
+                                    {{-- Tambahan untuk ADMIN --}}
+                                    <td >
+                                        @if(optional($target->monitoringDetail)->mtid_evaluasi)
+                                            <span class="text-success">
+                                                {{ optional($target->monitoringDetail)->mtid_evaluasi }}
+                                            </span>
+                                        @else
+                                            <span class="text-muted">Belum ada evaluasi</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if(optional($target->monitoringDetail)->mtid_tindaklanjut)
+                                            <span class="text-success">
+                                                {{ optional($target->monitoringDetail)->mtid_tindaklanjut }}
+                                            </span>
+                                        @else
+                                            <span class="text-muted">Belum ada tindak lanjut</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if(optional($target->monitoringDetail)->mtid_peningkatan)
+                                            <span class="text-success">
+                                                {{ optional($target->monitoringDetail)->mtid_peningkatan }}
+                                            </span>
+                                        @else
+                                            <span class="text-muted">Belum ada peningkatan</span>
+                                        @endif
+                                    </td>
+                                    {{-- layout kolom bukan admin mulai dari capaian  --}}
+                                    @else
                                     <td>
                                         @php
                                             $capaian = optional($target->monitoringDetail)->mtid_capaian;
@@ -180,7 +343,7 @@
                                         @else
                                             <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Belum ada Capaian</span>
                                         @endif
-                                    </td>
+                                    </td>  
                                     <td>
                                         @php
                                             $status = strtolower(optional($target->monitoringDetail)->mtid_status ?? '');
@@ -195,17 +358,32 @@
                                         @elseif($status === 'tidak terlaksana')
                                             <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak Terlaksana</span>
                                         @else
-                                            <span>Belum ada Status</span>
+                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i>-</span>
+
                                         @endif
-                                    </td>                                    
+                                    </td>         
+                                    <td>
+                                        @if(optional($target->monitoringDetail)->mtid_keterangan)
+                                            <!-- Tombol buka modal -->
+                                            <button type="button" 
+                                                    class="btn btn-info btn-sm btn-lihat-keterangan"
+                                                    data-keterangan="{{ $target->monitoringDetail->mtid_keterangan }}"
+                                                    data-indikator="{{ optional($target->indikatorKinerja)->ik_nama }}">
+                                                <i class="fa fa-eye"></i> Lihat
+                                            </button>
+                                        @else
+                                            <span class="text-muted">Belum ada keterangan</span>
+                                        @endif
+                                    </td>
                                     <td>
                                         @if(isset($target->monitoringDetail->mtid_url) && $target->monitoringDetail->mtid_url)
                                             <a href="{{ $target->monitoringDetail->mtid_url }}" target="_blank" class="btn btn-sm btn-success">Lihat URL</a>
                                         @else
                                             Belum Ada URL
                                         @endif
-                                    </td>   
-                                    {{-- @if (Auth::user()->role == 'unit kerja')                                                             
+                                    </td> 
+                                    @endif
+                                    {{-- @if (Auth::user()->role == 'unit kerja')
                                     <td class="text-center">
                                         <a href="{{ route('monitoringiku.edit-detail', ['mti_id' => $Monitoringiku->mti_id, 'ti_id' => $target->ti_id]) }}" class="btn btn-sm btn-warning"><i class="fa-solid fa-pen-to-square"></i> Isi/Ubah</a>                                      
                                     </td>
@@ -214,6 +392,31 @@
                             @endforeach
                         </tbody>
                     </table>
+                    <!-- Modal Keterangan Global -->
+                    <div class="modal fade" 
+                        id="keteranganModal" 
+                        tabindex="-1" 
+                        aria-hidden="true" 
+                        data-bs-backdrop="false">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">
+                                        Keterangan - <span id="modalIndikatorNama"></span>
+                                    </h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true"></span>
+                                    </button>
+                                </div>
+                                <div class="modal-body" id="modalKeteranganContent" style="white-space: pre-line; text-align:left;">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" id="copyKeteranganBtn">Salin</button>
+                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Tutup</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             @endif
         </div>        
@@ -224,6 +427,7 @@
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function confirmDelete(event, formid) {
             event.preventDefault();
@@ -242,4 +446,40 @@
             });
         }
     </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const btns = document.querySelectorAll('.btn-lihat-keterangan');
+        const modalTitle = document.getElementById('modalIndikatorNama');
+        const modalBody = document.getElementById('modalKeteranganContent');
+
+        const keteranganModal = new bootstrap.Modal(document.getElementById('keteranganModal'));
+
+        btns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                modalTitle.textContent = this.getAttribute('data-indikator') || '-';
+                modalBody.innerText = this.getAttribute('data-keterangan') || 'Belum ada keterangan';
+                keteranganModal.show();
+            });
+        });
+    });
+
+    document.getElementById('copyKeteranganBtn').addEventListener('click', function() {
+        const text = document.getElementById('modalKeteranganContent').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            if (window.Swal) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Keterangan disalin',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }
+        });
+    });
+    </script>
 @endpush
+
+
+    

@@ -22,13 +22,13 @@
                         <div class="col-auto">
                             <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
                         </div>
-                        @if (Auth::user()->role== 'admin')
+                        {{-- @if (Auth::user()->role== 'admin')
                         <div class="col-auto">
                             <button type="button" class="btn btn-primary" id="showModalBtn">
                                 <i class="fa-solid fa-plus"></i> Tambah
                             </button>
                         </div>
-                        @endif
+                        @endif --}}
                     </form>
                 </div>
 
@@ -47,10 +47,13 @@
                             @foreach ($monitoringikus as $monitoringiku)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $monitoringiku->tahunKerja->th_tahun }}</td>
+                                    <td>{{ $monitoringiku->targetIndikator->tahunKerja->th_tahun }}</td>
                                     <td>{{ $monitoringiku->targetIndikator->prodi->nama_prodi }}</td>
                                     <td>
-                                        @if($monitoringiku->status == 0)
+                                        @if($monitoringiku->status == 0 && Auth::user()->role == 'admin')
+                                            <a class="btn btn-primary" href="{{ route('monitoringiku.index-detail', $monitoringiku->mti_id) }}"><i class="fa-solid fa-pen-to-square"></i> Lihat Monitoring</a>
+                                        
+                                        @elseif($monitoringiku->status == 0 && Auth::user()->role != 'admin')
                                             <a class="btn btn-warning" href="{{ route('monitoringiku.index-detail', $monitoringiku->mti_id) }}"><i class="fa-solid fa-pen-to-square"></i> Isi/Ubah</a>
                                             @if($monitoringiku->isFilled())
                                                 <button class="btn btn-info finalBtn" data-id="{{ $monitoringiku->mti_id }}"><i class="fa-solid fa-lock"></i> Final</button>

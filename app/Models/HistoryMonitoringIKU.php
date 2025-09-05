@@ -26,9 +26,12 @@ class HistoryMonitoringIKU extends Model
         'hmi_keterangan',
         'hmi_status',
         'hmi_url',
+        'hmi_evaluasi',
+        'hmi_tindaklanjut',
+        'hmi_peningkatan',
     ];
 
-    public function monitoringIkuDetail()
+    public function monitoringDetail()
     {
         return $this->belongsTo(MonitoringIKU_Detail::class, 'mtid_id', 'mtid_id');
     }

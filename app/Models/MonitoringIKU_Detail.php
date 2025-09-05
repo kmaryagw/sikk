@@ -26,6 +26,9 @@ class MonitoringIKU_Detail extends Model
         'mtid_keterangan',
         'mtid_status',
         'mtid_url',
+        'mtid_evaluasi',
+        'mtid_tindaklanjut',
+        'mtid_peningkatan',
     ];
 
     public function monitoringIKU()
