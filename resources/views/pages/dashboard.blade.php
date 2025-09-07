@@ -99,68 +99,7 @@
                             </div>
                         </div>
                     </div>
-                    @endif
-                
-                    {{-- RENCANA KERJA --}}
-                    @if (Auth::user()->role == 'admin')
-                    <div class="card shadow-sm mb-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h4 class="mb-0">Rencana Kerja</h4>
-                            <a class="btn btn-primary" href="{{ route('programkerja.index') }}">
-                                <i class="fa-solid fa-eye"></i> Lihat Detail
-                            </a>
-                        </div>
-                        <div class="card-body">
-                            <!-- Total Renja -->
-                            @if (Auth::user()->role == 'admin')
-                            <div class="text-center">
-                                {{-- <h5>Total Renja: <span class="badge bg-primary text-light">{{ $totalrenja }}</span></h5> --}}
-                            </div>
-                             <!-- Pie Chart -->
-                             {{-- <div class="row justify-content-center mb-3">
-                                <div class="col-md-8 col-lg-7">
-                                    <div class="rounded-4">
-                                        <div >
-                                            <div class="text-center">
-                                                <h5 class="fw-bold text-dark">Rencana Kerja</h5>
-                                                <p class="text-muted small">Berdasarkan Unit Kerja</p>
-                                            </div>
-                                            <div class="d-flex justify-content-center align-items-center" style="height: 308px;">
-                                                <canvas id="pieRenja" style="width: 60rem; height: 60rem;"></canvas>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div> --}}
-                            <!-- Pie Chart -->
-                            @endif
-                            <!-- Tabel Unit Kerja -->
-                            <div class="table-responsive">
-                                <table class="table table-striped table-bordered text-center">
-                                    <thead>
-                                        <tr>
-                                            <th>Nama Unit Kerja</th>
-                                            <th>Jumlah Renja</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse ($unitKerjarenja as $unit)
-                                            <tr>
-                                                <td>{{ $unit->unit_nama }}</td>
-                                                <td>{{ $unit->rencana_kerja_count }}</td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="2" class="text-muted">Tidak ada data tersedia</td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
-                
+                    @endif                
                 </div>
                 
 
@@ -264,169 +203,109 @@
                             </div>
                         </div>
                     </div>
-                    @endif     
+                    @endif
+                </div>
                     
-                    @if(Auth::user()->role == 'admin')
-                        <div class="card shadow-sm">
-                            <div class="card-header">
-                                <h4>Realisasi</h4>
-                                <div class="card-header-action">
-                                    <a class="btn btn-primary" href="{{ route('realisasirenja.index') }}"><i class="fa-solid fa-eye"></i> Lihat Detail </a>
-                                </div>
+                    <div class="col-lg-12 col-md-12 col-12">
+                        {{--@if (Auth::user()->role == 'unit kerja')
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h4 class="mb-0">Rencana Kerja</h4>
+                                <a class="btn btn-primary" href="{{ route('programkerja.index') }}">
+                                    <i class="fa-solid fa-eye"></i> Lihat Detail
+                                </a>
                             </div>
                             <div class="card-body">
-                            {{-- Chart section --}}
-                                {{-- <div class="row">
-                                    @foreach ($realisasi as $r)
-                                        <div class="col-md-6">
-                                            <div class="card shadow-sm">
-                                                <div class="card-body">
-                                                    <h6 class="card-title">{{ $r->unit_nama }}</h6>
-                                                    <canvas id="chart-{{ $loop->index }}" height="120"></canvas>
-                                                    <!-- Menampilkan jumlah nilai di bawah chart -->
-                                                    <div id="value-{{ $loop->index }}" class="mt-3 text-center">
-                                                        <span class="value-text" style="font-size: 16px; font-weight: bold;">
-                                                           Renja: {{ $r->jumlah_renja }} | Realisasi: {{ $r->jumlah_realisasi }}
-                                                        </span>
-                                                    </div>
+                                <!-- Total Renja -->
+                                @if (Auth::user()->role == 'admin')
+                                <div class="text-center"> --}}
+                                    {{-- <h5>Total Renja: <span class="badge bg-primary text-light">{{ $totalrenja }}</span></h5> --}}
+                                {{-- </div> --}}
+                                <!-- Pie Chart -->
+                                {{-- <div class="row justify-content-center mb-3">
+                                    <div class="col-md-8 col-lg-7">
+                                        <div class="rounded-4">
+                                            <div >
+                                                <div class="text-center">
+                                                    <h5 class="fw-bold text-dark">Rencana Kerja</h5>
+                                                    <p class="text-muted small">Berdasarkan Unit Kerja</p>
+                                                </div>
+                                                <div class="d-flex justify-content-center align-items-center" style="height: 308px;">
+                                                    <canvas id="pieRenja" style="width: 60rem; height: 60rem;"></canvas>
                                                 </div>
                                             </div>
                                         </div>
-                                    @endforeach
+                                    </div>
                                 </div> --}}
-                                {{-- Chart section --}}
-                                {{-- Table moved above chart --}}
-                                <div class="table-responsive">
-                                    <table class="table table-striped table-bordered">
-                                        <thead class="thead-dark">
+                                <!-- Pie Chart -->
+                                {{-- @endif --}}
+                                <!-- Tabel Unit Kerja -->
+                                {{-- <div class="table-responsive">
+                                    <table class="table table-striped table-bordered text-center">
+                                        <thead>
                                             <tr>
-                                                <th class="text-center">Unit Kerja</th>
-                                                <th class="text-center">Jumlah Renja</th>
-                                                <th class="text-center">Jumlah Realisasi</th>
+                                                <th>Nama Unit Kerja</th>
+                                                <th>Jumlah Renja</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @forelse ($realisasi as $r)
-                                            <tr>
-                                                <td class="text-center">{{ $r->unit_nama }}</td>
-                                                <td class="text-center">{{ $r->jumlah_renja }}</td>
-                                                <td class="text-center">{{ $r->jumlah_realisasi }}</td>
-                                            </tr>
+                                            @forelse ($unitKerjarenja as $unit)
+                                                <tr>
+                                                    <td>{{ $unit->unit_nama }}</td>
+                                                    <td>{{ $unit->rencana_kerja_count }}</td>
+                                                </tr>
                                             @empty
+                                                <tr>
+                                                    <td colspan="2" class="text-muted">Tidak ada data tersedia</td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div> --}}
+                            {{-- </div> --}}
+                        {{-- </div>
+                        @endif --}}
+
+                        {{-- Peroide Monev --}}
+                        {{-- @if (Auth::user()->role == 'admin')
+                        <div class="card shadow-sm">
+                            <div class="card-header">
+                                <h4 class="mb-0">Periode Monev</h4>
+                                <div class="card-header-action">
+                                    <a class="btn btn-primary" href="{{ route('periode-monitoring.index') }}"><i class="fa-solid fa-eye"></i> Lihat Detail </a>
+                                </div>
+                            </div> --}}
+                            {{-- <div class="mb-4">
+                                <canvas id="monitoringChart" height="190.5"></canvas>
+                            </div>--}}
+                            {{-- <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-bordered">
+                                        <thead class="text-center">
                                             <tr>
-                                                <td colspan="3" class="text-center text-muted">Tidak ada data tersedia</td>
+                                                <th>Periode</th>
+                                                <th style="text-align: center;">Total Renja</th>
                                             </tr>
+                                        </thead>
+                                        <tbody class="text-center">
+                                            @forelse ($periodemonevrenja as $monitoring)
+                                                <tr>
+                                                    <td>{{ $monitoring->pm_nama }}</td>
+                                                    <td style="text-align: center;">{{ $monitoring->rencana_kerjas_count }}</td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="3" class="text-center text-muted">Tidak ada data tersedia</td>
+                                                </tr>
                                             @endforelse
                                         </tbody>
                                     </table>
                                 </div>
-                                {{-- Table moved above chart --}}
-                    
-                            </div>                         
-                        </div>
-                    @endif
-                </div>
-                    
-                <div class="col-lg-12 col-md-12 col-12">
-                    @if (Auth::user()->role == 'unit kerja')
-                    <div class="card shadow-sm mb-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h4 class="mb-0">Rencana Kerja</h4>
-                            <a class="btn btn-primary" href="{{ route('programkerja.index') }}">
-                                <i class="fa-solid fa-eye"></i> Lihat Detail
-                            </a>
-                        </div>
-                        <div class="card-body">
-                            <!-- Total Renja -->
-                            @if (Auth::user()->role == 'admin')
-                            <div class="text-center">
-                                {{-- <h5>Total Renja: <span class="badge bg-primary text-light">{{ $totalrenja }}</span></h5> --}}
-                            </div>
-                             <!-- Pie Chart -->
-                             {{-- <div class="row justify-content-center mb-3">
-                                <div class="col-md-8 col-lg-7">
-                                    <div class="rounded-4">
-                                        <div >
-                                            <div class="text-center">
-                                                <h5 class="fw-bold text-dark">Rencana Kerja</h5>
-                                                <p class="text-muted small">Berdasarkan Unit Kerja</p>
-                                            </div>
-                                            <div class="d-flex justify-content-center align-items-center" style="height: 308px;">
-                                                <canvas id="pieRenja" style="width: 60rem; height: 60rem;"></canvas>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             </div> --}}
-                            <!-- Pie Chart -->
-                            @endif
-                            <!-- Tabel Unit Kerja -->
-                            <div class="table-responsive">
-                                <table class="table table-striped table-bordered text-center">
-                                    <thead>
-                                        <tr>
-                                            <th>Nama Unit Kerja</th>
-                                            <th>Jumlah Renja</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse ($unitKerjarenja as $unit)
-                                            <tr>
-                                                <td>{{ $unit->unit_nama }}</td>
-                                                <td>{{ $unit->rencana_kerja_count }}</td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="2" class="text-muted">Tidak ada data tersedia</td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
-
-                    {{-- Peroide Monev --}}
-                    @if (Auth::user()->role == 'admin')
-                    <div class="card shadow-sm">
-                        <div class="card-header">
-                            <h4 class="mb-0">Periode Monev</h4>
-                            <div class="card-header-action">
-                                <a class="btn btn-primary" href="{{ route('periode-monitoring.index') }}"><i class="fa-solid fa-eye"></i> Lihat Detail </a>
-                            </div>
-                        </div>
-                        {{-- <div class="mb-4">
-                            <canvas id="monitoringChart" height="190.5"></canvas>
-                        </div>--}}
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-striped table-bordered">
-                                    <thead class="text-center">
-                                        <tr>
-                                            <th>Periode</th>
-                                            <th style="text-align: center;">Total Renja</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="text-center">
-                                        @forelse ($periodemonevrenja as $monitoring)
-                                            <tr>
-                                                <td>{{ $monitoring->pm_nama }}</td>
-                                                <td style="text-align: center;">{{ $monitoring->rencana_kerjas_count }}</td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="3" class="text-center text-muted">Tidak ada data tersedia</td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
-                    {{-- Peroide Monev --}}
-                    {{-- SURAT NOMOR --}}
+                        {{-- </div> --}}
+                        {{-- @endif --}}
+                        {{-- Peroide Monev --}}
+                        {{-- SURAT NOMOR --}}
                         @if (Auth::user()->role == 'unit kerja')
                         <div class="card shadow-sm">
                             <div class="card-header">
@@ -468,67 +347,7 @@
                             </div>
                         </div>
                         @endif
-                    {{-- SURAT NOMOR --}}
-                    {{-- REALISASI ADMIN DAN UNIT KERJA --}}
-                        @if (Auth::user()->role == 'unit kerja' || Auth::user()->role == 'fakultas' || Auth::user()->role == 'prodi')                      
-                        <div class="card shadow-sm">
-                            <div class="card-header">
-                                <h4 class="mb-0">Realisasi</h4>
-                                <div class="card-header-action">
-                                    <a class="btn btn-primary" href="{{ route('realisasirenja.index') }}"><i class="fa-solid fa-eye"></i> Lihat Detail </a>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                            {{-- Chart section --}}
-                                {{-- <div class="row">
-                                    @foreach ($realisasi as $r)
-                                        <div class="col-md-6">
-                                            <div class="card shadow-sm">
-                                                <div class="card-body">
-                                                    <h6 class="card-title">{{ $r->unit_nama }}</h6>
-                                                    <canvas id="chart-{{ $loop->index }}" height="120"></canvas>
-                                                    <!-- Menampilkan jumlah nilai di bawah chart -->
-                                                    <div id="value-{{ $loop->index }}" class="mt-3 text-center">
-                                                        <span class="value-text" style="font-size: 16px; font-weight: bold;">
-                                                           Renja: {{ $r->jumlah_renja }} | Realisasi: {{ $r->jumlah_realisasi }}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div> --}}
-                                {{-- Chart section --}}
-                                {{-- Table moved above chart --}}
-                                <div class="table-responsive mb-4">
-                                    <table class="table table-striped table-bordered">
-                                        <thead class="thead-dark">
-                                            <tr>
-                                                <th class="text-center">Unit Kerja</th>
-                                                <th class="text-center">Jumlah Renja</th>
-                                                <th class="text-center">Jumlah Realisasi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @forelse ($realisasi as $r)
-                                            <tr>
-                                                <td class="text-center">{{ $r->unit_nama }}</td>
-                                                <td class="text-center">{{ $r->jumlah_renja }}</td>
-                                                <td class="text-center">{{ $r->jumlah_realisasi }}</td>
-                                            </tr>
-                                            @empty
-                                            <tr>
-                                                <td colspan="3" class="text-center text-muted">Tidak ada data tersedia</td>
-                                            </tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
-                                {{-- Table moved above chart --}}
-                    
-                            </div>                         
-                        </div>
-                        @endif  
+                        {{-- SURAT NOMOR --}}
                     </div>
                     
                     {{-- END REALISASI ADMIN DAN UNIT KERJA --}}
