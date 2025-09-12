@@ -38,6 +38,17 @@
                     {{-- @endif --}}
 
                     <div class="col-auto">
+                        <select class="form-control" name="unit">
+                            <option value="">Semua Unit Kerja</option>
+                            @foreach ($units as $unit)
+                                <option value="{{ $unit->unit_id }}" {{ request('unit') == $unit->unit_id ? 'selected' : '' }}>
+                                    {{ $unit->unit_nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-auto">
                         <select class="form-control" name="prodi">
                             <option value="">Semua Prodi</option>
                             @foreach ($prodis as $prodi)
@@ -100,6 +111,7 @@
                             <th style="width: 10%;">Target Capaian</th>
                             <th style="width: 15%;">Capaian</th> 
                             <th>Status</th>
+                            <th>Unit Kerja</th>
                         </tr>
                     </thead>
                     
@@ -216,7 +228,8 @@
                                 @else
                                     <span>Belum ada Status</span>
                                 @endif
-                            </td>                            
+                            </td>    
+                            <td>{{ $targetcapaian->unit_nama }}</td>                        
                         </tr>
                     @endforeach
                         @if ($target_capaians->isEmpty())

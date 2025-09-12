@@ -146,6 +146,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/export-pdf/iku/bd', [LaporanIKUController::class, 'exportPdfBD'])->name('export-pdf.iku.bd');
     Route::get('/export-pdf/iku/dkv', [LaporanIKUController::class, 'exportPdfDKV'])->name('export-pdf.iku.dkv');
 
+    Route::get('/monitoringiku/{mti_id}/export/{type}', [MonitoringIKUController::class, 'exportDetail'])
+    ->name('monitoringiku.export-detail');
+
+
 
 
     // Dashboard
