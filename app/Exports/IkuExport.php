@@ -10,12 +10,13 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 
 class IkuExport implements FromCollection, WithHeadings, WithMapping
 {
-    protected $tahunId, $prodiId, $keyword;
+    protected $tahunId, $prodiId, $unitId, $keyword;
 
-    public function __construct($tahunId = null, $prodiId = null, $keyword = null)
+    public function __construct($tahunId = null, $prodiId = null, $unitId = null, $keyword = null)
     {
         $this->tahunId = $tahunId;
         $this->prodiId = $prodiId;
+        $this->unitId  = $unitId;
         $this->keyword = $keyword;
     }
 
@@ -27,12 +28,14 @@ class IkuExport implements FromCollection, WithHeadings, WithMapping
                 'indikator_kinerja.ik_nama',
                 'target_indikator.ti_target',
                 'monitoring_iku_detail.mtid_capaian',
-                'monitoring_iku_detail.mtid_status'
+                'monitoring_iku_detail.mtid_status',
+                'uk.unit_nama'
             )
             ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
             ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
             ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id')
-            ->leftJoin('monitoring_iku_detail', 'monitoring_iku_detail.ti_id', '=', 'target_indikator.ti_id');
+            ->leftJoin('monitoring_iku_detail', 'monitoring_iku_detail.ti_id', '=', 'target_indikator.ti_id')
+            ->leftJoin('unit_kerja as uk', 'uk.unit_id', '=', 'indikator_kinerja.unit_id');
 
         // Filter berdasarkan tahun (jika ada), jika tidak pakai tahun aktif
         if ($this->tahunId) {
@@ -49,6 +52,11 @@ class IkuExport implements FromCollection, WithHeadings, WithMapping
             $query->where('program_studi.prodi_id', $this->prodiId);
         }
 
+        // Filter unit kerja
+        if ($this->unitId) {
+            $query->where('uk.unit_id', $this->unitId);
+        }
+
         // Filter keyword (indikator kinerja)
         if ($this->keyword) {
             $query->where('indikator_kinerja.ik_nama', 'like', '%' . $this->keyword . '%');
@@ -62,6 +70,7 @@ class IkuExport implements FromCollection, WithHeadings, WithMapping
         return [
             'Tahun',
             'Prodi',
+            'Unit Kerja',
             'Indikator Kinerja',
             'Target Capaian',
             'Capaian',
@@ -74,6 +83,7 @@ class IkuExport implements FromCollection, WithHeadings, WithMapping
         return [
             $target->th_tahun ?? '-',
             $target->nama_prodi ?? '-',
+            $target->unit_nama ?? '-',
             $target->ik_nama ?? '-',
             $target->ti_target ?? '-',
             $target->mtid_capaian ?? 'Belum Ada',

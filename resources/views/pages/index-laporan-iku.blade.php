@@ -25,16 +25,16 @@
                 
                     {{-- @if (Auth::user()->role == 'admin' || Auth::user()->role == 'prodi') --}}
                 
-                        <div class="col-auto">
-                            <select class="form-control" name="tahun">
-                                <option value="">Pilih Tahun</option>
-                                @foreach ($tahuns as $tahun)
-                                    <option value="{{ $tahun->th_id }}" {{ request('tahun') == $tahun->th_id ? 'selected' : '' }}>
-                                        {{ $tahun->th_tahun }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                    <div class="col-auto">
+                        <select class="form-control" name="tahun">
+                            <option value="">Pilih Tahun</option>
+                            @foreach ($tahuns as $tahun)
+                                <option value="{{ $tahun->th_id }}" {{ request('tahun') == $tahun->th_id ? 'selected' : '' }}>
+                                    {{ $tahun->th_tahun }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                     {{-- @endif --}}
 
                     <div class="col-auto">
@@ -63,40 +63,26 @@
                     <div class="col-auto">
                         <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
                     </div>
-                    <div class="dropdown col-auto">
-                        <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fa-solid fa-file-excel"></i> Export Excel
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ route('export-excel.iku') . '?tahun=' . request('tahun') . '&prodi=' . request('prodi') . '&q=' . request('q') }}" target="_blank">Semua Prodi</a></li>
-                            <li><a class="dropdown-item" href="{{ route('export-excel.iku.if')  . '?tahun=' . request('tahun') . '&prodi=' . request('prodi') . '&q=' . request('q')}}" target="_blank">Informatika</a></li>
-                            <li><a class="dropdown-item" href="{{ route('export-excel.iku.rsk')  . '?tahun=' . request('tahun') . '&prodi=' . request('prodi') . '&q=' . request('q')}}" target="_blank">Rekayasa Sistem Komputer</a></li>
-                            <li><a class="dropdown-item" href="{{ route('export-excel.iku.bd')  . '?tahun=' . request('tahun') . '&prodi=' . request('prodi') . '&q=' . request('q')}}" target="_blank">Bisnis Digital</a></li>
-                            <li><a class="dropdown-item" href="{{ route('export-excel.iku.dkv')  . '?tahun=' . request('tahun') . '&prodi=' . request('prodi') . '&q=' . request('q')}}" target="_blank">Desain Komunikasi Visual</a></li>
-                        </ul>
-                    </div>                  
-                    
                     @php
                         $query = http_build_query([
                             'tahun' => request('tahun'),
+                            'prodi' => request('prodi'),
+                            'unit' => request('unit'),
                             'q' => request('q'),
                         ]);
                     @endphp
 
                     <div class="col-auto">
-                        <div class="dropdown">
-                            <button class="btn btn-danger dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fa-solid fa-file-pdf"></i> Export PDF
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ route('export-pdf.iku') . '?' . $query }}" target="_blank">Semua Prodi</a></li>
-                                <li><a class="dropdown-item" href="{{ route('export-pdf.iku.if') . '?' . $query }}" target="_blank">Informatika</a></li>
-                                <li><a class="dropdown-item" href="{{ route('export-pdf.iku.rsk') . '?' . $query }}" target="_blank">Rekayasa Sistem Komputer</a></li>
-                                <li><a class="dropdown-item" href="{{ route('export-pdf.iku.bd') . '?' . $query }}" target="_blank">Bisnis Digital</a></li>
-                                <li><a class="dropdown-item" href="{{ route('export-pdf.iku.dkv') . '?' . $query }}" target="_blank">Desain Komunikasi Visual</a></li>
-                            </ul>
-                        </div>
-                    </div>                    
+                        <a class="btn btn-success" href="{{ route('export-excel.iku') . '?' . $query }}" target="_blank">
+                            <i class="fa-solid fa-file-excel"></i> Export Excel
+                        </a>
+                    </div>
+
+                    <div class="col-auto">
+                        <a class="btn btn-danger" href="{{ route('export-pdf.iku') . '?' . $query }}" target="_blank">
+                            <i class="fa-solid fa-file-pdf"></i> Export PDF
+                        </a>
+                    </div>                   
                 </form>                
             </div>
 

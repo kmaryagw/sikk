@@ -65,7 +65,15 @@
 </head>
 <body>
 
-    <h1>Laporan Indikator Kinerja Utama/Tambahan</h1>
+    <h1>
+        Laporan Indikator Kinerja Utama/Tambahan
+    </h1>
+    <br>
+    <h4>
+        Tahun : {{ $tahun ?? 'Semua Tahun' }} | 
+        Prodi : {{ $prodi ?? 'Semua Prodi' }} | 
+        Unit : {{ $unit ?? 'Semua Unit' }}
+    </h4>
 
     <table>
         <thead>
@@ -73,10 +81,11 @@
                 <th style="width: 1%;">No</th>
                 <th style="width: 10%;">Tahun</th>
                 <th style="width: 10%;">Prodi</th>
-                <th style="width: 35%;">Indikator Kinerja</th>
+                <th style="width: 15%;">Unit Kerja</th>
+                <th style="width: 30%;">Indikator Kinerja</th>
                 <th style="width: 10%;">Target Capaian</th>
                 <th style="width: 10%;">Capaian</th>
-                <th style="width: 15%;">Status</th>
+                <th style="width: 14%;">Status</th>
             </tr>
         </thead>
         <tbody>
@@ -92,6 +101,7 @@
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $target->th_tahun }}</td>
                     <td>{{ $target->nama_prodi }}</td>
+                    <td>{{ $target->unit_nama ?? '-' }}</td>
                     <td>{{ $target->ik_nama }}</td>
 
                     {{-- Target --}}
@@ -163,7 +173,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7">Tidak ada data</td>
+                    <td colspan="8">Tidak ada data</td>
                 </tr>
             @endforelse
         </tbody>
