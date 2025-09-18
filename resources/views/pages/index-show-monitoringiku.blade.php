@@ -1,11 +1,31 @@
 @extends('layouts.app')
-@section('title', 'Detail Monitoring IKU')
+@section('title', 'Detail Monitoring Indikator Kinerja')
 
 @push('style')
     <!-- CSS Libraries -->
     <link rel="stylesheet" href="{{ asset('library/jqvmap/dist/jqvmap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('library/summernote/dist/summernote-bs4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/circular-progress-bar.css') }}">
+    <style>
+        .keterangan-content {
+            white-space: pre-line;     /* tampilkan enter */
+            text-align: left;
+            word-break: break-word;    /* pecah kata super panjang */
+            overflow-wrap: anywhere;
+        }
+
+        .table-responsive {
+        max-height: 50rem;   /* tinggi maksimum tabel */
+        overflow-y: auto;    /* aktifkan scroll vertikal */
+        }
+
+        .table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: #f8f9fa !important; /* warna header */
+        }
+    </style>
 @endpush
 
 @section('main')
@@ -23,7 +43,37 @@
         </div>
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h4>Data Monitoring IKU dari Prodi: <span class="badge badge-info">{{ $Monitoringiku->targetIndikator->prodi->nama_prodi }}</span> Tahun: <span class="badge badge-primary">{{ $Monitoringiku->targetIndikator->tahunKerja->th_tahun }}</span></h4>           
+                <h4>Data Monitoring Indikator Kinerja dari Prodi : <span class="badge badge-info">{{ $Monitoringiku->targetIndikator->prodi->nama_prodi }}</span> Tahun : <span class="badge badge-primary">{{ $Monitoringiku->targetIndikator->tahunKerja->th_tahun }}</span></h4>
+                <form action="{{ route('monitoringiku.index-detail', $Monitoringiku->mti_id) }}" method="GET">
+                    <div class="form-row align-items-center">
+                        <div class="col-auto">
+                        <input class="form-control form-control-sm" 
+                                name="q" 
+                                value="{{ $q }}" 
+                                placeholder="Pencarian..." />
+                        </div>
+                        <div class="col-auto">
+                        <button class="btn btn-info btn-sm">
+                            <i class="fa-solid fa-search"></i> Cari
+                        </button>
+                        </div>
+                    </div>
+                </form>
+
+                @if (Auth::user()->role == 'admin')
+                <div class="dropdown">
+                    <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fa-solid fa-file-excel"></i> Export Excel
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ route('monitoringiku.export-detail', ['mti_id' => $Monitoringiku->mti_id, 'type' => 'penetapan']) }}">Penetapan</a></li>
+                        <li><a class="dropdown-item" href="{{ route('monitoringiku.export-detail', ['mti_id' => $Monitoringiku->mti_id, 'type' => 'pelaksanaan']) }}">Pelaksanaan</a></li>
+                        <li><a class="dropdown-item" href="{{ route('monitoringiku.export-detail', ['mti_id' => $Monitoringiku->mti_id, 'type' => 'evaluasi']) }}">Evaluasi</a></li>
+                        <li><a class="dropdown-item" href="{{ route('monitoringiku.export-detail', ['mti_id' => $Monitoringiku->mti_id, 'type' => 'pengendalian']) }}">Pengendalian</a></li>
+                        <li><a class="dropdown-item" href="{{ route('monitoringiku.export-detail', ['mti_id' => $Monitoringiku->mti_id, 'type' => 'peningkatan']) }}">Peningkatan</a></li>
+                    </ul>
+                </div>
+                @endif         
             </div>
         
             @if($targetIndikators->isEmpty())
@@ -32,34 +82,54 @@
                 </div>
             @else
                 <div class="table-responsive text-center">
-                    <table class="table table-hover table-bordered table-striped m-0">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Indikator Kinerja</th>
-                                <th>Baseline</th>
-                                <th>Target</th>
-                                <th>Keterangan Indikator</th>
+                <table class="table table-hover table-bordered table-striped m-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>No</th>
+                            <th style="width: 30%;">Indikator Kinerja</th>
+                            <th style="width: 5%;">Baseline</th>
+                            <th>Target</th>
+                            @if (Auth::user()->role == 'admin')
+                                <th>Capaian</th>
+                                <th style="width: 9%;">URL</th>
+                                <th>Status</th>
+                                <th style="width: 9%;">Keterangan</th>
+                                <th style="width: 15%;">Evaluasi</th>
+                                <th style="width: 15%;">Tindak Lanjut</th>
+                                <th style="width: 15%;">Peningkatan</th>
+                            @else
                                 <th>Capaian</th>
                                 <th>Status</th>
+                                <th>Keterangan</th>
                                 <th>URL</th>
-                            </tr>
-                        </thead>
+                            @endif
+                        </tr>
+                    </thead>
                         <tbody>
                             @php $no = 1; @endphp
                             @foreach ($targetIndikators as $target)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $target->indikatorKinerja->ik_kode }} - {{ $target->indikatorKinerja->ik_nama }}</td>
+                                    <td class="text-justify" style="padding: 2rem;">
+                                        {{-- {{ $target->indikatorKinerja->ik_kode }} - {{ $target->indikatorKinerja->ik_nama }} --}}
+                                        {{ ($target->has('indikatorKinerja') ?  $target->indikatorKinerja->ik_kode : "") }} - {{ ($target->has('indikatorKinerja') ?  $target->indikatorKinerja->ik_nama : "") }}
+                                    </td>
                                     <td>
                                         @php
                                             $ketercapaian = strtolower(optional($target->indikatorKinerja)->ik_ketercapaian ?? '');
-                                            $baselineRaw = trim($target->indikatorKinerja->ik_baseline ?? '');
-                                            $baselineValue = (float) str_replace('%', '', $baselineRaw);
-                                            $progressColor = $baselineValue == 0 ? '#dc3545' : '#28a745';
+
+                                            // Ambil baseline dari relasi
+                                            $baselineRaw = trim((string) (optional($target->baselineTahun)->baseline ?? '0'));
+
+                                            // Untuk angka (nilai/persentase), hilangkan % dan spasi
+                                            $cleanNum = str_replace(['%', ' '], '', $baselineRaw);
+                                            $baselineValue = is_numeric($cleanNum) ? (float) $cleanNum : null;
+
+                                            // Warna progress bar: merah kalau 0, hijau kalau > 0
+                                            $progressColor = ($baselineValue !== null && $baselineValue == 0) ? '#dc3545' : '#28a745';
                                         @endphp
-                                    
-                                        @if ($ketercapaian === 'persentase' && is_numeric($baselineValue))
+                                        {{-- Persentase --}}
+                                        @if ($ketercapaian === 'persentase' && $baselineValue !== null)
                                             <div class="ring-progress-wrapper">
                                                 <div class="ring-progress" style="--value: {{ $baselineValue }}; --progress-color: {{ $progressColor }};">
                                                     <div class="ring-inner">
@@ -67,58 +137,45 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                        @elseif ($ketercapaian === 'nilai' && is_numeric($baselineRaw))
+
+                                        {{-- Nilai --}}
+                                        @elseif ($ketercapaian === 'nilai' && is_numeric($cleanNum))
                                             <span class="badge badge-primary">{{ $baselineRaw }}</span>
+
+                                        {{-- Ada / Draft --}}
                                         @elseif (in_array(strtolower($baselineRaw), ['ada', 'draft']))
                                             @if (strtolower($baselineRaw) === 'ada')
                                                 <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
                                             @else
                                                 <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
                                             @endif
+
+                                        {{-- Rasio --}}
                                         @elseif ($ketercapaian === 'rasio')
-                                            <span class="badge badge-info"><i class="fa-solid fa-balance-scale"></i> {{ $baselineRaw }}</span>
+                                            @php
+                                                $formattedRasio = '0:0';
+                                                $cleaned = preg_replace('/\s*/', '', $baselineRaw);
+                                                if (preg_match('/^\d+:\d+$/', $cleaned)) {
+                                                    [$a, $b] = explode(':', $cleaned);
+                                                    $formattedRasio = "{$a} : {$b}";
+                                                }
+                                            @endphp
+                                            <span class="badge badge-info"><i class="fa-solid fa-balance-scale"></i> {{ $formattedRasio }}</span>
+
+                                        {{-- Default --}}
                                         @else
                                             {{ $baselineRaw }}
                                         @endif
-                                    </td>
+                                    </td>                                   
                                     <td>
                                         @php
-                                            $targetRaw = trim($target->ti_target ?? '');
-                                            $targetValue = (float) str_replace('%', '', $targetRaw);
-                                            $progressColor = $targetValue == 0 ? '#dc3545' : '#28a745';
+                                            $ketercapaian = strtolower(optional($target->indikatorKinerja)->ik_ketercapaian ?? '');
+                                            $targetValue = trim($target->ti_target);
+                                            $numericValue = (float) str_replace('%', '', $targetValue);
+                                            $progressColor = $numericValue == 0 ? '#dc3545' : '#28a745'; // Merah jika 0%, hijau jika > 0%
                                         @endphp
-                                    
-                                        @if ($ketercapaian === 'persentase' && is_numeric($targetValue))
-                                            <div class="ring-progress-wrapper">
-                                                <div class="ring-progress" style="--value: {{ $targetValue }}; --progress-color: {{ $progressColor }};">
-                                                    <div class="ring-inner">
-                                                        <span class="ring-text">{{ $targetValue }}%</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @elseif ($ketercapaian === 'nilai' && is_numeric($targetRaw))
-                                            <span class="badge badge-primary">{{ $targetRaw }}</span>
-                                        @elseif (in_array(strtolower($targetRaw), ['ada', 'draft']))
-                                            @if (strtolower($targetRaw) === 'ada')
-                                                <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
-                                            @else
-                                                <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
-                                            @endif
-                                        @elseif ($ketercapaian === 'rasio')
-                                            <span class="badge badge-info"><i class="fa-solid fa-balance-scale"></i> {{ $targetRaw }}</span>
-                                        @else
-                                            {{ $targetRaw }}
-                                        @endif
-                                    </td> 
-                                    <td>{{ $target->ti_keterangan }}</td>  
-                                    <td>
-                                        @php
-                                            $capaian = trim(optional($target->monitoringDetail)->mtid_capaian ?? '');
-                                            $numericValue = (float) str_replace('%', '', $capaian);
-                                            $progressColor = $numericValue == 0 ? '#dc3545' : '#28a745';
-                                        @endphp
-                                    
-                                        @if (strpos($capaian, '%') !== false || $ketercapaian === 'persentase')
+
+                                        @if ($ketercapaian === 'persentase' && is_numeric($numericValue))
                                             <div class="ring-progress-wrapper">
                                                 <div class="ring-progress" style="--value: {{ $numericValue }}; --progress-color: {{ $progressColor }};">
                                                     <div class="ring-inner">
@@ -126,58 +183,234 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                        @elseif (is_numeric($capaian) && $ketercapaian === 'nilai')
-                                            <span class="badge badge-primary">{{ $capaian }}</span>
-                                        @elseif (preg_match('/^\d+\s*:\s*\d+$/', $capaian))
+                                        @elseif ($ketercapaian === 'nilai' && is_numeric($targetValue))
+                                            <span class="badge badge-primary">{{ $targetValue }}</span>
+                                        @elseif (in_array(strtolower($targetValue), ['ada', 'draft']))
+                                            @if (strtolower($targetValue) === 'ada')
+                                                <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
+                                            @else
+                                                <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
+                                            @endif
+                                        @elseif ($ketercapaian === 'rasio')
+                                            <span class="badge badge-info"><i class="fa-solid fa-balance-scale"></i> {{$targetValue}}</span>
+                                        @else
+                                            {{ $targetValue }}
+                                        @endif
+                                    </td>         
+
+                                    {{-- layout kolom admin mulai dari capaian --}}
+                                    @if (Auth::user()->role == 'admin')
+                                    <td>
+                                        @php
+                                            $capaian = optional($target->monitoringDetail)->mtid_capaian;
+                                            $ketercapaian = optional($target->indikatorKinerja)->ik_ketercapaian;
+                                            $numericValue = (float) str_replace('%', '', $capaian);
+                                            $progressColor = $numericValue == 0 ? '#dc3545' : '#28a745';
+                                        @endphp
+
+                                        @if (strpos($capaian, '%') !== false || $ketercapaian === 'persentase'){{-- Jika ada "%" berarti persentase --}}
+                                            <div class="ring-progress-wrapper">
+                                                <div class="ring-progress" style="--value: {{ $numericValue }}; --progress-color: {{ $progressColor }};">
+                                                    <div class="ring-inner">
+                                                        <span class="ring-text">{{ $numericValue }}%</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @elseif(is_numeric($capaian) && $ketercapaian == 'nilai')
+                                            <span class="badge badge-primary"> {{ $capaian }}</span>
+                                        @elseif(preg_match('/^\d+\s*:\s*\d+$/', $capaian))
                                             @php
-                                                $cleaned = preg_replace('/\s*/', '', $capaian);
-                                                [$left, $right] = explode(':', $cleaned);
+                                                $cleanedRasio = preg_replace('/\s*/', '', $capaian);
+                                                [$left, $right] = explode(':', $cleanedRasio);
                                                 $formattedRasio = $left . ' : ' . $right;
                                             @endphp
                                             <span class="badge badge-info"><i class="fa-solid fa-balance-scale"></i> {{ $formattedRasio }}</span>
-                                        @elseif (strtolower($capaian) === 'ada')
+                                        @elseif(strtolower($capaian) === 'ada')
                                             <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
-                                        @elseif (strtolower($capaian) === 'draft')
+                                        @elseif(strtolower($capaian) === 'draft')
                                             <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
-                                        @elseif (!empty($capaian))
+                                        @elseif(!empty($capaian))
+                                            <span class="badge badge-primary">{{ $capaian }}</span>
+                                        @else
+                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i></span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if(isset($target->monitoringDetail->mtid_url) && $target->monitoringDetail->mtid_url)
+                                            <a href="{{ $target->monitoringDetail->mtid_url }}" target="_blank" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> Lihat</a>
+                                        @else
+                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i></span>
+                                        @endif
+                                    </td>   
+                                    <td>
+                                        @php
+                                            $status = strtolower(optional($target->monitoringDetail)->mtid_status ?? '');
+                                        @endphp
+                                    
+                                        @if($status === 'tercapai')
+                                            <span class="text-success"><i class="fa-solid fa-check-circle"></i> Tercapai</span>
+                                        @elseif($status === 'terlampaui')
+                                            <span class="text-primary"><i class="fa-solid fa-arrow-up"></i> Terlampaui</span>
+                                        @elseif($status === 'tidak tercapai')
+                                            <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Tidak Tercapai</span>
+                                        @elseif($status === 'tidak terlaksana')
+                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak Terlaksana</span>
+                                        @else
+                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i></span>
+
+                                        @endif
+                                    </td>         
+                                    <td>
+                                        @if(optional($target->monitoringDetail)->mtid_keterangan)
+                                            <!-- Tombol buka modal -->
+                                            <button type="button" 
+                                                    class="btn btn-info btn-sm btn-lihat-keterangan"
+                                                    data-keterangan="{{ $target->monitoringDetail->mtid_keterangan }}"
+                                                    data-indikator="{{ optional($target->indikatorKinerja)->ik_nama }}">
+                                                <i class="fa fa-eye"></i> Lihat
+                                            </button>
+                                        @else
+                                            <span class="text-muted">Belum ada keterangan</span>
+                                        @endif
+                                    </td>
+                                    {{-- Tambahan untuk ADMIN --}}
+                                    <td >
+                                        @if(optional($target->monitoringDetail)->mtid_evaluasi)
+                                            <span class="text-success">
+                                                {{ optional($target->monitoringDetail)->mtid_evaluasi }}
+                                            </span>
+                                        @else
+                                            <span class="text-muted">Belum ada evaluasi</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if(optional($target->monitoringDetail)->mtid_tindaklanjut)
+                                            <span class="text-success">
+                                                {{ optional($target->monitoringDetail)->mtid_tindaklanjut }}
+                                            </span>
+                                        @else
+                                            <span class="text-muted">Belum ada tindak lanjut</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if(optional($target->monitoringDetail)->mtid_peningkatan)
+                                            <span class="text-success">
+                                                {{ optional($target->monitoringDetail)->mtid_peningkatan }}
+                                            </span>
+                                        @else
+                                            <span class="text-muted">Belum ada peningkatan</span>
+                                        @endif
+                                    </td>
+                                    {{-- layout kolom bukan admin mulai dari capaian  --}}
+                                    @else
+                                    <td>
+                                        @php
+                                            $capaian = optional($target->monitoringDetail)->mtid_capaian;
+                                            $ketercapaian = optional($target->indikatorKinerja)->ik_ketercapaian;
+                                            $numericValue = (float) str_replace('%', '', $capaian);
+                                            $progressColor = $numericValue == 0 ? '#dc3545' : '#28a745';
+                                        @endphp
+
+                                        @if (strpos($capaian, '%') !== false || $ketercapaian === 'persentase'){{-- Jika ada "%" berarti persentase --}}
+                                            <div class="ring-progress-wrapper">
+                                                <div class="ring-progress" style="--value: {{ $numericValue }}; --progress-color: {{ $progressColor }};">
+                                                    <div class="ring-inner">
+                                                        <span class="ring-text">{{ $numericValue }}%</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @elseif(is_numeric($capaian) && $ketercapaian == 'nilai')
+                                            <span class="badge badge-primary"> {{ $capaian }}</span>
+                                        @elseif(preg_match('/^\d+\s*:\s*\d+$/', $capaian))
+                                            @php
+                                                $cleanedRasio = preg_replace('/\s*/', '', $capaian);
+                                                [$left, $right] = explode(':', $cleanedRasio);
+                                                $formattedRasio = $left . ' : ' . $right;
+                                            @endphp
+                                            <span class="badge badge-info"><i class="fa-solid fa-balance-scale"></i> {{ $formattedRasio }}</span>
+                                        @elseif(strtolower($capaian) === 'ada')
+                                            <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
+                                        @elseif(strtolower($capaian) === 'draft')
+                                            <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
+                                        @elseif(!empty($capaian))
                                             <span class="badge badge-primary">{{ $capaian }}</span>
                                         @else
                                             <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Belum ada Capaian</span>
                                         @endif
-                                    </td>                                                                
+                                    </td>  
                                     <td>
                                         @php
-                                            $capaian = $target->monitoringDetail->mtid_capaian ?? null;
-                                            $targetVal = $target->ti_target ?? null;
-                                            $jenis = $target->indikatorKinerja->ik_ketercapaian ?? null;
-                                            $status = hitungStatus($capaian, $targetVal, $jenis);
+                                            $status = strtolower(optional($target->monitoringDetail)->mtid_status ?? '');
                                         @endphp
                                     
-                                        @if ($status === 'tercapai')
+                                        @if($status === 'tercapai')
                                             <span class="text-success"><i class="fa-solid fa-check-circle"></i> Tercapai</span>
-                                        @elseif ($status === 'terlampaui')
+                                        @elseif($status === 'terlampaui')
                                             <span class="text-primary"><i class="fa-solid fa-arrow-up"></i> Terlampaui</span>
-                                        @elseif ($status === 'tidak tercapai')
+                                        @elseif($status === 'tidak tercapai')
                                             <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Tidak Tercapai</span>
-                                        @elseif ($status === 'tidak terlaksana')
+                                        @elseif($status === 'tidak terlaksana')
                                             <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak Terlaksana</span>
                                         @else
-                                            <span>Belum ada Status</span>
+                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i>-</span>
+
+                                        @endif
+                                    </td>         
+                                    <td>
+                                        @if(optional($target->monitoringDetail)->mtid_keterangan)
+                                            <!-- Tombol buka modal -->
+                                            <button type="button" 
+                                                    class="btn btn-info btn-sm btn-lihat-keterangan"
+                                                    data-keterangan="{{ $target->monitoringDetail->mtid_keterangan }}"
+                                                    data-indikator="{{ optional($target->indikatorKinerja)->ik_nama }}">
+                                                <i class="fa fa-eye"></i> Lihat
+                                            </button>
+                                        @else
+                                            <span class="text-muted">Belum ada keterangan</span>
                                         @endif
                                     </td>
-                                    
                                     <td>
                                         @if(isset($target->monitoringDetail->mtid_url) && $target->monitoringDetail->mtid_url)
                                             <a href="{{ $target->monitoringDetail->mtid_url }}" target="_blank" class="btn btn-sm btn-success">Lihat URL</a>
                                         @else
                                             Belum Ada URL
                                         @endif
+                                    </td> 
+                                    @endif
+                                    {{-- @if (Auth::user()->role == 'unit kerja')
+                                    <td class="text-center">
+                                        <a href="{{ route('monitoringiku.edit-detail', ['mti_id' => $Monitoringiku->mti_id, 'ti_id' => $target->ti_id]) }}" class="btn btn-sm btn-warning"><i class="fa-solid fa-pen-to-square"></i> Isi/Ubah</a>                                      
                                     </td>
-                                    
+                                    @endif --}}
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
+                    <!-- Modal Keterangan Global -->
+                    <div class="modal fade" 
+                        id="keteranganModal" 
+                        tabindex="-1" 
+                        aria-hidden="true" 
+                        data-bs-backdrop="false">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">
+                                        Keterangan - <span id="modalIndikatorNama"></span>
+                                    </h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true"></span>
+                                    </button>
+                                </div>
+                                <div class="modal-body" id="modalKeteranganContent" style="white-space: pre-line; text-align:left;">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" id="copyKeteranganBtn">Salin</button>
+                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Tutup</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             @endif
         </div>        
@@ -188,4 +421,59 @@
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function confirmDelete(event, formid) {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Yakin menghapus Data ini?',
+                text: "Data yang dihapus tidak bisa dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, hapus data!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form-' + formid).submit();
+                }
+            });
+        }
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const btns = document.querySelectorAll('.btn-lihat-keterangan');
+        const modalTitle = document.getElementById('modalIndikatorNama');
+        const modalBody = document.getElementById('modalKeteranganContent');
+
+        const keteranganModal = new bootstrap.Modal(document.getElementById('keteranganModal'));
+
+        btns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                modalTitle.textContent = this.getAttribute('data-indikator') || '-';
+                modalBody.innerText = this.getAttribute('data-keterangan') || 'Belum ada keterangan';
+                keteranganModal.show();
+            });
+        });
+    });
+
+    document.getElementById('copyKeteranganBtn').addEventListener('click', function() {
+        const text = document.getElementById('modalKeteranganContent').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            if (window.Swal) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Keterangan disalin',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }
+        });
+    });
+    </script>
 @endpush
+
+
+    
