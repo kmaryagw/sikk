@@ -101,9 +101,9 @@
                     <li class="{{ Request::is('tahun') || (isset($sub_menu) && $sub_menu === 'tahun') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('tahun') }}"><i class="fas fa-calendar-alt"></i>Tahun</a>
                     </li>
-                    <li class="{{ Request::is('periodemonev') || (isset($sub_menu) && $sub_menu === 'periodemonev') ? 'active' : '' }}">
+                    {{-- <li class="{{ Request::is('periodemonev') || (isset($sub_menu) && $sub_menu === 'periodemonev') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('periodemonev') }}"><i class="fas fa-clock"></i>Periode Monev</a>
-                    </li>
+                    </li> --}}
                     <li class="{{ Request::is('standar') || (isset($sub_menu) && $sub_menu === 'standar') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('standar') }}"><i class="fa fa-paper-plane"></i>Standar</a>
                     </li>
@@ -114,14 +114,14 @@
             </li>
             @endif
 
-            @if (Auth::user()->role == 'admin')
+            {{-- @if (Auth::user()->role == 'admin')
             <li class="{{ $type_menu === 'periode-monitoring' ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('periode-monitoring') }}">
                     <i class="fas fa-calendar-alt" aria-hidden="true"></i>
                     <span>Periode Monitoring</span>
                 </a>
             </li>
-            @endif
+            @endif --}}
 
 
             {{-- Setting IKU --}}
@@ -189,7 +189,6 @@
             </li>
             @endif
 
-            {{-- Laporan renja --}}
             @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi' || Auth::user()->role == 'unit kerja' || Auth::user()->role == 'fakultas')
              <li class="nav-item dropdown {{ $type_menu === 'laporan' ? 'active' : '' }}">
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fa-solid fa-file-alt"></i> <span>Laporan</span></a>

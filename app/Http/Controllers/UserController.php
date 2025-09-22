@@ -223,99 +223,99 @@ class UserController extends Controller
     }
 
     public function update(User $user, Request $request)
-{
-    $request->validate([
-        'username' => 'required|string|max:255',
-        'status' => 'required|string|in:0,1',
-        'role' => 'required|in:admin,prodi,unit kerja,fakultas',
-    ]);
+    {
+        $request->validate([
+            'username' => 'required|string|max:255',
+            'status' => 'required|string|in:0,1',
+            'role' => 'required|in:admin,prodi,unit kerja,fakultas',
+        ]);
 
-    if (User::where('username', $request->username)->where('id_user', '<>', $user->id_user)->exists()) {
-        return back()->withErrors(['username' => 'Username sudah terdaftar']);
+        if (User::where('username', $request->username)->where('id_user', '<>', $user->id_user)->exists()) {
+            return back()->withErrors(['username' => 'Username sudah terdaftar']);
+        }
+
+        $user->username = $request->username;
+        $user->status = $request->status;
+        $user->role = $request->role;
+
+        if ($request->password) {
+            $request->validate([
+                'password' => 'string|min:8',
+            ]);
+            $user->password = Hash::make($request->password);
+        }
+
+        if ($request->role === 'prodi') {
+            $request->validate([
+                'prodi_id' => 'required|exists:program_studi,prodi_id',
+            ]);
+            $user->prodi_id = $request->prodi_id;
+            $user->unit_id = null;
+            $user->id_fakultas = null;
+        } elseif ($request->role === 'unit kerja') {
+            $request->validate([
+                'unit_id' => 'required|exists:unit_kerja,unit_id',
+            ]);
+            $user->unit_id = $request->unit_id;
+            $user->prodi_id = null;
+            $user->id_fakultas = null;
+        } elseif ($request->role === 'fakultas') {
+            $request->validate([
+                'id_fakultas' => 'required|exists:fakultasn,id_fakultas',
+            ]);
+            $user->id_fakultas = $request->id_fakultas;
+            $user->prodi_id = null;
+            $user->unit_id = null;
+        } else {
+            $user->prodi_id = null;
+            $user->unit_id = null;
+            $user->id_fakultas = null;
+        }
+
+        $user->save();
+
+        Alert::success('Sukses', 'Data Berhasil Diubah');
+        return redirect()->route('user.index'); // Admin kembali ke daftar user
     }
 
-    $user->username = $request->username;
-    $user->status = $request->status;
-    $user->role = $request->role;
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
 
-    if ($request->password) {
         $request->validate([
-            'password' => 'string|min:8',
+            'username' => 'required|string|max:255|unique:users,username,' . $user->id_user . ',id_user',
+            'nama' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255|unique:users,email,' . $user->id_user . ',id_user',
         ]);
+
+        $user->username = $request->username;
+        $user->nama = $request->nama;
+        $user->email = $request->email;
+        $user->save();
+
+        return redirect()->route('profile')->with('success', 'Profil berhasil diperbarui');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = Auth::user();
+
+        // Cek apakah password lama benar
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Password lama tidak sesuai']);
+        }
+
+        // Update password baru
         $user->password = Hash::make($request->password);
+        $user->save();
+
+        return back()->with('success', 'Password berhasil diperbarui');
     }
-
-    if ($request->role === 'prodi') {
-        $request->validate([
-            'prodi_id' => 'required|exists:program_studi,prodi_id',
-        ]);
-        $user->prodi_id = $request->prodi_id;
-        $user->unit_id = null;
-        $user->id_fakultas = null;
-    } elseif ($request->role === 'unit kerja') {
-        $request->validate([
-            'unit_id' => 'required|exists:unit_kerja,unit_id',
-        ]);
-        $user->unit_id = $request->unit_id;
-        $user->prodi_id = null;
-        $user->id_fakultas = null;
-    } elseif ($request->role === 'fakultas') {
-        $request->validate([
-            'id_fakultas' => 'required|exists:fakultasn,id_fakultas',
-        ]);
-        $user->id_fakultas = $request->id_fakultas;
-        $user->prodi_id = null;
-        $user->unit_id = null;
-    } else {
-        $user->prodi_id = null;
-        $user->unit_id = null;
-        $user->id_fakultas = null;
-    }
-
-    $user->save();
-
-    Alert::success('Sukses', 'Data Berhasil Diubah');
-    return redirect()->route('user.index'); // Admin kembali ke daftar user
-}
-
-public function updateProfile(Request $request)
-{
-    $user = Auth::user();
-
-    $request->validate([
-        'username' => 'required|string|max:255|unique:users,username,' . $user->id_user . ',id_user',
-        'nama' => 'nullable|string|max:255',
-        'email' => 'nullable|email|max:255|unique:users,email,' . $user->id_user . ',id_user',
-    ]);
-
-    $user->username = $request->username;
-    $user->nama = $request->nama;
-    $user->email = $request->email;
-    $user->save();
-
-    return redirect()->route('profile')->with('success', 'Profil berhasil diperbarui');
-}
-
-public function updatePassword(Request $request)
-{
-    $request->validate([
-        'current_password' => 'required',
-        'password' => 'required|string|min:8|confirmed',
-    ]);
-
-    $user = Auth::user();
-
-    // Cek apakah password lama benar
-    if (!Hash::check($request->current_password, $user->password)) {
-        return back()->withErrors(['current_password' => 'Password lama tidak sesuai']);
-    }
-
-    // Update password baru
-    $user->password = Hash::make($request->password);
-    $user->save();
-
-    return back()->with('success', 'Password berhasil diperbarui');
-}
 
 
     public function destroy(user $user)

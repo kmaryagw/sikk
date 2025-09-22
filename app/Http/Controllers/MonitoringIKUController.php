@@ -655,21 +655,30 @@ class MonitoringIKUController extends Controller
         return response()->json(['success' => true, 'message' => 'Monitoring IKU berhasil diselesaikan.']);
     }
 
-    public function show($mti_id)
+    public function show(Request $request, $mti_id)
     {
         $Monitoringiku = MonitoringIKU::find($mti_id);
         $prodi_id = $Monitoringiku->prodi_id;
         $th_id = $Monitoringiku->th_id;
 
+        $q = $request->input('q'); // Ambil kata kunci pencarian dari query string
+
         $targetIndikators = target_indikator::with('indikatorKinerja', 'monitoringDetail')
             ->where('prodi_id', $prodi_id)
             ->where('th_id', $th_id)
+            ->when($q, function($query) use ($q) {
+                // contoh filter: sesuaikan kolom yang ingin dicari
+                $query->whereHas('indikatorKinerja', function($sub) use ($q) {
+                    $sub->where('ik_nama', 'like', "%{$q}%");
+                });
+            })
             ->get();
 
         return view('pages.index-show-monitoringiku', [
-            'Monitoringiku' => $Monitoringiku,
-            'targetIndikators' => $targetIndikators,
-            'type_menu' => 'monitoringiku',
+            'Monitoringiku'   => $Monitoringiku,
+            'targetIndikators'=> $targetIndikators,
+            'type_menu'       => 'monitoringiku',
+            'q'               => $q, // <<< kirim ke view
         ]);
     }
 
