@@ -3,8 +3,10 @@
 @section('title', 'Tambah Pengumuman')
 
 @section('main')
-<div class="container py-4">
-    <h2 class="mb-4">Tambah Pengumuman Baru</h2>
+<div class="main-content section">
+    <div class="section-header">
+        <h2 class="mb-4 text-danger">Tambah Pengumuman Baru</h2>
+    </div>
 
     <form action="{{ route('announcement.store') }}" method="POST" enctype="multipart/form-data" class="card p-4 shadow-sm border-0">
         @csrf
@@ -74,9 +76,9 @@
         </div>
 
         {{-- Tombol --}}
-        <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Simpan</button>
-            <a href="{{ route('announcement.index') }}" class="btn btn-secondary">Batal</a>
+        <div class="d-flex">
+            <button type="submit" class="btn btn-primary mr-3">Simpan</button>
+            <a href="{{ route('announcement.index') }}" class="btn btn-danger">Batal</a>
         </div>
     </form>
 </div>

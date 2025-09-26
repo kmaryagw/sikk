@@ -3,8 +3,10 @@
 @section('title', 'Detail Pengumuman')
 
 @section('main')
-<div class="container py-4">
-    <h2 class="mb-4 text-white">Detail Pengumuman</h2>
+<div class="main-content section">
+    <div class="section-header">
+        <h2 class="mb-4 text-danger">Detail Pengumuman</h2>
+    </div>
 
     <div class="card shadow-sm border-0">
         <div class="card-body">

@@ -3,8 +3,10 @@
 @section('title', 'Edit Pengumuman')
 
 @section('main')
-<div class="container py-4">
-    <h2 class="mb-4">Edit Pengumuman</h2>
+<div class="main-content section">
+    <div class="section-header">
+        <h2 class="mb-4 text-danger">Edit Pengumuman</h2>
+    </div>
 
     <form action="{{ route('announcement.update', $announcement->id) }}" 
           method="POST" 
@@ -87,8 +89,8 @@
 
         {{-- Tombol --}}
         <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Update</button>
-            <a href="{{ route('announcement.index') }}" class="btn btn-secondary">Batal</a>
+            <button type="submit" class="btn btn-primary mr-3">Update</button>
+            <a href="{{ route('announcement.index') }}" class="btn btn-danger">Batal</a>
         </div>
     </form>
 </div>

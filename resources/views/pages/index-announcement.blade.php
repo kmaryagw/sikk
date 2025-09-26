@@ -9,28 +9,36 @@
     <div class="row g-3 mb-4">
 
         {{-- Pengumuman Utama --}}
-        <div class="col-12 col-lg-8">
+        <div class="col-12 col-lg-9">
             @if($mainAnnouncement)
                 <div class="card shadow-sm border-0 h-100">
-                    <div class="ratio ratio-16x9">
+                    <div class="ratio ratio-16x9"> 
+                        @if($mainAnnouncement->image) 
+                        <img src="{{ Storage::url($mainAnnouncement->image) }}" 
+                        class="w-100 rounded-top"
+                        alt="{{ $mainAnnouncement->title }}" 
+                        style="height: 400px; object-fit: cover;"> 
+                        @endif 
+                    </div>
+                    {{-- <div class="text-center">
                         @if($mainAnnouncement->image)
                             <img src="{{ Storage::url($mainAnnouncement->image) }}" 
-                                class="w-100 rounded-top" 
+                                class="w-auto rounded-top img-fluid"
                                 alt="{{ $mainAnnouncement->title }}"
-                                style="height: 200px; object-fit: cover;">
+                                style="max-height:400px; min-height:200px; object-fit: contain;">
                         @endif
-                    </div>
+                    </div> --}}
                     <div class="card-body">
                         <span class="badge bg-success mb-2">PENGUMUMAN</span>
                         <h3 class="fw-bold mb-2">{{ $mainAnnouncement->title }}</h3>
-                        <small class="text-muted">
+                        <small class="text-muted fw-bold">
                             {{ \Carbon\Carbon::parse($mainAnnouncement->date)->translatedFormat('d F Y') }}
                         </small>
-                        <p class="mt-3 text-secondary">
+                        <h6 class="mt-4 fw-bold">
                             {{ \Illuminate\Support\Str::limit($mainAnnouncement->summary, 150) }}
-                        </p>
-                        {{-- <a href="{{ route('announcement.show', $mainAnnouncement->id) }}" 
-                           class="btn btn-primary btn-sm mt-2">Baca Selengkapnya</a> --}}
+                        </h6>
+                        <a href="{{ route('announcement.show', $mainAnnouncement->id) }}" 
+                           class="btn btn-primary btn-sm mt-4">Selengkapnya</a>
                     </div>
                 </div>
             @else
@@ -39,7 +47,7 @@
         </div>
 
         {{-- List pengumuman lainnya --}}
-        <div class="col-12 col-lg-4">
+        <div class="col-12 col-lg-3">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-header bg-light fw-bold">
                     Pengumuman Lainnya
@@ -71,11 +79,12 @@
         @forelse($allAnnouncements as $announcement)
             <div class="col-12 col-sm-6 col-lg-3 mb-4">
                 <div class="card shadow-sm border-0 h-100 list-hover">
-                    <div class="ratio ratio-16x9">
+                    <div class="text-center">
                         @if($announcement->image)
                             <img src="{{ asset('storage/' . $announcement->image) }}" 
-                                 class="card-img-top object-fit-cover" 
-                                 alt="{{ $announcement->title }}">
+                                class="img-fluid w-auto rounded-top"
+                                alt="{{ $announcement->title }}"
+                                style="max-height:200px; max-width:400px; object-fit: contain;">
                         @endif
                     </div>
                     <div class="card-body">

@@ -266,34 +266,43 @@ class DashboardController extends Controller
 
         // RINGKASAN IKU/IKT
         $ringkasanIku = target_indikator::with(['indikatorKinerja', 'monitoringDetail', 'tahunKerja'])
-            ->get()
-            ->groupBy(fn($item) => optional($item->tahunKerja)->th_tahun) // group by tahun
-            ->map(function ($items, $tahun) {
-                $statusCount = [
-                    'tahun' => $tahun,
-                    'total' => $items->count(),
-                    'tercapai' => 0,
-                    'terlampaui' => 0,
-                    'tidak_tercapai' => 0,
-                    'tidak_terlaksana' => 0,
-                ];
+        ->get()
+        ->groupBy(fn($item) => optional($item->tahunKerja)->th_tahun)
+        ->map(function ($items, $tahun) {
+            $statusCount = [
+                'tahun' => $tahun,
+                'total' => $items->count(),
+                'tercapai' => 0,
+                'terlampaui' => 0,
+                'tidak_tercapai' => 0,
+                'tidak_terlaksana' => 0,
+                'persentase_tuntas' => 0, // ✅ tambahkan key persentase
+            ];
 
-                foreach ($items as $item) {
-                    $status = hitungStatus(
-                        optional($item->monitoringDetail)->mtid_capaian,
-                        $item->ti_target,
-                        optional($item->indikatorKinerja)->ik_ketercapaian
-                    );
+            foreach ($items as $item) {
+                $status = hitungStatus(
+                    optional($item->monitoringDetail)->mtid_capaian,
+                    $item->ti_target,
+                    optional($item->indikatorKinerja)->ik_ketercapaian
+                );
 
-                    if (isset($statusCount[$status])) {
-                        $statusCount[$status]++;
-                    }
+                if (isset($statusCount[$status])) {
+                    $statusCount[$status]++;
                 }
+            }
 
-                return (object) $statusCount;
-            })
-            ->sortByDesc('tahun') // urutkan desc
-            ->values();
+            // ✅ hitung persentase tuntas (tercapai + terlampaui)
+            if ($statusCount['total'] > 0) {
+                $statusCount['persentase_tuntas'] = round(
+                    (($statusCount['tercapai'] + $statusCount['terlampaui']) / $statusCount['total']) * 100,
+                    2
+                );
+            }
+
+            return (object) $statusCount;
+        })
+        ->sortByDesc('tahun')
+        ->values();
 
             // RINGKASAN IKU/IKT PER UNIT KERJA
             $ikuiktPerUnit = UnitKerja::with(['indikatorKinerja.targetIndikator.monitoringDetail'])

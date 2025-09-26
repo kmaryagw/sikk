@@ -109,11 +109,11 @@
                     <div class="card shadow-sm">
                         <div class="card-header">
                             <h4 class="mb-0">Set IKU/IKT</h4>
-                            <div class="card-header-action">
+                            {{-- <div class="card-header-action">
                                 <a class="btn btn-primary" href="{{ route('targetcapaian.index') }}">
                                     <i class="fa-solid fa-eye"></i> Lihat Detail
                                 </a>
-                            </div>
+                            </div> --}}
                         </div>
 
                         <div class="card-body">
@@ -158,11 +158,11 @@
                    @if (Auth::user()->role == 'admin')
                     <div class="card shadow-sm">
                         <div class="card-header">
-                            <h4 class="mb-0">Set IKU/IKT per Program Studi</h4>
+                            <h4 class="mb-0">Ringkasan IKU/IKT per Program Studi</h4>
                             <div class="card-header-action">
-                                <a class="btn btn-primary" href="{{ route('targetcapaian.index') }}">
+                                {{-- <a class="btn btn-primary" href="{{ route('targetcapaian.index') }}">
                                     <i class="fa-solid fa-eye"></i> Lihat Detail 
-                                </a>
+                                </a> --}}
                             </div>
                         </div>
                         <div class="card-body">
@@ -494,46 +494,48 @@
 
                     {{-- MONITORING --}}
                         @if (Auth::user()->role == 'admin' || Auth::user()->role == 'unit kerja' || Auth::user()->role == 'fakultas' || Auth::user()->role == 'prodi')
-                        <div class="card shadow-sm">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h4 class="mb-0">Ringkasan Seluruh IKU/IKT</h4>
-                                <a class="btn btn-primary btn-sm" href="{{ route('laporan-iku.index') }}">
-                                    <i class="fa-solid fa-eye"></i> Lihat Detail
-                                </a>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-striped table-bordered text-center">
-                                        <thead>
-                                            <tr>
-                                                <th>Tahun</th>
-                                                <th>Total Indikator</th>
-                                                <th>Tercapai</th>
-                                                <th>Terlampaui</th>
-                                                <th>Tidak Tercapai</th>
-                                                <th>Tidak Terlaksana</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @forelse($ringkasanIku as $data)
-                                            <tr>
-                                                <td>{{ $data->tahun }}</td>
-                                                <td>{{ $data->total }}</td>
-                                                <td>{{ $data->tercapai }}</td>
-                                                <td>{{ $data->terlampaui }}</td>
-                                                <td>{{ $data->tidak_tercapai }}</td>
-                                                <td>{{ $data->tidak_terlaksana }}</td>
-                                            </tr>
-                                            @empty
-                                            <tr>
-                                                <td colspan="6" class="text-center text-danger">Belum ada data IKU/IKT</td>
-                                            </tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
+                            <div class="card shadow-sm">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h4 class="mb-0">Ringkasan Seluruh IKU/IKT</h4>
+                                    <a class="btn btn-primary btn-sm" href="{{ route('laporan-iku.index') }}">
+                                        <i class="fa-solid fa-eye"></i> Lihat Detail
+                                    </a>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-bordered text-center">
+                                            <thead>
+                                                <tr>
+                                                    <th>Tahun</th>
+                                                    <th>Total Indikator</th>
+                                                    <th>Tercapai</th>
+                                                    <th>Terlampaui</th>
+                                                    <th>Tidak Tercapai</th>
+                                                    <th>Tidak Terlaksana</th>
+                                                    <th>% Tuntas</th>   {{-- ✅ Tambahan kolom --}}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @forelse($ringkasanIku as $data)
+                                                <tr>
+                                                    <td>{{ $data->tahun }}</td>
+                                                    <td>{{ $data->total }}</td>
+                                                    <td>{{ $data->tercapai }}</td>
+                                                    <td>{{ $data->terlampaui }}</td>
+                                                    <td>{{ $data->tidak_tercapai }}</td>
+                                                    <td>{{ $data->tidak_terlaksana }}</td>
+                                                    <td>{{ $data->persentase_tuntas }}%</td> {{-- ✅ Tambahan value --}}
+                                                </tr>
+                                                @empty
+                                                <tr>
+                                                    <td colspan="7" class="text-center text-danger">Belum ada data IKU/IKT</td>
+                                                </tr>
+                                                @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         @endif
                     </div>
                     {{-- END MONITORING --}}
