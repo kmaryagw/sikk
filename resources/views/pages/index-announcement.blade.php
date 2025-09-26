@@ -10,41 +10,56 @@
 
         {{-- Pengumuman Utama --}}
         <div class="col-12 col-lg-8">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="ratio ratio-16x9">
-                    {{-- <img src="https://via.placeholder.com/800x400" class="card-img-top object-fit-cover rounded-top" alt="Pengumuman Utama"> --}}
+            @if($mainAnnouncement)
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="ratio ratio-16x9">
+                        @if($mainAnnouncement->image)
+                            <img src="{{ Storage::url($mainAnnouncement->image) }}" 
+                                class="card-img-top object-fit-cover rounded-top" 
+                                alt="{{ $mainAnnouncement->title }}"
+                                style="max-height: 300px; object-fit: cover; width: 100%;">
+                        @endif
+                    </div>
+                    <div class="card-body">
+                        <span class="badge bg-success mb-2">PENGUMUMAN</span>
+                        <h3 class="fw-bold mb-2">{{ $mainAnnouncement->title }}</h3>
+                        <small class="text-muted">
+                            {{ \Carbon\Carbon::parse($mainAnnouncement->date)->translatedFormat('d F Y') }}
+                        </small>
+                        <p class="mt-3 text-secondary">
+                            {{ \Illuminate\Support\Str::limit($mainAnnouncement->summary, 150) }}
+                        </p>
+                        <a href="{{ route('announcement.show', $mainAnnouncement->id) }}" 
+                           class="btn btn-primary btn-sm mt-2">Baca Selengkapnya</a>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <span class="badge bg-success mb-5">PENGUMUMAN</span>
-                    <h3 class="fw-bold mb-2">Judul Pengumuman Utama</h3>
-                    <small class="text-muted">20 Agustus 2025</small>
-                    <p class="mt-3 text-secondary">
-                        Ringkasan singkat pengumuman utama yang akan menarik perhatian pembaca.
-                    </p>
-                    <a href="#" class="btn btn-primary btn-sm mt-2">Baca Selengkapnya</a>
-                </div>
-            </div>
+            @else
+                <div class="alert alert-info">Belum ada pengumuman utama.</div>
+            @endif
         </div>
 
-        {{-- List pengumuman --}}
+        {{-- List pengumuman lainnya --}}
         <div class="col-12 col-lg-4">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-header bg-light fw-bold">
                     Pengumuman Lainnya
                 </div>
                 <ul class="list-group list-group-flush">
-                    @foreach ([
-                        ['date' => '19 Agustus 2025', 'title' => 'Judul Pengumuman Kedua'],
-                        ['date' => '15 Agustus 2025', 'title' => 'Judul Pengumuman Ketiga'],
-                        ['date' => '10 Agustus 2025', 'title' => 'Judul Pengumuman Keempat']
-                    ] as $item)
+                    @forelse($otherAnnouncements->take(5) as $announcement)
                         <li class="list-group-item list-hover">
-                            <small class="text-muted d-block mb-1">{{ $item['date'] }}</small>
-                            <a href="#" class="fw-semibold text-decoration-none text-dark">
-                                {{ $item['title'] }}
+                            <small class="text-muted d-block mb-1">
+                                {{ \Carbon\Carbon::parse($announcement->date)->translatedFormat('d F Y') }}
+                            </small>
+                            <a href="{{ route('announcement.show', $announcement->id) }}" 
+                               class="fw-semibold text-decoration-none text-dark">
+                                {{ $announcement->title }}
                             </a>
                         </li>
-                    @endforeach
+                    @empty
+                        <li class="list-group-item text-muted text-center">
+                            Belum ada pengumuman lain.
+                        </li>
+                    @endforelse
                 </ul>
             </div>
         </div>
@@ -53,28 +68,32 @@
 
     {{-- Grid bawah --}}
     <div class="row g-4">
-        @foreach ([
-            ['title' => 'Judul Pengumuman 1', 'date' => '05 Agustus 2025'],
-            ['title' => 'Judul Pengumuman 2', 'date' => '02 Agustus 2025'],
-            ['title' => 'Judul Pengumuman 3', 'date' => '29 Juli 2025'],
-            ['title' => 'Judul Pengumuman 4', 'date' => '25 Juli 2025'],
-            ['title' => 'Judul Pengumuman 5', 'date' => '30 Juli 2025'],
-            ['title' => 'Judul Pengumuman 6', 'date' => '28 Juli 2025'],
-            ['title' => 'Judul Pengumuman 7', 'date' => '05 Agustus 2025'],
-            ['title' => 'Judul Pengumuman 8', 'date' => '02 Agustus 2025']
-        ] as $item)
+        @forelse($allAnnouncements as $announcement)
             <div class="col-12 col-sm-6 col-lg-3 mb-4">
                 <div class="card shadow-sm border-0 h-100 list-hover">
                     <div class="ratio ratio-16x9">
-                        {{-- <img src="h..." class="card-img-top object-fit-cover" alt="Pengumuman"> --}}
+                        @if($announcement->image)
+                            <img src="{{ asset('storage/' . $announcement->image) }}" 
+                                 class="card-img-top object-fit-cover" 
+                                 alt="{{ $announcement->title }}">
+                        @endif
                     </div>
                     <div class="card-body">
-                        <h6 class="fw-bold mb-1">{{ $item['title'] }}</h6>
-                        <small class="text-muted">{{ $item['date'] }}</small>
+                        <h6 class="fw-bold mb-1">{{ $announcement->title }}</h6>
+                        <small class="text-muted">
+                            {{ \Carbon\Carbon::parse($announcement->date)->translatedFormat('d F Y') }}
+                        </small>
                     </div>
                 </div>
             </div>
-        @endforeach
+        @empty
+            <p class="text-center text-muted">Belum ada pengumuman tersedia.</p>
+        @endforelse
+    </div>
+
+    {{-- Pagination --}}
+    <div class="mt-4">
+        {{ $allAnnouncements->links() }}
     </div>
 
 </div>

@@ -27,10 +27,10 @@
                     </div>
                 </div>                               
                 
-                <div class="col-lg-6 col-md-6 col-12">
+                {{-- <div class="col-lg-12 col-md-12 col-12"> --}}
 
                     {{-- IKU - ADMIN --}}
-                    @if (Auth::user()->role == 'admin')
+                    {{-- @if (Auth::user()->role == 'admin')
                     <div class="card shadow-sm mb-4">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h4 class="mb-0">Set IKU</h4>
@@ -63,10 +63,10 @@
                             </div>
                         </div>
                     </div>
-                    @endif
+                    @endif --}}
                 
                     {{-- IKU - PRODI & FAKULTAS --}}
-                    @if (Auth::user()->role == 'prodi' || Auth::user()->role == 'fakultas')
+                    {{-- @if (Auth::user()->role == 'prodi' || Auth::user()->role == 'fakultas')
                     <div class="card shadow-sm mb-4">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h4 class="mb-0">Set IKU</h4>
@@ -100,57 +100,50 @@
                         </div>
                     </div>
                     @endif                
-                </div>
+                </div> --}}
                 
 
-                <div class="col-lg-6 col-md-6 col-12">
+                <div class="col-lg-12 col-md-12 col-12">
                     {{-- IKT PRODI FAKULTAS--}}
                     @if (Auth::user()->role == 'prodi' || Auth::user()->role == 'fakultas')
                     <div class="card shadow-sm">
                         <div class="card-header">
-                            <h4 class="mb-0">Set IKT</h4>
+                            <h4 class="mb-0">Set IKU/IKT</h4>
                             <div class="card-header-action">
-                                <a class="btn btn-primary" href="{{ route('targetcapaian.index') }}"><i class="fa-solid fa-eye"></i> Lihat Detail </a>
+                                <a class="btn btn-primary" href="{{ route('targetcapaian.index') }}">
+                                    <i class="fa-solid fa-eye"></i> Lihat Detail
+                                </a>
                             </div>
                         </div>
-                        {{-- <div class="mt-4 text-center">
-                            <h5>Total IKT: <span class="badge bg-primary text-light">{{ $totalikt }}</span></h5>
-                        </div> --}}
-                        <!-- Bar Chart Jumlah IKT -->
-                        {{-- <div class="row justify-content-center">
-                            <div class="col-md-8 col-lg-7">
-                                <div class="rounded-4">
-                                    <div class="card-body px-4 py-4">
-                                        <div class="text-center mb-3">
-                                            <h5 class="fw-bold text-dark mb-1">Distribusi IKT per Program Studi</h5>
-                                            <p class="text-muted small mb-0">Jumlah indikator kinerja tambahan</p>
-                                        </div>
-                                        <div class="d-flex justify-content-center align-items-center" style="height: 400px;">
-                                            <canvas id="barIKT" style="width: 60rem; height: 60rem;"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>--}}
-                        <!-- Bar Chart Jumlah IKT -->
+
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table table-striped table-bordered">
-                                    <thead class="text-center">
+                                <table class="table table-striped table-bordered text-center">
+                                    <thead>
                                         <tr>
                                             <th>Nama Program Studi</th>
-                                            <th style="text-align: center;">Jumlah IKT</th>
+                                            <th>Jumlah IKT</th>
+                                            <th>Tercapai</th>
+                                            <th>Terlampaui</th>
+                                            <th>Tidak Tercapai</th>
+                                            <th>Tidak Terlaksana</th>
+                                            <th>% Tuntas</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="text-center">
-                                        @forelse ($jumlahikt as $prodi)
+                                    <tbody>
+                                        @forelse ($jumlahikt as $row)
                                             <tr>
-                                                <td>{{ $prodi->nama_prodi }}</td>
-                                                <td style="text-align: center;">{{ $prodi->target_indikator_count }}</td>
+                                                <td>{{ $row->nama_prodi }}</td>
+                                                <td>{{ $row->jumlah }}</td>
+                                                <td>{{ $row->tercapai }}</td>
+                                                <td>{{ $row->terlampaui }}</td>
+                                                <td>{{ $row->tidak_tercapai }}</td>
+                                                <td>{{ $row->tidak_terlaksana }}</td>
+                                                <td>{{ $row->persentase_tuntas }}%</td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="3" class="text-center text-muted">Tidak ada data tersedia</td>
+                                                <td colspan="7" class="text-muted">Tidak ada data tersedia</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
@@ -161,41 +154,87 @@
                     @endif
                     {{-- IKT PRODI FAKULTAS--}}
 
-                    {{-- IKT Admin --}}
-                    @if (Auth::user()->role == 'admin')
+                   {{-- IKU/IKT Admin --}}
+                   @if (Auth::user()->role == 'admin')
                     <div class="card shadow-sm">
                         <div class="card-header">
-                            <h4 class="mb-0">Set IKT</h4>
+                            <h4 class="mb-0">Set IKU/IKT</h4>
                             <div class="card-header-action">
-                                <a class="btn btn-primary" href="{{ route('targetcapaian.index') }}"><i class="fa-solid fa-eye"></i> Lihat Detail </a>
+                                <a class="btn btn-primary" href="{{ route('targetcapaian.index') }}">
+                                    <i class="fa-solid fa-eye"></i> Lihat Detail 
+                                </a>
                             </div>
                         </div>
-                        {{-- <div class="mt-4 text-center">
-                            <h5>Total IKT: <span class="badge bg-primary text-light">{{ $totalikt }}</span></h5>
-                        </div> --}}
-                        <!-- Column Chart Jumlah IKT -->                        
-                        {{-- <div class="mb-4">
-                            <canvas id="iktColumnChart" height="250"></canvas>
-                        </div> --}}
-                        <!-- Column Chart Jumlah IKT -->                        
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table table-striped table-bordered">
-                                    <thead class="text-center">
+                                <table class="table table-striped table-bordered text-center">
+                                    <thead>
                                         <tr>
                                             <th>Nama Program Studi</th>
-                                            <th style="text-align: center;">Jumlah IKT</th>
+                                            <th>Jumlah IKU/IKT</th>
+                                            <th>Tercapai</th>
+                                            <th>Terlampaui</th>
+                                            <th>Tidak Tercapai</th>
+                                            <th>Tidak Terlaksana</th>
+                                            <th>% Tuntas</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="text-center">
-                                        @forelse ($jumlahikt as $prodi)
+                                    <tbody>
+                                        @forelse ($ikuiktPerProdi as $row)
                                             <tr>
-                                                <td>{{ $prodi->nama_prodi }}</td>
-                                                <td style="text-align: center;">{{ $prodi->target_indikator_count }}</td>
+                                                <td>{{ $row->nama_prodi }}</td>
+                                                <td>{{ $row->jumlah }}</td>
+                                                <td>{{ $row->tercapai }}</td>
+                                                <td>{{ $row->terlampaui }}</td>
+                                                <td>{{ $row->tidak_tercapai }}</td>
+                                                <td>{{ $row->tidak_terlaksana }}</td>
+                                                <td>{{ $row->persentase_tuntas }}%</td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="3" class="text-center text-muted">Tidak ada data tersedia</td>
+                                                <td colspan="7" class="text-muted">Tidak ada data tersedia</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    @if (Auth::user()->role == 'admin')
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h4 class="mb-0">Ringkasan IKU/IKT per Unit Kerja</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered text-center">
+                                    <thead>
+                                        <tr>
+                                            <th>Nama Unit Kerja</th>
+                                            <th>Jumlah IKU/IKT</th>
+                                            <th>Tercapai</th>
+                                            <th>Terlampaui</th>
+                                            <th>Tidak Tercapai</th>
+                                            <th>Tidak Terlaksana</th>
+                                            <th>% Tuntas</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($ikuiktPerUnit as $row)
+                                            <tr>
+                                                <td>{{ $row->unit_nama }}</td>
+                                                <td>{{ $row->jumlah }}</td>
+                                                <td>{{ $row->tercapai }}</td>
+                                                <td>{{ $row->terlampaui }}</td>
+                                                <td>{{ $row->tidak_tercapai }}</td>
+                                                <td>{{ $row->tidak_terlaksana }}</td>
+                                                <td>{{ $row->persentase_tuntas }}%</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="7" class="text-muted">Tidak ada data tersedia</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
@@ -305,6 +344,48 @@
                         {{-- </div> --}}
                         {{-- @endif --}}
                         {{-- Peroide Monev --}}
+                        @if (Auth::user()->role == 'unit kerja')
+                        <div class="card shadow-sm">
+                            <div class="card-header">
+                                <h4 class="mb-0">IKU/IKT Unit Kerja</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-bordered text-center">
+                                        <thead>
+                                            <tr>
+                                                <th>Nama Unit Kerja</th>
+                                                <th>Jumlah IKU/IKT</th>
+                                                <th>Tercapai</th>
+                                                <th>Terlampaui</th>
+                                                <th>Tidak Tercapai</th>
+                                                <th>Tidak Terlaksana</th>
+                                                <th>% Tuntas</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse ($ikuiktPerUnit as $row)
+                                                <tr>
+                                                    <td>{{ $row->unit_nama }}</td>
+                                                    <td>{{ $row->jumlah }}</td>
+                                                    <td>{{ $row->tercapai }}</td>
+                                                    <td>{{ $row->terlampaui }}</td>
+                                                    <td>{{ $row->tidak_tercapai }}</td>
+                                                    <td>{{ $row->tidak_terlaksana }}</td>
+                                                    <td>{{ $row->persentase_tuntas }}%</td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="7" class="text-muted">Tidak ada data tersedia</td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+                        
                         {{-- SURAT NOMOR --}}
                         @if (Auth::user()->role == 'unit kerja')
                         <div class="card shadow-sm">
@@ -414,40 +495,41 @@
                     {{-- MONITORING --}}
                         @if (Auth::user()->role == 'admin' || Auth::user()->role == 'unit kerja' || Auth::user()->role == 'fakultas' || Auth::user()->role == 'prodi')
                         <div class="card shadow-sm">
-                            <div class="card-header">
-                                <h4 class="mb-0">Monitoring</h4>
-                                <div class="card-header-action">
-                                    <a class="btn btn-primary" href="{{ route('monitoring.index') }}"><i class="fa-solid fa-eye"></i> Lihat Detail </a>
-                                </div>
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h4 class="mb-0">Ringkasan Seluruh IKU/IKT</h4>
+                                <a class="btn btn-primary btn-sm" href="{{ route('laporan-iku.index') }}">
+                                    <i class="fa-solid fa-eye"></i> Lihat Detail
+                                </a>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
-                                    <table class="table table-striped table-bordered">
-                                        <thead class="text-center">
+                                    <table class="table table-striped table-bordered text-center">
+                                        <thead>
                                             <tr>
-                                                <th rowspan="2">Periode</th>
-                                                <th rowspan="2">Total Renja</th>
-                                                <th colspan="4" style="background-color: #EAEAEA;">Status</th>
-                                            </tr>
-                                            <tr>
+                                                <th>Tahun</th>
+                                                <th>Total Indikator</th>
                                                 <th>Tercapai</th>
-                                                <th>Belum Tercapai</th>
+                                                <th>Terlampaui</th>
+                                                <th>Tidak Tercapai</th>
                                                 <th>Tidak Terlaksana</th>
-                                                <th>Perlu Tindak Lanjut</th>
                                             </tr>
                                         </thead>
-                                        <tbody class="text-center">
-                                            @foreach($renjaPerPeriode as $periode)
+                                        <tbody>
+                                            @forelse($ringkasanIku as $data)
                                             <tr>
-                                                <td>{{ $periode->pm_nama }}</td>
-                                                <td>{{ $periode->rencanaKerjas->count() }}</td>
-                                                <td>{{ $periode->rencanaKerjas->sum('tercapai') }}</td>
-                                                <td>{{ $periode->rencanaKerjas->sum('belum_tercapai') }}</td>
-                                                <td>{{ $periode->rencanaKerjas->sum('tidak_terlaksana') }}</td>
-                                                <td>{{ $periode->rencanaKerjas->sum('perlu_tindak_lanjut') }}</td>
+                                                <td>{{ $data->tahun }}</td>
+                                                <td>{{ $data->total }}</td>
+                                                <td>{{ $data->tercapai }}</td>
+                                                <td>{{ $data->terlampaui }}</td>
+                                                <td>{{ $data->tidak_tercapai }}</td>
+                                                <td>{{ $data->tidak_terlaksana }}</td>
                                             </tr>
-                                            @endforeach
-                                        </tbody>                                    
+                                            @empty
+                                            <tr>
+                                                <td colspan="6" class="text-center text-danger">Belum ada data IKU/IKT</td>
+                                            </tr>
+                                            @endforelse
+                                        </tbody>
                                     </table>
                                 </div>
                             </div>

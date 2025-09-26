@@ -31,11 +31,17 @@ use App\Http\Controllers\TargetCapaianProdiController;
 use App\Http\Controllers\UserController;
 use App\Models\SuratKlasifikasiFungsi;
 use App\Models\SuratKlasifikasiLingkup;
+use App\Http\Controllers\AnnouncementController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('pages.index-announcement');
-})->name('announcement');
+
+// Halaman publik (/) → tampilkan index-announcement.blade.php
+Route::get('/', [AnnouncementController::class, 'publicPage'])->name('announcement.public');
+
+// Admin (CRUD) → tampilkan index-admin-announcement.blade.php
+Route::middleware('auth')->group(function () {
+    Route::resource('announcement', AnnouncementController::class);
+});
 
 
 // Route login dipindah ke misalnya /login
@@ -148,7 +154,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/monitoringiku/{mti_id}/export/{type}', [MonitoringIKUController::class, 'exportDetail'])
     ->name('monitoringiku.export-detail');
-
 
 
 

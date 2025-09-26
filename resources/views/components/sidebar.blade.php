@@ -110,6 +110,11 @@
                     <li class="{{ Request::is('indikatorkinerja') || (isset($sub_menu) && $sub_menu === 'indikatorkinerja') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('indikatorkinerja') }}"><i class="fas fa-bullseye"></i>IKU/IKT</a>
                     </li>
+                    <li class="{{ Request::is('announcement') || (isset($sub_menu) && $sub_menu === 'announcement') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('announcement.index') }}">
+                            <i class="fas fa-bullhorn"></i> Pengumuman
+                        </a>
+                    </li>
                 </ul>
             </li>
             @endif
@@ -205,14 +210,14 @@
                         </a>
                     </li>
                     @endif --}}
-                    @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi' || Auth::user()->role == 'unit kerja' || Auth::user()->role == 'fakultas')
+                    {{-- @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi' || Auth::user()->role == 'unit kerja' || Auth::user()->role == 'fakultas')
                     <li class="{{ Request::is('laporan-monitoring') || (isset($sub_menu) && $sub_menu === 'laporan-monitoring') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('laporan-monitoring') }}"><i class="fas fa-eye"></i>Hasil Monitoring</a>
                     </li>
                     <li class="{{ Request::is('laporan-evaluasi') || (isset($sub_menu) && $sub_menu === 'laporan-evaluasi') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ url('laporan-evaluasi') }}"><i class="fas fa-file-pen"></i>Evaluasi</a>
                     </li>
-                    @endif
+                    @endif --}}
                 </ul>
             </li>
             @endif

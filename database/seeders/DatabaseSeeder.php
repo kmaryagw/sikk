@@ -40,6 +40,7 @@ class DatabaseSeeder extends Seeder
             SettingSeeder::class,
             RencanaKerjaProgramStudiSeeder::class,
             MonitoringPeriodeMonevSeeder::class,
+            AnnouncementSeeder::class,
 
         ]);
     }
