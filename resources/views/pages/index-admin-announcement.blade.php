@@ -101,7 +101,7 @@
 
         {{-- Pagination --}}
         <div class="card-footer">
-            {{ $announcement->links() }}
+            {{ $announcement->links('pagination::bootstrap-5') }}
         </div>
     </div>
 </div>

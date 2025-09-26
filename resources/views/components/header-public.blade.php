@@ -6,7 +6,7 @@
         <!-- Logo & Brand -->
         <a class="navbar-brand" href="{{ url('/') }}">
             <img src="{{ asset('img/instiki-putih.webp') }}" alt="Instiki Logo" height="50">
-            <span>SISTEM INFORMASI PENJAMINAN MUTU INSTIKI</span>
+            <span>SISTEM PENJAMINAN MUTU INSTIKI</span>
         </a>
 
         <!-- Toggle Button (Mobile) -->
