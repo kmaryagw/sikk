@@ -65,7 +65,8 @@ class AnnouncementController extends Controller
      */
     public function show(Announcement $announcement)
     {
-        return view('pages.show-admin-announcement', compact('announcement'));
+        $type_menu = 'masterdata';
+        return view('pages.show-admin-announcement', compact('announcement', 'type_menu'));
     }
 
     /**

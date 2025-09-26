@@ -15,9 +15,9 @@
                     <div class="ratio ratio-16x9">
                         @if($mainAnnouncement->image)
                             <img src="{{ Storage::url($mainAnnouncement->image) }}" 
-                                class="card-img-top object-fit-cover rounded-top" 
+                                class="w-100 rounded-top" 
                                 alt="{{ $mainAnnouncement->title }}"
-                                style="max-height: 300px; object-fit: cover; width: 100%;">
+                                style="height: 200px; object-fit: cover;">
                         @endif
                     </div>
                     <div class="card-body">
@@ -29,8 +29,8 @@
                         <p class="mt-3 text-secondary">
                             {{ \Illuminate\Support\Str::limit($mainAnnouncement->summary, 150) }}
                         </p>
-                        <a href="{{ route('announcement.show', $mainAnnouncement->id) }}" 
-                           class="btn btn-primary btn-sm mt-2">Baca Selengkapnya</a>
+                        {{-- <a href="{{ route('announcement.show', $mainAnnouncement->id) }}" 
+                           class="btn btn-primary btn-sm mt-2">Baca Selengkapnya</a> --}}
                     </div>
                 </div>
             @else

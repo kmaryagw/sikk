@@ -4,7 +4,7 @@
 
 @section('main')
 <div class="container py-4">
-    <h2 class="mb-4">Daftar Pengumuman</h2>
+    <h2 class="mb-4 text-white">Daftar Pengumuman</h2>
 
     {{-- Alert sukses --}}
     @if(session('success'))

@@ -4,7 +4,7 @@
 
 @section('main')
 <div class="container py-4">
-    <h2 class="mb-4">Detail Pengumuman</h2>
+    <h2 class="mb-4 text-white">Detail Pengumuman</h2>
 
     <div class="card shadow-sm border-0">
         <div class="card-body">
@@ -56,7 +56,7 @@
                     <button type="submit" class="btn btn-danger">Hapus</button>
                 </form>
             </div>
-            <a href="{{ route('announcement.index') }}" class="btn btn-secondary">Kembali</a>
+            <a href="{{ route('announcement.index') }}" class="btn btn-primary">Kembali</a>
         </div>
     </div>
 </div>
