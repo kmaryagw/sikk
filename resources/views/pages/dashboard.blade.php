@@ -158,7 +158,7 @@
                    @if (Auth::user()->role == 'admin')
                     <div class="card shadow-sm">
                         <div class="card-header">
-                            <h4 class="mb-0">Set IKU/IKT</h4>
+                            <h4 class="mb-0">Set IKU/IKT per Program Studi</h4>
                             <div class="card-header-action">
                                 <a class="btn btn-primary" href="{{ route('targetcapaian.index') }}">
                                     <i class="fa-solid fa-eye"></i> Lihat Detail 
