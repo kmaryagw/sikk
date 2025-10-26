@@ -108,7 +108,7 @@
                     @if (Auth::user()->role == 'prodi' || Auth::user()->role == 'fakultas')
                     <div class="card shadow-sm">
                         <div class="card-header">
-                            <h4 class="mb-0">Set IKU/IKT</h4>
+                            <h4 class="mb-0">Ringkasan IKU/IKT Prodi Saya</h4>
                             {{-- <div class="card-header-action">
                                 <a class="btn btn-primary" href="{{ route('targetcapaian.index') }}">
                                     <i class="fa-solid fa-eye"></i> Lihat Detail
@@ -155,10 +155,11 @@
                     {{-- IKT PRODI FAKULTAS--}}
 
                    {{-- IKU/IKT Admin --}}
-                   @if (Auth::user()->role == 'admin')
+                   @if (Auth::user()->role == 'admin' || Auth::user()->role == 'prodi' || Auth::user()->role == 'fakultas')
+                    {{-- 🔹 Table 1: Program Studi Sendiri --}}
                     <div class="card shadow-sm">
                         <div class="card-header">
-                            <h4 class="mb-0">Ringkasan IKU/IKT per Program Studi</h4>
+                            <h4 class="mb-0">Ringkasan IKU/IKT Seluruh Program Studi</h4>
                             <div class="card-header-action">
                                 {{-- <a class="btn btn-primary" href="{{ route('targetcapaian.index') }}">
                                     <i class="fa-solid fa-eye"></i> Lihat Detail 
@@ -180,7 +181,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @forelse ($ikuiktPerProdi as $row)
+                                        @forelse ($ikuiktPerProdiSemua as $row)
                                             <tr>
                                                 <td>{{ $row->nama_prodi }}</td>
                                                 <td>{{ $row->jumlah }}</td>
@@ -202,10 +203,11 @@
                     </div>
                     @endif
 
-                    @if (Auth::user()->role == 'admin')
+                    @if (Auth::user()->role == 'unit kerja')
+                    {{-- 🔹 Table 1: Unit Kerja Sendiri --}}
                     <div class="card shadow-sm">
                         <div class="card-header">
-                            <h4 class="mb-0">Ringkasan IKU/IKT per Unit Kerja</h4>
+                            <h4 class="mb-0">IKU/IKT Unit Kerja Saya</h4>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -222,7 +224,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @forelse ($ikuiktPerUnit as $row)
+                                        @forelse ($ikuiktPerUnitSendiri as $row)
                                             <tr>
                                                 <td>{{ $row->unit_nama }}</td>
                                                 <td>{{ $row->jumlah }}</td>
@@ -236,6 +238,81 @@
                                             <tr>
                                                 <td colspan="7" class="text-muted">Tidak ada data tersedia</td>
                                             </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                    @if (Auth::user()->role == 'unit kerja' || Auth::user()->role == 'admin' || Auth::user()->role == 'prodi'|| Auth::user()->role == 'fakultas')
+                    {{-- 🔹 Table 2: Seluruh Unit Kerja --}}
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h4 class="mb-0">Ringkasan IKU/IKT Seluruh Unit Kerja</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered text-center align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Nama Unit Kerja</th>
+                                            <th>Jumlah IKU/IKT</th>
+                                            <th>Tercapai</th>
+                                            <th>Terlampaui</th>
+                                            <th>Tidak Tercapai</th>
+                                            <th>Tidak Terlaksana</th>
+                                            <th>% Tuntas</th>
+                                            <th>Status Finalisasi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @php
+                                            $isAdmin = Auth::user()->role === 'admin';
+                                        @endphp
+
+                                        @forelse ($ikuiktPerUnitSemua as $row)
+                                            <tr>
+                                                <td>{{ $row->unit_nama }}</td>
+                                                <td>{{ $row->jumlah }}</td>
+                                                <td>{{ $row->tercapai }}</td>
+                                                <td>{{ $row->terlampaui }}</td>
+                                                <td>{{ $row->tidak_tercapai }}</td>
+                                                <td>{{ $row->tidak_terlaksana }}</td>
+                                                <td>{{ $row->persentase_tuntas }}%</td>
+
+                                                {{-- 🔒 Kolom Status Finalisasi --}}
+                                                {{-- <td>
+                                                    @if($row->sudah_final) 
+                                                        @if($isAdmin)
+                                                            <span class="badge bg-success text-light">Sudah Finalisasi</span>
+                                                            <button class="btn btn-danger btn-sm batalFinalBtn" data-unit="{{ $row->unit_id }}">
+                                                                <i class="fa-solid fa-unlock"></i> Batalkan Finalisasi
+                                                            </button>
+                                                        @else
+                                                            <span class="badge bg-success text-light">Sudah Finalisasi</span>
+                                                        @endif
+                                                    @else
+                                                        <span class="badge bg-secondary">Belum Finalisasi</span>
+                                                    @endif
+                                                </td> --}}
+                                                <td>
+                                                    @if($row->sudah_final)
+                                                        @if($isAdmin)
+                                                            <span class="badge bg-success text-light">Sudah Finalisasi</span>
+                                                            <button class="btn btn-danger btn-sm batalFinalBtn" data-unit="{{ $row->unit_id }}">
+                                                                <i class="fa-solid fa-unlock"></i> Batalkan Finalisasi
+                                                            </button>
+                                                        @else
+                                                            <span class="badge bg-success text-light">Sudah Finalisasi</span>
+                                                        @endif
+                                                    @else
+                                                        <span class="badge bg-secondary">Belum Finalisasi</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr><td colspan="8" class="text-muted">Tidak ada data tersedia</td></tr>
                                         @endforelse
                                     </tbody>
                                 </table>
@@ -344,47 +421,6 @@
                         {{-- </div> --}}
                         {{-- @endif --}}
                         {{-- Peroide Monev --}}
-                        @if (Auth::user()->role == 'unit kerja')
-                        <div class="card shadow-sm">
-                            <div class="card-header">
-                                <h4 class="mb-0">IKU/IKT Unit Kerja</h4>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-striped table-bordered text-center">
-                                        <thead>
-                                            <tr>
-                                                <th>Nama Unit Kerja</th>
-                                                <th>Jumlah IKU/IKT</th>
-                                                <th>Tercapai</th>
-                                                <th>Terlampaui</th>
-                                                <th>Tidak Tercapai</th>
-                                                <th>Tidak Terlaksana</th>
-                                                <th>% Tuntas</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @forelse ($ikuiktPerUnit as $row)
-                                                <tr>
-                                                    <td>{{ $row->unit_nama }}</td>
-                                                    <td>{{ $row->jumlah }}</td>
-                                                    <td>{{ $row->tercapai }}</td>
-                                                    <td>{{ $row->terlampaui }}</td>
-                                                    <td>{{ $row->tidak_tercapai }}</td>
-                                                    <td>{{ $row->tidak_terlaksana }}</td>
-                                                    <td>{{ $row->persentase_tuntas }}%</td>
-                                                </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="7" class="text-muted">Tidak ada data tersedia</td>
-                                                </tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        @endif
                         
                         {{-- SURAT NOMOR --}}
                         @if (Auth::user()->role == 'unit kerja')
@@ -1004,7 +1040,58 @@
             });
         });
     </script>
-    {{-- MONITORING Periode BAR CHART --}}    
+    {{-- MONITORING Periode BAR CHART --}}   
+    
+    <script>
+        $(document).on('click', '.batalFinalBtn', function() {
+            let unit_id = $(this).data('unit');
+            // let mti_id = $(this).data('mti');
+
+            Swal.fire({
+                title: 'Batalkan Finalisasi?',
+                text: "Apakah Anda yakin ingin membatalkan finalisasi unit ini?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, batalkan!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/monitoring/batal-final/' + unit_id,
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            unit_id: unit_id
+                        },
+                        success: function(response) {
+                            Swal.fire({
+                                title: 'Berhasil!',
+                                text: response.message,
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                location.reload();
+                            });
+                        },
+                        error: function(xhr) {
+                            Swal.fire({
+                                title: 'Gagal!',
+                                text: 'Terjadi kesalahan: ' + xhr.responseText,
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+  
+
+
+
 
 
     <!-- JS Libraies -->

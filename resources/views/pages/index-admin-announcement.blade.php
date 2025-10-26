@@ -13,8 +13,44 @@
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
+    <style>
+        /* Dropdown item styling */
+        .dropdown-menu .dropdown-item {
+            font-size: 0.95rem;
+            padding: 1rem 1rem;
+            line-height: 1.25rem;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        /* Ikon sejajar rapi */
+        .dropdown-menu .dropdown-item i {
+            width: 1.25rem;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        /* Hover efek halus */
+        .dropdown-menu .dropdown-item:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Warna spesifik tiap aksi */
+        .dropdown-menu .dropdown-item.text-info:hover {
+            color: #0dcaf0 !important; /* Biru muda */
+        }
+
+        .dropdown-menu .dropdown-item.text-warning:hover {
+            color: #ffc107 !important; /* Kuning */
+        }
+
+        .dropdown-menu .dropdown-item.text-danger:hover {
+            color: #dc3545 !important; /* Merah */
+}
+    </style>
+
+
     {{-- Tombol tambah --}}
-    <div class="mb-3 text-end">
+    <div class="mb-4 d-flex justify-content-end">
         <a href="{{ route('announcement.create') }}" class="btn btn-primary">
             + Tambah Pengumuman
         </a>
@@ -38,7 +74,9 @@
                     <tbody>
                         @forelse($announcement as $item)
                             <tr>
-                                <td class="p-4">{{ $loop->iteration }}</td>
+                                <td class="p-4">
+                                    {{ ($announcement->currentPage() - 1) * $announcement->perPage() + $loop->iteration }}
+                                </td>
                                 <td>{{ $item->title }}</td>
                                 <td>{{ \Carbon\Carbon::parse($item->date)->translatedFormat('d F Y') }}</td>
                                 <td>
@@ -64,22 +102,24 @@
                                         </button>
                                         <ul class="dropdown-menu" aria-labelledby="aksiDropdown{{ $item->id }}">
                                             <li>
-                                                <a class="dropdown-item" href="{{ route('announcement.show', $item->id) }}">
-                                                    <i class="fa-solid fa-eye me-2"> </i> Detail
+                                                <a class="dropdown-item d-flex align-items-center text-info fw-semibold" 
+                                                href="{{ route('announcement.show', $item->id) }}">
+                                                    <i class="fa-solid fa-eye me-2 pr-4"></i> Detail
                                                 </a>
                                             </li>
                                             <li>
-                                                <a class="dropdown-item" href="{{ route('announcement.edit', $item->id) }}">
-                                                    <i class="fa-solid fa-pen-to-square me-2"></i> Edit
+                                                <a class="dropdown-item d-flex align-items-center text-warning fw-semibold" 
+                                                href="{{ route('announcement.edit', $item->id) }}">
+                                                    <i class="fa-solid fa-pen-to-square me-2 pr-4"></i> Edit
                                                 </a>
                                             </li>
                                             <li>
                                                 <form action="{{ route('announcement.destroy', $item->id) }}" method="POST"
-                                                    onsubmit="return confirm('Yakin ingin menghapus pengumuman ini?')">
+                                                    onsubmit="return confirm('Yakin ingin menghapus pengumuman ini?')" class="m-0">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="dropdown-item text-danger">
-                                                        <i class="fa-solid fa-trash me-2"> </i> Hapus
+                                                    <button type="submit" class="dropdown-item d-flex align-items-center text-danger fw-semibold">
+                                                        <i class="fa-solid fa-trash me-2 pr-4"></i> Hapus
                                                     </button>
                                                 </form>
                                             </li>

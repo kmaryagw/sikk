@@ -4,6 +4,23 @@
 
 @section('main')
 <div class="container-fluid px-4 py-5">
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .card {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease-out;
+        }
+
+        .card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
     
     {{-- Row atas --}}
     <div class="row g-3 mb-4">
@@ -106,4 +123,22 @@
     </div>
 
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const cards = document.querySelectorAll('.card');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.3 });
+
+        cards.forEach(card => {
+            observer.observe(card);
+        });
+    });
+</script>
 @endsection
