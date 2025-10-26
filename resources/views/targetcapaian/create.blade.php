@@ -76,7 +76,7 @@
                     <div class="col-12 col-md-12 col-lg-12">
                         <form method="POST" action="{{ route('targetcapaianprodi.store') }}">
                             @csrf
-                            <input type="hidden" name="prodi_id" value="{{ $userProdi->prodi_id }}">
+                            <input type="hidden" name="prodi_id" value="{{ $userProdi->prodi_id ?? Auth::user()->prodi_id ?? '' }}">
                             <input type="hidden" name="th_id" value="{{ $tahuns->th_id }}">
                             <div class="card">
                                 <div class="card-header">

@@ -75,12 +75,29 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @php
+                                // Fungsi untuk menghasilkan warna stabil berdasarkan nama prodi
+                                function colorFromProdi($name) {
+                                    $hash = crc32($name);
+                                    $colors = ['#e3f2fd', '#fce4ec', '#e8f5e9', '#fff3e0', '#ede7f6', '#f9fbe7', '#e0f7fa', '#f3e5f5'];
+                                    return $colors[$hash % count($colors)];
+                                }
+                            @endphp
+
                             @php $no = $target_capaians->firstItem(); @endphp
                             @foreach ($target_capaians as $targetcapaian)
+                                @php
+                                    $bgColor = colorFromProdi($targetcapaian->nama_prodi ?? '');
+                                @endphp
                                 <tr>
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $targetcapaian->th_tahun }}</td>
-                                    <td>{{ $targetcapaian->nama_prodi }}</td>
+                                    <td>
+                                        {{-- Badge warna prodi --}}
+                                        <span class="badge" style="background-color: {{ $bgColor }}; color: #000;">
+                                            {{ $targetcapaian->nama_prodi }}
+                                        </span>
+                                    </td>
                                     <td style="padding: 1.5rem;">{{ $targetcapaian->ik_kode }} - {{ $targetcapaian->ik_nama }}</td>
                                     <td>
                                         @if (strtolower($targetcapaian->ik_jenis == 'IKU'))
