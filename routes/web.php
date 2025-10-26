@@ -159,5 +159,16 @@ Route::middleware('auth')->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+    Route::post('/monitoringiku/{mti_id}/finalize-unit', [App\Http\Controllers\MonitoringIKUController::class, 'finalizeUnit'])->name('monitoringiku.finalize-unit');
+    // Route::post('/monitoringiku/{mti_id}/cancel-finalize-unit', [App\Http\Controllers\MonitoringIKUController::class, 'cancelFinalizeUnit'])->name('monitoringiku.cancel-finalize-unit');
+    // Route::post('/monitoring/batal-final/{unit_id}', [MonitoringIKUController::class, 'batalFinal'])
+    // ->name('monitoring.batalFinal')
+    // ->middleware('auth');
+    Route::post('/monitoring/batal-final/{unit_id}', [MonitoringIKUController::class, 'cancelFinalizeByAdmin'])
+    ->name('monitoringiku.cancelFinalizeByAdmin')
+    ->middleware('auth');
+
+
+
     
 });

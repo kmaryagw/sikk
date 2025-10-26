@@ -241,20 +241,47 @@ class TargetCapaianProdiController extends Controller
                             $fail("Target untuk indikator '$indikator->ik_nama' hanya boleh 'ada' atau 'draft'.");
                         }
                     } elseif ($ketercapaian === 'rasio') {
-                        if ($value !== '' && !preg_match('/^\d+\s*:\s*\d+$/', $value)) {
-                            $fail("Target untuk indikator '$indikator->ik_nama' harus format 'angka:angka'.");
+                        $value = trim($value);
+
+                        // Validasi pola: hanya '0' atau 'angka:angka'
+                        if ($value !== '' && !preg_match('/^(0|\d+\s*:\s*\d+)$/', $value)) {
+                            $fail("Target untuk indikator '$indikator->ik_nama' harus berupa '0' atau format 'angka:angka' (contoh: 0, 1:2, 0:5).");
                             return;
                         }
+
+                        // Hapus semua spasi
                         $value = preg_replace('/\s*/', '', $value);
-                        [$left, $right] = explode(':', $value);
-                        if ((int)$left === 0 && (int)$right === 0) {
-                            $fail("Rasio untuk indikator '$indikator->ik_nama' tidak boleh 0:0.");
+
+                        // Jika hanya 0, langsung diterima tanpa explode
+                        if ($value === '0') {
+                            $request->merge([
+                                "indikator.$index.target" => '0'
+                            ]);
                             return;
                         }
-                        $request->merge([
-                            "indikator.$index.target" => "{$left} : {$right}"
-                        ]);
+
+                        // Jika mengandung ":", pecah jadi dua bagian
+                        if (strpos($value, ':') !== false) {
+                            [$left, $right] = explode(':', $value);
+
+                            // Pastikan dua sisi adalah angka
+                            if (!is_numeric($left) || !is_numeric($right)) {
+                                $fail("Rasio untuk indikator '$indikator->ik_nama' harus berisi angka di kedua sisi (contoh: 1:2).");
+                                return;
+                            }
+
+                            // Tidak boleh 0:0
+                            if ((int)$left === 0 && (int)$right === 0) {
+                                $fail("Rasio untuk indikator '$indikator->ik_nama' tidak boleh 0:0.");
+                                return;
+                            }
+
+                            $request->merge([
+                                "indikator.$index.target" => "{$left} : {$right}"
+                            ]);
+                        }
                     }
+
                 }
             ],
         ];
@@ -280,7 +307,7 @@ class TargetCapaianProdiController extends Controller
                 [
                     'ti_id'         => $ti_id,
                     'ik_id'         => $data["ik_id"],
-                    'ti_target'     => $data["target"] ?? '-',
+                    'ti_target'     => $data["target"] ?? 0,
                     'ti_keterangan' => $data["keterangan"] ?? '-',
                     'prodi_id'      => $prodi_id,
                     'th_id'         => $th_id
@@ -378,13 +405,9 @@ class TargetCapaianProdiController extends Controller
                     }
 
                     $ketercapaian = strtolower($indikatorKinerjas->ik_ketercapaian);
-                    $value = strtolower(trim($value));
+                    $value = trim(strtolower($value));
 
-                    if ($ketercapaian === 'nilai') {
-                        if (!ctype_digit($value) || $value < 0 || $value > 100) {
-                            $fail("Baseline harus bilangan bulat >= 0 dan <= 100.");
-                        }
-                    } elseif ($ketercapaian === 'persentase') {
+                    if ($ketercapaian === 'nilai' || $ketercapaian === 'persentase') {
                         if (!ctype_digit($value) || $value < 0 || $value > 100) {
                             $fail("Baseline harus bilangan bulat antara 0-100.");
                         }
@@ -393,12 +416,34 @@ class TargetCapaianProdiController extends Controller
                             $fail("Baseline hanya boleh 'ada' atau 'draft'.");
                         }
                     } elseif ($ketercapaian === 'rasio') {
-                        if (!preg_match('/^\d+\s*:\s*\d+$/', $value)) {
-                            $fail("Baseline harus format 'angka:angka'.");
-                        } else {
-                            [$left, $right] = explode(':', preg_replace('/\s*/', '', $value));
+                        // ✅ Izinkan "0" atau "angka:angka"
+                        if (!preg_match('/^(0|\d+\s*:\s*\d+)$/', $value)) {
+                            $fail("Baseline harus berupa '0' atau format 'angka:angka' (contoh: 0, 1:2, 0:5).");
+                            return;
+                        }
+
+                        // Hilangkan semua spasi
+                        $value = preg_replace('/\s*/', '', $value);
+
+                        // Jika hanya 0 → valid, tidak perlu proses lebih lanjut
+                        if ($value === '0') {
+                            return;
+                        }
+
+                        // Jika mengandung titik dua
+                        if (strpos($value, ':') !== false) {
+                            [$left, $right] = explode(':', $value);
+
+                            // Validasi bahwa kedua sisi adalah angka
+                            if (!is_numeric($left) || !is_numeric($right)) {
+                                $fail("Baseline harus berisi angka di kedua sisi (contoh: 1:2).");
+                                return;
+                            }
+
+                            // Tidak boleh 0:0
                             if ((int)$left === 0 && (int)$right === 0) {
                                 $fail("Baseline tidak boleh 0:0.");
+                                return;
                             }
                         }
                     }
@@ -434,40 +479,51 @@ class TargetCapaianProdiController extends Controller
                 $validationRules['ti_target'] = [
                     'required',
                     function ($attribute, $value, $fail) use ($indikatorKinerjas) {
-                        if ($value !== '' && !preg_match('/^\d+\s*:\s*\d+$/', $value)) {
-                            $fail("Target untuk indikator '{$indikatorKinerjas->ik_nama}' harus format 'angka:angka'.");
+
+                        $value = trim($value);
+
+                        // ✅ izinkan 0 atau angka:angka
+                        if ($value !== '' && !preg_match('/^(0|\d+\s*:\s*\d+)$/', $value)) {
+                            $fail("Target untuk indikator '{$indikatorKinerjas->ik_nama}' harus berupa '0' atau format 'angka:angka' (contoh: 0, 1:2, 0:5).");
                             return;
                         }
 
+                        // hilangkan spasi
                         $clean = preg_replace('/\s*/', '', $value);
-                        [$left, $right] = explode(':', $clean);
-                        if ((int)$left === 0 && (int)$right === 0) {
-                            $fail("Rasio untuk indikator '{$indikatorKinerjas->ik_nama}' tidak boleh 0:0.");
+
+                        // Jika hanya "0", valid — langsung return
+                        if ($clean === '0') {
+                            return;
+                        }
+
+                        // Jika ada titik dua
+                        if (strpos($clean, ':') !== false) {
+                            [$left, $right] = explode(':', $clean);
+
+                            // validasi numeric
+                            if (!is_numeric($left) || !is_numeric($right)) {
+                                $fail("Target untuk indikator '{$indikatorKinerjas->ik_nama}' harus berisi angka di kedua sisi (contoh: 1:2).");
+                                return;
+                            }
+
+                            // Tidak boleh 0:0
+                            if ((int)$left === 0 && (int)$right === 0) {
+                                $fail("Rasio untuk indikator '{$indikatorKinerjas->ik_nama}' tidak boleh 0:0.");
+                                return;
+                            }
                         }
                     }
                 ];
             }
         }
 
+
         $customMessages = [
-            'ti_target.regex' => 'Format rasio harus dalam bentuk angka : angka (contoh: 3 : 1)',
-            'ti_target.in'    => 'Untuk jenis ketersediaan, hanya boleh diisi "ada" atau "draft".',
+            'ti_target.in' => 'Untuk jenis ketersediaan, hanya boleh diisi "ada" atau "draft".',
         ];
 
         $request->validate($validationRules, $customMessages);
 
-        // Normalisasi untuk rasio
-        $ti_target = $request->ti_target;
-        if ($indikatorKinerjas && strtolower($indikatorKinerjas->ik_ketercapaian) === 'rasio') {
-            preg_match('/^(\d+)\s*:\s*(\d+)$/', $ti_target, $matches);
-            if (count($matches) === 3) {
-                $left = $matches[1];
-                $right = $matches[2];
-                $ti_target = $left . ' : ' . $right;
-            } else {
-                $ti_target = '0 : 0'; // fallback
-            }
-        }
 
         // Update target capaian
         $targetcapaian->update([

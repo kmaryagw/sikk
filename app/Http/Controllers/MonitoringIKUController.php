@@ -2,27 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\HistoryMonitoringIKU;
-use App\Models\MonitoringIKU;
-use App\Models\MonitoringIKU_Detail;
-use App\Models\IndikatorKinerja;
-use App\Models\program_studi;
-use App\Models\RencanaKerja;
 use App\Models\tahun_kerja;
-use App\Models\target_indikator;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Str;
-use Symfony\Contracts\Service\Attribute\Required;
+use App\Models\RencanaKerja;
+use Illuminate\Http\Request;
+use App\Models\MonitoringIKU;
+use App\Models\program_studi;
+use App\Models\IndikatorKinerja;
+use App\Models\target_indikator;
+use App\Models\MonitoringFinalUnit;
+use App\Models\HistoryMonitoringIKU;
+use App\Models\MonitoringIKU_Detail;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
+use RealRashid\SweetAlert\Facades\Alert;
 use App\Exports\MonitoringIKUDetailExport;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class MonitoringIKUController extends Controller
 {
     public function __construct()
     {
-        if (Auth::check() && Auth::user()->role !== 'admin' && Auth::user()->role !== 'unit kerja') {
+        if (Auth::check() && Auth::user()->role !== 'admin' && Auth::user()->role !== 'unit kerja' && Auth::user()->role !== 'fakultas') {
             abort(403, 'Unauthorized access');
         }
     }
@@ -178,7 +179,7 @@ class MonitoringIKUController extends Controller
         }
 
         // 🔒 filter jika bukan admin
-        if ($user->role !== 'admin') {
+        if ($user->role !== 'admin' && $user->role !== 'fakultas') {
             $targetIndikatorsQuery->whereHas('indikatorKinerja.unitKerja', function ($sub) use ($user) {
                 $sub->where('unit_id', $user->unit_id);
             })
@@ -194,7 +195,7 @@ class MonitoringIKUController extends Controller
             'user'              => $user,
             'q'                 => $q, // 🔑 kirim ke view biar tidak undefined
         ]);
-}
+    }
 
     public function createDetail($mti_id)
     {
@@ -642,45 +643,135 @@ class MonitoringIKUController extends Controller
         $monitoringiku = MonitoringIKU::findOrFail($id);
 
         if ($monitoringiku->status == 1) {
-            return response()->json(['success' => false, 'message' => 'Monitoring IKU ini sudah final dan tidak dapat diubah.']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Monitoring IKU ini sudah final dan tidak dapat diubah.',
+            ]);
         }
 
-        if (!$monitoringiku->isFilled()) {
-            return response()->json(['success' => false, 'message' => 'Data harus diisi terlebih dahulu sebelum final.']);
+        // Cek apakah unit kerja user sudah mengisi semua data monitoring
+        if (! $monitoringiku->isCompleteForCurrentUnit()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unit kerja Anda belum melengkapi seluruh indikator yang menjadi tanggung jawabnya.',
+            ]);
         }
 
+        // Jika lengkap, finalisasi
         $monitoringiku->status = 1;
         $monitoringiku->save();
 
-        return response()->json(['success' => true, 'message' => 'Monitoring IKU berhasil diselesaikan.']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Monitoring IKU berhasil difinalisasi untuk unit kerja Anda.',
+        ]);
     }
 
     public function show(Request $request, $mti_id)
     {
-        $Monitoringiku = MonitoringIKU::find($mti_id);
+        $user = Auth::user();
+
+        $Monitoringiku = MonitoringIKU::findOrFail($mti_id);
         $prodi_id = $Monitoringiku->prodi_id;
         $th_id = $Monitoringiku->th_id;
 
-        $q = $request->input('q'); // Ambil kata kunci pencarian dari query string
+        // 🔎 Ambil keyword pencarian
+        $q = trim($request->input('q', ''));
 
-        $targetIndikators = target_indikator::with('indikatorKinerja', 'monitoringDetail')
-            ->where('prodi_id', $prodi_id)
+        // 🔧 Query utama
+        $targetIndikatorsQuery = target_indikator::where('prodi_id', $prodi_id)
             ->where('th_id', $th_id)
-            ->when($q, function($query) use ($q) {
-                // contoh filter: sesuaikan kolom yang ingin dicari
-                $query->whereHas('indikatorKinerja', function($sub) use ($q) {
-                    $sub->where('ik_nama', 'like', "%{$q}%");
-                });
+            ->with([
+                'indikatorKinerja.unitKerja',
+                'baselineTahun' => function ($sub) use ($prodi_id, $th_id) {
+                    $sub->where('prodi_id', $prodi_id)
+                        ->where('th_id', $th_id);
+                },
+                'monitoringDetail',
+                'historyMonitoring',
+            ]);
+
+        // 🔎 Filter pencarian berdasarkan nama/kode indikator
+        if ($q !== '') {
+            $targetIndikatorsQuery->whereHas('indikatorKinerja', function ($sub) use ($q) {
+                $sub->where('ik_nama', 'LIKE', "%{$q}%")
+                    ->orWhere('ik_kode', 'LIKE', "%{$q}%");
+            });
+        }
+
+        // 🔒 Filter berdasarkan role
+        if ($user->role !== 'admin') {
+            $targetIndikatorsQuery->whereHas('indikatorKinerja.unitKerja', function ($sub) use ($user) {
+                $sub->where('unit_id', $user->unit_id);
             })
-            ->get();
+            ->whereNotNull('ti_target'); // hanya tampilkan yg sudah ada target
+        }
+
+        $targetIndikators = $targetIndikatorsQuery->get();
 
         return view('pages.index-show-monitoringiku', [
-            'Monitoringiku'   => $Monitoringiku,
-            'targetIndikators'=> $targetIndikators,
-            'type_menu'       => 'monitoringiku',
-            'q'               => $q, // <<< kirim ke view
+            'Monitoringiku'     => $Monitoringiku,
+            'targetIndikators'  => $targetIndikators,
+            'type_menu'         => 'monitoringiku',
+            'user'              => $user,
+            'q'                 => $q, // kirim ke view agar tetap tampil di input pencarian
         ]);
     }
+
+    public function finalizeUnit($mti_id)
+    {
+        $user = Auth::user();
+        $unit_id = $user->unit_id;
+
+        \App\Models\MonitoringFinalUnit::updateOrCreate(
+            [
+                'monitoring_iku_id' => $mti_id,
+                'unit_id' => $unit_id,
+            ],
+            [
+                'status' => true,
+                'finalized_by' => $user->id,
+                'finalized_at' => now(),
+            ]
+        );
+
+        return response()->json(['success' => true, 'message' => 'Unit berhasil difinalisasi.']);
+    }
+
+    // public function cancelFinalizeByAdmin($unit_id)
+    // {
+    //     if (Auth::user()->role !== 'admin') {
+    //         return response()->json(['success' => false, 'message' => 'Akses ditolak.']);
+    //     }
+
+    //     $record = \App\Models\MonitoringFinalUnit::where('unit_id', $unit_id)
+    //         ->where('status', true)
+    //         ->first();
+
+    //     if (!$record) {
+    //         return response()->json(['success' => false, 'message' => 'Tidak ada finalisasi aktif untuk unit ini.']);
+    //     }
+
+    //     $record->update([
+    //         'status' => false,
+    //         'finalized_by' => null,
+    //         'finalized_at' => null,
+    //     ]);
+
+    //     return response()->json(['success' => true, 'message' => 'Finalisasi unit berhasil dibatalkan oleh admin.']);
+    // }
+    
+    public function cancelFinalizeByAdmin($unit_id)
+    {
+        MonitoringFinalUnit::where('unit_id', $unit_id)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Finalisasi unit berhasil dibatalkan.'
+        ]);
+    }
+
+
 
     public function exportDetail($mti_id, $type)
     {
