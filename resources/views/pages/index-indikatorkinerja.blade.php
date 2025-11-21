@@ -75,7 +75,8 @@
                                 <th>Ketercapaian</th>
                                 {{-- <th>Baseline</th> --}}
                                 <th>Status</th>
-                                <th style="width: 1%"><i class="fa-solid fa-user" title="Unit kerja penanggung jawab sudah ditetapkan" style="color:grey; font-size:0.8em;"></i></th>
+                                {{-- <th style="width: 1%"><i class="fa-solid fa-user" title="Unit kerja penanggung jawab sudah ditetapkan" style="color:grey; font-size:0.8em;"></i></th> --}}
+                                <th>Unit Kerja Penanggung Jawab (PIC)</th>
                                 @if (Auth::user()->role== 'admin')
                                 <th>Aksi</th>
                                 @endif
@@ -180,10 +181,12 @@
                                         @endif
                                     </td> 
                                     <td>
-                                        @if (!empty($indikatorkinerja->unit_id))
-                                            <i class="fa-solid fa-user-check" title="Unit kerja penanggung jawab sudah ditetapkan" style="color:green; font-size:0.8em;"></i>
+                                        @if ($indikatorkinerja->unitKerja->isNotEmpty())
+                                            @foreach ($indikatorkinerja->unitKerja as $unit)
+                                                <div>{{ $unit->unit_nama }}</div>
+                                            @endforeach
                                         @else
-                                            <i class="fa-solid fa-user-xmark" title="Unit kerja penanggung jawab belum ditetapkan" style="color:red; font-size:0.8em;"></i>
+                                            <span class="text-muted">Tidak ada</span>
                                         @endif
                                     </td>
                                     @if (Auth::user()->role== 'admin')

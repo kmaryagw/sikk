@@ -174,7 +174,7 @@ class TahunController extends Controller
 
     private function copyCapaianToBaseline($newThId)
     {
-        // Ambil semua tahun kerja, urutkan berdasar tahun awal (4 digit pertama dari th_tahun)
+        // Ambil semua tahun kerja dan urutkan berdasar tahun awal (4 digit pertama)
         $allYears = tahun_kerja::get()->sortBy(function ($t) {
             return (int) substr($t->th_tahun, 0, 4);
         })->values();
@@ -182,16 +182,31 @@ class TahunController extends Controller
         // Tahun pertama
         $firstYear = $allYears->first();
 
-        // Ambil semua indikator
+        // Ambil semua indikator dan prodi
         $indikatorList = IndikatorKinerja::all();
-
-        // Ambil semua prodi
         $prodiList = program_studi::all();
 
         // === CASE 1: Tahun pertama ===
         if ($firstYear && $firstYear->th_id == $newThId) {
             foreach ($indikatorList as $indikator) {
                 foreach ($prodiList as $prodi) {
+                    // Skip jika baseline sudah ada (jangan timpa)
+                    $existingBaseline = IkBaselineTahun::where([
+                        'ik_id' => $indikator->ik_id,
+                        'th_id' => $newThId,
+                        'prodi_id' => $prodi->prodi_id,
+                    ])->first();
+
+                    if ($existingBaseline && $existingBaseline->baseline !== null && $existingBaseline->baseline !== '') {
+                        continue;
+                    }
+
+                    // Tentukan baseline awal (default)
+                    $ketercapaian = strtolower(trim($indikator->ik_ketercapaian));
+                    $baselineValue = in_array($ketercapaian, ['nilai', 'persentase', 'rasio'])
+                        ? 0
+                        : 'draft';
+
                     IkBaselineTahun::updateOrCreate(
                         [
                             'ik_id'    => $indikator->ik_id,
@@ -199,7 +214,7 @@ class TahunController extends Controller
                             'prodi_id' => $prodi->prodi_id,
                         ],
                         [
-                            'baseline' => $indikator->ik_baseline ?? 0
+                            'baseline' => $baselineValue,
                         ]
                     );
                 }
@@ -207,7 +222,7 @@ class TahunController extends Controller
             return;
         }
 
-        // === CASE 2: Ada tahun sebelumnya ===
+        // === CASE 2: Tahun selain pertama (ada tahun sebelumnya) ===
         $currentYearIndex = $allYears->search(fn($t) => $t->th_id == $newThId);
 
         if ($currentYearIndex === false || $currentYearIndex === 0) {
@@ -218,33 +233,56 @@ class TahunController extends Controller
 
         foreach ($indikatorList as $indikator) {
             foreach ($prodiList as $prodi) {
-                $baseline = 0;
+                // Skip jika baseline sudah ada (jangan timpa)
+                $existingBaseline = IkBaselineTahun::where([
+                    'ik_id' => $indikator->ik_id,
+                    'th_id' => $newThId,
+                    'prodi_id' => $prodi->prodi_id,
+                ])->first();
 
+                if ($existingBaseline && $existingBaseline->baseline !== null && $existingBaseline->baseline !== '') {
+                    continue;
+                }
+
+                $baseline = null;
+
+                // Ambil capaian dari tahun sebelumnya
                 $details = MonitoringIKU_Detail::select('monitoring_iku_detail.*')
                     ->join('target_indikator as ti', 'monitoring_iku_detail.ti_id', '=', 'ti.ti_id')
                     ->join('monitoring_iku as mi', 'monitoring_iku_detail.mti_id', '=', 'mi.mti_id')
                     ->where('mi.th_id', $prevYear->th_id)
                     ->where('ti.ik_id', $indikator->ik_id)
-                    ->where('ti.prodi_id', $prodi->prodi_id) // filter per prodi
+                    ->where('ti.prodi_id', $prodi->prodi_id)
                     ->whereNotNull('monitoring_iku_detail.mtid_capaian')
                     ->get();
 
                 if ($details->isNotEmpty()) {
                     $ketercapaian = strtolower(trim($indikator->ik_ketercapaian));
 
-                    if (in_array($ketercapaian, ['persentase', 'nilai'])) {
+                    if (in_array($ketercapaian, ['persentase', 'nilai', 'rasio'])) {
+                        // Ambil capaian tertinggi (jika numerik)
                         $highest = $details->filter(fn($d) => is_numeric(trim($d->mtid_capaian)))
                             ->sortByDesc(fn($d) => (float)$d->mtid_capaian)
                             ->first();
+
                         if ($highest) {
                             $baseline = $highest->mtid_capaian;
                         }
-                    } else {
+                    } elseif ($ketercapaian === 'ketersediaan') {
+                        // Ambil capaian terbaru
                         $latest = $details->sortByDesc('created_at')->first();
                         if ($latest && trim($latest->mtid_capaian) !== '') {
                             $baseline = $latest->mtid_capaian;
                         }
                     }
+                }
+
+                // Jika belum pernah diukur → tetapkan default
+                if ($baseline === null || $baseline === '') {
+                    $ketercapaian = strtolower(trim($indikator->ik_ketercapaian));
+                    $baseline = in_array($ketercapaian, ['nilai', 'persentase', 'rasio'])
+                        ? 0
+                        : 'draft';
                 }
 
                 IkBaselineTahun::updateOrCreate(

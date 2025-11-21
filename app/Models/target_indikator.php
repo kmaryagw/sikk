@@ -55,7 +55,8 @@ class target_indikator extends Model
 
     public function unitKerja()
     {
-        return $this->belongsTo(UnitKerja::class, 'unit_id', 'unit_id');
+        return $this->belongsToMany(UnitKerja::class, 'indikatorkinerja_unitkerja', 'ik_id', 'unit_id')
+                    ->withPivot('ik_id', 'unit_id'); // Menggunakan pivot untuk mendapatkan unit kerja
     }
 
     public function baselineTahun()

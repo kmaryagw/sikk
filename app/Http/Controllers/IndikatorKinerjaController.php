@@ -129,23 +129,26 @@ class IndikatorKinerjaController extends Controller
             'ik_jenis' => 'required|in:IKU,IKT,IKU/IKT',
             'ik_is_aktif' => 'required|in:y,n',
             'ik_ketercapaian' => 'required|in:nilai,persentase,ketersediaan,rasio',
-            'unit_id' => 'required|string|exists:unit_kerja,unit_id',
+            'unit_id' => 'required|array',
+            'unit_id.*' => 'exists:unit_kerja,unit_id',
         ];
 
         $validatedData = $request->validate($validationRules);
 
         $ik_id = 'IK' . strtoupper(md5(uniqid()));
 
-        $indikator = new IndikatorKinerja();
-        $indikator->ik_id = $ik_id;
-        $indikator->ik_kode = $validatedData['ik_kode'];
-        $indikator->ik_nama = $validatedData['ik_nama'];
-        $indikator->std_id = $validatedData['std_id'];
-        $indikator->ik_jenis = $validatedData['ik_jenis'];
-        $indikator->ik_is_aktif = $validatedData['ik_is_aktif'];
-        $indikator->ik_ketercapaian = strtolower($validatedData['ik_ketercapaian']);
-        $indikator->unit_id = $validatedData['unit_id'];
-        $indikator->save();
+        $indikator = IndikatorKinerja::create([
+            'ik_id' => $ik_id,
+            'ik_kode' => $validatedData['ik_kode'],
+            'ik_nama' => $validatedData['ik_nama'],
+            'std_id' => $validatedData['std_id'],
+            'ik_jenis' => $validatedData['ik_jenis'],
+            'ik_is_aktif' => $validatedData['ik_is_aktif'],
+            'ik_ketercapaian' => strtolower($validatedData['ik_ketercapaian']),
+        ]);
+
+        // Simpan relasi ke tabel pivot
+        $indikator->unitKerja()->sync($validatedData['unit_id']);
 
         Alert::success('Sukses', 'Data Berhasil Ditambah');
         return redirect()->route('indikatorkinerja.index');
@@ -155,7 +158,11 @@ class IndikatorKinerjaController extends Controller
     {
         $title = 'Ubah Indikator Kinerja Utama';
 
-        $indikatorkinerja->load(['unitKerja']); 
+        // Muat relasi unitKerja
+        $indikatorkinerja->load('unitKerja');
+
+        // Debug untuk melihat data unitKerja yang dimuat
+        // dd($indikatorkinerja->unitKerja);  // Tambahkan debug ini untuk memastikan unitKerja sudah dimuat
 
         $standar        = Standar::orderBy('std_nama')->get();
         $unitKerjas     = UnitKerja::orderBy('unit_nama')->get();
@@ -185,11 +192,13 @@ class IndikatorKinerjaController extends Controller
             'ik_jenis'        => 'required|in:IKU,IKT,IKU/IKT',
             'ik_is_aktif'     => 'required|in:y,n',
             'ik_ketercapaian' => 'required|in:nilai,persentase,ketersediaan,rasio',
-            'unit_id'         => 'required|string|exists:unit_kerja,unit_id',
+            'unit_id'         => 'required|array',
+            'unit_id.*'       => 'exists:unit_kerja,unit_id',
         ];
 
         $validatedData = $request->validate($validationRules);
 
+        // Update data utama indikator
         $indikatorkinerja->update([
             'ik_kode'         => $validatedData['ik_kode'],
             'ik_nama'         => $validatedData['ik_nama'],
@@ -197,8 +206,10 @@ class IndikatorKinerjaController extends Controller
             'ik_jenis'        => $validatedData['ik_jenis'],
             'ik_ketercapaian' => strtolower($validatedData['ik_ketercapaian']),
             'ik_is_aktif'     => $validatedData['ik_is_aktif'],
-            'unit_id'         => $validatedData['unit_id'],
         ]);
+
+        // Sinkronisasi unit kerja (many-to-many)
+        $indikatorkinerja->unitKerja()->sync($validatedData['unit_id']);
 
         Alert::success('Sukses', 'Data Berhasil Diubah');
         return redirect()->route('indikatorkinerja.index');

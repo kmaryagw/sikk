@@ -7,8 +7,12 @@ use App\Models\target_indikator;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 
-class MonitoringIKUDetailExport implements FromCollection, WithHeadings, ShouldAutoSize
+class MonitoringIKUDetailExport implements FromCollection, WithHeadings, ShouldAutoSize, WithStyles
 {
     protected $mti_id;
     protected $type;
@@ -47,6 +51,7 @@ class MonitoringIKUDetailExport implements FromCollection, WithHeadings, ShouldA
 
             $target = $item->ti_target ?? '';
             $detail = $item->monitoringDetail ?? null;
+
             $capaian     = $detail->mtid_capaian ?? '';
             $url         = $detail->mtid_url ?? '';
             $status      = $detail->mtid_status ?? '';
@@ -95,4 +100,45 @@ class MonitoringIKUDetailExport implements FromCollection, WithHeadings, ShouldA
                 return ['No', 'Indikator Kinerja', 'Baseline', 'Target', 'Capaian', 'URL', 'Status', 'Keterangan', 'Evaluasi', 'Tindak Lanjut', 'Peningkatan'];
         }
     }
+
+    public function styles(Worksheet $sheet)
+    {
+        $sheet->getStyle('A:K')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('A:K')->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+        $sheet->getStyle('A')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+        $sheet->getStyle('A1:' . $sheet->getHighestColumn() . $sheet->getHighestRow())
+              ->getBorders()->getAllBorders()
+              ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+
+        $sheet->getStyle('1:1')->applyFromArray([
+            'font' => ['bold' => true],
+            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+            'fill' => [
+                'fillType' => 'solid',
+                'color' => ['rgb' => 'F2F2F2']
+            ],
+        ]);
+
+        // ✅ Auto tinggi baris
+        foreach (range(1, $sheet->getHighestRow()) as $row) {
+            $sheet->getRowDimension($row)->setRowHeight(-1);
+        }
+
+        // ✅ Lebar kolom tetap agar wrapText bisa aktif
+        $sheet->getColumnDimension('A')->setWidth(5);
+        $sheet->getColumnDimension('B')->setWidth(15);
+        $sheet->getColumnDimension('C')->setWidth(10);
+        $sheet->getColumnDimension('D')->setWidth(10);
+        $sheet->getColumnDimension('E')->setWidth(10);
+        $sheet->getColumnDimension('F')->setWidth(15);
+        $sheet->getColumnDimension('G')->setWidth(10);
+        $sheet->getColumnDimension('H')->setWidth(15);
+        $sheet->getColumnDimension('I')->setWidth(15);
+        $sheet->getColumnDimension('J')->setWidth(15);
+        $sheet->getColumnDimension('K')->setWidth(15);
+
+        return [];
+    }
+
 }

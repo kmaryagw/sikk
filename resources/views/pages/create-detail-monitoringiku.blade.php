@@ -304,6 +304,15 @@
                     { "sortable": false, "targets": [4, 5, 6] }
                 ],
                 "paging": false, 
+                "order": [[1, 'asc']],
+                info: true,
+                infoCallback: function(settings, start, end, max, total, pre) {
+                    return `
+                        <span class="badge bg-primary text-light px-3 py-2 m-3">
+                            Total Data : ${total}
+                        </span>
+                    `;
+                }
             });
         });
     </script>

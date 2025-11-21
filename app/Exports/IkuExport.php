@@ -22,22 +22,19 @@ class IkuExport implements FromCollection, WithHeadings, WithMapping
 
     public function collection()
     {
-        $query = target_indikator::select(
-                'tahun_kerja.th_tahun',
+        $query = target_indikator::with([
+                'indikatorKinerja.unitKerja',
+                'monitoringDetail'
+            ])
+            ->select(
+                'target_indikator.*',
                 'program_studi.nama_prodi',
-                'indikator_kinerja.ik_nama',
-                'target_indikator.ti_target',
-                'monitoring_iku_detail.mtid_capaian',
-                'monitoring_iku_detail.mtid_status',
-                'uk.unit_nama'
+                'tahun_kerja.th_tahun'
             )
             ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
-            ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
-            ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id')
-            ->leftJoin('monitoring_iku_detail', 'monitoring_iku_detail.ti_id', '=', 'target_indikator.ti_id')
-            ->leftJoin('unit_kerja as uk', 'uk.unit_id', '=', 'indikator_kinerja.unit_id');
+            ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id');
 
-        // Filter berdasarkan tahun (jika ada), jika tidak pakai tahun aktif
+        // Filter Tahun
         if ($this->tahunId) {
             $query->where('tahun_kerja.th_id', $this->tahunId);
         } else {
@@ -47,22 +44,26 @@ class IkuExport implements FromCollection, WithHeadings, WithMapping
             }
         }
 
-        // Filter prodi
+        // Filter Prodi
         if ($this->prodiId) {
             $query->where('program_studi.prodi_id', $this->prodiId);
         }
 
-        // Filter unit kerja
+        // Filter Unit Kerja (many-to-many)
         if ($this->unitId) {
-            $query->where('uk.unit_id', $this->unitId);
+            $query->whereHas('indikatorKinerja.unitKerja', function ($q) {
+                $q->where('unit_kerja.unit_id', $this->unitId);
+            });
         }
 
-        // Filter keyword (indikator kinerja)
+        // Filter Keyword pada indikator IKU
         if ($this->keyword) {
-            $query->where('indikator_kinerja.ik_nama', 'like', '%' . $this->keyword . '%');
+            $query->whereHas('indikatorKinerja', function ($q) {
+                $q->where('ik_nama', 'like', '%' . $this->keyword . '%');
+            });
         }
 
-        return $query->get();
+        return $query->orderBy('ti_target', 'asc')->get();
     }
 
     public function headings(): array
@@ -78,16 +79,60 @@ class IkuExport implements FromCollection, WithHeadings, WithMapping
         ];
     }
 
-    public function map($target): array
+    public function map($row): array
     {
+        // Ambil unit kerja (many-to-many)
+        $unitKerja = $row->indikatorKinerja->unitKerja->pluck('unit_nama')->join(', ');
+
+        // Ambil monitoring detail
+        $detail = $row->monitoringDetail;
+
+        $capaian = $detail->mtid_capaian ?? 'Belum Ada';
+
+        // Hitung status
+        $status = $detail ? $this->hitungStatus(
+            $detail->mtid_capaian,
+            $row->ti_target,
+            $row->indikatorKinerja->ik_ketercapaian
+        ) : 'Belum Ada';
+
         return [
-            $target->th_tahun ?? '-',
-            $target->nama_prodi ?? '-',
-            $target->unit_nama ?? '-',
-            $target->ik_nama ?? '-',
-            $target->ti_target ?? '-',
-            $target->mtid_capaian ?? 'Belum Ada',
-            $target->mtid_status ?? 'Belum Ada',
+            $row->th_tahun ?? '-',
+            $row->nama_prodi ?? '-',
+            $unitKerja ?: '-',
+            $row->indikatorKinerja->ik_nama ?? '-',
+            $row->ti_target ?? '-',
+            $capaian,
+            $status,
         ];
+    }
+
+    /**
+     * Menghitung status capaian IKU sama seperti di halaman index
+     */
+    private function hitungStatus($capaian, $target, $ketercapaian)
+    {
+        if ($capaian === null || $capaian === '' || $target === null) {
+            return 'Belum Ada';
+        }
+
+        switch ($ketercapaian) {
+            case 'persentase':
+                if ($capaian >= $target) return 'Tercapai';
+                return 'Tidak Tercapai';
+
+            case 'nilai':
+                if ($capaian >= $target) return 'Tercapai';
+                return 'Tidak Tercapai';
+
+            case 'rasio':
+                if ($target == 0) return 'Belum Ada';
+                $rasio = $capaian / $target;
+                if ($rasio >= 1) return 'Tercapai';
+                return 'Tidak Tercapai';
+
+            default:
+                return 'Belum Ada';
+        }
     }
 }

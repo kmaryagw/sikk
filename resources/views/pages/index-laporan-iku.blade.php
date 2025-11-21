@@ -37,16 +37,16 @@
                     </div>
                     {{-- @endif --}}
 
-                    <div class="col-auto">
-                        <select class="form-control" name="unit">
-                            <option value="">Semua Unit Kerja</option>
-                            @foreach ($units as $unit)
-                                <option value="{{ $unit->unit_id }}" {{ request('unit') == $unit->unit_id ? 'selected' : '' }}>
-                                    {{ $unit->unit_nama }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+                        <div class="col-auto">
+                            <select class="form-control" name="unit">
+                                <option value="">Semua Unit Kerja</option>
+                                @foreach ($units as $unit)
+                                    <option value="{{ $unit->unit_id }}" {{ request('unit') == $unit->unit_id ? 'selected' : '' }}>
+                                        {{ $unit->unit_nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
 
                     <div class="col-auto">
                         <select class="form-control" name="prodi">
@@ -94,22 +94,38 @@
                             <th>Tahun</th>
                             <th>Prodi</th>
                             <th style="width: 30%;">Indikator Kinerja</th>
-                            <th style="width: 10%;">Target Capaian</th>
+                            <th style="width: 5%;">Target</th>
                             <th style="width: 15%;">Capaian</th> 
                             <th>Status</th>
-                            <th>Unit Kerja</th>
+                            {{-- <th>Unit Kerja</th> --}}
                         </tr>
                     </thead>
                     
                     <tbody>
+                        {{-- @php
+                            // Fungsi untuk menghasilkan warna stabil berdasarkan nama prodi
+                            function colorFromProdi($name) {
+                                $hash = crc32($name);
+                                $colors = ['#e3f2fd', '#fce4ec', '#e8f5e9', '#fff3e0', '#ede7f6', '#f9fbe7', '#e0f7fa', '#f3e5f5'];
+                                return $colors[$hash % count($colors)];
+                            }
+                        @endphp --}}
                         @php $no = $target_capaians->firstItem(); @endphp
                         @foreach ($target_capaians as $targetcapaian)
-                        <tr>
+                        {{-- @php
+                            $bgColor = colorFromProdi($targetcapaian->nama_prodi ?? '');
+                        @endphp --}}
+                        <tr> {{-- transparan lembut --}}
                             <td style="padding: 3rem;">{{ $no++ }}</td>
                             <td>{{ $targetcapaian->th_tahun }}</td>
-                            <td>{{ $targetcapaian->nama_prodi }}</td>
-                            <td>{{ $targetcapaian->ik_nama }}</td>
-                            
+                            <td>
+                                {{-- Badge warna prodi --}}
+                                <span class="badge">
+                                    {{ $targetcapaian->nama_prodi }}
+                                </span>
+                            </td>
+                            <td>{{ $targetcapaian->ik_nama }}</td>                            
+
                             {{-- Target Capaian --}}
                             <td>
                                 @php
@@ -118,7 +134,7 @@
                                     $numericValue = (float) str_replace('%', '', $targetRaw);
                                     $progressColor = $numericValue == 0 ? '#dc3545' : '#28a745';
                                 @endphp
-                            
+
                                 @if ($ketercapaian === 'persentase' && is_numeric($numericValue))
                                     <div class="ring-progress-wrapper">
                                         <div class="ring-progress" style="--value: {{ $numericValue }}; --progress-color: {{ $progressColor }};">
@@ -150,7 +166,7 @@
                                     {{ $targetRaw }}
                                 @endif
                             </td>                          
-                    
+
                             {{-- Capaian --}}
                             <td>
                                 @php
@@ -160,6 +176,7 @@
                                     $progressColor = $numericValue == 0 ? '#dc3545' : '#28a745';
                                 @endphp
                             
+
                                 @if ($ketercapaian === 'persentase' && is_numeric($numericValue))
                                     <div class="ring-progress-wrapper">
                                         <div class="ring-progress" style="--value: {{ $numericValue }}; --progress-color: {{ $progressColor }};">
@@ -186,7 +203,7 @@
                                     @elseif (strtolower($capaian) === 'draft')
                                         <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
                                     @else
-                                        <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak Valid</span>
+                                        <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak Terlaksana</span>
                                     @endif
                                 @elseif (!empty($capaian))
                                     <span class="badge badge-primary">{{ $capaian }}</span>
@@ -203,6 +220,7 @@
                                     $status = hitungStatus($capaian, $target, $jenis);
                                 @endphp
                             
+
                                 @if ($status === 'tercapai')
                                     <span class="text-success"><i class="fa-solid fa-check-circle"></i> Tercapai</span>
                                 @elseif ($status === 'terlampaui')
@@ -215,7 +233,11 @@
                                     <span>Belum ada Status</span>
                                 @endif
                             </td>    
-                            <td>{{ $targetcapaian->unit_nama }}</td>                        
+                            {{-- <td>
+                                @foreach ($targetcapaian->indikatorKinerja->unitKerja as $unit)
+                                    <span class="badge">{{ $unit->unit_nama }}</span>
+                                @endforeach
+                            </td>                      --}}
                         </tr>
                     @endforeach
                         @if ($target_capaians->isEmpty())

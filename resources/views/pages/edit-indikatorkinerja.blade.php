@@ -122,11 +122,11 @@
                                                     <i class="fas fa-building"></i>
                                                 </div>
                                             </div>
-                                            <select id="unit_id" name="unit_id" class="form-control" required>
+                                            <select id="unit_id" name="unit_id[]" class="form-control select2" multiple required>
                                                 <option value="">Pilih Unit Kerja</option>
                                                 @foreach ($unitKerjas as $unit)
                                                     <option value="{{ $unit->unit_id }}" 
-                                                        {{ old('unit_id', $indikatorkinerja->unit_id ?? '') == $unit->unit_id ? 'selected' : '' }}>
+                                                        {{ in_array($unit->unit_id, old('unit_id', $indikatorkinerja->unitKerja->pluck('unit_id')->toArray() ?? [])) ? 'selected' : '' }}>
                                                         {{ $unit->unit_nama }}
                                                     </option>
                                                 @endforeach

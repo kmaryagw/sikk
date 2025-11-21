@@ -192,20 +192,33 @@ class TargetCapaianProdiController extends Controller
                             $fail("Baseline untuk indikator '$indikator->ik_nama' harus bilangan bulat antara 0–100.");
                         }
                     } elseif ($ketercapaian === 'ketersediaan') {
-                        if ($value !== '' && !in_array($value, ['ada', 'draft'])) {
+                        if ($value === '' || is_null($value)) {
+                            $request->merge([
+                                "indikator.$index.baseline" => 'draft'
+                            ]);
+                            return;
+                        }
+                        if (!in_array($value, ['ada', 'draft'])) {
                             $fail("Baseline untuk indikator '$indikator->ik_nama' hanya boleh 'ada' atau 'draft'.");
                         }
                     } elseif ($ketercapaian === 'rasio') {
-                        if ($value !== '' && !preg_match('/^\d+\s*:\s*\d+$/', $value)) {
+                        if ($value === '' || is_null($value)) {
+                            // Boleh kosong → lewati validasi
+                            return;
+                        }
+
+                        if (!preg_match('/^\d+\s*:\s*\d+$/', $value)) {
                             $fail("Baseline untuk indikator '$indikator->ik_nama' harus format 'angka:angka'.");
                             return;
                         }
+
                         $value = preg_replace('/\s*/', '', $value);
                         [$left, $right] = explode(':', $value);
                         if ((int)$left === 0 && (int)$right === 0) {
                             $fail("Baseline untuk indikator '$indikator->ik_nama' tidak boleh 0:0.");
                             return;
                         }
+
                         $request->merge([
                             "indikator.$index.baseline" => "{$left} : {$right}"
                         ]);
@@ -237,20 +250,32 @@ class TargetCapaianProdiController extends Controller
                             $fail("Target untuk indikator '$indikator->ik_nama' harus bilangan bulat antara 0-100.");
                         }
                     } elseif ($ketercapaian === 'ketersediaan') {
-                        if ($value !== '' && !in_array($value, ['ada', 'draft'])) {
+                        if ($value === '' || is_null($value)) {
+                            $request->merge([
+                                "indikator.$index.target" => 'draft'
+                            ]);
+                            return;
+                        }
+
+                        if (!in_array($value, ['ada', 'draft'])) {
                             $fail("Target untuk indikator '$indikator->ik_nama' hanya boleh 'ada' atau 'draft'.");
                         }
                     } elseif ($ketercapaian === 'rasio') {
+                        if ($value === '' || is_null($value)) {
+                            // Boleh kosong → lewati validasi
+                            return;
+                        }
+
                         $value = trim($value);
 
                         // Validasi pola: hanya '0' atau 'angka:angka'
-                        if ($value !== '' && !preg_match('/^(0|\d+\s*:\s*\d+)$/', $value)) {
+                        if (!preg_match('/^(0|\d+\s*:\s*\d+)$/', $value)) {
                             $fail("Target untuk indikator '$indikator->ik_nama' harus berupa '0' atau format 'angka:angka' (contoh: 0, 1:2, 0:5).");
                             return;
                         }
 
                         // Hapus semua spasi
-                        $value = preg_replace('/\s*/', '', $value);
+                        // $value = preg_replace('/\s*/', '', $value);
 
                         // Jika hanya 0, langsung diterima tanpa explode
                         if ($value === '0') {
@@ -260,26 +285,20 @@ class TargetCapaianProdiController extends Controller
                             return;
                         }
 
-                        // Jika mengandung ":", pecah jadi dua bagian
-                        if (strpos($value, ':') !== false) {
-                            [$left, $right] = explode(':', $value);
-
-                            // Pastikan dua sisi adalah angka
-                            if (!is_numeric($left) || !is_numeric($right)) {
-                                $fail("Rasio untuk indikator '$indikator->ik_nama' harus berisi angka di kedua sisi (contoh: 1:2).");
-                                return;
-                            }
-
-                            // Tidak boleh 0:0
-                            if ((int)$left === 0 && (int)$right === 0) {
-                                $fail("Rasio untuk indikator '$indikator->ik_nama' tidak boleh 0:0.");
-                                return;
-                            }
-
-                            $request->merge([
-                                "indikator.$index.target" => "{$left} : {$right}"
-                            ]);
+                        [$left, $right] = explode(':', $value);
+                        if (!is_numeric($left) || !is_numeric($right)) {
+                            $fail("Rasio untuk indikator '$indikator->ik_nama' harus berisi angka di kedua sisi (contoh: 1:2).");
+                            return;
                         }
+
+                        if ((int)$left === 0 && (int)$right === 0) {
+                            $fail("Rasio untuk indikator '$indikator->ik_nama' tidak boleh 0:0.");
+                            return;
+                        }
+
+                        $request->merge([
+                            "indikator.$index.target" => "{$left} : {$right}"
+                        ]);
                     }
 
                 }
@@ -412,6 +431,11 @@ class TargetCapaianProdiController extends Controller
                             $fail("Baseline harus bilangan bulat antara 0-100.");
                         }
                     } elseif ($ketercapaian === 'ketersediaan') {
+                        if ($value === '' || is_null($value)) {
+                            $value = 'draft';
+                            request()->merge(['baseline' => 'draft']);
+                            return;
+                        }
                         if (!in_array($value, ['ada', 'draft'])) {
                             $fail("Baseline hanya boleh 'ada' atau 'draft'.");
                         }
@@ -474,7 +498,18 @@ class TargetCapaianProdiController extends Controller
                     }
                 ];
             } elseif ($ketercapaian === 'ketersediaan') {
-                $validationRules['ti_target'] = 'required|in:ada,draft';
+                $validationRules['ti_target'] = [
+                'nullable',
+                function ($attribute, $value, $fail) {
+                    if ($value === '' || is_null($value)) {
+                        // request()->merge(['ti_target' => 'draft']);
+                        return;
+                    }
+                    if (!in_array(strtolower($value), ['ada', 'draft'])) {
+                        $fail("Target hanya boleh 'ada' atau 'draft'.");
+                    }
+                }
+            ];
             } elseif ($ketercapaian === 'rasio') {
                 $validationRules['ti_target'] = [
                     'required',
@@ -525,13 +560,17 @@ class TargetCapaianProdiController extends Controller
         $request->validate($validationRules, $customMessages);
 
 
-        // Update target capaian
+        $target = $request->ti_target;
+        if ($target === null || $target === '') {
+            $target = $targetcapaian->ti_target; // gunakan nilai lama
+        }
+
         $targetcapaian->update([
-            'ik_id'         => $request->ik_id,
-            'ti_target'     => $ti_target,
+            'ik_id' => $request->ik_id,
+            'ti_target' => $target,
             'ti_keterangan' => $request->ti_keterangan,
-            'prodi_id'      => $request->prodi_id,
-            'th_id'         => $request->th_id,
+            'prodi_id' => $request->prodi_id,
+            'th_id' => $request->th_id,
         ]);
 
         // Ambil baseline lama kalau field kosong

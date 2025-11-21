@@ -41,9 +41,11 @@ class MonitoringIKU_Detail extends Model
         return $this->belongsTo(target_indikator::class, 'ti_id', 'ti_id');
     }
 
+    // Mengubah relasi ke 'UnitKerja' dengan relasi many-to-many melalui 'indikatorkinerja_unitkerja'
     public function unitKerja()
     {
-        return $this->belongsTo(UnitKerja::class, 'unit_id', 'unit_id');
+        return $this->belongsToMany(UnitKerja::class, 'indikatorkinerja_unitkerja', 'ik_id', 'unit_id')
+                    ->withPivot('ik_id', 'unit_id');
     }
 
     public function monitoring()
@@ -55,9 +57,10 @@ class MonitoringIKU_Detail extends Model
     {
         return $this->belongsTo(RencanaKerja::class, 'rk_id', 'rk_id');
     }
-    
+
+    // Mengubah relasi ke 'IndikatorKinerja' melalui relasi yang benar
     public function indikatorKinerja()
     {
-        return $this->belongsTo(IndikatorKinerja::class, 'ik_id', 'ik_id');
+        return $this->belongsTo(IndikatorKinerja::class, 'ti_id', 'ik_id');
     }
 }

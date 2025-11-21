@@ -81,7 +81,7 @@
                 <th style="width: 1%;">No</th>
                 <th style="width: 10%;">Tahun</th>
                 <th style="width: 10%;">Prodi</th>
-                <th style="width: 15%;">Unit Kerja</th>
+                {{-- <th style="width: 15%;">Unit Kerja</th> --}}
                 <th style="width: 30%;">Indikator Kinerja</th>
                 <th style="width: 10%;">Target Capaian</th>
                 <th style="width: 10%;">Capaian</th>
@@ -101,7 +101,7 @@
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $target->th_tahun }}</td>
                     <td>{{ $target->nama_prodi }}</td>
-                    <td>{{ $target->unit_nama ?? '-' }}</td>
+                    {{-- <td>{{ $target->unit_nama ?? '-' }}</td> --}}
                     <td>{{ $target->ik_nama }}</td>
 
                     {{-- Target --}}

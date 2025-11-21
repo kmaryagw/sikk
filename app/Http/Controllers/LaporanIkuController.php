@@ -70,7 +70,10 @@ class LaporanIkuController extends Controller
         }
 
         if ($unitId) { // 🔹 filter unit kerja
-            $query->where('uk.unit_id', $unitId);
+            // Menggunakan relasi many-to-many dengan unitKerja
+            $query->whereHas('indikatorKinerja.unitKerja', function ($q) use ($unitId) {
+                $q->where('unit_kerja.unit_id', $unitId); // Menggunakan alias unit_kerja untuk filter
+            });
         }
 
         $target_capaians = $query->paginate(10)->withQueryString();
@@ -99,29 +102,37 @@ class LaporanIkuController extends Controller
         $unitId  = $request->unit;
         $keyword = $request->q;
 
-        // ✅ Pakai tahun aktif kalau user tidak pilih
+        // Jika user tidak memilih tahun → gunakan tahun aktif
         if (!$tahunId) {
             $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->first();
             $tahunId = $tahunAktif?->th_id;
         }
 
-        // Ambil detail untuk nama file
+        // Ambil label untuk nama file
         $tahunText = $tahunId ? tahun_kerja::find($tahunId)?->th_tahun : 'Semua-Tahun';
         $prodiText = $prodiId ? program_studi::find($prodiId)?->nama_prodi : 'Semua-Prodi';
         $unitText  = $unitId ? UnitKerja::find($unitId)?->unit_nama : 'Semua-Unit';
-        $tanggal   = \Carbon\Carbon::now()->format('Ymd_His');
 
-        // ✅ Sanitasi supaya tidak ada "/" atau "\"
+        $tanggal = now()->format('Ymd_His');
+
+        // Sanitasi agar tidak mengandung karakter ilegal
         $sanitize = fn($string) => preg_replace('/[\/\\\\]+/', '-', str_replace(' ', '-', $string ?? ''));
 
+        // Nama file rapi + informatif
         $filename = "Laporan_IKU_" 
             . $sanitize($tahunText) . "_" 
             . $sanitize($prodiText) . "_" 
             . $sanitize($unitText) . "_" 
             . $tanggal . ".xlsx";
 
-        return \Maatwebsite\Excel\Facades\Excel::download(
-            new IkuExport($tahunId, $prodiId, $unitId, $keyword),
+        // Ekspor Excel
+        return Excel::download(
+            new IkuExport(
+                $tahunId,
+                $prodiId,
+                $unitId,
+                $keyword
+            ),
             $filename
         );
     }
@@ -133,54 +144,67 @@ class LaporanIkuController extends Controller
         $unitId  = $request->query('unit');
         $keyword = $request->query('q');
 
-        // Ambil tahun aktif jika user tidak memilih
+        // Pakai tahun aktif ketika user tidak memilih
         if (!$tahunId) {
             $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->first();
             $tahunId = $tahunAktif?->th_id;
         }
 
+        // Query laporan PDF
         $query = target_indikator::select(
-                'target_indikator.*',
-                'indikator_kinerja.ik_nama',
-                'program_studi.nama_prodi',
                 'tahun_kerja.th_tahun',
-                'uk.unit_nama'
+                'program_studi.nama_prodi',
+                'uk.unit_nama',
+                'indikator_kinerja.ik_nama',
+                'target_indikator.ti_target',
+                'monitoring_iku_detail.mtid_capaian',
+                'monitoring_iku_detail.mtid_status'
             )
-            ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
             ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
+            ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
             ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id')
+            ->leftJoin('monitoring_iku_detail', 'monitoring_iku_detail.ti_id', '=', 'target_indikator.ti_id')
             ->leftJoin('unit_kerja as uk', 'uk.unit_id', '=', 'indikator_kinerja.unit_id');
 
+        // Filter tahun
         if ($tahunId) {
             $query->where('tahun_kerja.th_id', $tahunId);
         }
 
+        // Filter prodi
         if ($prodiId) {
             $query->where('program_studi.prodi_id', $prodiId);
         }
 
+        // Filter unit
         if ($unitId) {
-            $query->where('uk.unit_id', $unitId);
+            $query->whereHas('indikatorKinerja.unitKerja', function ($q) use ($unitId) {
+                $q->where('unit_kerja.unit_id', $unitId);
+            });
         }
 
+        // Filter keyword
         if ($keyword) {
             $query->where('indikator_kinerja.ik_nama', 'like', '%' . $keyword . '%');
         }
 
         $target_capaians = $query->get();
 
-        // Ambil detail untuk nama file
+        // Detail nama file
         $tahun = $tahunId ? tahun_kerja::find($tahunId)?->th_tahun : 'Semua-Tahun';
         $prodi = $prodiId ? program_studi::find($prodiId)?->nama_prodi : 'Semua-Prodi';
         $unit  = $unitId ? UnitKerja::find($unitId)?->unit_nama : 'Semua-Unit';
 
-        // Fungsi helper untuk sanitize nama file
+        // Sanitasi nama file agar tidak ada karakter ilegal
         $sanitize = fn($string) => preg_replace('/[\/\\\\]+/', '-', str_replace(' ', '-', $string ?? ''));
 
-        $namaFile = 'Laporan_IKU_' 
-            . $sanitize($tahun) . '_' 
-            . $sanitize($prodi) . '_' 
-            . $sanitize($unit) . '.pdf';
+        // Nama file lebih rapi & tidak doble .pdf
+        $namaFile = "Laporan_IKU_" 
+            . $sanitize($tahun) . "_" 
+            . $sanitize($prodi) . "_" 
+            . $sanitize($unit) . "_" 
+            . now()->format('Ymd_His')
+            . ".pdf";
 
         $pdf = Pdf::loadView('export.laporan-iku-pdf', [
             'target_capaians' => $target_capaians,

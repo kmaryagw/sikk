@@ -68,7 +68,7 @@
                         </button>
                         
 
-                        <button type="button" class="btn btn-danger" id="cancelEdit"><i class="fas fa-arrow-left"></i>Batal</button>
+                        <button type="button" class="btn btn-danger" id="cancelEdit">Batal</button>
                     </div>
 
                     
@@ -115,8 +115,8 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i>Simpan</button>
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><i class="fas fa-arrow-left"></i>Batal</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Simpan</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
                 </div>
             </form>
         </div>

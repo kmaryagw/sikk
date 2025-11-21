@@ -120,10 +120,11 @@
                                                     <i class="fas fa-building"></i>
                                                 </div>
                                             </div>
-                                            <select id="unit_id" name="unit_id" class="form-control" required>
-                                                <option value="" disabled selected>Pilih Unit Kerja</option>
+                                            <select id="unit_id" name="unit_id[]" class="form-control select2" multiple required>
+                                                <option value="" disabled>Pilih Unit Kerja</option>
                                                 @foreach ($unitKerjas as $unit)
-                                                    <option value="{{ $unit->unit_id }}" {{ old('unit_id') == $unit->unit_id ? 'selected' : '' }}>
+                                                    <option value="{{ $unit->unit_id }}" 
+                                                        {{ in_array($unit->unit_id, old('unit_id', [])) ? 'selected' : '' }}>
                                                         {{ $unit->unit_nama }}
                                                     </option>
                                                 @endforeach

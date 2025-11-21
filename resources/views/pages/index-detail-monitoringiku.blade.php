@@ -8,23 +8,29 @@
     <link rel="stylesheet" href="{{ asset('css/circular-progress-bar.css') }}">
     <style>
         .keterangan-content {
-            white-space: pre-line;     /* tampilkan enter */
+            white-space: pre-line;    
             text-align: left;
-            word-break: break-word;    /* pecah kata super panjang */
+            word-break: break-word;   
             overflow-wrap: anywhere;
         }
 
         .table-responsive {
-        max-height: 50rem;   /* tinggi maksimum tabel */
-        overflow-y: auto;    /* aktifkan scroll vertikal */
+        max-height: 50rem;  
+        overflow-y: auto;    
         }
 
         .table thead th {
             position: sticky;
             top: 0;
             z-index: 10;
-            background-color: #f8f9fa !important; /* warna header */
+            background-color: #f8f9fa !important; 
         }
+
+        .table td, .table th {
+            text-align: center;         
+            vertical-align: middle;     
+        }
+
     </style>
 @endpush
 
@@ -34,7 +40,7 @@
         <div class="section-header">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h1 class="mb-0">Detail Program Studi</h1>
+                    <h1 class="mb-0">Detail Monitoring Indikator Kinerja</h1>
                     <a class="btn btn-danger" href="{{ route('monitoringiku.index') }}">
                         <i class="fa-solid fa-arrow-left"></i> Kembali
                     </a>
@@ -43,19 +49,30 @@
         </div>
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h4>Data Monitoring Indikator Kinerja dari Prodi : <span class="badge badge-info">{{ $Monitoringiku->targetIndikator->prodi->nama_prodi }}</span> Tahun : <span class="badge badge-primary">{{ $Monitoringiku->targetIndikator->tahunKerja->th_tahun }}</span></h4>
+                <h4>Prodi : <span class="badge badge-info">{{ $Monitoringiku->targetIndikator->prodi->nama_prodi }}</span> Tahun : <span class="badge badge-primary">{{ $Monitoringiku->targetIndikator->tahunKerja->th_tahun }}</span></h4>
                 <form action="{{ route('monitoringiku.index-detail', $Monitoringiku->mti_id) }}" method="GET">
                     <div class="form-row align-items-center">
                         <div class="col-auto">
-                        <input class="form-control form-control-sm" 
+                            <select name="unit_kerja" class="form-control form-control-sm">
+                                <option value="">Pilih Unit Kerja</option>
+                                @foreach($unitKerjas as $unit)
+                                    <option value="{{ $unit->unit_id }}" 
+                                        {{ $unitKerjaFilter == $unit->unit_id ? 'selected' : '' }}>
+                                        {{ $unit->unit_nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <input class="form-control form-control-sm" 
                                 name="q" 
                                 value="{{ $q }}" 
                                 placeholder="Pencarian..." />
                         </div>
                         <div class="col-auto">
-                        <button class="btn btn-info btn-sm">
-                            <i class="fa-solid fa-search"></i> Cari
-                        </button>
+                            <button class="btn btn-info btn-sm">
+                                <i class="fa-solid fa-search"></i> Cari
+                            </button>
                         </div>
                     </div>
                 </form>
@@ -95,19 +112,21 @@
                             <th style="width: 30%;">Indikator Kinerja</th>
                             <th style="width: 5%;">Baseline</th>
                             <th>Target</th>
-                            @if (Auth::user()->role == 'admin')
+                            @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'fakultas')
                                 <th>Capaian</th>
-                                <th style="width: 9%;">URL</th>
+                                <th style="width: 10%;">URL</th>
                                 <th>Status</th>
                                 <th style="width: 9%;">Keterangan</th>
                                 <th style="width: 15%;">Evaluasi</th>
                                 <th style="width: 15%;">Tindak Lanjut</th>
                                 <th style="width: 15%;">Peningkatan</th>
+                                <th style="width: 10%;">Aksi</th>
                             @else
                                 <th>Capaian</th>
                                 <th>Status</th>
                                 <th>Keterangan</th>
                                 <th>URL</th>
+                                <th style="width: 10%;">Aksi</th>
                             @endif
                         </tr>
                     </thead>
@@ -120,6 +139,9 @@
                                         {{-- {{ $target->indikatorKinerja->ik_kode }} - {{ $target->indikatorKinerja->ik_nama }} --}}
                                         {{ ($target->has('indikatorKinerja') ?  $target->indikatorKinerja->ik_kode : "") }} - {{ ($target->has('indikatorKinerja') ?  $target->indikatorKinerja->ik_nama : "") }}
                                     </td>
+                                    {{-- @php
+                                        dd($target->indikatorKinerja); 
+                                    @endphp --}}
                                     <td>
                                         @php
                                             $ketercapaian = strtolower(optional($target->indikatorKinerja)->ik_ketercapaian ?? '');
@@ -205,7 +227,7 @@
                                     </td>         
 
                                     {{-- layout kolom admin mulai dari capaian --}}
-                                    @if (Auth::user()->role == 'admin')
+                                    @if (Auth::user()->role == 'admin' || Auth::user()->role == 'fakultas')
                                     <td>
                                         @php
                                             $capaian = optional($target->monitoringDetail)->mtid_capaian;
@@ -250,7 +272,7 @@
                                     </td>   
                                     <td>
                                         @php
-                                            $status = strtolower(optional($target->monitoringDetail)->mtid_status ?? '');
+                                            $status = strtolower(optional($target->monitoringDetail)->mtid_status ?? ' ');
                                         @endphp
                                     
                                         @if($status === 'tercapai')
@@ -262,7 +284,7 @@
                                         @elseif($status === 'tidak terlaksana')
                                             <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak Terlaksana</span>
                                         @else
-                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i></span>
+                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak Terlaksana</span>
 
                                         @endif
                                     </td>         
@@ -307,6 +329,13 @@
                                             <span class="text-muted">Belum ada peningkatan</span>
                                         @endif
                                     </td>
+                                    <td>
+                                        <a href="{{ route('monitoringiku.edit-detail', ['mti_id' => $Monitoringiku->mti_id, 'ti_id' => $target->ti_id]) }}" class="btn btn-warning btn-sm">
+                                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                                        </a>
+                                    </td>
+                                    {{-- Tambahan untuk ADMIN --}}
+
                                     {{-- layout kolom bukan admin mulai dari capaian  --}}
                                     @else
                                     <td>
@@ -358,7 +387,7 @@
                                         @elseif($status === 'tidak terlaksana')
                                             <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak Terlaksana</span>
                                         @else
-                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i>-</span>
+                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i></span>
 
                                         @endif
                                     </td>         
@@ -382,7 +411,14 @@
                                             Belum Ada URL
                                         @endif
                                     </td> 
+                                    <td>
+                                        <a href="{{ route('monitoringiku.edit-detail', ['mti_id' => $Monitoringiku->mti_id, 'ti_id' => $target->ti_id]) }}" class="btn btn-warning btn-sm">
+                                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                                        </a>
+                                    </td>
                                     @endif
+                                    {{-- layout kolom bukan admin mulai dari capaian  --}}
+
                                     {{-- @if (Auth::user()->role == 'unit kerja')
                                     <td class="text-center">
                                         <a href="{{ route('monitoringiku.edit-detail', ['mti_id' => $Monitoringiku->mti_id, 'ti_id' => $target->ti_id]) }}" class="btn btn-sm btn-warning"><i class="fa-solid fa-pen-to-square"></i> Isi/Ubah</a>                                      
@@ -428,6 +464,9 @@
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
     <script>
         function confirmDelete(event, formid) {
             event.preventDefault();
@@ -479,6 +518,58 @@
         });
     });
     </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Inisialisasi DataTables hanya dengan fitur sorting
+            $('.table').DataTable({
+                "paging": false,        // Menonaktifkan fitur pagination
+                "searching": false,     // Menonaktifkan fitur pencarian
+                "ordering": true,       // Mengaktifkan fitur sorting
+                "order": [[1, 'asc']],  // Mengurutkan berdasarkan kolom "Indikator Kinerja" (indeks 1)
+                "lengthChange": false,  // Menonaktifkan perubahan jumlah data per halaman
+                info: true,
+                infoCallback: function(settings, start, end, max, total, pre) {
+                    return `
+                        <span class="badge bg-primary text-light px-3 py-2 m-3">
+                            Total Data : ${total}
+                        </span>
+                    `;
+                }
+            });
+
+            const btns = document.querySelectorAll('.btn-lihat-keterangan');
+            const modalTitle = document.getElementById('modalIndikatorNama');
+            const modalBody = document.getElementById('modalKeteranganContent');
+
+            const keteranganModal = new bootstrap.Modal(document.getElementById('keteranganModal'));
+
+            btns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    modalTitle.textContent = this.getAttribute('data-indikator') || '-';
+                    modalBody.innerText = this.getAttribute('data-keterangan') || 'Belum ada keterangan';
+                    keteranganModal.show();
+                });
+            });
+        });
+
+        document.getElementById('copyKeteranganBtn').addEventListener('click', function() {
+            const text = document.getElementById('modalKeteranganContent').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                if (window.Swal) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Keterangan disalin',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            });
+        });
+    </script>
+
 @endpush
 
 

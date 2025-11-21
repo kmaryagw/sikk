@@ -34,8 +34,14 @@ class UnitKerja extends Model
         return $this->hasMany(RencanaKerja::class, 'unit_id', 'unit_id');
     }
     
+    // public function indikatorKinerja()
+    // {
+    //     return $this->hasMany(IndikatorKinerja::class, 'unit_id', 'unit_id');
+    // }
+
     public function indikatorKinerja()
     {
-        return $this->hasMany(IndikatorKinerja::class, 'unit_id', 'unit_id');
+        return $this->belongsToMany(IndikatorKinerja::class, 'indikatorkinerja_unitkerja', 'unit_id', 'ik_id')
+                    ->withPivot('ik_id', 'unit_id'); // Jika Anda perlu mengambil data pivot
     }
 }

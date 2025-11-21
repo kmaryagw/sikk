@@ -54,21 +54,32 @@
                                 <td>{{ $surat->sn_nomor ?? 'Belum Valid '}}</td>
                                 <td>{{ $surat->organisasiJabatan->oj_nama }} ({{ $surat->organisasiJabatan->parent->oj_nama ?? '-' }}, {{ $surat->organisasiJabatan->parent->parent->oj_nama ?? '-' }})</td>
                                 <td>
-                                    <div class="d-flex align-items-center text-truncate" style="max-width: 250px;">
-                                        <span class="text-truncate" style="max-width: 220px;" 
-                                              data-bs-toggle="tooltip" 
-                                              data-bs-placement="top" 
-                                              title="{{ $surat->lingkup->skl_nama }} ({{ $surat->lingkup->perihal->skp_nama ?? '' }}, {{ $surat->lingkup->perihal->fungsi->skf_nama ?? '' }})">
-                                            {{ $surat->lingkup->skl_nama }} ({{ $surat->lingkup->perihal->skp_nama ?? '' }}, {{ $surat->lingkup->perihal->fungsi->skf_nama ?? '' }})
-                                        </span>
-                                        <i class="fa-solid fa-circle-info ms-2 text-primary" 
-                                           data-bs-toggle="tooltip" 
-                                           data-bs-placement="top" 
-                                           title="{{ $surat->lingkup->skl_nama }} ({{ $surat->lingkup->perihal->skp_nama ?? '' }}, {{ $surat->lingkup->perihal->fungsi->skf_nama ?? '' }})"
-                                           style="cursor: pointer;">
-                                        </i>
+                                    @php
+                                        // Gabungkan semua data lingkup dalam satu string
+                                        $lingkupText = trim($surat->lingkup->skl_nama . ' (' .
+                                            ($surat->lingkup->perihal->skp_nama ?? '-') . ', ' .
+                                            ($surat->lingkup->perihal->fungsi->skf_nama ?? '-') . ')');
+
+                                        // Tentukan batas karakter (misalnya 40)
+                                        $maxLength = 40;
+                                        $isTooLong = strlen($lingkupText) > $maxLength;
+                                    @endphp
+
+                                    <div class="d-flex align-items-center" style="max-width: 250px;">
+                                        @if($isTooLong)
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-info text-truncate"
+                                                    style="max-width: 220px;"
+                                                    onclick="showFullText('{{ addslashes($lingkupText) }}')">
+                                                {{ Str::limit($lingkupText, $maxLength) }}
+                                            </button>
+                                        @else
+                                            <span class="text-truncate" style="max-width: 220px;">
+                                                {{ $lingkupText }}
+                                            </span>
+                                        @endif
                                     </div>
-                                </td>                                
+                                </td>                               
                                 <td>{{ $surat->sn_tanggal }}</td>
                                 <td>{{ $surat->sn_perihal }}</td>
                                 <td>{{ $surat->sn_keterangan }}</td>
@@ -84,80 +95,77 @@
                                     @endif
                                 </td>
                                 <td>{{ $surat->sn_revisi ?? '-'}}</td>
-                                <td>
+                                <td class="text-center align-middle" style="white-space: nowrap;">
                                     @php
-                                        $oj_nama_lower = strtolower($surat->organisasiJabatan->oj_nama);
+                                        $oj_nama_lower = strtolower($surat->organisasiJabatan->oj_nama ?? '');
                                         $oj_induk_lower = strtolower($surat->organisasiJabatan->parent->oj_nama ?? '');
-                                        $sn_status_lower = strtolower($surat->sn_status);
-                                        $is_rektor_senat = in_array($oj_nama_lower, ['rektor', 'senat akademik']) || in_array($oj_induk_lower, ['rektor', 'senat akademik']);
+                                        $sn_status_lower = strtolower($surat->sn_status ?? '');
+                                        $memiliki_induk_rektor = $oj_induk_lower === 'rektor';
                                     @endphp
-                                
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+
+                                    <div class="dropdown d-inline-block" data-bs-display="static">
+                                        <button 
+                                            class="btn btn-sm btn-primary dropdown-toggle" 
+                                            type="button" 
+                                            data-bs-toggle="dropdown" 
+                                            aria-expanded="false"
+                                            style="min-width: 90px;">
                                             Aksi
                                         </button>
-                                        <ul class="dropdown-menu">
-                                            @if ($sn_status_lower == 'draft' || $sn_status_lower == 'revisi')
-                                                @if ($is_rektor_senat)
-                                                    <li>
-                                                        <a class="dropdown-item" href="{{ route('nomorsurat.edit', $surat->sn_id) }}">
-                                                            <i class="fa-solid fa-pen-to-square"></i> Edit
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <button class="dropdown-item text-danger" onclick="hapusSurat('{{ $surat->sn_id }}')">
-                                                            <i class="fa-solid fa-trash"></i> Hapus
-                                                        </button>
-                                                    </li>
+
+                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 fixed-dropdown" style="font-size: 14px; min-width: 160px;">
+                                            
+                                            {{-- === STATUS: DRAFT / REVISI === --}}
+                                            @if (in_array($sn_status_lower, ['draft', 'revisi']))
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ route('nomorsurat.edit', $surat->sn_id) }}">
+                                                        <i class="fa-solid fa-pen-to-square me-2 text-primary"></i> Edit
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <button class="dropdown-item text-danger" onclick="hapusSurat('{{ $surat->sn_id }}')">
+                                                        <i class="fa-solid fa-trash me-2"></i> Hapus
+                                                    </button>
+                                                </li>
+
+                                                @if ($memiliki_induk_rektor)
                                                     <li>
                                                         <button class="dropdown-item text-primary" onclick="ajukanSurat('{{ $surat->sn_id }}')">
-                                                            <i class="fa-solid fa-paper-plane"></i> Ajukan
-                                                        </button>
-                                                    </li>
-                                                @else
-                                                    <li>
-                                                        <a class="dropdown-item" href="{{ route('nomorsurat.edit', $surat->sn_id) }}">
-                                                            <i class="fa-solid fa-pen-to-square"></i> Edit
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <button class="dropdown-item text-danger" onclick="hapusSurat('{{ $surat->sn_id }}')">
-                                                            <i class="fa-solid fa-trash"></i> Hapus
-                                                        </button>
-                                                    </li>
-                                                    <li>
-                                                        <button class="dropdown-item text-success" onclick="validasiSurat('{{ $surat->sn_id }}')">
-                                                            <i class="fa-solid fa-lock"></i> Valid
+                                                            <i class="fa-solid fa-paper-plane me-2"></i> Ajukan
                                                         </button>
                                                     </li>
                                                 @endif
-                                            @elseif ($sn_status_lower == 'validasi')
-                                                <li>
-                                                    <button class="dropdown-item text-secondary" disabled>
-                                                        <i class="fa-solid fa-check"></i> Sudah Valid
-                                                    </button>
-                                                </li>
-                                                <li>
-                                                    <button class="dropdown-item text-danger" onclick="hapusSurat('{{ $surat->sn_id }}')">
-                                                        <i class="fa-solid fa-trash"></i> Hapus
-                                                    </button>
-                                                </li>
+
+                                            {{-- === STATUS: AJUKAN === --}}
                                             @elseif ($sn_status_lower == 'ajukan')
                                                 <li>
                                                     <button class="dropdown-item text-secondary" disabled>
-                                                        <i class="fa-solid fa-paper-plane"></i> Sudah Diajukan
+                                                        <i class="fa-solid fa-paper-plane me-2"></i> Sudah Diajukan
                                                     </button>
                                                 </li>
                                                 <li>
                                                     <button class="dropdown-item text-danger" onclick="hapusSurat('{{ $surat->sn_id }}')">
-                                                        <i class="fa-solid fa-trash"></i> Hapus
+                                                        <i class="fa-solid fa-trash me-2"></i> Hapus
+                                                    </button>
+                                                </li>
+
+                                            {{-- === STATUS: VALIDASI === --}}
+                                            @elseif ($sn_status_lower == 'validasi')
+                                                <li>
+                                                    <button class="dropdown-item text-secondary" disabled>
+                                                        <i class="fa-solid fa-check me-2"></i> Sudah Valid
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button class="dropdown-item text-danger" onclick="hapusSurat('{{ $surat->sn_id }}')">
+                                                        <i class="fa-solid fa-trash me-2"></i> Hapus
                                                     </button>
                                                 </li>
                                             @endif
+
                                         </ul>
                                     </div>
-                                </td>                                
-                                
+                                </td>                                                          
                             </tr>
                             @endforeach
 
@@ -323,5 +331,60 @@
         })
     });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function showFullText(text) {
+    Swal.fire({
+        title: '<strong>Keterangan</strong>',
+        html: `
+            <div class="text-start mt-3">${text}</div>
+        `,
+        position: 'top', // tampil di atas seperti contohmu
+        showConfirmButton: false,
+        showCloseButton: false,
+        allowOutsideClick: true,
+        showCancelButton: true,
+        cancelButtonText: 'Tutup',
+        cancelButtonColor: '#dc3545',
+        confirmButtonText: 'Salin',
+        confirmButtonColor: '#007bff',
+        showConfirmButton: true,
+        didOpen: () => {
+            // styling tambahan agar manis
+            const swalPopup = document.querySelector('.swal2-popup');
+            if (swalPopup) {
+                swalPopup.style.width = '600px';
+                swalPopup.style.fontSize = '14px';
+                swalPopup.style.textAlign = 'left';
+            }
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            navigator.clipboard.writeText(text).then(() => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Keterangan disalin',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            });
+        }
+    });
+}
+</script>
+<style>
+/* Pastikan dropdown muncul di atas semua dan tidak bikin scroll */
+.fixed-dropdown {
+    position: fixed !important;
+    z-index: 9999;
+}
+.table-responsive {
+    overflow: visible !important; /* supaya dropdown bisa tampil di luar tabel */
+}
+</style>
+
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 @endpush

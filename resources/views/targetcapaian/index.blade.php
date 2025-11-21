@@ -68,7 +68,7 @@
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $targetcapaian->th_tahun }}</td>
                                     <td>{{ $targetcapaian->nama_prodi }}</td>
-                                    <td style="padding : 1.5rem;">{{ $targetcapaian->ik_kode }} - {{ $targetcapaian->ik_nama }}</td>
+                                    <td style="padding : 1.5rem;" class="text-left">{{ $targetcapaian->ik_kode }} - {{ $targetcapaian->ik_nama }}</td>
                                     <td>
                                         @if (strtolower($targetcapaian->ik_jenis == 'IKU'))
                                             <span class="badge badge-success">IKU</span>
