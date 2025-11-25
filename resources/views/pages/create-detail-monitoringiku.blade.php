@@ -75,39 +75,48 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @php 
-                                            $no = 1; 
-                                            $isAdmin = auth()->user()->role === 'admin';
+                                        @php
+                                            $no = 1;
+                                            $isAdmin = Auth::user()->role === 'admin';
                                         @endphp
+                                        
                                         @foreach ($targetIndikator as $indikator)
                                             @php
                                                 $detail = $monitoringikuDetail->where('ti_id', $indikator->ti_id)->first();
                                                 $indikatorKinerja = optional($indikator->indikatorKinerja);
-
                                                 $idx = $loop->index;
+                                                // Ambil nilai baseline dan target
+                                                $baselineValue = optional($indikator->baselineTahun)->baseline;
+                                                $targetValue   = $indikator->ti_target;                                                
+                                                $isTargetMissing = ($targetValue === null || trim((string)$targetValue) === '');
+                                                $isBaselineMissing = ($baselineValue === null || trim((string)$baselineValue) === '');
 
-                                                $baselineValue   = optional($indikator->baselineTahun)->baseline;
-                                                $isTargetEmpty = empty($indikator->ti_target) || $indikator->ti_target == 0;
-                                                $isBaselineEmpty = ($baselineValue === null || $baselineValue === '' || $baselineValue == 0);
-                                                $isLocked       = $isTargetEmpty || $isBaselineEmpty;
+                                                // Kunci form jika Baseline ATAU Target kosong.
+                                                $isLocked = $isTargetMissing || $isBaselineMissing;
 
+                                                // Ambil data lama (old input) atau data dari database
                                                 $capaianValue = old("mtid_capaian.$idx", $detail->mtid_capaian ?? '');
                                             @endphp
+                                            
                                             <tr>
                                                 <td class="text-center">{{ $no++ }}</td>
 
-                                                @if(Auth::user()->role == 'admin')
-                                                <td class="text-justify">
-                                                    {{ $indikatorKinerja->ik_kode ?? 'N/A' }} - {{ $indikatorKinerja->ik_nama ?? 'N/A' }}
-                                                </td>
+                                                {{-- Kolom Indikator --}}
+                                                @if($isAdmin)
+                                                    <td class="text-justify">
+                                                        {{ $indikatorKinerja->ik_kode ?? 'N/A' }} - {{ $indikatorKinerja->ik_nama ?? 'N/A' }}
+                                                    </td>
                                                 @else
-                                                <td>
-                                                    {{ $indikatorKinerja->ik_kode ?? 'N/A' }} - {{ $indikatorKinerja->ik_nama ?? 'N/A' }}
-                                                </td>
+                                                    <td>
+                                                        {{ $indikatorKinerja->ik_kode ?? 'N/A' }} - {{ $indikatorKinerja->ik_nama ?? 'N/A' }}
+                                                    </td>
                                                 @endif
-                                                <td class="text-center">{{ $baselineValue ?: 0 }}</td>
-                                                <td class="text-center">{{ $indikator->ti_target ?? 'N/A' }}</td>
 
+                                                {{-- Kolom Baseline & Target --}}
+                                                <td class="text-center">{{ $baselineValue !== null && $baselineValue !== '' ? $baselineValue : '-' }}</td>
+                                                <td class="text-center">{{ $targetValue !== null && $targetValue !== '' ? $targetValue : '-' }}</td>
+
+                                                {{-- Kolom Jenis Ketercapaian --}}
                                                 <td>
                                                     <div class="input-group">
                                                         <div class="input-group-prepend">
@@ -120,6 +129,7 @@
                                                                         'rasio' => 'fa-solid fa-divide',
                                                                         'status' => 'fa-solid fa-flag-checkered',
                                                                         'ada/tidak' => 'fa-solid fa-toggle-on',
+                                                                        'ketersediaan' => 'fa-solid fa-box-open',
                                                                         default => 'fa-solid fa-info-circle',
                                                                     };
                                                                 @endphp
@@ -128,138 +138,111 @@
                                                         </div>
                                                         <input type="text" class="form-control text-capitalize"
                                                             value="{{ $indikatorKinerja->ik_ketercapaian ?? '-' }}" readonly>
+                                                        {{-- Hidden input untuk jenis ketercapaian --}}
                                                         <input type="hidden" name="mtid_ketercapaian[{{ $idx }}]"
                                                             value="{{ $indikatorKinerja->ik_ketercapaian }}">
                                                     </div>
                                                 </td>
 
-                                            @if(Auth::user()->role == 'admin')
-                                                <td>
-                                                    {{-- URL tidak bisa diubah admin --}}
-                                                    <input type="url" class="form-control" style="max-width:200px"
-                                                        name="mtid_url[{{ $idx }}]"
-                                                        value="{{ old("mtid_url.$idx", $detail->mtid_url ?? '') }}" readonly>
-                                                </td>
-                                                <td>
-                                                    {{-- selalu kirim ti_id dengan index tetap --}}
-                                                    <input type="hidden" name="ti_id[{{ $idx }}]" value="{{ $indikator->ti_id }}">
+                                                {{-- AREA ADMIN --}}
+                                                @if($isAdmin)
+                                                    <td>
+                                                        <input type="url" class="form-control" style="max-width:200px"
+                                                            name="mtid_url[{{ $idx }}]"
+                                                            value="{{ old("mtid_url.$idx", $detail->mtid_url ?? '') }}" readonly>
+                                                    </td>
+                                                    <td>
+                                                        {{-- ID Indikator wajib dikirim --}}
+                                                        <input type="hidden" name="ti_id[{{ $idx }}]" value="{{ $indikator->ti_id }}">
 
-                                                    @if(in_array(strtolower($indikatorKinerja->ik_ketercapaian), ['nilai', 'persentase']))
-                                                        <input type="number" class="form-control" style="max-width:150px"
-                                                            name="mtid_capaian[{{ $idx }}]" step="any"
-                                                            value="{{ $capaianValue }}" readonly>
-                                                    @elseif(strtolower($indikatorKinerja->ik_ketercapaian) === 'ketersediaan')
-                                                        <select name="mtid_capaian[{{ $idx }}]" class="form-control" style="max-width:150px" disabled>
-                                                            <option value="" {{ $capaianValue ? '' : 'selected' }}>Pilih</option>
-                                                            <option value="ada"   {{ $capaianValue == 'ada' ? 'selected' : '' }}>Ada</option>
-                                                            <option value="draft" {{ $capaianValue == 'draft' ? 'selected' : '' }}>Draft</option>
-                                                        </select>
-                                                        {{-- fallback agar index tetap terkirim --}}
-                                                        <input type="hidden" name="mtid_capaian[{{ $idx }}]" value="{{ $capaianValue }}">
-                                                    @else
-                                                        {{-- rasio / tipe lain --}}
-                                                        <input type="text" class="form-control" style="max-width:100px"
-                                                            name="mtid_capaian[{{ $idx }}]" value="{{ $capaianValue }}" readonly>
-                                                    @endif
-                                                </td>
-                                                {{-- 
-                                                <td>
-                                                    <select name="mtid_status[]" class="form-control select2" style="max-width: 150px;">
-                                                        <option value="">-- Pilih Status --</option>
-                                                        <option value="tercapai" 
-                                                            {{ old('mtid_status.' . $loop->index, $detail->mtid_status ?? '') == 'tercapai' ? 'selected' : '' }}>Tercapai
-                                                        </option>
-                                                        <option value="tidak tercapai" 
-                                                            {{ old('mtid_status.' . $loop->index, $detail->mtid_status ?? '') == 'tidak tercapai' ? 'selected' : '' }}>Tidak Tercapai
-                                                        </option>
-                                                        <option value="tidak terlaksana" 
-                                                            {{ old('mtid_status.' . $loop->index, $detail->mtid_status ?? '') == 'tidak terlaksana' ? 'selected' : '' }}>Tidak Terlaksana
-                                                        </option>
-                                                    </select>
-                                                </td>
-                                                --}}
-
-                                                <td>
-                                                    <textarea class="form-control" rows="3" style="max-width:200px"
-                                                        name="mtid_keterangan[{{ $idx }}]"
-                                                        @if(Auth::user()->role == 'admin' || $isLocked) readonly @endif>{{ old("mtid_keterangan.$idx", $detail->mtid_keterangan ?? '') }}</textarea>
-                                                </td>
-                                                <td>
-                                                    <textarea class="form-control" rows="3" style="max-width:200px"
-                                                        name="mtid_evaluasi[{{ $idx }}]"
-                                                        @if(!$isAdmin || empty($detail->mtid_capaian)) disabled @endif>{{ old("mtid_evaluasi.$idx", $detail->mtid_evaluasi ?? '') }}</textarea>
-                                                </td>
-
-                                                <td>
-                                                    <textarea class="form-control" rows="3" style="max-width:200px"
-                                                        name="mtid_tindaklanjut[{{ $idx }}]"
-                                                        @if(!$isAdmin || empty($detail->mtid_capaian)) disabled @endif>{{ old("mtid_tindaklanjut.$idx", $detail->mtid_tindaklanjut ?? '') }}</textarea>
-                                                </td>
-
-                                                <td>
-                                                    <textarea class="form-control" rows="3" style="max-width:200px"
-                                                        name="mtid_peningkatan[{{ $idx }}]"
-                                                        @if(!$isAdmin || empty($detail->mtid_capaian)) disabled @endif>{{ old("mtid_peningkatan.$idx", $detail->mtid_peningkatan ?? '') }}</textarea>
-                                                </td>
-                                            @else
-                                                <td>
-                                                    {{-- selalu kirim ti_id dengan index tetap --}}
-                                                    <input type="hidden" name="ti_id[{{ $idx }}]" value="{{ $indikator->ti_id }}">
-
-                                                    @if(in_array(strtolower($indikatorKinerja->ik_ketercapaian), ['nilai', 'persentase']))
-                                                        <input type="number" class="form-control" style="max-width:150px"
-                                                            name="mtid_capaian[{{ $idx }}]" step="any"
-                                                            value="{{ $capaianValue }}" @if($isLocked) readonly @endif>
-                                                    @elseif(strtolower($indikatorKinerja->ik_ketercapaian) === 'ketersediaan')
-                                                        <select name="mtid_capaian[{{ $idx }}]" class="form-control" style="max-width:150px"
-                                                                @if($isLocked) disabled @endif>
-                                                            <option value="" {{ $capaianValue ? '' : 'selected' }}>Pilih</option>
-                                                            <option value="ada"   {{ $capaianValue == 'ada' ? 'selected' : '' }}>Ada</option>
-                                                            <option value="draft" {{ $capaianValue == 'draft' ? 'selected' : '' }}>Draft</option>
-                                                        </select>
-                                                        @if($isLocked)
-                                                            {{-- fallback agar index tetap terkirim saat select disabled --}}
-                                                            <input type="hidden" name="mtid_capaian[{{ $idx }}]" value="">
+                                                        {{-- Tampilan Capaian (Read Only untuk Admin) --}}
+                                                        @if(in_array(strtolower($indikatorKinerja->ik_ketercapaian), ['nilai', 'persentase']))
+                                                            <input type="number" class="form-control" style="max-width:150px"
+                                                                name="mtid_capaian[{{ $idx }}]" step="any"
+                                                                value="{{ $capaianValue }}" readonly>
+                                                        @elseif(strtolower($indikatorKinerja->ik_ketercapaian) === 'ketersediaan')
+                                                            <select name="mtid_capaian[{{ $idx }}]" class="form-control" style="max-width:150px" disabled>
+                                                                <option value="" {{ $capaianValue ? '' : 'selected' }}>Pilih</option>
+                                                                <option value="ada"   {{ $capaianValue == 'ada' ? 'selected' : '' }}>Ada</option>
+                                                                <option value="draft" {{ $capaianValue == 'draft' ? 'selected' : '' }}>Draft</option>
+                                                            </select>
+                                                            <input type="hidden" name="mtid_capaian[{{ $idx }}]" value="{{ $capaianValue }}">
+                                                        @else
+                                                            <input type="text" class="form-control" style="max-width:100px"
+                                                                name="mtid_capaian[{{ $idx }}]" value="{{ $capaianValue }}" readonly>
                                                         @endif
-                                                    @else
-                                                        {{-- rasio / tipe lain --}}
-                                                        <input type="text" class="form-control" style="max-width:100px"
-                                                            name="mtid_capaian[{{ $idx }}]" value="{{ $capaianValue }}"
+                                                    </td>
+
+                                                    <td>
+                                                        <textarea class="form-control" rows="3" style="max-width:200px"
+                                                            name="mtid_keterangan[{{ $idx }}]" readonly>{{ old("mtid_keterangan.$idx", $detail->mtid_keterangan ?? '') }}</textarea>
+                                                    </td>
+                                                    
+                                                    {{-- Form Evaluasi Admin (Aktif hanya jika capaian sudah diisi user) --}}
+                                                    <td>
+                                                        <textarea class="form-control" rows="3" style="max-width:200px"
+                                                            name="mtid_evaluasi[{{ $idx }}]"
+                                                            @if(empty($detail->mtid_capaian)) disabled @endif>{{ old("mtid_evaluasi.$idx", $detail->mtid_evaluasi ?? '') }}</textarea>
+                                                    </td>
+
+                                                    <td>
+                                                        <textarea class="form-control" rows="3" style="max-width:200px"
+                                                            name="mtid_tindaklanjut[{{ $idx }}]"
+                                                            @if(empty($detail->mtid_capaian)) disabled @endif>{{ old("mtid_tindaklanjut.$idx", $detail->mtid_tindaklanjut ?? '') }}</textarea>
+                                                    </td>
+
+                                                    <td>
+                                                        <textarea class="form-control" rows="3" style="max-width:200px"
+                                                            name="mtid_peningkatan[{{ $idx }}]"
+                                                            @if(empty($detail->mtid_capaian)) disabled @endif>{{ old("mtid_peningkatan.$idx", $detail->mtid_peningkatan ?? '') }}</textarea>
+                                                    </td>
+
+                                                @else
+                                                    {{-- AREA USER (PRODI/UNIT) --}}
+                                                    <td>
+                                                        <input type="hidden" name="ti_id[{{ $idx }}]" value="{{ $indikator->ti_id }}">
+
+                                                        {{-- INPUT CAPAIAN --}}
+                                                        @if(in_array(strtolower($indikatorKinerja->ik_ketercapaian), ['nilai', 'persentase']))
+                                                            <input type="number" class="form-control" style="max-width:150px"
+                                                                name="mtid_capaian[{{ $idx }}]" step="any"
+                                                                value="{{ $capaianValue }}" @if($isLocked) readonly @endif>
+
+                                                        @elseif(strtolower($indikatorKinerja->ik_ketercapaian) === 'ketersediaan')
+                                                            <select name="mtid_capaian[{{ $idx }}]" class="form-control" style="max-width:150px"
+                                                                    @if($isLocked) disabled @endif>
+                                                                <option value="" {{ $capaianValue ? '' : 'selected' }}>Pilih</option>
+                                                                <option value="ada"   {{ $capaianValue == 'ada' ? 'selected' : '' }}>Ada</option>
+                                                                <option value="draft" {{ $capaianValue == 'draft' ? 'selected' : '' }}>Draft</option>
+                                                            </select>
+                                                            
+                                                            {{-- FIX UTAMA: Jika disabled, kirim value ASLI (bukan kosong) agar data tidak hilang --}}
+                                                            @if($isLocked)
+                                                                <input type="hidden" name="mtid_capaian[{{ $idx }}]" value="{{ $capaianValue }}">
+                                                            @endif
+
+                                                        @else
+                                                            {{-- Rasio / Lainnya --}}
+                                                            <input type="text" class="form-control" style="max-width:100px"
+                                                                name="mtid_capaian[{{ $idx }}]" value="{{ $capaianValue }}"
+                                                                @if($isLocked) readonly @endif>
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        <textarea class="form-control" rows="3" style="max-width:200px"
+                                                            name="mtid_keterangan[{{ $idx }}]"
+                                                            @if($isLocked) readonly @endif>{{ old("mtid_keterangan.$idx", $detail->mtid_keterangan ?? '') }}</textarea>
+                                                    </td>
+
+                                                    <td>
+                                                        <input type="url" class="form-control" style="max-width:200px"
+                                                            name="mtid_url[{{ $idx }}]"
+                                                            value="{{ old("mtid_url.$idx", $detail->mtid_url ?? '') }}"
+                                                            placeholder="https://..."
                                                             @if($isLocked) readonly @endif>
-                                                    @endif
-                                                </td>
-
-                                                {{-- 
-                                                <td>
-                                                    <select name="mtid_status[]" class="form-control select2" style="max-width: 150px;">
-                                                        <option value="">-- Pilih Status --</option>
-                                                        <option value="tercapai" 
-                                                            {{ old('mtid_status.' . $loop->index, $detail->mtid_status ?? '') == 'tercapai' ? 'selected' : '' }}>Tercapai
-                                                        </option>
-                                                        <option value="tidak tercapai" 
-                                                            {{ old('mtid_status.' . $loop->index, $detail->mtid_status ?? '') == 'tidak tercapai' ? 'selected' : '' }}>Tidak Tercapai
-                                                        </option>
-                                                        <option value="tidak terlaksana" 
-                                                            {{ old('mtid_status.' . $loop->index, $detail->mtid_status ?? '') == 'tidak terlaksana' ? 'selected' : '' }}>Tidak Terlaksana
-                                                        </option>
-                                                    </select>
-                                                </td>
-                                                --}}
-
-                                                <td>
-                                                    <textarea class="form-control" rows="3" style="max-width:200px"
-                                                        name="mtid_keterangan[{{ $idx }}]"
-                                                        @if($isLocked) readonly @endif>{{ old("mtid_keterangan.$idx", $detail->mtid_keterangan ?? '') }}
-                                                    </textarea>
-                                                </td>
-
-                                                <td>
-                                                    <input type="url" class="form-control" style="max-width:200px"
-                                                        name="mtid_url[{{ $idx }}]"
-                                                        value="{{ old("mtid_url.$idx", $detail->mtid_url ?? '') }}"
-                                                        @if($isLocked) readonly @endif>
-                                                </td>
-                                            @endif
+                                                    </td>
+                                                @endif
                                             </tr>
                                         @endforeach
                                     </tbody>

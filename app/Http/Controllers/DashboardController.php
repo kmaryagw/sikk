@@ -232,7 +232,7 @@ class DashboardController extends Controller
             ];
 
             foreach ($items as $item) {
-                $status = hitungStatus(
+                $status = $this->hitungStatus(
                     optional($item->monitoringDetail)->mtid_capaian,
                     $item->ti_target,
                     optional($item->indikatorKinerja)->ik_ketercapaian
@@ -367,7 +367,7 @@ class DashboardController extends Controller
 
                 $statusCount['jumlah']++;
 
-                $status = hitungStatus(
+                $status = $this->hitungStatus(
                     optional($target->monitoringDetail)->mtid_capaian,
                     $target->ti_target,
                     $indikator->ik_ketercapaian
@@ -423,7 +423,7 @@ class DashboardController extends Controller
 
             $statusCount['jumlah']++;
 
-            $status = hitungStatus(
+            $status = $this->hitungStatus(
                 optional($target->monitoringDetail)->mtid_capaian,
                 $target->ti_target,
                 optional($target->indikatorKinerja)->ik_ketercapaian
@@ -443,5 +443,19 @@ class DashboardController extends Controller
 
         return (object) $statusCount;
     }
+
+    /**
+     * Fungsi bantu untuk menghitung status IKU/IKT
+     */
+    private function hitungStatus($capaian, $target, $ketercapaian)
+    {
+        // Misal logika sederhana:
+        if ($capaian === null) return 'tidak_terlaksana';
+        if ($capaian >= $target && $ketercapaian === 'terlampaui') return 'terlampaui';
+        if ($capaian >= $target) return 'tercapai';
+        if ($capaian < $target) return 'tidak_tercapai';
+        return 'tidak_terlaksana';
+    }
+
 
 }

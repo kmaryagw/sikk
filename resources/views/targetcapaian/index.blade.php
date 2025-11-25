@@ -82,7 +82,8 @@
                                     </td>
                                     <td>
                                         @php
-                                            $ketercapaian = strtolower((string) $targetcapaian->ik_ketercapaian);
+                                            // --- LOGIC BASELINE ---
+                                            $ketercapaian = strtolower((string) ($targetcapaian->indikatorKinerja->ik_ketercapaian ?? ''));
 
                                             // Ambil baseline_tahun, buang spasi
                                             $bt = trim((string) ($targetcapaian->baseline_tahun ?? ''));
@@ -94,7 +95,7 @@
                                             $cleanNum = str_replace(['%', ' '], '', $baselineRaw);
                                             $baselineValue = is_numeric($cleanNum) ? (float) $cleanNum : null;
 
-                                            // Tentukan warna progres (jika baseline = 0 → merah, >0 → hijau)
+                                            // Tentukan warna progres
                                             $progressColor = ($baselineValue !== null && $baselineValue == 0) ? '#dc3545' : '#28a745';
                                         @endphp
 
@@ -123,7 +124,10 @@
                                         {{-- Rasio --}}
                                         @elseif ($ketercapaian === 'rasio')
                                             @php
-                                                $formattedRasio = 'Format salah';
+                                                // Default: Tampilkan nilai asli apa adanya (jangan tulis "Format salah")
+                                                $formattedRasio = $baselineRaw;
+                                                
+                                                // Coba rapikan formatnya jika valid
                                                 $cleaned = preg_replace('/\s*/', '', $baselineRaw);
                                                 if (preg_match('/^\d+:\d+$/', $cleaned)) {
                                                     [$a, $b] = explode(':', $cleaned);
@@ -136,15 +140,17 @@
                                         @else
                                             {{ $baselineRaw }}
                                         @endif
-                                    </td>                              
+                                    </td>
+
                                     <td>
                                         @php
-                                            $ketercapaian = strtolower($targetcapaian->ik_ketercapaian);
-                                            $targetRaw = trim($targetcapaian->ti_target);
+                                            // --- LOGIC TARGET ---
+                                            $ketercapaian = strtolower($targetcapaian->indikatorKinerja->ik_ketercapaian ?? '');
+                                            $targetRaw = trim($targetcapaian->ti_target ?? '');
                                             $numericValue = (float) str_replace('%', '', $targetRaw);
-                                            $progressColor = $numericValue == 0 ? '#dc3545' : '#28a745'; // Merah jika 0, hijau jika > 0
+                                            $progressColor = $numericValue == 0 ? '#dc3545' : '#28a745';
                                         @endphp
-                                    
+
                                         @if ($ketercapaian === 'persentase' && is_numeric($numericValue))
                                             <div class="ring-progress-wrapper">
                                                 <div class="ring-progress" style="--value: {{ $numericValue }}; --progress-color: {{ $progressColor }};">
@@ -163,7 +169,10 @@
                                             @endif
                                         @elseif ($ketercapaian === 'rasio')
                                             @php
-                                                $formattedRasio = 'Format salah';
+                                                // Default: Tampilkan nilai asli apa adanya (jangan tulis "Format salah")
+                                                $formattedRasio = $targetRaw;
+
+                                                // Coba rapikan formatnya jika valid
                                                 $cleaned = preg_replace('/\s*/', '', $targetRaw);
                                                 if (preg_match('/^\d+:\d+$/', $cleaned)) {
                                                     [$left, $right] = explode(':', $cleaned);

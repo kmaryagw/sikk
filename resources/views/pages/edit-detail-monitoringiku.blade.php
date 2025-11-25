@@ -106,6 +106,21 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
+                                                    <label for="ik_ketercapaian">Jenis Ketercapaian</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">
+                                                                <i class="fa-solid fa-tags"></i>
+                                                            </span>
+                                                        </div>
+                                                        <!-- Mengambil data dari relasi indikatorKinerja -->
+                                                        <input type="text" id="ik_ketercapaian" class="form-control text-capitalize" 
+                                                            value="{{ $targetIndikator->indikatorKinerja->ik_ketercapaian ?? '-' }}" readonly>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{-- <div class="col-md-6">
+                                                <div class="form-group">
                                                     <label for="ti_keterangan">Keterangan Indikator</label>
                                                     <div class="input-group">
                                                         <div class="input-group-prepend">
@@ -116,60 +131,114 @@
                                                         <input class="form-control" name="ti_keterangan" value="{{ $targetIndikator->ti_keterangan }}" readonly>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div> --}}
                                         </div>
                                     </div>
                                 </div>
                     
                                 @php
-                                    $isAdmin = Auth::user()->role == 'admin';
-                                    $isEmptyMonitoring = empty($monitoringikuDetail->mtid_capaian);
+                                    // Setup logic PHP di View untuk mempermudah kondisi
+                                    $isAdmin = Auth::user()->role === 'admin';
+                                    $readonlyMonitoring = $isAdmin; 
+                                    $readonlyEvaluasi = $isAdmin && empty($monitoringikuDetail->mtid_capaian);
 
-                                    // Card 2: read-only jika admin, untuk unit kerja editable
-                                    $readonlyMonitoring = $isAdmin ? true : false;
+                                    // Ambil Jenis dari Master Data (Source of Truth)
+                                    $jenis_ik_db = strtolower($targetIndikator->indikatorKinerja->ik_ketercapaian ?? 'nilai');
+                                    
+                                    // Cek apakah jenisnya kategori "Pilihan" (Ketersediaan) atau "Isian" (Angka/Rasio)
+                                    $is_ketersediaan = in_array($jenis_ik_db, ['ketersediaan', 'status', 'ada/tidak']);
 
-                                    // Card 3: hanya admin, read-only jika monitoring belum diisi
-                                    $readonlyEvaluasi = $isEmptyMonitoring;
+                                    // Persiapan Data Value (Memisahkan angka dari simbol %)
+                                    $capaian_terakhir = old('mtid_capaian', $monitoringikuDetail->mtid_capaian);
+                                    
+                                    // Logic parsing value untuk ditampilkan di input text
+                                    $input_value = '';
+                                    if (!$is_ketersediaan) {
+                                        if (str_ends_with($capaian_terakhir, '%')) {
+                                            $input_value = str_replace('%', '', $capaian_terakhir);
+                                        } elseif (preg_match('/^\d+\s*:\s*\d+$/', $capaian_terakhir)) {
+                                            $input_value = str_replace(' ', '', $capaian_terakhir);
+                                        } else {
+                                            $input_value = $capaian_terakhir; // Nilai murni
+                                        }
+                                    }
+                                    
+                                    // Jika form error (validasi gagal), kembalikan input user dari 'old'
+                                    if(old('capaian_value')) {
+                                        $input_value = old('capaian_value');
+                                    }
                                 @endphp
 
                                 <!-- Card 2: Data Monitoring Indikator Kinerja -->
-                                <div class="card">
+                                <div class="card shadow-sm mb-3">
                                     <div class="card-body">
-                                        <h4 class="text-danger mb-3">Data Monitoring Indikator Kinerja</h4>
-                                        <div class="row">
+                                        <h4 class="text-danger mb-3">Data Capaian</h4>
+                                        <div class="row">                                            
+                                            @if($is_ketersediaan)
+                                                {{-- KASUS 1: Ketersediaan (Dropdown Ada/Draft) --}}
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="mtid_capaian">Status Ketercapaian <span class="text-danger">*</span></label>
+                                                        <select class="form-control select2" name="mtid_capaian" id="mtid_capaian" required @if($readonlyMonitoring) disabled @endif>
+                                                            <option value="" disabled {{ empty($capaian_terakhir) ? 'selected' : '' }}>-- Pilih Status --</option>
+                                                            <option value="ada" {{ $capaian_terakhir == 'ada' ? 'selected' : '' }}>Ada (Tercapai/Tersedia)</option>
+                                                            <option value="draft" {{ $capaian_terakhir == 'draft' ? 'selected' : '' }}>Draft (Belum Lengkap)</option>
+                                                        </select>
+                                                        
+                                                        {{-- Input hidden untuk capaian_value agar validasi controller tidak error (opsional, tapi aman) --}}
+                                                        <input type="hidden" name="capaian_value" value="">
+                                                    </div>
+                                                </div>
+                                            @else                                                
+                                                {{-- Kolom 1: Jenis (Read Only) --}}
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Jenis Ketercapaian</label>
+                                                        <!-- Tampilan Visual -->
+                                                        <input type="text" class="form-control text-capitalize" value="{{ $jenis_ik_db }}" readonly style="background-color: #e9ecef;">
+                                                        
+                                                        <!-- Value Hidden yang dikirim ke Controller -->
+                                                        <input type="hidden" name="mtid_capaian" value="{{ $jenis_ik_db }}">
+                                                    </div>
+                                                </div>
+
+                                                {{-- Kolom 2: Input Angka/Value --}}
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="capaian_value">
+                                                            Masukkan Nilai Capaian 
+                                                            @if($jenis_ik_db == 'persentase') (Tanpa %) 
+                                                            @elseif($jenis_ik_db == 'rasio') (Format x:y) 
+                                                            @endif
+                                                            <span class="text-danger">*</span>
+                                                        </label>
+                                                        
+                                                        <input type="text" class="form-control" name="capaian_value" id="capaian_value"
+                                                            value="{{ $input_value }}" 
+                                                            @if($readonlyMonitoring) readonly @endif
+                                                            placeholder="{{ $jenis_ik_db == 'rasio' ? 'Contoh 1:20' : 'Masukkan Angka' }}"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                            @endif
+
+                                            {{-- Sisa Form: URL & Keterangan --}}
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="mtid_capaian">Capaian</label>
-                                                    <select class="form-control" name="mtid_capaian" id="mtid_capaian" required @if($readonlyMonitoring) disabled @endif>
-                                                        <option value="" disabled {{ empty(old('mtid_capaian', $monitoringikuDetail->mtid_capaian)) ? 'selected' : '' }}>Pilih Capaian</option>
-                                                        <option value="ada" {{ old('mtid_capaian', $monitoringikuDetail->mtid_capaian) === 'ada' ? 'selected' : '' }}>Ada</option>
-                                                        <option value="draft" {{ old('mtid_capaian', $monitoringikuDetail->mtid_capaian) === 'draft' ? 'selected' : '' }}>Draft</option>
-                                                        <option value="persentase" {{ str_contains(old('mtid_capaian', $monitoringikuDetail->mtid_capaian), '%') ? 'selected' : '' }}>Persentase</option>
-                                                        <option value="nilai" {{ is_numeric(old('mtid_capaian', $monitoringikuDetail->mtid_capaian)) ? 'selected' : '' }}>Nilai</option>
-                                                        <option value="rasio" {{ preg_match('/^\d+:\d+$/', old('mtid_capaian', $monitoringikuDetail->mtid_capaian)) ? 'selected' : '' }}>Rasio</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-6" id="capaian_value_group">
-                                                <div class="form-group">
-                                                    <label for="capaian_value">Masukkan Value</label>
-                                                    <input type="text" class="form-control" name="capaian_value" id="capaian_value"
-                                                        value="{{ old('capaian_value', $monitoringikuDetail->mtid_capaian) }}" @if($readonlyMonitoring) readonly @endif>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label for="mtid_url">URL</label>
-                                                    <input class="form-control" type="url" name="mtid_url" value="{{ old('mtid_url', $monitoringikuDetail->mtid_url) }}" @if($readonlyMonitoring) readonly @endif />
+                                                    <label for="mtid_url">URL Bukti Dukung <span class="text-danger">*</span></label>
+                                                    <input class="form-control" type="url" name="mtid_url" 
+                                                        value="{{ old('mtid_url', $monitoringikuDetail->mtid_url) }}" 
+                                                        placeholder="https://..."
+                                                        required
+                                                        @if($readonlyMonitoring) readonly @endif>
                                                 </div>
                                             </div>
 
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="mtid_keterangan">Keterangan Tambahan</label>
-                                                    <textarea class="form-control" name="mtid_keterangan" rows="4" @if($readonlyMonitoring) readonly @endif>{{ old('mtid_keterangan', $monitoringikuDetail->mtid_keterangan) }}</textarea>
+                                                    <textarea class="form-control" name="mtid_keterangan" rows="4" 
+                                                        @if($readonlyMonitoring) readonly @endif>{{ old('mtid_keterangan', $monitoringikuDetail->mtid_keterangan) }}</textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -232,27 +301,39 @@
     <script src="{{ asset('library/selectric/public/jquery.selectric.min.js') }}"></script>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const mtidCapaianInput = document.getElementById("mtid_capaian");
-            const capaianInputGroup = document.getElementById('capaian_value_group');
-            const capaianInput = document.getElementById('capaian_value');
-    
-            function toggleInputVisibility() {
-                const selectedValue = mtidCapaianInput.value;
-    
-                if (selectedValue === 'persentase' || selectedValue === 'nilai' || selectedValue === 'rasio') {
-                    capaianInputGroup.style.display = 'block';
-                } else {
-                    capaianInputGroup.style.display = 'none';
-                    capaianInput.value = ''; // reset value when not needed
+        $(document).ready(function() {
+            // 1. Inisialisasi Select2
+            // Ini penting agar dropdown "Ada/Draft" tampil bagus
+            if ($(".select2").length) {
+                $(".select2").select2();
+            }
+
+            // 2. Format Otomatis (Opsional)
+            // Karena library Cleave.js sudah diload, kita manfaatkan untuk format Rasio
+            // Cek apakah input text capaian_value sedang dirender oleh PHP
+            var inputCapaian = document.getElementById('capaian_value');
+            var inputJenis = document.querySelector('input[name="mtid_capaian"]'); // Hidden/Readonly input
+
+            if (inputCapaian && inputJenis) {
+                var jenis = inputJenis.value.toLowerCase();
+
+                // Jika jenisnya Rasio, format otomatis jadi "Angka : Angka"
+                if (jenis === 'rasio') {
+                    new Cleave(inputCapaian, {
+                        delimiter: ' : ',
+                        blocks: [5, 5], // Mengizinkan format seperti 12345 : 12345
+                        numericOnly: true
+                    });
+                }
+                
+                // Jika jenisnya Persentase, pastikan hanya angka
+                if (jenis === 'persentase') {
+                    new Cleave(inputCapaian, {
+                        numeral: true,
+                        numeralDecimalScale: 2
+                    });
                 }
             }
-    
-            // Event listener
-            mtidCapaianInput.addEventListener('change', toggleInputVisibility);
-    
-            // Inisialisasi saat halaman dimuat
-            toggleInputVisibility();
         });
     </script>
 @endpush

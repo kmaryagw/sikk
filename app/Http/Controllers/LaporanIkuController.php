@@ -46,7 +46,8 @@ class LaporanIkuController extends Controller
 
         $query = target_indikator::select(
                 'target_indikator.*', 
-                'indikator_kinerja.ik_nama', 
+                'indikator_kinerja.ik_nama',
+                'indikator_kinerja.ik_kode', 
                 'program_studi.nama_prodi', 
                 'tahun_kerja.th_tahun',
                 'uk.unit_nama' // 🔹 pakai alias

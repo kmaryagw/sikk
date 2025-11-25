@@ -66,6 +66,18 @@
                                         </span>
                                     @endif
                                 </div>
+                                <div class="alert alert-warning alert-has-icon alert-dismissible show fade">
+                                    <div class="alert-icon"><i class="far fa-lightbulb"></i></div>
+                                    <div class="alert-body">
+                                        {{-- <button class="close" data-dismiss="alert">
+                                            <span>&times;</span>
+                                        </button> --}}
+                                        <div class="alert-title">Catatan Pengisian</div>
+                                        Jika kolom <b>Nilai Baseline</b> atau <b>Target</b> dikosongkan, sistem akan otomatis menyimpannya sebagai nilai <b>0 (Nol)</b>. 
+                                        <br>
+                                        <small>*(Kecuali untuk indikator jenis Pengukuran yang akan otomatis terisi Draft/Ada).</small>
+                                    </div>
+                                </div>
 
                                 </form>
                             </div>
@@ -136,74 +148,86 @@
                                                         </td>
                                                         <td class="text-center">
                                                             @php
-                                                                // Ambil baseline dari data tahun ini kalau ada
+                                                                // 1. Ambil baseline dari database tahun ini
                                                                 if ($found && $found['baseline'] !== null && $found['baseline'] !== '') {
                                                                     $baseline_value = old("indikator.$no.baseline", $found['baseline']);
                                                                 }
-                                                                // Kalau baseline kosong, coba isi dari tahun sebelumnya
+                                                                // 2. Kalau kosong, ambil dari tahun lalu
                                                                 elseif (isset($baseline_from_prev) && isset($baseline_from_prev[$ik->ik_id])) {
                                                                     $baseline_value = old("indikator.$no.baseline", $baseline_from_prev[$ik->ik_id]);
                                                                 }
-                                                                // Kalau dua-duanya tidak ada, biarkan kosong
+                                                                // 3. Kalau masih kosong
                                                                 else {
                                                                     $baseline_value = old("indikator.$no.baseline", '');
+                                                                }
+
+                                                                // --- [LOGIC BARU: AUTO SET DRAFT] ---
+                                                                // Jika jenisnya ketersediaan DAN nilainya masih kosong, set default 'draft'
+                                                                if ($ik->ik_ketercapaian == 'ketersediaan' && empty($baseline_value)) {
+                                                                    $baseline_value = 'draft';
+                                                                }
+                                                            @endphp
+
+                                                            {{-- Input Fields --}}
+                                                            @if($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase')
+                                                                {{-- Input Angka (Tetap) --}}
+                                                                <input type="number" 
+                                                                    class="form-control @error('indikator.' . $no . '.baseline') is-invalid @enderror" 
+                                                                    name="indikator[{{ $no }}][baseline]" 
+                                                                    step="any" 
+                                                                    value="{{ $baseline_value }}">
+
+                                                                @error('indikator.' . $no . '.baseline')
+                                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                                @enderror
+
+                                                            @elseif($ik->ik_ketercapaian == 'ketersediaan')
+                                                                {{-- Select Ketersediaan --}}
+                                                                <select class="form-control @error('indikator.' . $no . '.baseline') is-invalid @enderror" name="indikator[{{ $no }}][baseline]">
+                                                                    {{-- Option Pilih kita disable kalau sudah auto-draft --}}
+                                                                    <option value="" disabled {{ $baseline_value == '' ? 'selected' : '' }}>-- Pilih --</option>
+                                                                    <option value="ada" {{ $baseline_value == 'ada' ? 'selected' : '' }}>Ada</option>
+                                                                    <option value="draft" {{ $baseline_value == 'draft' ? 'selected' : '' }}>Draft</option>
+                                                                </select>
+
+                                                                @error('indikator.' . $no . '.baseline')
+                                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                                @enderror
+
+                                                            @elseif($ik->ik_ketercapaian == 'rasio')
+                                                                {{-- Input Rasio (Tetap) --}}
+                                                                <input type="text" 
+                                                                    class="form-control @error('indikator.' . $no . '.baseline') is-invalid @enderror" 
+                                                                    name="indikator[{{ $no }}][baseline]" 
+                                                                     pattern="^\d+\s*:\s*\d+$"
+                                                                    placeholder="Contoh: 1:20" 
+                                                                    value="{{ $baseline_value }}">
+                                                                {{-- Error block --}}
+                                                            @else
+                                                                {{-- Input Text Default (Tetap) --}}
+                                                                <input type="text" 
+                                                                    class="form-control @error('indikator.' . $no . '.baseline') is-invalid @enderror" 
+                                                                    name="indikator[{{ $no }}][baseline]" 
+                                                                    value="{{ $baseline_value }}">
+                                                                {{-- Error block --}}
+                                                            @endif
+
+                                                            <input type="hidden" name="indikator[{{ $no }}][ik_id]" value="{{ $ik->ik_id }}">
+                                                        </td>     
+                                                        <td>
+                                                            @php
+                                                                // Ambil nilai target
+                                                                $target_value = old("indikator.$no.target", $target_value);
+
+                                                                // --- [LOGIC BARU: AUTO SET DRAFT] ---
+                                                                // Jika jenisnya ketersediaan DAN nilainya masih kosong, set default 'draft'
+                                                                if ($ik->ik_ketercapaian == 'ketersediaan' && empty($target_value)) {
+                                                                    $target_value = 'Ada';
                                                                 }
                                                             @endphp
 
                                                             @if($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase')
                                                                 <input type="number" 
-                                                                    class="form-control @error('indikator.' . $no . '.baseline') is-invalid @enderror" 
-                                                                    name="indikator[{{ $no }}][baseline]" 
-                                                                    step="any" 
-                                                                    value="{{ $baseline_value }}">
-
-                                                                @error('indikator.' . $no . '.baseline')
-                                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                                @enderror
-                                                            @elseif($ik->ik_ketercapaian == 'ketersediaan')
-                                                                <select class="form-control @error('indikator.' . $no . '.baseline') is-invalid @enderror" name="indikator[{{ $no }}][baseline]">
-                                                                    <option value="" disabled {{ old("indikator.$no.baseline") == '' ? 'selected' : '' }}>-- Pilih --</option>
-                                                                    <option value="ada" {{ old("indikator.$no.baseline") == 'ada' ? 'selected' : '' }}>Ada</option><option value="ada" {{ old("indikator.$no.baseline", $baseline_value) == 'ada' ? 'selected' : '' }}>Ada</option>
-                                                                    <option value="draft" {{ old("indikator.$no.baseline") == 'draft' ? 'selected' : '' }}>Draft</option>
-                                                                </select>
-
-                                                                @error('indikator.' . $no . '.baseline')
-                                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                                @enderror
-                                                            @elseif($ik->ik_ketercapaian == 'rasio')
-                                                                <input type="text" 
-                                                                    class="form-control @error('indikator.' . $no . '.baseline') is-invalid @enderror" 
-                                                                    name="indikator[{{ $no }}][baseline]" 
-                                                                    pattern="^\d+:\d+$" 
-                                                                    placeholder="Contoh: 1:20" 
-                                                                    value="{{ $baseline_value }}">
-
-                                                                @error('indikator.' . $no . '.baseline')
-                                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                                @enderror
-                                                            @else
-                                                                <input type="text" 
-                                                                    class="form-control @error('indikator.' . $no . '.baseline') is-invalid @enderror" 
-                                                                    name="indikator[{{ $no }}][baseline]" 
-                                                                    value="{{ $baseline_value }}">
-
-                                                                @error('indikator.' . $no . '.baseline')
-                                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                                @enderror
-                                                            @endif
-
-                                                            <input type="hidden" 
-                                                                name="indikator[{{ $no }}][ik_id]" 
-                                                                value="{{ $ik->ik_id }}">
-                                                        </td>     
-                                                        <td>
-                                                            @php
-                                                                // Ambil nilai target dari data yang sudah ada jika ada, atau gunakan old() jika ada input sebelumnya
-                                                                $target_value = old("indikator.$no.target", $target_value);
-                                                            @endphp
-
-                                                            @if($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase')
-                                                                <input type="number" 
                                                                     class="form-control @error('indikator.' . $no . '.target') is-invalid @enderror" 
                                                                     name="indikator[{{ $no }}][target]" 
                                                                     step="any" 
@@ -212,15 +236,17 @@
                                                                 @error('indikator.' . $no . '.target')
                                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                                 @enderror
+
                                                             @elseif($ik->ik_ketercapaian == 'ketersediaan')
                                                                 <select class="form-control @error('indikator.' . $no . '.target') is-invalid @enderror" name="indikator[{{ $no }}][target]">
-                                                                    <option value="" disabled {{ old("indikator.$no.target", $target_value) == '' ? 'selected' : '' }}>-- Pilih --</option>
-                                                                    <option value="ada" {{ old("indikator.$no.target", $target_value) == 'ada' ? 'selected' : '' }}>Ada</option>
-                                                                    <option value="draft" {{ old("indikator.$no.target", $target_value) == 'draft' ? 'selected' : '' }}>Draft</option>
+                                                                    <option value="" disabled {{ $target_value == '' ? 'selected' : '' }}>-- Pilih --</option>
+                                                                    <option value="ada" {{ $target_value == 'ada' ? 'selected' : '' }}>Ada</option>
+                                                                    <option value="draft" {{ $target_value == 'draft' ? 'selected' : '' }}>Draft</option>
                                                                 </select>
                                                                 @error('indikator.' . $no . '.target')
                                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                                 @enderror
+
                                                             @else
                                                                 <input type="text" 
                                                                     class="form-control @error('indikator.' . $no . '.target') is-invalid @enderror" 
@@ -232,10 +258,7 @@
                                                                 @enderror
                                                             @endif
 
-                                                            <input type="hidden" 
-                                                                class="form-control" 
-                                                                name="indikator[{{ $no }}][ik_id]" 
-                                                                value="{{ $ik->ik_id }}">
+                                                            <input type="hidden" class="form-control" name="indikator[{{ $no }}][ik_id]" value="{{ $ik->ik_id }}">
                                                         </td>
                                                         <td>
                                                             <input type="text" class="form-control" name="indikator[{{ $no }}][keterangan]" value="{{ $target_keterangan }}">
@@ -308,11 +331,22 @@
             });
         });
 
-        $("#table-indikator").dataTable({
-            "columnDefs": [
-                { "sortable": false, "targets": [3,4,5,6] }
-            ],
-            paging: false
+        $(document).ready(function () {
+            $("#table-indikator").DataTable({
+                "columnDefs": [
+                    { "sortable": false, "targets": [4, 5, 6] }
+                ],
+                "paging": false, 
+                "order": [[1, 'asc']],
+                info: true,
+                infoCallback: function(settings, start, end, max, total, pre) {
+                    return `
+                        <span class="badge bg-primary text-light px-3 py-2 m-3">
+                            Total Data : ${total}
+                        </span>
+                    `;
+                }
+            });
         });
     </script>
 

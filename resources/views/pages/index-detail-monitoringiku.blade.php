@@ -52,9 +52,10 @@
                 <h4>Prodi : <span class="badge badge-info">{{ $Monitoringiku->targetIndikator->prodi->nama_prodi }}</span> Tahun : <span class="badge badge-primary">{{ $Monitoringiku->targetIndikator->tahunKerja->th_tahun }}</span></h4>
                 <form action="{{ route('monitoringiku.index-detail', $Monitoringiku->mti_id) }}" method="GET">
                     <div class="form-row align-items-center">
+                        @if (Auth::user()->role == 'admin' || Auth::user()->role == 'fakultas')
                         <div class="col-auto">
                             <select name="unit_kerja" class="form-control form-control-sm">
-                                <option value="">Pilih Unit Kerja</option>
+                                <option value="">Semua Unit Kerja</option>
                                 @foreach($unitKerjas as $unit)
                                     <option value="{{ $unit->unit_id }}" 
                                         {{ $unitKerjaFilter == $unit->unit_id ? 'selected' : '' }}>
@@ -63,6 +64,7 @@
                                 @endforeach
                             </select>
                         </div>
+                        @endif
                         <div class="col-auto">
                             <input class="form-control form-control-sm" 
                                 name="q" 
@@ -282,9 +284,9 @@
                                         @elseif($status === 'tidak tercapai')
                                             <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Tidak Tercapai</span>
                                         @elseif($status === 'tidak terlaksana')
-                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak Terlaksana</span>
+                                            <span class="text-danger"></i> Tidak Terlaksana</span>
                                         @else
-                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak Terlaksana</span>
+                                            <span class="text-danger"> Tidak Terlaksana</span>
 
                                         @endif
                                     </td>         
@@ -532,7 +534,7 @@
                 infoCallback: function(settings, start, end, max, total, pre) {
                     return `
                         <span class="badge bg-primary text-light px-3 py-2 m-3">
-                            Total Data : ${total}
+                            Total Data yang Tampil : ${total}
                         </span>
                     `;
                 }

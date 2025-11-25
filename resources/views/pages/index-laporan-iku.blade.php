@@ -124,7 +124,7 @@
                                     {{ $targetcapaian->nama_prodi }}
                                 </span>
                             </td>
-                            <td>{{ $targetcapaian->ik_nama }}</td>                            
+                            <td class="text-left">{{ $targetcapaian->ik_kode }} - {{ $targetcapaian->ik_nama }}</td>                            
 
                             {{-- Target Capaian --}}
                             <td>

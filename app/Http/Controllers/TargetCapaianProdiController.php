@@ -203,7 +203,9 @@ class TargetCapaianProdiController extends Controller
                         }
                     } elseif ($ketercapaian === 'rasio') {
                         if ($value === '' || is_null($value)) {
-                            // Boleh kosong → lewati validasi
+                            $request->merge([
+                                "indikator.$index.target" => '0:0'
+                            ]);
                             return;
                         }
 
@@ -262,7 +264,9 @@ class TargetCapaianProdiController extends Controller
                         }
                     } elseif ($ketercapaian === 'rasio') {
                         if ($value === '' || is_null($value)) {
-                            // Boleh kosong → lewati validasi
+                            $request->merge([
+                                "indikator.$index.baseline" => '0:0'
+                            ]);
                             return;
                         }
 
