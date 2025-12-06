@@ -31,7 +31,7 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Detail Monitoring Indikator Kinerja</h1>
+                <h1>Daftar Monitoring Indikator Kinerja</h1>
             </div>
                 <div class="card">
                     <div class="card-header">
@@ -82,9 +82,12 @@
                                         
                                         @foreach ($targetIndikator as $indikator)
                                             @php
-                                                $detail = $monitoringikuDetail->where('ti_id', $indikator->ti_id)->first();
+                                                // Mengambil detail berdasarkan ti_id (menggunakan keyBy dari controller lebih efisien, tapi cara ini juga jalan)
+                                                $detail = $monitoringikuDetail->get($indikator->ti_id); 
+                                                
                                                 $indikatorKinerja = optional($indikator->indikatorKinerja);
                                                 $idx = $loop->index;
+                                                
                                                 // Ambil nilai baseline dan target
                                                 $baselineValue = optional($indikator->baselineTahun)->baseline;
                                                 $targetValue   = $indikator->ti_target;                                                
@@ -95,9 +98,16 @@
                                                 $isLocked = $isTargetMissing || $isBaselineMissing;
 
                                                 // Ambil data lama (old input) atau data dari database
-                                                $capaianValue = old("mtid_capaian.$idx", $detail->mtid_capaian ?? '');
-                                            @endphp
-                                            
+                                                $capaianRaw = $detail->mtid_capaian ?? '';
+                                                $capaianValue = old("mtid_capaian.$idx", $capaianRaw);
+
+                                                // --- PERBAIKAN DISINI ---
+                                                // Jika jenisnya 'persentase' dan ada simbol '%', kita hapus dulu simbolnya
+                                                // agar bisa terbaca oleh <input type="number">
+                                                if (strtolower($indikatorKinerja->ik_ketercapaian) === 'persentase' && !empty($capaianValue)) {
+                                                    $capaianValue = str_replace('%', '', $capaianValue);
+                                                }
+                                            @endphp                                 
                                             <tr>
                                                 <td class="text-center">{{ $no++ }}</td>
 

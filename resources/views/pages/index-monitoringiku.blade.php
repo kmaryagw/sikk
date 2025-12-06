@@ -55,33 +55,27 @@
                                             $isAdmin = $user->role === 'admin' || $user->role === 'fakultas';
                                             $unitId = $user->unit_id;
 
-                                            // Ambil status finalisasi per unit (via relasi atau helper)
+                                            // Ambil status finalisasi per unit
                                             $isFinalForUnit = $monitoringiku->isFinalForUnit($unitId);
                                         @endphp
 
-                                        {{-- 🟦 Admin hanya melihat data --}}
+                                        {{-- 🟦 Admin --}}
                                         @if($monitoringiku->status == 0 && $isAdmin)
                                             <a class="btn btn-primary" href="{{ route('monitoringiku.index-detail', $monitoringiku->mti_id) }}">
                                                 <i class="fa-solid fa-pen-to-square"></i> Lihat Monitoring
                                             </a>
 
-                                        {{-- 🟨 Non-admin (unit kerja, prodi, fakultas) --}}
+                                        {{-- 🟨 Non-admin (Unit Kerja / Prodi) --}}
                                         @elseif($monitoringiku->status == 0 && !$isAdmin)
-                                            {{-- ✅ Jika unit sudah final, hanya tampilkan tombol "Lihat Data" --}}
+                                            
+                                            {{-- 1. Jika sudah final, tampilkan tombol Lihat saja --}}
                                             @if($isFinalForUnit)
                                                 <a class="btn btn-success" href="{{ route('monitoringiku.show-monitoringiku', $monitoringiku->mti_id) }}">
                                                     <i class="fa-solid fa-eye"></i> Lihat Data
                                                 </a>
-
-                                                {{-- 🔴 (Optional) Untuk debug admin, bisa batalkan final --}}
-                                                @if($isAdmin)
-                                                    <button class="btn btn-danger cancelFinalBtn" data-id="{{ $monitoringiku->mti_id }}">
-                                                        <i class="fa-solid fa-unlock"></i> Batalkan Final
-                                                    </button>
-                                                @endif
-
-                                            {{-- 🟢 Jika data sudah lengkap dan belum final, tampilkan tombol Finalisasi --}}
-                                            @elseif($monitoringiku->isFilled() && $monitoringiku->isCompleteForCurrentUnit())
+                                            
+                                            {{-- 2. Jika data unit ini LENGKAP (HAPUS isFilled() DISINI) --}}
+                                            @elseif($monitoringiku->isCompleteForCurrentUnit()) 
                                                 <a class="btn btn-warning" href="{{ route('monitoringiku.index-detail', $monitoringiku->mti_id) }}">
                                                     <i class="fa-solid fa-pen-to-square"></i> Isi/Ubah
                                                 </a>
@@ -90,7 +84,7 @@
                                                     <i class="fa-solid fa-lock"></i> Finalisasi
                                                 </button>
 
-                                            {{-- 🚫 Jika belum lengkap, tampilkan tombol nonaktif --}}
+                                            {{-- 3. Jika belum lengkap --}}
                                             @else
                                                 <a class="btn btn-warning" href="{{ route('monitoringiku.index-detail', $monitoringiku->mti_id) }}">
                                                     <i class="fa-solid fa-pen-to-square"></i> Isi/Ubah
@@ -101,13 +95,11 @@
                                                 </button>
                                             @endif
 
-                                        {{-- 🟩 Jika status global monitoring sudah final --}}
+                                        {{-- 🟩 Status Global Final --}}
                                         @else
                                             <a class="btn btn-success" href="{{ route('monitoringiku.show-monitoringiku', $monitoringiku->mti_id) }}">
                                                 <i class="fa-solid fa-eye"></i> Lihat Data
                                             </a>
-
-                                            {{-- 🔴 Admin masih bisa batalkan final (debug) --}}
                                             @if($isAdmin)
                                                 <button class="btn btn-danger cancelFinalBtn" data-id="{{ $monitoringiku->mti_id }}">
                                                     <i class="fa-solid fa-unlock"></i> Batalkan Final
@@ -115,6 +107,17 @@
                                             @endif
                                         @endif
                                     </td>
+                                    {{-- Debugging td --}}
+                                    {{-- <td>
+                                        @if(!$isAdmin)
+                                            <small class="d-block text-muted">
+                                                Lengkap: {{ $monitoringiku->isCompleteForCurrentUnit() ? 'Ya' : 'Tidak' }} <br>
+                                                Sudah Final: {{ $isFinalForUnit ? 'Ya' : 'Tidak' }}
+                                            </small>
+                                        @endif
+                                    </td> --}}
+                                    {{-- Debugging td --}}
+                                    
                                 </tr>
                             @endforeach
                             

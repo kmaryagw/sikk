@@ -31,6 +31,11 @@
             vertical-align: middle;     
         }
 
+        .dataTables_info {
+            padding: 1rem;
+            font-weight: 600;
+        }
+
     </style>
 @endpush
 
@@ -40,10 +45,108 @@
         <div class="section-header">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h1 class="mb-0">Detail Monitoring Indikator Kinerja</h1>
-                    <a class="btn btn-danger" href="{{ route('monitoringiku.index') }}">
-                        <i class="fa-solid fa-arrow-left"></i> Kembali
-                    </a>
+                    <h1 class="mb-0">Daftar Monitoring Indikator Kinerja</h1>
+                    <div class="d-flex align-items-center"> 
+                        @if (Auth::user()->role == 'admin')
+                            {{-- Tombol Export PDF --}}
+                            <div class="dropdown mr-3">
+                                <button class="btn btn-danger btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa-solid fa-file-pdf"></i> Export PDF
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" target="_blank" href="{{ route('monitoringiku.export-pdf-detail', [
+                                            'mti_id' => $Monitoringiku->mti_id, 
+                                            'type' => 'penetapan',
+                                            'unit_kerja' => request('unit_kerja'),
+                                            'q'          => request('q')
+                                        ]) }}">Penetapan</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" target="_blank" href="{{ route('monitoringiku.export-pdf-detail', [
+                                            'mti_id' => $Monitoringiku->mti_id, 
+                                            'type' => 'pelaksanaan',
+                                            'unit_kerja' => request('unit_kerja'),
+                                            'q'          => request('q')
+                                        ]) }}">Pelaksanaan</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" target="_blank" href="{{ route('monitoringiku.export-pdf-detail', [
+                                            'mti_id' => $Monitoringiku->mti_id, 
+                                            'type' => 'evaluasi',
+                                            'unit_kerja' => request('unit_kerja'),
+                                            'q'          => request('q')
+                                        ]) }}">Evaluasi</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" target="_blank" href="{{ route('monitoringiku.export-pdf-detail', [
+                                            'mti_id' => $Monitoringiku->mti_id, 
+                                            'type' => 'pengendalian',
+                                            'unit_kerja' => request('unit_kerja'),
+                                            'q'          => request('q')
+                                        ]) }}">Pengendalian</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" target="_blank" href="{{ route('monitoringiku.export-pdf-detail', [
+                                            'mti_id' => $Monitoringiku->mti_id, 
+                                            'type' => 'peningkatan',
+                                            'unit_kerja' => request('unit_kerja'),
+                                            'q'          => request('q')
+                                        ]) }}">Peningkatan</a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            {{-- Tombol Export Excel --}}
+                            <div class="dropdown mr-3">
+                                <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa-solid fa-file-excel"></i> Export Excel
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('monitoringiku.export-detail', [
+                                            'mti_id' => $Monitoringiku->mti_id, 
+                                            'type' => 'penetapan',
+                                            'unit_kerja' => request('unit_kerja') 
+                                        ]) }}">Penetapan</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('monitoringiku.export-detail', [
+                                            'mti_id' => $Monitoringiku->mti_id, 
+                                            'type' => 'pelaksanaan',
+                                            'unit_kerja' => request('unit_kerja')
+                                        ]) }}">Pelaksanaan</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('monitoringiku.export-detail', [
+                                            'mti_id' => $Monitoringiku->mti_id, 
+                                            'type' => 'evaluasi',
+                                            'unit_kerja' => request('unit_kerja')
+                                        ]) }}">Evaluasi</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('monitoringiku.export-detail', [
+                                            'mti_id' => $Monitoringiku->mti_id, 
+                                            'type' => 'pengendalian',
+                                            'unit_kerja' => request('unit_kerja')
+                                        ]) }}">Pengendalian</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('monitoringiku.export-detail', [
+                                            'mti_id' => $Monitoringiku->mti_id, 
+                                            'type' => 'peningkatan',
+                                            'unit_kerja' => request('unit_kerja')
+                                        ]) }}">Peningkatan</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        @endif
+
+                        {{-- Tombol Kembali --}}
+                        <a class="btn btn-danger btn-sm" href="{{ route('monitoringiku.index') }}">
+                            <i class="fa-solid fa-arrow-left"></i> Kembali
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -79,21 +182,6 @@
                     </div>
                 </form>
 
-                @if (Auth::user()->role == 'admin')
-                <div class="dropdown">
-                    <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fa-solid fa-file-excel"></i> Export Excel
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ route('monitoringiku.export-detail', ['mti_id' => $Monitoringiku->mti_id, 'type' => 'penetapan']) }}">Penetapan</a></li>
-                        <li><a class="dropdown-item" href="{{ route('monitoringiku.export-detail', ['mti_id' => $Monitoringiku->mti_id, 'type' => 'pelaksanaan']) }}">Pelaksanaan</a></li>
-                        <li><a class="dropdown-item" href="{{ route('monitoringiku.export-detail', ['mti_id' => $Monitoringiku->mti_id, 'type' => 'evaluasi']) }}">Evaluasi</a></li>
-                        <li><a class="dropdown-item" href="{{ route('monitoringiku.export-detail', ['mti_id' => $Monitoringiku->mti_id, 'type' => 'pengendalian']) }}">Pengendalian</a></li>
-                        <li><a class="dropdown-item" href="{{ route('monitoringiku.export-detail', ['mti_id' => $Monitoringiku->mti_id, 'type' => 'peningkatan']) }}">Peningkatan</a></li>
-                    </ul>
-                </div>
-                @endif
-
                 @if (Auth::user()->role == 'unit kerja' || Auth::user()->role == 'admin')
                     <a class="btn btn-primary" href="{{ route('monitoringiku.create-detail', ['mti_id' => $Monitoringiku->mti_id]) }}">
                         <i class="fa-solid fa-plus"></i> Isi Monitoring
@@ -111,10 +199,10 @@
                     <thead class="thead-light">
                         <tr>
                             <th>No</th>
-                            <th style="width: 30%;">Indikator Kinerja</th>
+                            <th style="width: 29%;">Indikator Kinerja</th>
                             <th style="width: 5%;">Baseline</th>
                             <th>Target</th>
-                            @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'fakultas')
+                            @if (Auth::user()->role == 'admin')
                                 <th>Capaian</th>
                                 <th style="width: 10%;">URL</th>
                                 <th>Status</th>
@@ -123,12 +211,17 @@
                                 <th style="width: 15%;">Tindak Lanjut</th>
                                 <th style="width: 15%;">Peningkatan</th>
                                 <th style="width: 10%;">Aksi</th>
-                            @else
+                            @elseif (Auth::user()->role == 'unit kerja')    
                                 <th>Capaian</th>
                                 <th>Status</th>
                                 <th>Keterangan</th>
                                 <th>URL</th>
                                 <th style="width: 10%;">Aksi</th>
+                            @else
+                                <th>Capaian</th>
+                                <th>Status</th>
+                                <th>Keterangan</th>
+                                <th>URL</th>
                             @endif
                         </tr>
                     </thead>
@@ -292,10 +385,10 @@
                                     </td>         
                                     <td>
                                         @if(optional($target->monitoringDetail)->mtid_keterangan)
-                                            <!-- Tombol buka modal -->
                                             <button type="button" 
-                                                    class="btn btn-info btn-sm btn-lihat-keterangan"
-                                                    data-keterangan="{{ $target->monitoringDetail->mtid_keterangan }}"
+                                                    class="btn btn-info btn-sm btn-lihat-detail"
+                                                    data-jenis="Keterangan"
+                                                    data-isi="{{ $target->monitoringDetail->mtid_keterangan }}"
                                                     data-indikator="{{ optional($target->indikatorKinerja)->ik_nama }}">
                                                 <i class="fa fa-eye"></i> Lihat
                                             </button>
@@ -303,38 +396,49 @@
                                             <span class="text-muted">Belum ada keterangan</span>
                                         @endif
                                     </td>
-                                    {{-- Tambahan untuk ADMIN --}}
-                                    <td >
+                                    {{-- tambahan untuk Admin --}}
+                                    <td>
                                         @if(optional($target->monitoringDetail)->mtid_evaluasi)
-                                            <span class="text-success">
-                                                {{ optional($target->monitoringDetail)->mtid_evaluasi }}
-                                            </span>
+                                            <button type="button" 
+                                                    class="btn btn-primary btn-sm btn-lihat-detail"
+                                                    data-jenis="Evaluasi"
+                                                    data-isi="{{ $target->monitoringDetail->mtid_evaluasi }}"
+                                                    data-indikator="{{ optional($target->indikatorKinerja)->ik_nama }}">
+                                                <i class="fa fa-eye"></i> Lihat Evaluasi
+                                            </button>
                                         @else
                                             <span class="text-muted">Belum ada evaluasi</span>
                                         @endif
                                     </td>
+
+                                    {{-- 3. Kolom Tindak Lanjut --}}
                                     <td>
                                         @if(optional($target->monitoringDetail)->mtid_tindaklanjut)
-                                            <span class="text-success">
-                                                {{ optional($target->monitoringDetail)->mtid_tindaklanjut }}
-                                            </span>
+                                            <button type="button" 
+                                                    class="btn btn-primary btn-sm btn-lihat-detail"
+                                                    data-jenis="Tindak Lanjut"
+                                                    data-isi="{{ $target->monitoringDetail->mtid_tindaklanjut }}"
+                                                    data-indikator="{{ optional($target->indikatorKinerja)->ik_nama }}">
+                                                <i class="fa fa-eye"></i> Lihat Tindak Lanjut
+                                            </button>
                                         @else
                                             <span class="text-muted">Belum ada tindak lanjut</span>
                                         @endif
                                     </td>
+
+                                    {{-- 4. Kolom Peningkatan --}}
                                     <td>
                                         @if(optional($target->monitoringDetail)->mtid_peningkatan)
-                                            <span class="text-success">
-                                                {{ optional($target->monitoringDetail)->mtid_peningkatan }}
-                                            </span>
+                                            <button type="button" 
+                                                    class="btn btn-primary btn-sm btn-lihat-detail"
+                                                    data-jenis="Peningkatan"
+                                                    data-isi="{{ $target->monitoringDetail->mtid_peningkatan }}"
+                                                    data-indikator="{{ optional($target->indikatorKinerja)->ik_nama }}">
+                                                <i class="fa fa-eye"></i> Lihat Peningkatan
+                                            </button>
                                         @else
                                             <span class="text-muted">Belum ada peningkatan</span>
                                         @endif
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('monitoringiku.edit-detail', ['mti_id' => $Monitoringiku->mti_id, 'ti_id' => $target->ti_id]) }}" class="btn btn-warning btn-sm">
-                                            <i class="fa-solid fa-pen-to-square"></i> Edit
-                                        </a>
                                     </td>
                                     {{-- Tambahan untuk ADMIN --}}
 
@@ -372,7 +476,7 @@
                                         @elseif(!empty($capaian))
                                             <span class="badge badge-primary">{{ $capaian }}</span>
                                         @else
-                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Belum ada Capaian</span>
+                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i></span>
                                         @endif
                                     </td>  
                                     <td>
@@ -386,10 +490,10 @@
                                             <span class="text-primary"><i class="fa-solid fa-arrow-up"></i> Terlampaui</span>
                                         @elseif($status === 'tidak tercapai')
                                             <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Tidak Tercapai</span>
-                                        @elseif($status === 'tidak terlaksana')
-                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak Terlaksana</span>
+                                        {{-- @elseif($status === 'tidak terlaksana')
+                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak Terlaksana</span> --}}
                                         @else
-                                            <span class="text-danger"><i class="fa-solid fa-times-circle"></i></span>
+                                            <span class="text-danger"><i></i> Tidak Terlaksana</span>
 
                                         @endif
                                     </td>         
@@ -413,6 +517,9 @@
                                             Belum Ada URL
                                         @endif
                                     </td> 
+                                    @endif
+
+                                    @if(Auth::user()->role == 'unit kerja' || Auth::user()->role == 'admin')
                                     <td>
                                         <a href="{{ route('monitoringiku.edit-detail', ['mti_id' => $Monitoringiku->mti_id, 'ti_id' => $target->ti_id]) }}" class="btn btn-warning btn-sm">
                                             <i class="fa-solid fa-pen-to-square"></i> Edit
@@ -488,39 +595,56 @@
         }
     </script>
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const btns = document.querySelectorAll('.btn-lihat-keterangan');
-        const modalTitle = document.getElementById('modalIndikatorNama');
-        const modalBody = document.getElementById('modalKeteranganContent');
+        document.addEventListener('DOMContentLoaded', function () {
+            const modalElement = document.getElementById('keteranganModal');
+            const keteranganModal = new bootstrap.Modal(modalElement);
 
-        const keteranganModal = new bootstrap.Modal(document.getElementById('keteranganModal'));
+            const modalTitle = document.getElementById('modalIndikatorNama');
+            const modalBody = document.getElementById('modalKeteranganContent');
 
-        btns.forEach(btn => {
-            btn.addEventListener('click', function () {
-                modalTitle.textContent = this.getAttribute('data-indikator') || '-';
-                modalBody.innerText = this.getAttribute('data-keterangan') || 'Belum ada keterangan';
-                keteranganModal.show();
+            const btns = document.querySelectorAll('.btn-lihat-detail');
+            btns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const jenis = this.getAttribute('data-jenis') || 'Detail';
+                    const indikator = this.getAttribute('data-indikator') || '-';
+                    const isi = this.getAttribute('data-isi') || 'Tidak ada data.';
+
+                    modalTitle.textContent = `${jenis} - ${indikator}`;
+                    modalBody.innerText = isi;
+
+                    keteranganModal.show();
+                });
+            });
+
+            const closeButtons = modalElement.querySelectorAll('[data-bs-dismiss="modal"], [data-dismiss="modal"], .close');
+            
+            closeButtons.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    keteranganModal.hide();
+                });
             });
         });
-    });
 
-    document.getElementById('copyKeteranganBtn').addEventListener('click', function() {
-        const text = document.getElementById('modalKeteranganContent').innerText;
-        navigator.clipboard.writeText(text).then(() => {
-            if (window.Swal) {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'success',
-                    title: 'Keterangan disalin',
-                    showConfirmButton: false,
-                    timer: 1500
+        const copyBtn = document.getElementById('copyKeteranganBtn');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', function() {
+                const text = document.getElementById('modalKeteranganContent').innerText;
+                navigator.clipboard.writeText(text).then(() => {
+                    if (window.Swal) {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Teks berhasil disalin',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }
                 });
-            }
-        });
-    });
+            });
+        }
     </script>
-
+    
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Inisialisasi DataTables hanya dengan fitur sorting
@@ -528,16 +652,17 @@
                 "paging": false,        // Menonaktifkan fitur pagination
                 "searching": false,     // Menonaktifkan fitur pencarian
                 "ordering": true,       // Mengaktifkan fitur sorting
+                "info": true, 
                 "order": [[1, 'asc']],  // Mengurutkan berdasarkan kolom "Indikator Kinerja" (indeks 1)
                 "lengthChange": false,  // Menonaktifkan perubahan jumlah data per halaman
-                info: true,
-                infoCallback: function(settings, start, end, max, total, pre) {
-                    return `
-                        <span class="badge bg-primary text-light px-3 py-2 m-3">
-                            Total Data yang Tampil : ${total}
-                        </span>
-                    `;
-                }
+                // info: true,
+                // infoCallback: function(settings, start, end, max, total, pre) {
+                //     return `
+                //         <span class="badge bg-primary text-light px-3 py-2 m-3">
+                //             Total Data yang Tampil : ${total}
+                //         </span>
+                //     `;
+                // }
             });
 
             const btns = document.querySelectorAll('.btn-lihat-keterangan');
