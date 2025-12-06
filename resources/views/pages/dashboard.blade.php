@@ -297,18 +297,65 @@
                                                     @endif
                                                 </td> --}}
                                                 <td>
-                                                    @if($row->sudah_final)
-                                                        @if($isAdmin)
-                                                            <span class="badge bg-success text-light">Sudah Finalisasi</span>
-                                                            <button class="btn btn-danger btn-sm batalFinalBtn" data-unit="{{ $row->unit_id }}">
-                                                                <i class="fa-solid fa-unlock"></i> Batalkan Finalisasi
-                                                            </button>
-                                                        @else
-                                                            <span class="badge bg-success text-light">Sudah Finalisasi</span>
-                                                        @endif
-                                                    @else
-                                                        <span class="badge bg-secondary">Belum Finalisasi</span>
-                                                    @endif
+                                                    {{-- Logic Warna Tombol Utama (Bungkus Dropdown) --}}
+                                                    @php
+                                                        $mainBtnClass = 'btn-info'; // Default: Abu-abu
+                                                        $mainBtnText = 'Lihat Status';
+                                                        $mainIcon = 'fa-list-check';
+
+                                                        if($row->status_global === 'semua') {
+                                                            $mainBtnClass = 'btn-success'; // Hijau (Semua Final)
+                                                            $mainBtnText = 'Semua Sudah Final';
+                                                            $mainIcon = 'fa-check-double';
+                                                        } elseif($row->status_global === 'sebagian') {
+                                                            $mainBtnClass = 'btn-warning text-dark'; // Kuning (Sebagian)
+                                                            $mainBtnText = 'Lihat Finalisasi';
+                                                            $mainIcon = 'fa-spinner';
+                                                        }
+                                                    @endphp
+
+                                                    <div class="dropdown">
+                                                        {{-- Tombol Pemicu Dropdown --}}
+                                                        <button class="btn btn-sm dropdown-toggle {{ $mainBtnClass }}" 
+                                                                type="button" 
+                                                                data-toggle="dropdown"
+                                                                aria-expanded="false">
+                                                            <i class="fa-solid {{ $mainIcon }} me-1"></i> {{ $mainBtnText }}
+                                                        </button>
+
+                                                        {{-- Daftar Prodi dalam Dropdown --}}
+                                                        <ul class="dropdown-menu shadow p-0" style="min-width: 250px; overflow: hidden;">
+                                                            <li>
+                                                                <div class="dropdown-header bg-light border-bottom fw-bold text-center">
+                                                                    Status per Program Studi
+                                                                </div>
+                                                            </li>
+
+                                                            @foreach($row->detail_finalisasi as $dtl)
+                                                                {{-- Tentukan Warna Item Berdasarkan Status --}}
+                                                                @php
+                                                                    $itemClass = $dtl['status'] 
+                                                                        ? 'bg-success text-white'  // HIJAU jika Sudah Final
+                                                                        : 'bg-warning text-dark';  // KUNING jika Belum Final
+                                                                    
+                                                                    $iconStatus = $dtl['status'] 
+                                                                        ? 'fa-check-circle' 
+                                                                        : 'fa-exclamation-circle';
+                                                                @endphp
+
+                                                                <li class="border-bottom">
+                                                                    {{-- Item Dropdown --}}
+                                                                    <span class="dropdown-item d-flex justify-content-between align-items-center py-2 {{ $itemClass }}" style="cursor: default;">
+                                                                        <span class="fw-semibold" style="font-size: 0.9rem;">
+                                                                            {{ $dtl['nama_prodi'] }}
+                                                                        </span>
+                                                                        
+                                                                        <i class="fa-solid {{ $iconStatus }}"></i>
+                                                                    </span>
+                                                                </li>
+                                                            @endforeach
+                                                        </ul>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         @empty
@@ -548,7 +595,7 @@
                                                     <th>Terlampaui</th>
                                                     <th>Tidak Tercapai</th>
                                                     <th>Tidak Terlaksana</th>
-                                                    <th>% Tuntas</th>   {{-- ✅ Tambahan kolom --}}
+                                                    <th>% Tuntas</th>  
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -560,7 +607,7 @@
                                                     <td>{{ $data->terlampaui }}</td>
                                                     <td>{{ $data->tidak_tercapai }}</td>
                                                     <td>{{ $data->tidak_terlaksana }}</td>
-                                                    <td>{{ $data->persentase_tuntas }}%</td> {{-- ✅ Tambahan value --}}
+                                                    <td>{{ $data->persentase_tuntas }}%</td> 
                                                 </tr>
                                                 @empty
                                                 <tr>

@@ -243,7 +243,6 @@ class DashboardController extends Controller
                 }
             }
 
-            // ✅ hitung persentase tuntas (tercapai + terlampaui)
             if ($statusCount['total'] > 0) {
                 $statusCount['persentase_tuntas'] = round(
                     (($statusCount['tercapai'] + $statusCount['terlampaui']) / $statusCount['total']) * 100,
@@ -256,17 +255,14 @@ class DashboardController extends Controller
         ->sortByDesc('tahun')
         ->values();
 
-            // RINGKASAN IKU/IKT PER UNIT KERJA
             if ($user->role === 'unit kerja') {
 
-                // 1️⃣ Data untuk unit kerja yang sedang login
                 $ikuiktPerUnitSendiri = UnitKerja::with(['indikatorKinerja.targetIndikator.monitoringDetail'])
                     ->where('unit_id', $user->unit_id)
                     ->get()
                     ->map(function ($unit) use ($tahunAktif) {
                         $data = $this->hitungStatusUnit($unit, $tahunAktif);
 
-                        // ✅ Cek status finalisasi unit (hanya jika status = true)
                         $isFinal = MonitoringFinalUnit::where('unit_id', $unit->unit_id)
                             ->where('status', true)
                             ->exists();
@@ -277,14 +273,12 @@ class DashboardController extends Controller
                         return $data;
                     });
 
-                // 2️⃣ Data untuk seluruh unit kerja (untuk perbandingan)
                 $ikuiktPerUnitSemua = UnitKerja::with(['indikatorKinerja.targetIndikator.monitoringDetail'])
                     ->orderBy('unit_nama')
                     ->get()
                     ->map(function ($unit) use ($tahunAktif) {
                         $data = $this->hitungStatusUnit($unit, $tahunAktif);
 
-                        // ✅ Filter juga berdasarkan status = true
                         $isFinal = MonitoringFinalUnit::where('unit_id', $unit->unit_id)
                             ->where('status', true)
                             ->exists();
@@ -296,8 +290,7 @@ class DashboardController extends Controller
                     });
 
             } else {
-                // --- Untuk admin atau role lain ---
-                $ikuiktPerUnitSendiri = collect(); // kosong
+                $ikuiktPerUnitSendiri = collect(); 
                 $ikuiktPerUnitSemua = UnitKerja::with(['indikatorKinerja.targetIndikator.monitoringDetail'])
                     ->orderBy('unit_nama')
                     ->get()
@@ -316,7 +309,6 @@ class DashboardController extends Controller
                     });
             }
 
-        // Kirim data ke tampilan dashboard
         return view('pages.dashboard', [
             'title' => $title,
             'tahuns' => $tahuns,
@@ -342,13 +334,11 @@ class DashboardController extends Controller
         ]);
     }
 
-    /**
-     * 🔹 Fungsi bantu untuk menghitung status IKU/IKT per unit kerja
-     */
+    
     private function hitungStatusUnit($unit, $tahunAktif)
     {
         $statusCount = [
-            'unit_id' => $unit->unit_id, // ✅ tambahkan ID unit
+            'unit_id' => $unit->unit_id,
             'unit_nama' => $unit->unit_nama,
             'jumlah' => 0,
             'tercapai' => 0,
@@ -356,8 +346,8 @@ class DashboardController extends Controller
             'tidak_tercapai' => 0,
             'tidak_terlaksana' => 0,
             'persentase_tuntas' => 0,
-            'sudah_final' => false, // ✅ tambahkan status finalisasi
-            'mti_id' => null,       // ✅ placeholder untuk mti_id (kalau kamu punya MonitoringIKU)
+            'detail_finalisasi' => [],
+            'status_global' => 'belum',
         ];
 
         foreach ($unit->indikatorKinerja as $indikator) {
@@ -366,30 +356,15 @@ class DashboardController extends Controller
                 if ($indikator->ik_jenis !== 'IKU/IKT') continue;
 
                 $statusCount['jumlah']++;
-
                 $status = $this->hitungStatus(
                     optional($target->monitoringDetail)->mtid_capaian,
                     $target->ti_target,
                     $indikator->ik_ketercapaian
                 );
 
-                if (isset($statusCount[$status])) {
-                    $statusCount[$status]++;
-                }
-
-                // Ambil salah satu mti_id (kalau ada relasi monitoring)
-                if (!$statusCount['mti_id'] && optional($target->monitoringDetail)->monitoring_iku_id) {
-                    $statusCount['mti_id'] = $target->monitoringDetail->monitoring_iku_id;
-                }
+                if (isset($statusCount[$status])) $statusCount[$status]++;
             }
         }
-
-        // Cek apakah unit sudah final (kalau tabel monitoring_final_units ada)
-        $final = \App\Models\MonitoringFinalUnit::where('unit_id', $unit->unit_id)
-            ->where('status', true)
-            ->exists();
-
-        $statusCount['sudah_final'] = $final;
 
         if ($statusCount['jumlah'] > 0) {
             $statusCount['persentase_tuntas'] = round(
@@ -397,6 +372,55 @@ class DashboardController extends Controller
                 2
             );
         }
+
+        $semuaProdi = \App\Models\program_studi::orderBy('nama_prodi', 'asc')->get();
+        
+        $listFinalisasi = [];
+        $jumlahFinal = 0;
+        $totalProdi = $semuaProdi->count();
+
+        foreach ($semuaProdi as $prodi) {
+            $isFinal = false;
+
+            if ($tahunAktif) {
+                // Cari ID Monitoring untuk Prodi & Tahun ini
+                $monitoringIku = DB::table('monitoring_iku')
+                    ->where('prodi_id', $prodi->prodi_id)
+                    ->where('th_id', $tahunAktif->th_id)
+                    ->first();
+
+                if ($monitoringIku) {
+                    // Cek apakah Unit ini sudah finalisasi untuk monitoring ID tersebut
+                    $cekFinal = DB::table('monitoring_final_units')
+                        ->where('unit_id', $unit->unit_id)
+                        ->where('monitoring_iku_id', $monitoringIku->mti_id)
+                        ->where('status', 1) 
+                        ->exists();
+
+                    if ($cekFinal) {
+                        $isFinal = true;
+                        $jumlahFinal++;
+                    }
+                }
+            }
+
+            // Masukkan ke array detail
+            $listFinalisasi[] = [
+                'nama_prodi' => $prodi->nama_prodi,
+                'status' => $isFinal
+            ];
+        }
+
+        // Tentukan warna tombol utama (Global)
+        if ($jumlahFinal === 0) {
+            $statusCount['status_global'] = 'belum'; 
+        } elseif ($jumlahFinal === $totalProdi) {
+            $statusCount['status_global'] = 'semua'; 
+        } else {
+            $statusCount['status_global'] = 'sebagian';
+        }
+
+        $statusCount['detail_finalisasi'] = $listFinalisasi;
 
         return (object) $statusCount;
     }
