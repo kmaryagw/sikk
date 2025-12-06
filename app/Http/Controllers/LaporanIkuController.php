@@ -77,8 +77,9 @@ class LaporanIkuController extends Controller
             });
         }
 
-        $target_capaians = $query->paginate(10)->withQueryString();
-        $no = $target_capaians->firstItem();
+        $target_capaians = $query->get();
+        // $target_capaians = $query->paginate(10)->withQueryString();
+        // $no = $target_capaians->firstItem();
 
         return view('pages.index-laporan-iku', [
             'title'          => $title,
@@ -90,7 +91,7 @@ class LaporanIkuController extends Controller
             'prodiId'        => $prodiId,
             'unitId'         => $unitId,
             'q'              => $q,
-            'no'             => $no,
+            // 'no'             => $no,
             'type_menu'      => 'laporan',
             'sub_menu'       => 'laporan-iku',
         ]);
@@ -145,74 +146,58 @@ class LaporanIkuController extends Controller
         $unitId  = $request->query('unit');
         $keyword = $request->query('q');
 
-        // Pakai tahun aktif ketika user tidak memilih
         if (!$tahunId) {
             $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->first();
             $tahunId = $tahunAktif?->th_id;
         }
 
-        // Query laporan PDF
-        $query = target_indikator::select(
-                'tahun_kerja.th_tahun',
-                'program_studi.nama_prodi',
-                'uk.unit_nama',
-                'indikator_kinerja.ik_nama',
-                'target_indikator.ti_target',
-                'monitoring_iku_detail.mtid_capaian',
-                'monitoring_iku_detail.mtid_status'
-            )
-            ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
+        // 1. Query Data
+        // Kita gunakan 'with' untuk mengambil objek relasi (Tahun, Prodi, Indikator, Detail)
+        $query = target_indikator::with([
+                'tahunKerja',
+                'prodi',
+                'indikatorKinerja.unitKerja', // Load Unit Kerja via Indikator
+                'monitoringDetail'
+            ])
+            ->select('target_indikator.*') // Select tabel utama saja
             ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
+            ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
             ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id')
-            ->leftJoin('monitoring_iku_detail', 'monitoring_iku_detail.ti_id', '=', 'target_indikator.ti_id')
-            ->leftJoin('unit_kerja as uk', 'uk.unit_id', '=', 'indikator_kinerja.unit_id');
+            ->orderBy('target_indikator.ti_target', 'asc');
 
-        // Filter tahun
+        // 2. Filter-filter
         if ($tahunId) {
-            $query->where('tahun_kerja.th_id', $tahunId);
+            $query->where('target_indikator.th_id', $tahunId);
         }
-
-        // Filter prodi
         if ($prodiId) {
-            $query->where('program_studi.prodi_id', $prodiId);
+            $query->where('target_indikator.prodi_id', $prodiId);
         }
-
-        // Filter unit
         if ($unitId) {
             $query->whereHas('indikatorKinerja.unitKerja', function ($q) use ($unitId) {
                 $q->where('unit_kerja.unit_id', $unitId);
             });
         }
-
-        // Filter keyword
         if ($keyword) {
             $query->where('indikator_kinerja.ik_nama', 'like', '%' . $keyword . '%');
         }
 
         $target_capaians = $query->get();
 
-        // Detail nama file
+        // 3. Data Header
         $tahun = $tahunId ? tahun_kerja::find($tahunId)?->th_tahun : 'Semua-Tahun';
         $prodi = $prodiId ? program_studi::find($prodiId)?->nama_prodi : 'Semua-Prodi';
         $unit  = $unitId ? UnitKerja::find($unitId)?->unit_nama : 'Semua-Unit';
 
-        // Sanitasi nama file agar tidak ada karakter ilegal
         $sanitize = fn($string) => preg_replace('/[\/\\\\]+/', '-', str_replace(' ', '-', $string ?? ''));
 
-        // Nama file lebih rapi & tidak doble .pdf
-        $namaFile = "Laporan_IKU_" 
-            . $sanitize($tahun) . "_" 
-            . $sanitize($prodi) . "_" 
-            . $sanitize($unit) . "_" 
-            . now()->format('Ymd_His')
-            . ".pdf";
+        $namaFile = "Laporan_IKU_" . $sanitize($tahun) . "_" . $sanitize($prodi) . "_" . $sanitize($unit) . ".pdf";
 
         $pdf = Pdf::loadView('export.laporan-iku-pdf', [
             'target_capaians' => $target_capaians,
             'tahun' => $tahun,
             'prodi' => $prodi,
             'unit'  => $unit,
-        ]);
+        ])->setPaper('a4', 'landscape');
 
         return $pdf->download($namaFile);
     }
