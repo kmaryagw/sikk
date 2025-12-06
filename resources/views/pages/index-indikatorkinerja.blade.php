@@ -36,7 +36,17 @@
 
             <div class="card mb-3">
                 <div class="card-header">
-                    <form class="row g-2 align-items-center">                      
+                    <form class="row g-2 align-items-center">    
+                        <div class="col-auto">
+                            <select class="form-control form-control-sm" name="unit_id">
+                                <option value="">Semua PIC</option>
+                                @foreach ($unitKerjas as $unit)
+                                    <option value="{{ $unit->unit_id }}" {{ $selectedUnit == $unit->unit_id ? 'selected' : '' }}>
+                                        {{ $unit->unit_nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>                  
                         <div class="col-auto">
                             <input class="form-control form-control-sm" name="q" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>
@@ -88,7 +98,7 @@
                                 <tr>
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $indikatorkinerja->ik_kode }}</td>
-                                    <td>{{ $indikatorkinerja->ik_nama }}</td>
+                                    <td class="text-left">{{ $indikatorkinerja->ik_nama }}</td>
                                     <td style="padding: 3rem;">{{ $indikatorkinerja->std_nama ?? '-' }}</td>
                                     <td>
                                         @if (strtolower($indikatorkinerja->ik_jenis) === 'iku')
@@ -183,10 +193,11 @@
                                     <td>
                                         @if ($indikatorkinerja->unitKerja->isNotEmpty())
                                             @foreach ($indikatorkinerja->unitKerja as $unit)
-                                                <div>{{ $unit->unit_nama }}</div>
+                                                {{ $unit->unit_nama }}{{ $loop->last ? '' : ' /' }}
+                                                <br>
                                             @endforeach
                                         @else
-                                            <span class="text-muted">Tidak ada</span>
+                                            <span class="text-muted">PIC Belum Ada</span>
                                         @endif
                                     </td>
                                     @if (Auth::user()->role== 'admin')

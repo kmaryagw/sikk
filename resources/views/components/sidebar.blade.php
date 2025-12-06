@@ -185,6 +185,14 @@
             </li>
             @endif --}}
 
+            @if (Auth::user()->role == 'admin' || Auth::user()->role == 'fakultas')
+                <li class="{{ $type_menu === 'history-monitoring' ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('pages.index-history-monitoring') }}">
+                        <i class="fa-solid fa-clock-rotate-left"></i> <span>Log Aktivitas</span>
+                    </a>
+                </li>
+            @endif
+
             {{-- Monitoring IKU/T --}}
             @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'fakultas' || Auth::user()->role == 'unit kerja')
             <li class="{{ $type_menu === 'monitoringiku' ? 'active' : '' }}">

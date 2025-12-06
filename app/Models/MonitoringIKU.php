@@ -78,54 +78,41 @@ class MonitoringIKU extends Model
     {
         $user = Auth::user();
 
-        // Ambil semua target indikator milik unit kerja user
+        // 1. Jika Admin/Fakultas, anggap selalu false (atau true tergantung kebutuhan, tapi biasanya admin tidak mengisi)
+        if ($user->role === 'admin' || $user->role === 'fakultas') {
+            return false;
+        }
+
+        // 2. Ambil Semua ID Target Indikator (TI_ID) yang menjadi tanggung jawab Unit Kerja User ini
+        //    untuk Prodi dan Tahun Monitoring ini.
         $targetIds = target_indikator::where('prodi_id', $this->prodi_id)
             ->where('th_id', $this->th_id)
             ->whereHas('indikatorKinerja', function ($query) use ($user) {
+                // Filter berdasarkan unit_id milik user yang login
                 $query->where('unit_id', $user->unit_id);
             })
+            // Filter tambahan: Pastikan indikatornya IKU/IKT (opsional, sesuaikan kebutuhan)
+            // ->whereHas('indikatorKinerja', function ($q) {
+            //     $q->where('ik_jenis', 'IKU/IKT');
+            // })
             ->pluck('ti_id');
 
+        // 3. Jika unit ini tidak punya indikator sama sekali di prodi ini
         if ($targetIds->isEmpty()) {
-            \Log::info('FINAL CHECK: Tidak ada indikator untuk unit kerja ini', [
-                'mti_id' => $this->mti_id,
-                'user_unit_id' => $user->unit_id,
-            ]);
-            return false; // unit ini tidak punya indikator yang perlu diisi
+            return false; // Tidak ada beban kerja, jadi tidak tombol finalisasi tidak perlu muncul (atau bisa return true jika dianggap selesai)
         }
 
-        // Ambil semua detail monitoring yang sesuai dengan target indikator tersebut
-        $details = MonitoringIKU_Detail::where('mti_id', $this->mti_id)
+        // 4. Ambil Data Detail yang SUDAH TERISI (Capaian tidak null & tidak kosong)
+        //    Hanya ambil data milik targetIds di atas.
+        $filledCount = MonitoringIKU_Detail::where('mti_id', $this->mti_id)
             ->whereIn('ti_id', $targetIds)
-            ->get(['ti_id', 'mtid_capaian']);
+            ->whereNotNull('mtid_capaian')
+            ->where('mtid_capaian', '!=', '') // Pastikan tidak string kosong
+            ->count();
 
-        // Log isi data mentah untuk debugging
-        // \Log::info('FINAL CHECK DATA', [
-        //     'mti_id' => $this->mti_id,
-        //     'targetIds' => $targetIds,
-        //     'filledDetails' => $details->pluck('mtid_capaian', 'ti_id'),
-        // ]);
-
-        // Cek apakah semua indikator unit kerja sudah memiliki capaian
-        foreach ($targetIds as $ti_id) {
-            $detail = $details->firstWhere('ti_id', $ti_id);
-
-            if (!$detail || $detail->mtid_capaian === null || $detail->mtid_capaian === '') {
-                \Log::info('FINAL CHECK RESULT', [
-                    'mti_id' => $this->mti_id,
-                    'status' => 'Belum lengkap',
-                    'missing_ti_id' => $ti_id,
-                ]);
-                return false; // masih ada yang belum diisi
-            }
-        }
-
-        // \Log::info('FINAL CHECK RESULT', [
-        //     'mti_id' => $this->mti_id,
-        //     'status' => 'Lengkap',
-        // ]);
-
-        return true; // semua indikator unit kerja sudah diisi
+        // 5. Bandingkan Jumlah Target vs Jumlah yang Sudah Diisi
+        //    Jika jumlah target sama dengan jumlah yang terisi, berarti LENGKAP.
+        return $filledCount === $targetIds->count();
     }
 
 

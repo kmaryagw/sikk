@@ -6,6 +6,36 @@
     <link rel="stylesheet" href="{{ asset('library/jqvmap/dist/jqvmap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('library/summernote/dist/summernote-bs4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/circular-progress-bar.css') }}">
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    
+    <style>
+        .table td, .table th {
+            vertical-align: middle !important; 
+            text-align: center !important;     
+        }
+
+        .table td.text-left {
+            text-align: left !important;
+        }
+
+        /* Style tambahan untuk Header DataTables agar ikon sorting pas */
+        table.dataTable thead .sorting:before, 
+        table.dataTable thead .sorting_asc:before, 
+        table.dataTable thead .sorting_desc:before, 
+        table.dataTable thead .sorting:after, 
+        table.dataTable thead .sorting_asc:after, 
+        table.dataTable thead .sorting_desc:after {
+            bottom: 0.8em; 
+        }
+        
+        /* Menghilangkan border bawah pada info datatables */
+        .dataTables_info {
+            padding: 1rem;
+            font-weight: 600;
+        }
+    </style>
 @endpush
 
 
@@ -13,12 +43,14 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Daftar Target</h1>
+                <h1>Daftar Target Indikator</h1>
             </div>
 
             <div class="card mb-3">
                 <div class="card-header">
                     <form class="row g-2 align-items-center">
+                        
+                        {{-- Filter Tahun --}}
                         @if (Auth::user()->role== 'admin' || Auth::user()->role == 'prodi')
                         <div class="col-auto">
                             <select class="form-control" name="tahun">
@@ -30,13 +62,29 @@
                                 @endforeach
                             </select>
                         </div>
-                        @endif                                             
+                        @endif
+                        
+                        {{-- Filter Unit Kerja (Hanya muncul jika variabel dikirim dari controller) --}}
+                        <div class="col-auto">
+                            <select class="form-control" name="unit_kerja">
+                                <option value="">Semua Unit Kerja</option>
+                                @foreach ($unitKerjas as $unit)
+                                    <option value="{{ $unit->unit_id }}" 
+                                        {{ request('unit_kerja') == $unit->unit_id ? 'selected' : '' }}>
+                                        {{ $unit->unit_nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
                         <div class="col-auto">
                             <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>
+                        
                         <div class="col-auto">
                             <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
                         </div>
+
                         @if (Auth::user()->role== 'admin' || Auth::user()->role == 'prodi')
                         <div class="col-auto">
                             <a class="btn btn-primary" href="{{ route('targetcapaianprodi.create') }}"><i class="fa-solid fa-plus"></i> Isi / Ubah Target</a>
@@ -45,9 +93,9 @@
                     </form>
                 </div>
 
-                <div class="table-responsive text-center">
-                    <table class="table table-hover table-bordered table-striped m-0">
-                        <thead>
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered table-striped m-0" id="table-target">
+                        <thead class="thead-light">
                             <tr>
                                 <th>No</th>
                                 <th>Tahun</th>
@@ -56,19 +104,19 @@
                                 <th>Jenis</th>
                                 <th>Nilai Baseline</th>
                                 <th>Target</th>
-                                {{-- <th>Keterangan</th> --}}
-                                {{-- <th>Unit Kerja</th> --}}
-                                {{-- <th>Aksi</th> --}}
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                        @php $no = $target_capaians->firstItem(); @endphp
                             @foreach ($target_capaians as $targetcapaian)
                                 <tr>
-                                    <td>{{ $no++ }}</td>
+                                    {{-- Menggunakan $loop->iteration karena pagination dihapus --}}
+                                    <td>{{ $loop->iteration }}</td>
                                     <td>{{ $targetcapaian->th_tahun }}</td>
-                                    <td>{{ $targetcapaian->nama_prodi }}</td>
-                                    <td style="padding : 1.5rem;" class="text-left">{{ $targetcapaian->ik_kode }} - {{ $targetcapaian->ik_nama }}</td>
+                                    <td><span class="badge">{{ $targetcapaian->nama_prodi }}</span></td>
+                                    <td style="padding : 1.5rem;" class="text-left">
+                                        {{ $targetcapaian->ik_kode }} - {{ $targetcapaian->ik_nama }}
+                                    </td>
                                     <td>
                                         @if (strtolower($targetcapaian->ik_jenis == 'IKU'))
                                             <span class="badge badge-success">IKU</span>
@@ -84,50 +132,35 @@
                                         @php
                                             // --- LOGIC BASELINE ---
                                             $ketercapaian = strtolower((string) ($targetcapaian->indikatorKinerja->ik_ketercapaian ?? ''));
-
-                                            // Ambil baseline_tahun, buang spasi
                                             $bt = trim((string) ($targetcapaian->baseline_tahun ?? ''));
-
-                                            // Kalau kosong/null → anggap 0
                                             $baselineRaw = $bt !== '' ? $bt : '0';
-
-                                            // Bersihkan untuk cek angka
                                             $cleanNum = str_replace(['%', ' '], '', $baselineRaw);
                                             $baselineValue = is_numeric($cleanNum) ? (float) $cleanNum : null;
-
-                                            // Tentukan warna progres
                                             $progressColor = ($baselineValue !== null && $baselineValue == 0) ? '#dc3545' : '#28a745';
                                         @endphp
 
-                                        {{-- Persentase --}}
+                                        {{-- Visualisasi Baseline --}}
                                         @if ($ketercapaian === 'persentase' && $baselineValue !== null)
-                                            <div class="ring-progress-wrapper">
-                                                <div class="ring-progress" style="--value: {{ $baselineValue }}; --progress-color: {{ $progressColor }};">
-                                                    <div class="ring-inner">
-                                                        <span class="ring-text">{{ $baselineValue }}%</span>
+                                            <div class="d-flex justify-content-center">
+                                                <div class="ring-progress-wrapper">
+                                                    <div class="ring-progress" style="--value: {{ $baselineValue }}; --progress-color: {{ $progressColor }};">
+                                                        <div class="ring-inner">
+                                                            <span class="ring-text">{{ $baselineValue }}%</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-
-                                        {{-- Nilai --}}
                                         @elseif ($ketercapaian === 'nilai' && is_numeric($cleanNum))
                                             <span class="badge badge-primary">{{ $baselineRaw }}</span>
-
-                                        {{-- Ada / Draft --}}
                                         @elseif (in_array(strtolower($baselineRaw), ['ada', 'draft']))
                                             @if (strtolower($baselineRaw) === 'ada')
                                                 <span class="text-success"><i class="fa-solid fa-check-circle"></i> Ada</span>
                                             @else
                                                 <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
                                             @endif
-
-                                        {{-- Rasio --}}
                                         @elseif ($ketercapaian === 'rasio')
                                             @php
-                                                // Default: Tampilkan nilai asli apa adanya (jangan tulis "Format salah")
                                                 $formattedRasio = $baselineRaw;
-                                                
-                                                // Coba rapikan formatnya jika valid
                                                 $cleaned = preg_replace('/\s*/', '', $baselineRaw);
                                                 if (preg_match('/^\d+:\d+$/', $cleaned)) {
                                                     [$a, $b] = explode(':', $cleaned);
@@ -135,8 +168,6 @@
                                                 }
                                             @endphp
                                             <span class="badge badge-info"><i class="fa-solid fa-balance-scale"></i> {{ $formattedRasio }}</span>
-
-                                        {{-- Default --}}
                                         @else
                                             {{ $baselineRaw }}
                                         @endif
@@ -151,11 +182,14 @@
                                             $progressColor = $numericValue == 0 ? '#dc3545' : '#28a745';
                                         @endphp
 
+                                        {{-- Visualisasi Target --}}
                                         @if ($ketercapaian === 'persentase' && is_numeric($numericValue))
-                                            <div class="ring-progress-wrapper">
-                                                <div class="ring-progress" style="--value: {{ $numericValue }}; --progress-color: {{ $progressColor }};">
-                                                    <div class="ring-inner">
-                                                        <span class="ring-text">{{ $numericValue }}%</span>
+                                            <div class="d-flex justify-content-center">
+                                                <div class="ring-progress-wrapper">
+                                                    <div class="ring-progress" style="--value: {{ $numericValue }}; --progress-color: {{ $progressColor }};">
+                                                        <div class="ring-inner">
+                                                            <span class="ring-text">{{ $numericValue }}%</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -169,10 +203,7 @@
                                             @endif
                                         @elseif ($ketercapaian === 'rasio')
                                             @php
-                                                // Default: Tampilkan nilai asli apa adanya (jangan tulis "Format salah")
                                                 $formattedRasio = $targetRaw;
-
-                                                // Coba rapikan formatnya jika valid
                                                 $cleaned = preg_replace('/\s*/', '', $targetRaw);
                                                 if (preg_match('/^\d+:\d+$/', $cleaned)) {
                                                     [$left, $right] = explode(':', $cleaned);
@@ -183,42 +214,26 @@
                                         @else
                                             {{ $targetRaw }}
                                         @endif
-                                    </td>                                                                                                           
-                                    {{-- <td>{{ $targetcapaian->ti_keterangan }}</td> --}}
-
-                                    {{-- @if (Auth::user()->role== 'admin' || Auth::user()->role == 'prodi')
+                                    </td>  
                                     <td>
-                                        <a class="btn btn-warning btn-sm mb-2 mt-2" href="{{ route('targetcapaianprodi.edit', $targetcapaian->ti_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>
-                                        <form id="delete-form-{{ $targetcapaian->ti_id }}" method="POST" class="d-inline" action="{{ route('targetcapaianprodi.destroy', $targetcapaian->ti_id) }}">
-
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-danger btn-sm" onclick="confirmDelete(event, '{{ $targetcapaian->ti_id }}' )"><i class="fa-solid fa-trash"></i> Hapus</button>
-
-                                        </form>
-                                    </td>
-                                    @endif --}}
-                                    {{-- <td><span class="badge badge-primary">{{ $targetcapaian->unit_nama ?? '-' }}</span></td> --}}
+                                        <div class="d-flex justify-content-center">
+                                            {{-- Tombol Edit --}}
+                                            <a href="{{ route('targetcapaianprodi.edit', $targetcapaian->ti_id) }}" class="btn btn-warning btn-sm">
+                                                <i class="fa-solid fa-pen-to-square"></i> Edit
+                                            </a>
+                                        </div>
+                                    </td>                                                                                                         
                                 </tr>
                             @endforeach
-                            @if ($target_capaians->isEmpty())
-                                <tr>
-                                    <td colspan="12" class="text-center">
-                                        <div>
-                                            Tahun {{ $tahunLabel }} tidak memiliki Target.
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endif
                         </tbody>
                     </table>
-                </div>
 
-                @if ($target_capaians->hasPages())
-                    <div class="card-footer">
-                        {{ $target_capaians->links('pagination::bootstrap-5') }}
-                    </div>
-                @endif
+                    @if ($target_capaians->isEmpty())
+                        <div class="alert alert-light text-center mt-3">
+                            Target capaian tahun {{ $tahunLabel }} tidak ditemukan atau belum diset.
+                        </div>
+                    @endif
+                </div>
             </div>
         </section>
     </div>
@@ -233,27 +248,43 @@
     <script src="{{ asset('library/summernote/dist/summernote-bs4.min.js') }}"></script>
     <script src="{{ asset('library/chocolat/dist/js/jquery.chocolat.min.js') }}"></script>
 
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
     <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/index-0.js') }}"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
-    function confirmDelete(event, formid) {
-        event.preventDefault();
-        Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: "Data yang dihapus tidak bisa dikembalikan!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya, hapus data!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('delete-form-' + formid).submit();
-            }
-        })
-    }
-</script>
+    <script>
+        $(document).ready(function() {
+            @if(!$target_capaians->isEmpty())
+                $('#table-target').DataTable({
+                    "paging": false,        
+                    "searching": false,     
+                    "ordering": true,       
+                    "info": true,           
+                    "autoWidth": false,
+                    "order": [[ 3, 'asc' ]] 
+                });
+            @endif
+        });
+
+        function confirmDelete(event, formid) {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Data yang dihapus tidak bisa dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, hapus data!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form-' + formid).submit();
+                }
+            })
+        }
+    </script>
 @endpush

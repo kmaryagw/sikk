@@ -8,6 +8,7 @@ use App\Models\SettingIKU;
 use App\Models\tahun_kerja;
 use App\Models\IkBaselineTahun;
 use App\Models\target_indikator;
+use App\Models\UnitKerja; 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -24,39 +25,49 @@ class TargetCapaianController extends Controller
     public function index(Request $request)
     {
         $title = 'Data Target Capaian';
+        
         $q = $request->query('q');
         $tahunId = $request->query('tahun');
         $prodiId = $request->query('prodi');
+        $unitKerjaId = $request->query('unit_kerja');
 
-        // Ambil semua tahun & prodi
+        $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->first();
         $tahunList = tahun_kerja::all();
         $prodis = program_studi::all();
+        $unitKerjas = UnitKerja::orderBy('unit_nama', 'asc')->get();
 
-        // Ambil tahun aktif
-        $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->first();
-
-        // Jika tidak ada filter tahun, gunakan tahun aktif sebagai default
+        // Set Default Tahun
         if (!$tahunId && $tahunAktif) {
             $tahunId = $tahunAktif->th_id;
         }
 
-        // Query data target capaian
+        // menggunakan SELECT spesifik agar ID tidak tertimpa
         $query = target_indikator::query()
+            ->select(
+                'target_indikator.*',
+                'indikator_kinerja.ik_kode', 
+                'indikator_kinerja.ik_nama',
+                'indikator_kinerja.ik_jenis',
+                'indikator_kinerja.ik_ketercapaian',
+                'program_studi.nama_prodi',
+                'tahun_kerja.th_tahun'
+            )
             ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
             ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
-            ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id')
-            ->leftJoin('unit_kerja', 'unit_kerja.unit_id', '=', 'indikator_kinerja.unit_id');
+            ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id');
 
-        $query->whereNotNull('indikator_kinerja.unit_id')
-            ->where('indikator_kinerja.unit_id', '!=', '');
+        $query->whereExists(function ($sub) {
+            $sub->select('ik_id')
+                ->from('indikatorkinerja_unitkerja')
+                ->whereColumn('indikatorkinerja_unitkerja.ik_id', 'indikator_kinerja.ik_id');
+        });
 
-        // Jika user prodi → hanya data prodi tersebut
+        // Filter Role Prodi
         if (Auth::user()->role == 'prodi') {
             $query->where('target_indikator.prodi_id', Auth::user()->prodi_id);
             $prodis = program_studi::where('prodi_id', Auth::user()->prodi_id)->get();
         }
 
-        // Filter pencarian
         if ($q) {
             $query->where(function($subQuery) use ($q) {
                 $subQuery->where('target_indikator.ti_target', 'like', "%$q%")
@@ -65,23 +76,28 @@ class TargetCapaianController extends Controller
             });
         }
 
-        // Filter berdasarkan tahun
         if ($tahunId) {
             $query->where('target_indikator.th_id', $tahunId);
         }
 
-        // Filter berdasarkan prodi (jika dipilih)
         if ($prodiId) {
             $query->where('program_studi.prodi_id', $prodiId);
         }
 
+        if ($unitKerjaId) {
+            $query->whereIn('indikator_kinerja.ik_id', function($subQuery) use ($unitKerjaId) {
+                $subQuery->select('ik_id')
+                        ->from('indikatorkinerja_unitkerja')
+                        ->where('unit_id', $unitKerjaId);
+            });
+        }
+
         $query->orderBy('indikator_kinerja.ik_nama', 'asc');
 
-        // Ambil data paginated
-        $target_capaians = $query->paginate(10)->withQueryString();
-        $no = $target_capaians->firstItem();
+        //Eksekusi Query
+        $target_capaians = $query->get(); 
 
-        // Ambil semua kombinasi ik_id + prodi_id
+        //Logika Baseline
         $ikProdiPairs = $target_capaians->map(function ($item) {
             return [
                 'ik_id' => $item->ik_id,
@@ -89,7 +105,6 @@ class TargetCapaianController extends Controller
             ];
         })->unique();
 
-        // Ambil baseline berdasarkan kombinasi tersebut
         $baselineData = IkBaselineTahun::whereIn('ik_id', $ikProdiPairs->pluck('ik_id'))
             ->where('th_id', $tahunId)
             ->whereIn('prodi_id', $ikProdiPairs->pluck('prodi_id'))
@@ -98,13 +113,13 @@ class TargetCapaianController extends Controller
                 return $item->ik_id . '_' . $item->prodi_id;
             });
 
-        // Tambahkan baseline sesuai prodi tiap baris
-        $target_capaians->getCollection()->transform(function ($item) use ($baselineData) {
+        $target_capaians->transform(function ($item) use ($baselineData) {
             $key = $item->ik_id . '_' . $item->prodi_id;
             $item->baseline_tahun = $baselineData[$key]->baseline ?? null;
             return $item;
         });
 
+        // 7. Return View
         return view('pages.index-targetcapaian', [
             'title' => $title,
             'target_capaians' => $target_capaians,
@@ -113,8 +128,9 @@ class TargetCapaianController extends Controller
             'tahunId' => $tahunId,
             'prodis' => $prodis,
             'prodiId' => $prodiId,
+            'unitKerjas' => $unitKerjas,    
+            'unitKerjaId' => $unitKerjaId, 
             'q' => $q,
-            'no' => $no,
             'type_menu' => 'targetcapaian',
         ]);
     }

@@ -121,14 +121,75 @@
                                                 @endphp
                                                 @foreach ($indikatorkinerjas as $ik)
                                                     @php
+                                                        // 🔍 Cari data tersimpan di database
                                                         $found = $data_tersimpan->where('th_id', $tahuns->th_id)
                                                                 ->where('ik_id', $ik->ik_id)
                                                                 ->where('prodi_id', Auth::user()->prodi_id)
                                                                 ->first();
 
-                                                        $target_value = $found ? $found['ti_target'] : '';
+                                                        // 1. LOGIC BASELINE
+                                                        $db_baseline = $found ? $found['baseline'] : null;
+                                                        
+                                                        // Prioritas 1: Ambil dari DB (izinkan angka 0 karena pakai !== '')
+                                                        if ($db_baseline !== null && $db_baseline !== '') {
+                                                            $raw_baseline = $db_baseline;
+                                                        } 
+                                                        // Prioritas 2: Ambil dari tahun lalu
+                                                        elseif (isset($baseline_from_prev[$ik->ik_id])) {
+                                                            $raw_baseline = $baseline_from_prev[$ik->ik_id];
+                                                        } 
+                                                        // Prioritas 3: Default Kosong
+                                                        else {
+                                                            $raw_baseline = '';
+                                                        }
+
+                                                        if ($raw_baseline === '') {
+                                                            // Jika Nilai/Persentase kosong -> 0
+                                                            if ($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase') {
+                                                                $raw_baseline = '0';
+                                                            }
+                                                            // Jika Ketersediaan kosong -> draft
+                                                            elseif ($ik->ik_ketercapaian == 'ketersediaan') {
+                                                                $raw_baseline = 'draft';
+                                                            }
+                                                            // [BARU] Jika Rasio kosong -> 0:0
+                                                            elseif ($ik->ik_ketercapaian == 'rasio') {
+                                                                $raw_baseline = '0:0';
+                                                            }
+                                                        }
+
+                                                        // Finalisasi Baseline (cek old input jika validasi gagal)
+                                                        $baseline_value = old("indikator.$no.baseline", $raw_baseline);
+
+                                                        // 2. LOGIC TARGET
+                                                        $db_target = ($found && isset($found['ti_target'])) ? $found['ti_target'] : null;
+
+                                                        if ($db_target !== null && $db_target !== '') {
+                                                            $raw_target = $db_target;
+                                                        } else {
+                                                            $raw_target = '';
+                                                        }
+
+                                                        if ($raw_target === '') {
+                                                            // Jika Nilai/Persentase kosong -> 0
+                                                            if ($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase') {
+                                                                $raw_target = '0';
+                                                            }
+                                                            // Jika Ketersediaan kosong -> Ada
+                                                            elseif ($ik->ik_ketercapaian == 'ketersediaan') {
+                                                                $raw_target = 'Ada';
+                                                            }
+                                                            // [BARU] Jika Rasio kosong -> 0:0
+                                                            elseif ($ik->ik_ketercapaian == 'rasio') {
+                                                                $raw_target = '0:0';
+                                                            }
+                                                        }
+
+                                                        // Finalisasi Target
+                                                        $target_value = old("indikator.$no.target", $raw_target);
                                                         $target_keterangan = $found ? $found['ti_keterangan'] : '';
                                                     @endphp
+
                                                     <tr>
                                                         <td>{{ $no }}</td>
                                                         <td>{{ $ik->ik_kode }} - {{ $ik->ik_nama }}</td>
@@ -146,31 +207,10 @@
                                                         <td class="text-center">
                                                             <span class="text-primary"> {{ $ik->ik_ketercapaian }}</span>
                                                         </td>
+                                                        
+                                                        {{-- KOLOM BASELINE --}}
                                                         <td class="text-center">
-                                                            @php
-                                                                // 1. Ambil baseline dari database tahun ini
-                                                                if ($found && $found['baseline'] !== null && $found['baseline'] !== '') {
-                                                                    $baseline_value = old("indikator.$no.baseline", $found['baseline']);
-                                                                }
-                                                                // 2. Kalau kosong, ambil dari tahun lalu
-                                                                elseif (isset($baseline_from_prev) && isset($baseline_from_prev[$ik->ik_id])) {
-                                                                    $baseline_value = old("indikator.$no.baseline", $baseline_from_prev[$ik->ik_id]);
-                                                                }
-                                                                // 3. Kalau masih kosong
-                                                                else {
-                                                                    $baseline_value = old("indikator.$no.baseline", '');
-                                                                }
-
-                                                                // --- [LOGIC BARU: AUTO SET DRAFT] ---
-                                                                // Jika jenisnya ketersediaan DAN nilainya masih kosong, set default 'draft'
-                                                                if ($ik->ik_ketercapaian == 'ketersediaan' && empty($baseline_value)) {
-                                                                    $baseline_value = 'draft';
-                                                                }
-                                                            @endphp
-
-                                                            {{-- Input Fields --}}
                                                             @if($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase')
-                                                                {{-- Input Angka (Tetap) --}}
                                                                 <input type="number" 
                                                                     class="form-control @error('indikator.' . $no . '.baseline') is-invalid @enderror" 
                                                                     name="indikator[{{ $no }}][baseline]" 
@@ -182,12 +222,10 @@
                                                                 @enderror
 
                                                             @elseif($ik->ik_ketercapaian == 'ketersediaan')
-                                                                {{-- Select Ketersediaan --}}
                                                                 <select class="form-control @error('indikator.' . $no . '.baseline') is-invalid @enderror" name="indikator[{{ $no }}][baseline]">
-                                                                    {{-- Option Pilih kita disable kalau sudah auto-draft --}}
                                                                     <option value="" disabled {{ $baseline_value == '' ? 'selected' : '' }}>-- Pilih --</option>
-                                                                    <option value="ada" {{ $baseline_value == 'ada' ? 'selected' : '' }}>Ada</option>
-                                                                    <option value="draft" {{ $baseline_value == 'draft' ? 'selected' : '' }}>Draft</option>
+                                                                    <option value="ada" {{ strtolower($baseline_value) == 'ada' ? 'selected' : '' }}>Ada</option>
+                                                                    <option value="draft" {{ strtolower($baseline_value) == 'draft' ? 'selected' : '' }}>Draft</option>
                                                                 </select>
 
                                                                 @error('indikator.' . $no . '.baseline')
@@ -195,37 +233,27 @@
                                                                 @enderror
 
                                                             @elseif($ik->ik_ketercapaian == 'rasio')
-                                                                {{-- Input Rasio (Tetap) --}}
                                                                 <input type="text" 
                                                                     class="form-control @error('indikator.' . $no . '.baseline') is-invalid @enderror" 
                                                                     name="indikator[{{ $no }}][baseline]" 
-                                                                     pattern="^\d+\s*:\s*\d+$"
-                                                                    placeholder="Contoh: 1:20" 
+                                                                    pattern="^\d+\s*:\s*\d+$"
+                                                                    placeholder="Contoh: 0:0" 
                                                                     value="{{ $baseline_value }}">
-                                                                {{-- Error block --}}
-                                                            @else
-                                                                {{-- Input Text Default (Tetap) --}}
-                                                                <input type="text" 
-                                                                    class="form-control @error('indikator.' . $no . '.baseline') is-invalid @enderror" 
-                                                                    name="indikator[{{ $no }}][baseline]" 
-                                                                    value="{{ $baseline_value }}">
-                                                                {{-- Error block --}}
-                                                            @endif
+                                                                @error('indikator.' . $no . '.baseline')
+                                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                                @enderror
 
+                                                            @else
+                                                                <input type="text" 
+                                                                    class="form-control @error('indikator.' . $no . '.baseline') is-invalid @enderror" 
+                                                                    name="indikator[{{ $no }}][baseline]" 
+                                                                    value="{{ $baseline_value }}">
+                                                            @endif
                                                             <input type="hidden" name="indikator[{{ $no }}][ik_id]" value="{{ $ik->ik_id }}">
                                                         </td>     
+
+                                                        {{-- KOLOM TARGET --}}
                                                         <td>
-                                                            @php
-                                                                // Ambil nilai target
-                                                                $target_value = old("indikator.$no.target", $target_value);
-
-                                                                // --- [LOGIC BARU: AUTO SET DRAFT] ---
-                                                                // Jika jenisnya ketersediaan DAN nilainya masih kosong, set default 'draft'
-                                                                if ($ik->ik_ketercapaian == 'ketersediaan' && empty($target_value)) {
-                                                                    $target_value = 'Ada';
-                                                                }
-                                                            @endphp
-
                                                             @if($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase')
                                                                 <input type="number" 
                                                                     class="form-control @error('indikator.' . $no . '.target') is-invalid @enderror" 
@@ -240,26 +268,34 @@
                                                             @elseif($ik->ik_ketercapaian == 'ketersediaan')
                                                                 <select class="form-control @error('indikator.' . $no . '.target') is-invalid @enderror" name="indikator[{{ $no }}][target]">
                                                                     <option value="" disabled {{ $target_value == '' ? 'selected' : '' }}>-- Pilih --</option>
-                                                                    <option value="ada" {{ $target_value == 'ada' ? 'selected' : '' }}>Ada</option>
-                                                                    <option value="draft" {{ $target_value == 'draft' ? 'selected' : '' }}>Draft</option>
+                                                                    <option value="ada" {{ strtolower($target_value) == 'ada' ? 'selected' : '' }}>Ada</option>
+                                                                    <option value="draft" {{ strtolower($target_value) == 'draft' ? 'selected' : '' }}>Draft</option>
                                                                 </select>
                                                                 @error('indikator.' . $no . '.target')
                                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                                 @enderror
 
+                                                            @elseif($ik->ik_ketercapaian == 'rasio')
+                                                                <input type="text" 
+                                                                    class="form-control @error('indikator.' . $no . '.target') is-invalid @enderror" 
+                                                                    name="indikator[{{ $no }}][target]"
+                                                                    pattern="^(0|\d+\s*:\s*\d+)$"
+                                                                    placeholder="Contoh: 0:0" 
+                                                                    value="{{ $target_value }}">
+                                                                @error('indikator.' . $no . '.target')
+                                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                                @enderror
                                                             @else
                                                                 <input type="text" 
                                                                     class="form-control @error('indikator.' . $no . '.target') is-invalid @enderror" 
                                                                     name="indikator[{{ $no }}][target]" 
                                                                     value="{{ $target_value }}">
-
                                                                 @error('indikator.' . $no . '.target')
                                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                                 @enderror
                                                             @endif
-
-                                                            <input type="hidden" class="form-control" name="indikator[{{ $no }}][ik_id]" value="{{ $ik->ik_id }}">
                                                         </td>
+
                                                         <td>
                                                             <input type="text" class="form-control" name="indikator[{{ $no }}][keterangan]" value="{{ $target_keterangan }}">
                                                         </td>
