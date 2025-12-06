@@ -3,17 +3,49 @@
 @section('title', 'Laporan IKU/IKT')
 
 @push('style')
-    <!-- Tambahkan CSS Libraries jika diperlukan -->
+    <!-- CSS Libraries -->
     <link rel="stylesheet" href="{{ asset('library/jqvmap/dist/jqvmap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('library/summernote/dist/summernote-bs4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/circular-progress-bar.css') }}">
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+
+    <style>
+        /* CSS UTAMA: Rata Tengah Vertikal & Horizontal */
+        .table td, .table th {
+            vertical-align: middle !important; /* Rata tengah vertikal */
+            text-align: center !important;     /* Rata tengah horizontal */
+        }
+
+        /* PENGECUALIAN: Agar kolom Indikator yang panjang tetap rapi rata kiri */
+        .table td.text-left {
+            text-align: left !important;
+        }
+
+        /* Style tambahan untuk Header DataTables agar ikon sorting pas */
+        table.dataTable thead .sorting:before, 
+        table.dataTable thead .sorting_asc:before, 
+        table.dataTable thead .sorting_desc:before, 
+        table.dataTable thead .sorting:after, 
+        table.dataTable thead .sorting_asc:after, 
+        table.dataTable thead .sorting_desc:after {
+            bottom: 0.8em; 
+        }
+        
+        /* Menghilangkan border bawah pada info datatables */
+        .dataTables_info {
+            padding: 1rem;
+            font-weight: 600;
+        }
+    </style>
 @endpush
 
 @section('main')
 <div class="main-content">
     <section class="section">
         <div class="section-header">
-            <h1>Laporan Indikator Kinerja Utama/Tambahan</h1>
+            <h1>Laporan Monitoring Indikator Kinerja Utama/Tambahan</h1>
         </div>
 
         <div class="card mb-3">
@@ -22,8 +54,6 @@
                     <div class="col-auto">
                         <input class="form-control" name="q" value="{{ request('q') }}" placeholder="Pencarian..." />
                     </div>
-                
-                    {{-- @if (Auth::user()->role == 'admin' || Auth::user()->role == 'prodi') --}}
                 
                     <div class="col-auto">
                         <select class="form-control" name="tahun">
@@ -35,18 +65,17 @@
                             @endforeach
                         </select>
                     </div>
-                    {{-- @endif --}}
 
-                        <div class="col-auto">
-                            <select class="form-control" name="unit">
-                                <option value="">Semua Unit Kerja</option>
-                                @foreach ($units as $unit)
-                                    <option value="{{ $unit->unit_id }}" {{ request('unit') == $unit->unit_id ? 'selected' : '' }}>
-                                        {{ $unit->unit_nama }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                    <div class="col-auto">
+                        <select class="form-control" name="unit">
+                            <option value="">Semua Unit Kerja</option>
+                            @foreach ($units as $unit)
+                                <option value="{{ $unit->unit_id }}" {{ request('unit') == $unit->unit_id ? 'selected' : '' }}>
+                                    {{ $unit->unit_nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
 
                     <div class="col-auto">
                         <select class="form-control" name="prodi">
@@ -86,9 +115,9 @@
                 </form>                
             </div>
 
-            <div class="table-responsive text-center">
-                <table class="table table-hover table-bordered table-striped m-0">
-                    <thead>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered table-striped m-0" id="table-laporan">
+                    <thead class="thead-light">
                         <tr>
                             <th>No</th>
                             <th>Tahun</th>
@@ -97,26 +126,13 @@
                             <th style="width: 5%;">Target</th>
                             <th style="width: 15%;">Capaian</th> 
                             <th>Status</th>
-                            {{-- <th>Unit Kerja</th> --}}
                         </tr>
                     </thead>
                     
                     <tbody>
-                        {{-- @php
-                            // Fungsi untuk menghasilkan warna stabil berdasarkan nama prodi
-                            function colorFromProdi($name) {
-                                $hash = crc32($name);
-                                $colors = ['#e3f2fd', '#fce4ec', '#e8f5e9', '#fff3e0', '#ede7f6', '#f9fbe7', '#e0f7fa', '#f3e5f5'];
-                                return $colors[$hash % count($colors)];
-                            }
-                        @endphp --}}
-                        @php $no = $target_capaians->firstItem(); @endphp
                         @foreach ($target_capaians as $targetcapaian)
-                        {{-- @php
-                            $bgColor = colorFromProdi($targetcapaian->nama_prodi ?? '');
-                        @endphp --}}
-                        <tr> {{-- transparan lembut --}}
-                            <td style="padding: 3rem;">{{ $no++ }}</td>
+                        <tr>
+                            <td style="padding: 1rem;">{{ $loop->iteration }}</td>
                             <td>{{ $targetcapaian->th_tahun }}</td>
                             <td>
                                 {{-- Badge warna prodi --}}
@@ -124,7 +140,9 @@
                                     {{ $targetcapaian->nama_prodi }}
                                 </span>
                             </td>
-                            <td class="text-left">{{ $targetcapaian->ik_kode }} - {{ $targetcapaian->ik_nama }}</td>                            
+                            <td class="text-left" style="padding: 1.5rem;">
+                                {{ $targetcapaian->ik_kode }} - {{ $targetcapaian->ik_nama }}
+                            </td>                            
 
                             {{-- Target Capaian --}}
                             <td>
@@ -136,10 +154,12 @@
                                 @endphp
 
                                 @if ($ketercapaian === 'persentase' && is_numeric($numericValue))
-                                    <div class="ring-progress-wrapper">
-                                        <div class="ring-progress" style="--value: {{ $numericValue }}; --progress-color: {{ $progressColor }};">
-                                            <div class="ring-inner">
-                                                <span class="ring-text">{{ $numericValue }}%</span>
+                                    <div class="d-flex justify-content-center">
+                                        <div class="ring-progress-wrapper">
+                                            <div class="ring-progress" style="--value: {{ $numericValue }}; --progress-color: {{ $progressColor }};">
+                                                <div class="ring-inner">
+                                                    <span class="ring-text">{{ $numericValue }}%</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -154,7 +174,7 @@
                                 
                                 @elseif ($ketercapaian === 'rasio')
                                     @php
-                                        $formattedRasio = 'Format salah';
+                                        $formattedRasio = $targetRaw; // Default tampilkan apa adanya
                                         $cleaned = preg_replace('/\s*/', '', $targetRaw);
                                         if (preg_match('/^\d+:\d+$/', $cleaned)) {
                                             [$left, $right] = explode(':', $cleaned);
@@ -178,10 +198,12 @@
                             
 
                                 @if ($ketercapaian === 'persentase' && is_numeric($numericValue))
-                                    <div class="ring-progress-wrapper">
-                                        <div class="ring-progress" style="--value: {{ $numericValue }}; --progress-color: {{ $progressColor }};">
-                                            <div class="ring-inner">
-                                                <span class="ring-text">{{ $numericValue }}%</span>
+                                    <div class="d-flex justify-content-center">
+                                        <div class="ring-progress-wrapper">
+                                            <div class="ring-progress" style="--value: {{ $numericValue }}; --progress-color: {{ $progressColor }};">
+                                                <div class="ring-inner">
+                                                    <span class="ring-text">{{ $numericValue }}%</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -189,7 +211,7 @@
                                     <span class="badge badge-primary"> {{ $capaian }}</span>
                                 @elseif ($ketercapaian === 'rasio')
                                     @php
-                                        $formattedRasio = 'Format salah';
+                                        $formattedRasio = $capaian;
                                         $cleaned = preg_replace('/\s*/', '', $capaian);
                                         if (preg_match('/^\d+:\d+$/', $cleaned)) {
                                             [$left, $right] = explode(':', $cleaned);
@@ -217,7 +239,8 @@
                                     $capaian = optional($targetcapaian->monitoringDetail)->mtid_capaian ?? null;
                                     $target = $targetcapaian->ti_target;
                                     $jenis = optional($targetcapaian->indikatorKinerja)->ik_ketercapaian;
-                                    $status = hitungStatus($capaian, $target, $jenis);
+                                    
+                                    $status = function_exists('hitungStatus') ? hitungStatus($capaian, $target, $jenis) : '-';
                                 @endphp
                             
 
@@ -233,39 +256,23 @@
                                     <span>Belum ada Status</span>
                                 @endif
                             </td>    
-                            {{-- <td>
-                                @foreach ($targetcapaian->indikatorKinerja->unitKerja as $unit)
-                                    <span class="badge">{{ $unit->unit_nama }}</span>
-                                @endforeach
-                            </td>                      --}}
                         </tr>
-                    @endforeach
-                        @if ($target_capaians->isEmpty())
-                            @php
-                                $tahunText = $tahuns->firstWhere('th_id', request('tahun'))?->th_tahun ?? null;
-                                $prodiText = $prodis->firstWhere('prodi_id', request('prodi'))?->nama_prodi ?? null;
-                            @endphp
-                            <tr>
-                                <td colspan="12" class="text-center alert alert-danger m-0">
-                                    Tidak ada data
-                                    @if ($prodiText)
-                                        untuk <strong>Program Studi {{ $prodiText }}</strong>
-                                    @endif
-                                    @if ($tahunText)
-                                        di Tahun <strong>{{ $tahunText }}</strong>
-                                    @endif
-                                </td>
-                            </tr>
-                        @endif
+                        @endforeach
                     </tbody>
                 </table>
-            </div>
 
-            @if ($target_capaians->hasPages())
-                <div class="card-footer">
-                    {{ $target_capaians->links('pagination::bootstrap-5') }}
-                </div>
-            @endif
+                @if ($target_capaians->isEmpty())
+                    <div class="alert alert-light text-center mt-3">
+                        Tidak ada data
+                        @if (request('prodi'))
+                            untuk <strong>Program Studi {{ $prodis->firstWhere('prodi_id', request('prodi'))?->nama_prodi ?? '' }}</strong>
+                        @endif
+                        @if (request('tahun'))
+                            di Tahun <strong>{{ $tahuns->firstWhere('th_id', request('tahun'))?->th_tahun ?? '' }}</strong>
+                        @endif
+                    </div>
+                @endif
+            </div>
         </div>
     </section>
 </div>
@@ -280,8 +287,26 @@
     <script src="{{ asset('library/chocolat/dist/js/jquery.chocolat.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
     <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/index-0.js') }}"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function() {
+            @if(!$target_capaians->isEmpty())
+                $('#table-laporan').DataTable({
+                    "paging": false,        
+                    "searching": false,     
+                    "ordering": true,       
+                    "info": true,           
+                    "autoWidth": false,     
+                    "order": [[ 3, 'asc' ]] 
+                });
+            @endif
+        });
+    </script>
 @endpush

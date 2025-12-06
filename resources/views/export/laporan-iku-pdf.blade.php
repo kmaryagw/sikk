@@ -61,6 +61,11 @@
         .text-primary {
             color: #007bff;
         }
+        
+        /* Helper untuk rata kiri indikator */
+        .text-left {
+            text-align: left !important;
+        }
     </style>
 </head>
 <body>
@@ -81,7 +86,6 @@
                 <th style="width: 1%;">No</th>
                 <th style="width: 10%;">Tahun</th>
                 <th style="width: 10%;">Prodi</th>
-                {{-- <th style="width: 15%;">Unit Kerja</th> --}}
                 <th style="width: 30%;">Indikator Kinerja</th>
                 <th style="width: 10%;">Target Capaian</th>
                 <th style="width: 10%;">Capaian</th>
@@ -91,18 +95,35 @@
         <tbody>
             @forelse ($target_capaians as $index => $target)
                 @php
-                    $ketercapaian = strtolower(optional($target->indikatorKinerja)->ik_ketercapaian ?? '');
-                    $targetValue = trim($target->ti_target ?? '');
-                    $capaian = trim(optional($target->monitoringDetail)->mtid_capaian ?? '');
-                    $status = strtolower(optional($target->monitoringDetail)->mtid_status ?? '');
+                    // --- PERBAIKAN AKSES DATA RELASI ---
+                    $indikatorRel = $target->indikatorKinerja;
+                    $detailRel    = $target->monitoringDetail;
+                    $tahunRel     = $target->tahunKerja;
+                    $prodiRel     = $target->prodi;
+
+                    // Ambil Data dari Relasi (Fallback ke '-' jika null)
+                    $th_tahun   = $tahunRel->th_tahun ?? '-';
+                    $nama_prodi = $prodiRel->nama_prodi ?? '-';
+                    
+                    // Gabungkan Kode & Nama Indikator
+                    $ik_kode = $indikatorRel->ik_kode ?? '';
+                    $ik_nama = $indikatorRel->ik_nama ?? '-';
+                    $display_indikator = $ik_kode ? "{$ik_kode} - {$ik_nama}" : $ik_nama;
+
+                    // Logic Formatting
+                    $ketercapaian = strtolower($indikatorRel->ik_ketercapaian ?? '');
+                    $targetValue  = trim($target->ti_target ?? '');
+                    $capaian      = trim($detailRel->mtid_capaian ?? '');
+                    $status       = strtolower($detailRel->mtid_status ?? '');
                 @endphp
 
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td>{{ $target->th_tahun }}</td>
-                    <td>{{ $target->nama_prodi }}</td>
-                    {{-- <td>{{ $target->unit_nama ?? '-' }}</td> --}}
-                    <td>{{ $target->ik_nama }}</td>
+                    <td>{{ $th_tahun }}</td>
+                    <td>{{ $nama_prodi }}</td>
+                    
+                    {{-- Indikator Kinerja (Rata Kiri) --}}
+                    <td class="text-left">{{ $display_indikator }}</td>
 
                     {{-- Target --}}
                     <td>
@@ -116,7 +137,7 @@
                             </span>
                         @elseif ($ketercapaian === 'rasio')
                             @php
-                                $formattedRasio = 'Format salah';
+                                $formattedRasio = $targetValue; // Default
                                 $cleaned = preg_replace('/\s*/', '', $targetValue);
                                 if (preg_match('/^\d+:\d+$/', $cleaned)) {
                                     [$left, $right] = explode(':', $cleaned);
@@ -137,7 +158,7 @@
                             <span class="badge badge-primary">{{ $capaian }}</span>
                         @elseif ($ketercapaian === 'rasio')
                             @php
-                                $formattedRasio = 'Format salah';
+                                $formattedRasio = $capaian; // Default
                                 $cleaned = preg_replace('/\s*/', '', $capaian);
                                 if (preg_match('/^\d+:\d+$/', $cleaned)) {
                                     [$left, $right] = explode(':', $cleaned);
@@ -156,7 +177,7 @@
                         @endif
                     </td>
 
-                    {{-- Keterangan --}}
+                    {{-- Status --}}
                     <td>
                         @if ($status === 'tercapai')
                             <span class="text-success">Tercapai</span>
@@ -167,13 +188,13 @@
                         @elseif ($status === 'tidak terlaksana')
                             <span class="text-danger">Tidak Terlaksana</span>
                         @else
-                            Belum ada Status
+                            <span class="text-muted">Belum ada status</span>
                         @endif
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8">Tidak ada data</td>
+                    <td colspan="7">Tidak ada data</td>
                 </tr>
             @endforelse
         </tbody>

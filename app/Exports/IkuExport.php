@@ -7,8 +7,9 @@ use App\Models\tahun_kerja;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize; 
 
-class IkuExport implements FromCollection, WithHeadings, WithMapping
+class IkuExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize
 {
     protected $tahunId, $prodiId, $unitId, $keyword;
 
@@ -34,7 +35,6 @@ class IkuExport implements FromCollection, WithHeadings, WithMapping
             ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
             ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id');
 
-        // Filter Tahun
         if ($this->tahunId) {
             $query->where('tahun_kerja.th_id', $this->tahunId);
         } else {
@@ -44,19 +44,16 @@ class IkuExport implements FromCollection, WithHeadings, WithMapping
             }
         }
 
-        // Filter Prodi
         if ($this->prodiId) {
             $query->where('program_studi.prodi_id', $this->prodiId);
         }
 
-        // Filter Unit Kerja (many-to-many)
         if ($this->unitId) {
             $query->whereHas('indikatorKinerja.unitKerja', function ($q) {
                 $q->where('unit_kerja.unit_id', $this->unitId);
             });
         }
 
-        // Filter Keyword pada indikator IKU
         if ($this->keyword) {
             $query->whereHas('indikatorKinerja', function ($q) {
                 $q->where('ik_nama', 'like', '%' . $this->keyword . '%');
@@ -81,20 +78,21 @@ class IkuExport implements FromCollection, WithHeadings, WithMapping
 
     public function map($row): array
     {
-        // Ambil unit kerja (many-to-many)
         $unitKerja = $row->indikatorKinerja->unitKerja->pluck('unit_nama')->join(', ');
 
-        // Ambil monitoring detail
         $detail = $row->monitoringDetail;
-
         $capaian = $detail->mtid_capaian ?? 'Belum Ada';
 
-        // Hitung status
-        $status = $detail ? $this->hitungStatus(
-            $detail->mtid_capaian,
-            $row->ti_target,
-            $row->indikatorKinerja->ik_ketercapaian
-        ) : 'Belum Ada';
+        
+        if ($detail && !empty($detail->mtid_status) && $detail->mtid_status !== 'Draft') {
+            $status = ucfirst($detail->mtid_status);
+        } else {
+            $status = $detail ? $this->hitungStatus(
+                $detail->mtid_capaian,
+                $row->ti_target,
+                $row->indikatorKinerja->ik_ketercapaian
+            ) : 'Belum Ada';
+        }
 
         return [
             $row->th_tahun ?? '-',
@@ -107,32 +105,77 @@ class IkuExport implements FromCollection, WithHeadings, WithMapping
         ];
     }
 
-    /**
-     * Menghitung status capaian IKU sama seperti di halaman index
-     */
-    private function hitungStatus($capaian, $target, $ketercapaian)
+    private function parseNumber($value)
     {
-        if ($capaian === null || $capaian === '' || $target === null) {
+        if (is_null($value) || $value === '') return 0;
+
+        $string = (string) $value;
+        // Hapus simbol selain angka, titik, koma, minus
+        $clean = preg_replace('/[^0-9.,-]/', '', $string);
+
+        // Handle koma vs titik
+        if (strpos($clean, '.') !== false && strpos($clean, ',') !== false) {
+            $clean = str_replace('.', '', $clean); // Buang ribuan
+            $clean = str_replace(',', '.', $clean); // Koma jadi desimal
+        } elseif (strpos($clean, ',') !== false) {
+            $clean = str_replace(',', '.', $clean);
+        }
+
+        return (float) $clean;
+    }
+
+    private function hitungStatus($capaian, $target, $jenis)
+    {
+        $jenis = strtolower(trim($jenis));
+        
+        if (is_null($capaian) || trim($capaian) === '') {
             return 'Belum Ada';
         }
 
-        switch ($ketercapaian) {
-            case 'persentase':
-                if ($capaian >= $target) return 'Tercapai';
-                return 'Tidak Tercapai';
+        if (in_array($jenis, ['nilai', 'persentase'])) {
+            $valCapaian = $this->parseNumber($capaian);
+            $valTarget  = $this->parseNumber($target);
+            $epsilon = 0.00001;
 
-            case 'nilai':
-                if ($capaian >= $target) return 'Tercapai';
+            if (abs($valCapaian - $valTarget) < $epsilon) {
+                return 'Tercapai';
+            } elseif ($valCapaian > $valTarget) {
+                return 'Terlampaui';
+            } else {
                 return 'Tidak Tercapai';
-
-            case 'rasio':
-                if ($target == 0) return 'Belum Ada';
-                $rasio = $capaian / $target;
-                if ($rasio >= 1) return 'Tercapai';
-                return 'Tidak Tercapai';
-
-            default:
-                return 'Belum Ada';
+            }
         }
+
+        if ($jenis === 'rasio') {
+            $capaianStr = preg_replace('/\s+/', '', $capaian);
+            $targetStr  = preg_replace('/\s+/', '', $target);
+
+            $partsCapaian = explode(':', $capaianStr);
+            $partsTarget  = explode(':', $targetStr);
+
+            if (count($partsCapaian) == 2 && count($partsTarget) == 2) {
+                $rightCapaian = $this->parseNumber($partsCapaian[1]);
+                $rightTarget  = $this->parseNumber($partsTarget[1]);
+
+                if ($rightCapaian > $rightTarget) {
+                    return 'Terlampaui';
+                } elseif ($rightCapaian == $rightTarget) {
+                    return 'Tercapai';
+                } else {
+                    return 'Tidak Tercapai';
+                }
+            }
+            return 'Tidak Tercapai';
+        }
+
+        if ($jenis === 'ketersediaan') {
+            $capaianLower = strtolower(trim($capaian));
+            if ($capaianLower === 'ada') {
+                return 'Tercapai';
+            }
+            return 'Tidak Tercapai';
+        }
+
+        return 'Tidak Tercapai';
     }
 }

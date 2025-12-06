@@ -155,7 +155,21 @@ Route::middleware('auth')->group(function () {
     Route::get('/monitoringiku/{mti_id}/export/{type}', [MonitoringIKUController::class, 'exportDetail'])
     ->name('monitoringiku.export-detail');
 
+    Route::get('monitoringiku/export-pdf-detail/{mti_id}', [App\Http\Controllers\MonitoringIKUController::class, 'exportPdfDetail'])
+    ->name('monitoringiku.export-pdf-detail');
 
+     Route::prefix('history-monitoring')->group(function () {
+        // 1. Halaman Awal History (Pilih Prodi/Tahun)
+        Route::get('/', [App\Http\Controllers\MonitoringIKUController::class, 'indexHistory'])
+            ->name('pages.index-history-monitoring');
+
+        // 2. Halaman Daftar Indikator (Pilih Indikator)
+        Route::get('/{mti_id}/list', [App\Http\Controllers\MonitoringIKUController::class, 'listIndicatorsForHistory'])
+            ->name('pages.index-list-indicators');
+
+        Route::get('/monitoringiku/{mti_id}/history/{ti_id}', [App\Http\Controllers\MonitoringIKUController::class, 'history'])
+        ->name('monitoringiku.history');
+    });
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
