@@ -40,17 +40,13 @@ class AnnouncementController extends Controller
             'is_main' => 'nullable|boolean',
         ]);
 
-        // Pastikan default is_main = false kalau tidak dicentang
+        // Default is_main = false jika checkbox tidak dicentang
         $validated['is_main'] = $request->has('is_main');
 
-        // Upload gambar jika ada
+        // CATATAN: Logika reset 'is_main' dihapus agar bisa multi-main announcement.
+
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('announcements', 'public');
-        }
-
-        // Jika pengumuman utama baru, reset semua yg lama
-        if ($validated['is_main']) {
-            Announcement::where('is_main', true)->update(['is_main' => false]);
         }
 
         Announcement::create($validated);
@@ -58,7 +54,7 @@ class AnnouncementController extends Controller
         return redirect()
             ->route('announcement.index')
             ->with('success', 'Pengumuman berhasil ditambahkan');
-}
+    }
 
     /**
      * Admin: detail 1 pengumuman
@@ -91,22 +87,16 @@ class AnnouncementController extends Controller
             'is_main' => 'nullable|boolean',
         ]);
 
-        // Pastikan default is_main = false kalau tidak dicentang
         $validated['is_main'] = $request->has('is_main');
 
-        // Upload gambar baru jika ada
+        // CATATAN: Logika reset 'is_main' dihapus agar bisa multi-main announcement.
+
         if ($request->hasFile('image')) {
             // Hapus gambar lama jika ada
             if ($announcement->image && Storage::disk('public')->exists($announcement->image)) {
                 Storage::disk('public')->delete($announcement->image);
             }
-
             $validated['image'] = $request->file('image')->store('announcements', 'public');
-        }
-
-        // Jika pengumuman utama baru, reset semua yg lama
-        if ($validated['is_main']) {
-            Announcement::where('is_main', true)->update(['is_main' => false]);
         }
 
         $announcement->update($validated);
@@ -117,58 +107,52 @@ class AnnouncementController extends Controller
     }
 
     /**
-     * Publik: halaman pengumuman (index-announcement.blade.php)
-     */
-    public function publicPage()
-    {
-        // Ambil pengumuman utama (paling baru jika lebih dari 1 ditandai utama)
-        $mainAnnouncement = Announcement::where('is_main', true)
-            ->orderBy('date', 'desc')
-            ->first();
-
-        // Ambil pengumuman lainnya (tidak termasuk utama), maksimal 10 terbaru
-        $otherAnnouncements = Announcement::when($mainAnnouncement, function ($query) use ($mainAnnouncement) {
-                $query->where('id', '!=', $mainAnnouncement->id);
-            })
-            ->orderBy('date', 'desc')
-            ->take(10)
-            ->get();
-
-        // Semua pengumuman untuk grid bawah (tanpa duplikasi)
-        $allAnnouncements = Announcement::when($mainAnnouncement, function ($query) use ($mainAnnouncement) {
-                $query->where('id', '!=', $mainAnnouncement->id);
-            })
-            ->orderBy('date', 'desc')
-            ->paginate(12);
-
-        return view('pages.index-announcement', compact(
-            'mainAnnouncement',
-            'otherAnnouncements',
-            'allAnnouncements'
-        ));
-    }
-
-    /**
      * Admin: hapus pengumuman
      */
     public function destroy(Announcement $announcement)
     {
-        try {
-            // Hapus gambar dari storage jika ada
-            if ($announcement->image && Storage::disk('public')->exists($announcement->image)) {
-                Storage::disk('public')->delete($announcement->image);
-            }
-        } catch (\Exception $e) {
-            // Bisa log error kalau perlu
-            \Log::error('Gagal hapus gambar pengumuman: ' . $e->getMessage());
+        if ($announcement->image && Storage::disk('public')->exists($announcement->image)) {
+            Storage::disk('public')->delete($announcement->image);
         }
 
-        // Hapus data pengumuman dari DB
         $announcement->delete();
 
         return redirect()
             ->route('announcement.index')
             ->with('success', 'Pengumuman berhasil dihapus');
     }
+    /**
+     * Public: halaman pengumuman
+     */
+    public function publicPage()
+    {
+        // 1. DATA SLIDER (CAROUSEL) - HANYA PENGUMUMAN UTAMA
+        // Menggunakan where('is_main', true) agar yang masuk slider murni hanya yang dicentang 'Main'
+        $sliderAnnouncements = Announcement::where('is_main', true)
+            ->orderByDesc('date')
+            ->get();
 
+        // Ambil ID dari item slider agar tidak muncul dobel di list lain
+        // Jika tidak ada pengumuman utama, sliderIds akan kosong (aman)
+        $sliderIds = $sliderAnnouncements->pluck('id');
+
+        // 2. DATA SIDEBAR (TIMELINE)
+        // Mengambil data selain yang ada di slider
+        $otherAnnouncements = Announcement::whereNotIn('id', $sliderIds)
+            ->orderByDesc('date')
+            ->take(5)
+            ->get();
+
+        // 3. DATA GRID BAWAH (PAGINATION)
+        // Mengambil data sisa (selain slider)
+        $allAnnouncements = Announcement::whereNotIn('id', $sliderIds)
+            ->orderByDesc('date')
+            ->paginate(12);
+
+        return view('pages.index-announcement', compact(
+            'sliderAnnouncements',
+            'otherAnnouncements',
+            'allAnnouncements'
+        ));
+    }
 }
