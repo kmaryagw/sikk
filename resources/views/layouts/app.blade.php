@@ -5,23 +5,16 @@
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
     
-    <!-- Title untuk halaman -->
+    <!-- Title -->
     <title>@yield('title') &mdash; Instiki</title>
-
     <!-- Favicon -->
     <link rel="icon" href="{{ asset('/img/instiki-logo.png') }}" type="image/png">
-    
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
-
-
     <!-- General CSS Files -->
     <link rel="stylesheet" href="{{ asset('library/bootstrap/dist/css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
-        integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     @stack('style')
 
@@ -29,200 +22,96 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/components.css') }}">
 
-    <!-- Start GA (Google Analytics) -->
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-
-        function gtag() {
-            dataLayer.push(arguments);
-        }
+        function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
-
         gtag('config', 'UA-94034622-3');
     </script>
-    <!-- END GA -->
 
-    {{-- <!-- CSS untuk Loading Screen -->
+    <!-- CRITICAL CSS: Loading Screen -->
     <style>
-        #loading-screen {
+        /* 1. Preloader: Default STATE = AKTIF (Visible) */
+        #preloader {
             position: fixed;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.2); /* Background gelap semi-transparan */
-            backdrop-filter: blur(10px); /* Efek blur untuk tampilan lebih modern */
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #ffffff; /* Background solid putih agar menutupi proses rendering */
+            z-index: 99999;
             display: flex;
+            justify-content: center;
+            align-items: center;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+            /* Transisi hanya pada opacity agar smooth saat hilang */
+            transition: opacity 0.5s ease-in-out; 
+            opacity: 1;
+            pointer-events: all;
         }
 
-        .fade-out {
+        /* Class untuk menghilangkan preloader */
+        body.loaded #preloader {
             opacity: 0;
-            visibility: hidden;
+            pointer-events: none; /* Agar bisa diklik tembus */
         }
 
-        /* Animasi Spinner */
-        .spinner {
-            width: 70px;
-            height: 70px;
-            border: 6px solid rgba(255, 255, 255, 0.9);
-            border-top: 6px solid #ff4747;
+        /* 2. Spinner Animasi */
+        .spinner-box { width: 50px; height: 50px; position: relative; }
+        .spinner-circle {
+            width: 100%; height: 100%;
+            border: 3px solid rgba(103, 119, 239, 0.2); /* Warna muda */
+            border-top-color: #6777ef; /* Warna utama Stisla */
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            box-shadow: 0 0 15px #ff4747;
+            animation: spin 0.6s linear infinite; /* Kecepatan putar lebih natural */
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Efek Dot Wave */
-        .dot-wave {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 15px;
-        }
-
-        .dot {
-            width: 12px;
-            height: 12px;
-            margin: 0 5px;
-            background-color: #ff4747;
-            border-radius: 50%;
-            animation: wave 1.5s infinite ease-in-out;
-        }
-
-        .dot:nth-child(1) { animation-delay: 0s; }
-        .dot:nth-child(2) { animation-delay: 0.2s; }
-        .dot:nth-child(3) { animation-delay: 0.4s; }
-        .dot:nth-child(4) { animation-delay: 0.6s; }
-
-        @keyframes wave {
-            0%, 100% { transform: translateY(0); opacity: 0.5; }
-            50% { transform: translateY(-10px); opacity: 1; }
-        }
-
-        /* Teks loading */
         .loading-text {
-            font-size: 18px;
-            color: #ffffff;
-            font-weight: bold;
             margin-top: 15px;
-            text-shadow: 0 0 10px rgba(255, 71, 71, 0.8);
+            font-size: 12px;
+            font-weight: 700;
+            color: #6777ef;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* 3. Konten Utama (#app) */
+        /* Kita sembunyikan sedikit kontennya biar ada efek muncul */
+        #app {
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        /* Saat loaded, konten muncul */
+        body.loaded #app {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
-     --}}
 </head>
 
 <body>
 
-    <!-- Loading Screen -->
-    {{-- <div id="loading-screen">
-        <div class="spinner"></div>
-        <div class="loading-text">Loading...</div>
-        <div class="dot-wave">
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
+    <!-- PRELOADER -->
+    <!-- Ditaruh paling atas agar dirender duluan oleh browser -->
+    <div id="preloader">
+        <div class="spinner-box">
+            <div class="spinner-circle"></div>
         </div>
-    </div> --}}
+        <div class="loading-text">Loading</div>
+    </div>
 
+    <!-- MAIN APP -->
     <div id="app">
         <div class="main-wrapper">
-            <!-- Header -->
             @include('components.header')
-
-            <!-- Sidebar -->
             @include('components.sidebar')
-
-            <!-- Content -->
             @yield('main')
-
             @include('sweetalert::alert')
-
-            <!-- Footer -->
             @include('components.footer')
         </div>
     </div>
-
-    {{-- <!-- Script untuk menghilangkan loading setelah halaman selesai dimuat -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            let loadingScreen = document.getElementById("loading-screen");
-
-            // Fungsi untuk menyembunyikan loading screen setelah halaman selesai dimuat
-            function hideLoadingScreen() {
-                loadingScreen.style.visibility = "hidden"; // Hilangkan loading screen
-                loadingScreen.style.opacity = "1"; // Transisi smooth
-            }
-
-            // Fungsi untuk menampilkan loading screen sebelum berpindah halaman
-            function showLoadingScreen() {
-                loadingScreen.style.visibility = "visible";
-                loadingScreen.style.opacity = "1";
-            }
-
-            // **Menghilangkan loading saat halaman selesai dimuat**
-            window.onload = function () {
-                hideLoadingScreen();
-            };
-
-            // **Fix Bug: Mencegah loading muncul saat tekan tombol "Back" pada browser**
-            window.addEventListener("pageshow", function (event) {
-                if (event.persisted) { // Halaman dimuat dari cache browser
-                    hideLoadingScreen();
-                }
-            });
-
-            // Event listener untuk semua link <a> agar loading muncul sebelum navigasi
-            document.querySelectorAll("a").forEach(link => {
-                link.addEventListener("click", function (event) {
-                    let target = this.getAttribute("target");
-                    let href = this.getAttribute("href");
-
-                    // Cek apakah link menuju halaman lain atau hanya # (anchor)
-                    if (href && href !== "#" && !href.startsWith("javascript:") && target !== "_blank") {
-                        showLoadingScreen();
-                    }
-                });
-            });
-
-            // Event listener untuk semua form agar loading muncul sebelum submit
-            document.querySelectorAll("form").forEach(form => {
-                form.addEventListener("submit", function () {
-                    showLoadingScreen();
-                });
-            });
-
-            // Event listener untuk tombol submit agar loading muncul sebelum proses dijalankan
-            document.querySelectorAll("button[type='submit'], input[type='submit']").forEach(button => {
-                button.addEventListener("click", function () {
-                    showLoadingScreen();
-                });
-            });
-
-            // Event listener untuk tombol dengan atribut data-link agar loading muncul sebelum pindah halaman
-            document.querySelectorAll("button[data-link]").forEach(button => {
-                button.addEventListener("click", function () {
-                    let link = this.getAttribute("data-link");
-                    if (link) {
-                        showLoadingScreen();
-                        window.location.href = link;
-                    }
-                });
-            });
-        });
-    </script> --}}
-
-
-    
-    
 
     <!-- General JS Scripts -->
     <script src="{{ asset('library/jquery/dist/jquery.min.js') }}"></script>
@@ -239,7 +128,83 @@
     <script src="{{ asset('js/scripts.js') }}"></script>
     <script src="{{ asset('js/custom.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-</body>
 
+    <!-- LOGIC LOADING SUPER FAST & SYNC -->
+    <script>
+        (function() {
+            // Helper: Hilangkan Loader
+            function hideLoader() {
+                document.body.classList.add('loaded');
+            }
+            
+            // Helper: Munculkan Loader
+            function showLoader() {
+                document.body.classList.remove('loaded');
+            }
+
+            // 1. ENTRY PHASE (Saat halaman dibuka)
+            // Gunakan DOMContentLoaded agar loader hilang begitu HTML siap (sebelum gambar berat dimuat)
+            // Ini membuat website terasa lebih cepat/snappy
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', hideLoader);
+            } else {
+                hideLoader();
+            }
+
+            // Fallback: Jika DOMContentLoaded gagal, window.load akan menangkapnya
+            window.addEventListener('load', hideLoader);
+
+            // 2. BROWSER BACK BUTTON FIX (BFCache)
+            // Browser modern menyimpan cache halaman. Saat back, halaman tidak di-reload.
+            // Kita harus memaksa loader hilang jika user menekan tombol Back.
+            window.addEventListener('pageshow', function(event) {
+                if (event.persisted) {
+                    hideLoader();
+                }
+            });
+
+            // 3. EXIT PHASE (Saat link diklik)
+            // Mencegat semua klik link agar loader muncul SEBELUM browser berpindah halaman
+            document.addEventListener('click', function(e) {
+                // Cari elemen <a> terdekat dari yang diklik
+                const anchor = e.target.closest('a');
+
+                if (anchor) {
+                    const href = anchor.getAttribute('href');
+                    const target = anchor.getAttribute('target');
+
+                    // Validasi link internal:
+                    // - Ada href
+                    // - Bukan anchor link (#)
+                    // - Bukan javascript
+                    // - Bukan target _blank
+                    // - Bukan modifier key (Ctrl/Cmd + Click)
+                    if (
+                        href && 
+                        href !== '#' && 
+                        !href.startsWith('#') &&
+                        !href.startsWith('javascript') && 
+                        target !== '_blank' &&
+                        !e.ctrlKey && 
+                        !e.metaKey
+                    ) {
+                        // Tampilkan loader INSTAN saat klik
+                        showLoader();
+                    }
+                }
+            });
+
+            // 4. FORM SUBMIT PHASE
+            // Saat form disubmit (misal Login atau Simpan Data), munculkan loader
+            document.addEventListener('submit', function(e) {
+                const form = e.target;
+                if (form.checkValidity()) {
+                    showLoader();
+                }
+            });
+
+        })();
+    </script>
+
+</body>
 </html>

@@ -171,6 +171,9 @@ Route::middleware('auth')->group(function () {
         ->name('monitoringiku.history');
     });
 
+    Route::put('/tahun/{id}/toggle-lock', [App\Http\Controllers\TahunController::class, 'toggleLock'])
+    ->name('tahun.toggle-lock');
+
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
     Route::post('/monitoringiku/{mti_id}/finalize-unit', [App\Http\Controllers\MonitoringIKUController::class, 'finalizeUnit'])->name('monitoringiku.finalize-unit');

@@ -18,6 +18,7 @@ class tahun_kerja extends Model
         'th_tahun',
         'th_is_aktif',
         'ren_id',
+        'th_is_editable'
     ];
 
 }

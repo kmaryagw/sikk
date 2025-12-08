@@ -22,46 +22,44 @@ class UserController extends Controller
     }
 
     public function loginAction(Request $request)
-{
-    $request->validate([
-        'username' => 'required',
-        'password' => 'required',
-    ]);
-    
-    if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
-        $request->session()->regenerate();
+    {
+        $request->validate([
+            'username' => 'required',
+            'password' => 'required',
+        ]);
+        
+        if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
+            $request->session()->regenerate();
 
-        $user = Auth::user();
+            $user = Auth::user();
 
-        if ($user instanceof User) {
-            $user->status = 1;
-            $user->save();
+            if ($user instanceof User) {
+                $user->status = 1;
+                $user->save();
 
-            // 🔍 Tentukan nama yang akan ditampilkan di alert
-            $nama = $user->name ?? $user->username; // default
+                $nama = $user->name ?? $user->username;
 
-            if ($user->role === 'admin') {
-                $nama = 'Admin';
-            } elseif ($user->role === 'prodi' && $user->programStudi) {
-                $nama = $user->programStudi->nama_prodi;
-            } elseif ($user->role === 'unit kerja' && $user->unitKerja) {
-                $nama = $user->unitKerja->unit_nama;
-            } elseif ($user->role === 'fakultas' && $user->fakultas) {
-                $nama = $user->fakultas->nama_fakultas;
+                if ($user->role === 'admin') {
+                    $nama = 'Admin';
+                } elseif ($user->role === 'prodi' && $user->programStudi) {
+                    $nama = $user->programStudi->nama_prodi;
+                } elseif ($user->role === 'unit kerja' && $user->unitKerja) {
+                    $nama = $user->unitKerja->unit_nama;
+                } elseif ($user->role === 'fakultas' && $user->fakultas) {
+                    $nama = $user->fakultas->nama_fakultas;
+                }
+
+                Alert::success('Sukses', 'Selamat Datang, ' . $nama);
+                return redirect()->route('dashboard');
+            } else {
+                Alert::error('Error', 'Username Tidak Valid!');
+                return back();
             }
-
-            // 🎉 Tampilkan alert sukses dengan nama sesuai role
-            Alert::success('Sukses', 'Selamat Datang, ' . $nama);
-            return redirect()->route('dashboard');
-        } else {
-            Alert::error('Error', 'Username Tidak Valid!');
-            return back();
         }
-    }
 
-    Alert::error('Error', 'Username atau Password salah!');
-    return back();
-}
+        Alert::error('Error', 'Username atau Password salah!');
+        return back();
+    }
 
 
     public function profile()

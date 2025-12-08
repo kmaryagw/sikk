@@ -228,7 +228,7 @@ class DashboardController extends Controller
                 'terlampaui' => 0,
                 'tidak_tercapai' => 0,
                 'tidak_terlaksana' => 0,
-                'persentase_tuntas' => 0, // ✅ tambahkan key persentase
+                'persentase_tuntas' => 0,
             ];
 
             foreach ($items as $item) {
@@ -297,7 +297,6 @@ class DashboardController extends Controller
                     ->map(function ($unit) use ($tahunAktif) {
                         $data = $this->hitungStatusUnit($unit, $tahunAktif);
 
-                        // ✅ Cek status finalisasi hanya jika status = true
                         $isFinal = MonitoringFinalUnit::where('unit_id', $unit->unit_id)
                             ->where('status', true)
                             ->exists();
@@ -383,14 +382,12 @@ class DashboardController extends Controller
             $isFinal = false;
 
             if ($tahunAktif) {
-                // Cari ID Monitoring untuk Prodi & Tahun ini
                 $monitoringIku = DB::table('monitoring_iku')
                     ->where('prodi_id', $prodi->prodi_id)
                     ->where('th_id', $tahunAktif->th_id)
                     ->first();
 
                 if ($monitoringIku) {
-                    // Cek apakah Unit ini sudah finalisasi untuk monitoring ID tersebut
                     $cekFinal = DB::table('monitoring_final_units')
                         ->where('unit_id', $unit->unit_id)
                         ->where('monitoring_iku_id', $monitoringIku->mti_id)
@@ -404,14 +401,12 @@ class DashboardController extends Controller
                 }
             }
 
-            // Masukkan ke array detail
             $listFinalisasi[] = [
                 'nama_prodi' => $prodi->nama_prodi,
                 'status' => $isFinal
             ];
         }
 
-        // Tentukan warna tombol utama (Global)
         if ($jumlahFinal === 0) {
             $statusCount['status_global'] = 'belum'; 
         } elseif ($jumlahFinal === $totalProdi) {
@@ -425,9 +420,6 @@ class DashboardController extends Controller
         return (object) $statusCount;
     }
 
-    /**
-    * 🔹 Fungsi bantu untuk menghitung status IKU/IKT per program studi
-    */
     private function hitungStatusProdi($prodi, $tahunAktif)
     {
         $statusCount = [
@@ -468,16 +460,79 @@ class DashboardController extends Controller
         return (object) $statusCount;
     }
 
-    /**
-     * Fungsi bantu untuk menghitung status IKU/IKT
-     */
-    private function hitungStatus($capaian, $target, $ketercapaian)
+    private function parseNumber($value)
     {
-        // Misal logika sederhana:
-        if ($capaian === null) return 'tidak_terlaksana';
-        if ($capaian >= $target && $ketercapaian === 'terlampaui') return 'terlampaui';
-        if ($capaian >= $target) return 'tercapai';
-        if ($capaian < $target) return 'tidak_tercapai';
+        if (is_null($value) || $value === '') return 0;
+
+        $string = (string) $value;
+        // Hapus simbol selain angka, titik, koma, minus
+        $clean = preg_replace('/[^0-9.,-]/', '', $string);
+
+        if (strpos($clean, '.') !== false && strpos($clean, ',') !== false) {
+            $clean = str_replace('.', '', $clean);
+            $clean = str_replace(',', '.', $clean);
+        } elseif (strpos($clean, ',') !== false) {
+            $clean = str_replace(',', '.', $clean);
+        }
+
+        return (float) $clean;
+    }
+
+    private function hitungStatus($capaian, $target, $jenis)
+    {
+        $jenis = strtolower(trim($jenis));
+        
+        if (is_null($capaian) || trim($capaian) === '') {
+            return 'tidak_terlaksana';
+        }
+
+        if (in_array($jenis, ['nilai', 'persentase'])) {
+            $valCapaian = $this->parseNumber($capaian);
+            $valTarget  = $this->parseNumber($target);
+            $epsilon = 0.00001;
+
+            if (abs($valCapaian - $valTarget) < $epsilon) {
+                return 'tercapai';
+            } elseif ($valCapaian > $valTarget) {
+                return 'terlampaui';
+            } else {
+                return 'tidak_tercapai';
+            }
+        }
+
+        if ($jenis === 'rasio') {
+            $capaianStr = preg_replace('/\s+/', '', $capaian);
+            $targetStr  = preg_replace('/\s+/', '', $target);
+
+            $partsCapaian = explode(':', $capaianStr);
+            $partsTarget  = explode(':', $targetStr);
+
+            if (count($partsCapaian) == 2 && count($partsTarget) == 2) {
+                $rightCapaian = $this->parseNumber($partsCapaian[1]);
+                $rightTarget  = $this->parseNumber($partsTarget[1]);
+
+                if ($rightCapaian > $rightTarget) {
+                    return 'terlampaui';
+                } elseif ($rightCapaian == $rightTarget) {
+                    return 'tercapai';
+                } else {
+                    return 'tidak_tercapai';
+                }
+            }
+            return 'tidak_tercapai'; 
+        }
+
+        // --- LOGIKA 3: KETERSEDIAAN (String) ---
+        if ($jenis === 'ketersediaan') {
+            $capaianLower = strtolower(trim($capaian));
+            if ($capaianLower === 'ada') {
+                return 'tercapai';
+            } elseif ($capaianLower === 'draft') {
+                return 'tidak_tercapai';
+            }
+            return 'tidak_terlaksana';
+        }
+
         return 'tidak_terlaksana';
     }
 

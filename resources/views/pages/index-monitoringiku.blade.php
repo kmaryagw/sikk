@@ -55,57 +55,71 @@
                                             $isAdmin = $user->role === 'admin' || $user->role === 'fakultas';
                                             $unitId = $user->unit_id;
 
-                                            // Ambil status finalisasi per unit
                                             $isFinalForUnit = $monitoringiku->isFinalForUnit($unitId);
+                                            
+                                            // 🔒 CEK STATUS LOCK TAHUN
+                                            // Pastikan di model MonitoringIKU relasinya sudah benar ke targetIndikator -> tahunKerja
+                                            $isYearLocked = $monitoringiku->targetIndikator->tahunKerja->th_is_editable == 0;
                                         @endphp
 
-                                        {{-- 🟦 Admin --}}
-                                        @if($monitoringiku->status == 0 && $isAdmin)
-                                            <a class="btn btn-primary" href="{{ route('monitoringiku.index-detail', $monitoringiku->mti_id) }}">
-                                                <i class="fa-solid fa-pen-to-square"></i> Lihat Monitoring
+                                        {{-- 🔴 JIKA TAHUN DIKUNCI (STOP EDIT) --}}
+                                        @if($isYearLocked)
+                                            <a class="btn btn-secondary" href="{{ route('monitoringiku.show-monitoringiku', $monitoringiku->mti_id) }}">
+                                                <i class="fa-solid fa-lock"></i> Data Terkunci (Lihat)
                                             </a>
 
-                                        {{-- 🟨 Non-admin (Unit Kerja / Prodi) --}}
-                                        @elseif($monitoringiku->status == 0 && !$isAdmin)
-                                            
-                                            {{-- 1. Jika sudah final, tampilkan tombol Lihat saja --}}
-                                            @if($isFinalForUnit)
+                                        {{-- 🔵 JIKA TAHUN TIDAK DIKUNCI (NORMAL FLOW) --}}
+                                        @else
+
+                                            {{-- 🟦 Admin --}}
+                                            @if($monitoringiku->status == 0 && $isAdmin)
+                                                <a class="btn btn-primary" href="{{ route('monitoringiku.index-detail', $monitoringiku->mti_id) }}">
+                                                    <i class="fa-solid fa-pen-to-square"></i> Lihat Monitoring
+                                                </a>
+
+                                            {{-- 🟨 Non-admin (Unit Kerja / Prodi) --}}
+                                            @elseif($monitoringiku->status == 0 && !$isAdmin)
+                                                
+                                                {{-- 1. Jika sudah final, tampilkan tombol Lihat saja --}}
+                                                @if($isFinalForUnit)
+                                                    <a class="btn btn-success" href="{{ route('monitoringiku.show-monitoringiku', $monitoringiku->mti_id) }}">
+                                                        <i class="fa-solid fa-eye"></i> Lihat Data
+                                                    </a>
+                                                
+                                                {{-- 2. Jika data unit ini LENGKAP --}}
+                                                @elseif($monitoringiku->isCompleteForCurrentUnit()) 
+                                                    <a class="btn btn-warning" href="{{ route('monitoringiku.index-detail', $monitoringiku->mti_id) }}">
+                                                        <i class="fa-solid fa-pen-to-square"></i> Isi/Ubah
+                                                    </a>
+
+                                                    <button class="btn btn-info finalBtn" data-id="{{ $monitoringiku->mti_id }}">
+                                                        <i class="fa-solid fa-lock"></i> Finalisasi
+                                                    </button>
+
+                                                {{-- 3. Jika belum lengkap --}}
+                                                @else
+                                                    <a class="btn btn-warning" href="{{ route('monitoringiku.index-detail', $monitoringiku->mti_id) }}">
+                                                        <i class="fa-solid fa-pen-to-square"></i> Isi/Ubah
+                                                    </a>
+
+                                                    <button class="btn btn-secondary" disabled>
+                                                        <i class="fa-solid fa-lock"></i> Final
+                                                    </button>
+                                                @endif
+
+                                            {{-- 🟩 Status Global Final --}}
+                                            @else
                                                 <a class="btn btn-success" href="{{ route('monitoringiku.show-monitoringiku', $monitoringiku->mti_id) }}">
                                                     <i class="fa-solid fa-eye"></i> Lihat Data
                                                 </a>
-                                            
-                                            {{-- 2. Jika data unit ini LENGKAP (HAPUS isFilled() DISINI) --}}
-                                            @elseif($monitoringiku->isCompleteForCurrentUnit()) 
-                                                <a class="btn btn-warning" href="{{ route('monitoringiku.index-detail', $monitoringiku->mti_id) }}">
-                                                    <i class="fa-solid fa-pen-to-square"></i> Isi/Ubah
-                                                </a>
-
-                                                <button class="btn btn-info finalBtn" data-id="{{ $monitoringiku->mti_id }}">
-                                                    <i class="fa-solid fa-lock"></i> Finalisasi
-                                                </button>
-
-                                            {{-- 3. Jika belum lengkap --}}
-                                            @else
-                                                <a class="btn btn-warning" href="{{ route('monitoringiku.index-detail', $monitoringiku->mti_id) }}">
-                                                    <i class="fa-solid fa-pen-to-square"></i> Isi/Ubah
-                                                </a>
-
-                                                <button class="btn btn-secondary" disabled>
-                                                    <i class="fa-solid fa-lock"></i> Final
-                                                </button>
+                                                @if($isAdmin)
+                                                    <button class="btn btn-danger cancelFinalBtn" data-id="{{ $monitoringiku->mti_id }}">
+                                                        <i class="fa-solid fa-unlock"></i> Batalkan Final
+                                                    </button>
+                                                @endif
                                             @endif
 
-                                        {{-- 🟩 Status Global Final --}}
-                                        @else
-                                            <a class="btn btn-success" href="{{ route('monitoringiku.show-monitoringiku', $monitoringiku->mti_id) }}">
-                                                <i class="fa-solid fa-eye"></i> Lihat Data
-                                            </a>
-                                            @if($isAdmin)
-                                                <button class="btn btn-danger cancelFinalBtn" data-id="{{ $monitoringiku->mti_id }}">
-                                                    <i class="fa-solid fa-unlock"></i> Batalkan Final
-                                                </button>
-                                            @endif
-                                        @endif
+                                        @endif 
                                     </td>
                                     {{-- Debugging td --}}
                                     {{-- <td>

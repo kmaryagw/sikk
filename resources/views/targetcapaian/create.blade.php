@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Create Target Capaian')
+@section('title', 'Isi Target Indikator')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -33,7 +33,7 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Form Target Capaian</h1>
+                <h1>Form Target Indikator</h1>
             </div>
 
             <div class="section-body">
@@ -52,13 +52,13 @@
                                 @endif
 
                                 <div class="form-group d-flex align-items-center">
-                                    <label for="th_id" class="mr-2" style="font-size: 1rem;">Tahun Aktif:</label>
+                                    <label for="th_id" class="mr-2" style="font-size: 1rem;">Tahun Aktif :</label>
                                         <span class="badge badge-primary p-3" style="font-size: 1rem;">
                                             <i class="fa-solid fa-calendar-alt"></i> {{ $tahuns->th_tahun }}
                                         </span>
                                 </div>
                                 <div class="form-group d-flex align-items-center">
-                                    <label for="th_id" class="mr-2" style="font-size: 1rem;">Prodi:</label>
+                                    <label for="th_id" class="mr-2" style="font-size: 1rem;">Prodi :</label>
                                     @if ($userRole === 'prodi' && $userProdi)
                                         <!-- Jika user adalah prodi, tampilkan readonly input -->
                                         <span class="badge badge-primary p-3" style="font-size: 1rem;">
@@ -66,18 +66,18 @@
                                         </span>
                                     @endif
                                 </div>
-                                <div class="alert alert-warning alert-has-icon alert-dismissible show fade">
+                                {{-- <div class="alert alert-warning alert-has-icon alert-dismissible show fade">
                                     <div class="alert-icon"><i class="far fa-lightbulb"></i></div>
                                     <div class="alert-body">
-                                        {{-- <button class="close" data-dismiss="alert">
+                                        <button class="close" data-dismiss="alert">
                                             <span>&times;</span>
-                                        </button> --}}
+                                        </button>
                                         <div class="alert-title">Catatan Pengisian</div>
                                         Jika kolom <b>Nilai Baseline</b> atau <b>Target</b> dikosongkan, sistem akan otomatis menyimpannya sebagai nilai <b>0 (Nol)</b>. 
                                         <br>
                                         <small>*(Kecuali untuk indikator jenis Pengukuran yang akan otomatis terisi Draft/Ada).</small>
                                     </div>
-                                </div>
+                                </div> --}}
 
                                 </form>
                             </div>

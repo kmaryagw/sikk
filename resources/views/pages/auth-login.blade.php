@@ -1,243 +1,361 @@
 @extends('layouts.auth')
 
-@section('title', 'Login')
+@section('title', 'Login Administrator')
 
 @push('style')
-    <!-- CSS Libraries -->
-    <link rel="stylesheet" href="{{ asset('library/bootstrap-social/bootstrap-social.css') }}">
+    {{-- <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"> untuk fontnya --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
     <style>
-        /* ==== RESET VALIDASI BAWAAN ==== */
-        .was-validated .form-control:valid,
-        .form-control.is-valid {
-            border-color: #ced4da !important;
-            background-image: none !important;
+        /* ==== GLOBAL VARIABLES ==== */
+        :root {
+            --primary-color: #e63946; /* Merah Profesional */
+            --primary-hover: #d62828;
+            --text-main: #1d3557;
+            --text-muted: #6c757d;
+            --bg-color: #f8f9fa;
+            --input-bg: #f1f3f5;
+            --input-focus-bg: #ffffff;
         }
 
-        /* ==== CARD STYLE ==== */
-        .card.card-danger {
-            border: none;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-            transition: all 0.3s ease;
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            overflow-x: hidden;
         }
 
-        .card.card-danger:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        /* ==== LAYOUT SPLIT SCREEN ==== */
+        .login-wrapper {
+            display: flex;
+            width: 100vw; 
+            height: 100vh;
+            
+           
+            position: fixed; 
+            top: 0;
+            left: 0;
+            z-index: 9999; 
+            background-color: white;
+            overflow: hidden; 
         }
 
-        .card-header h4 {
-            font-weight: 600;
-            color: #dc3545;
-            text-align: center;
-        }
-
-        /* ==== INPUT FIELD ==== */
-        .form-group {
-            position: relative;
-        }
-
-        .form-group .form-control {
-            border-radius: 50px;
-            padding-left: 2.5rem;
-            padding-right: 2.5rem;
-            transition: all 0.2s ease-in-out;
-            height: 45px;
-        }
-
-        .form-group .form-control:focus {
-            border-color: #dc3545;
-            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-        }
-
-        /* ==== INPUT WRAPPER & ICON ==== */
-        .input-wrapper {
+        .login-visual {
+            flex: 1.2; 
+            background-image: url("{{ asset('img/lab-instiki.jpg') }}");
+            background-size: cover;
+            background-position: center;
             position: relative;
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 50px;
+            color: white;
+            overflow: hidden;
         }
 
-        /* Input field */
-        .input-wrapper .form-control {
-            width: 100%;
-            height: 48px; /* sedikit lebih tinggi agar proporsional dengan icon */
-            line-height: 1.5;
-            border-radius: 50px;
-            padding: 0 50px; /* kanan kiri */
-            padding-left: 48px; /* ruang khusus kiri untuk icon */
-            box-sizing: border-box;
-            transition: all 0.2s ease-in-out;
-        }
-
-        /* Style icon umum */
-        .input-icon {
+        .login-visual::before {
+            content: '';
             position: absolute;
-            top: 50%;
-            transform: translateY(-50%); /* center vertikal sempurna */
-            color: #888;
-            font-size: 1.1rem; /* sedikit lebih kecil agar seimbang */
-            transition: color 0.3s, transform 0.2s;
-            line-height: 1; /* hindari tambahan ruang vertikal */
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, rgba(230, 57, 70, 0.2) 100%);
+            z-index: 1;
         }
 
-        /* Icon di kiri */
-        .input-icon.left {
-            left: 18px;
-            pointer-events: none;
+        .visual-content {
+            position: relative;
+            z-index: 2;
+            animation: fadeInUp 1s ease;
         }
 
-        /* Icon di kanan */
-        .input-icon.right {
-            right: 18px;
-            cursor: pointer;
+        .visual-content h2 {
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            line-height: 1.2;
         }
 
-        /* Fokus input ubah warna icon kiri */
-        .input-wrapper .form-control:focus ~ .input-icon.left {
-            color: #dc3545;
+        .visual-content p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 500px;
         }
 
-        /* Hover & klik efek untuk icon kanan */
-        .input-icon.right:hover {
-            color: #dc3545;
-        }
-
-        .input-icon.right:active {
-            transform: translateY(-50%) scale(0.9);
-        }
-
-        /* ==== BUTTON ==== */
-        .btn-danger {
-            border-radius: 50px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            transition: all 0.3s ease;
+        .login-form-container {
+            flex: 0.8;
+            background: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
+            padding: 40px;
+            position: relative;
         }
 
-        .btn-danger:hover {
-            background-color: #c82333;
+        .login-form-wrapper {
+            width: 100%;
+            max-width: 400px;
+            animation: fadeInRight 0.8s ease;
+        }
+
+        .brand-logo {
+            font-size: 40px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .form-title h4 {
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 5px;
+        }
+
+        .form-title p {
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .input-box {
+            position: relative;
+        }
+
+        .form-control-pro {
+            width: 100%;
+            padding: 14px 45px 14px 15px; 
+            border: 2px solid var(--input-bg);
+            background-color: var(--input-bg);
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-main);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-control-pro:focus {
+            background-color: var(--input-focus-bg);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(230, 57, 70, 0.1);
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+
+        .form-control-pro:focus + .input-icon {
+            color: var(--primary-color);
+        }
+
+        .btn-pro {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(230, 57, 70, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-pro:hover {
+            background-color: var(--primary-hover);
             transform: translateY(-2px);
-            box-shadow: 0 8px 15px rgba(220, 53, 69, 0.3);
+            box-shadow: 0 8px 15px rgba(230, 57, 70, 0.3);
         }
 
-        .btn-danger i {
-            font-size: 1rem;
+        .btn-pro:active {
+            transform: scale(0.98);
         }
 
-        /* ==== SWEETALERT OVERRIDE ==== */
-        .swal2-popup {
-            border-radius: 1rem !important;
+        .loader {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #FFF;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: none;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .loading .loader { display: inline-block; }
+        .loading span { display: none; }
+
+        .login-footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #aaa;
         }
 
-        /* ==== ANIMASI FADE IN HALUS ==== */
-        .fade-in-card {
-            opacity: 0;
-            transform: translateY(10px);
-            animation: fadeInSmooth 0.8s ease forwards;
+        .invalid-tooltip-custom {
+            font-size: 0.8rem;
+            color: #dc3545;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
-        @keyframes fadeInSmooth {
-            from {
-                opacity: 0;
-                transform: translateY(15px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* ==== RESPONSIVE (Mobile) ==== */
+        @media (max-width: 992px) {
+            .login-visual { display: none; } /* Hilangkan gambar di mobile */
+            .login-form-container { flex: 1; padding: 20px; }
+            .login-form-wrapper { max-width: 100%; padding: 0 20px; }
         }
-
     </style>
 @endpush
 
 @section('main')
-    <div class="login-bg">
-        {{-- Efek animasi fadeInDown dari Animate.css --}}
-        {{-- <div class="card card-danger animate__animated animate__fadeInDown animate__faster"> --}}
-            <div class="card card-danger fade-in-card">
-            <div class="card-header">
-                <h4><i class="fa-solid fa-right-to-bracket"></i> Login</h4>
-            </div>
-
-            <div class="card-body">
-                <form method="POST" action="{{ route('login.action') }}" class="needs-validation" novalidate="">
-                    @csrf
-
-                    {{-- Username Field --}}
-                    <div class="form-group mb-4">
-                        <label for="username">Username</label>
-                        <div class="input-wrapper">
-                            {{-- <span class="input-icon left">
-                                <i class="fa-solid fa-user"></i>
-                            </span> --}}
-                            <input id="username"
-                                type="text"
-                                class="form-control"
-                                name="username"
-                                tabindex="1"
-                                required
-                                autofocus>
-                        </div>
-                        <div class="invalid-feedback">Please fill in your Username</div>
-                    </div>
-
-                    {{-- Password Field --}}
-                    <div class="form-group mb-4">
-                        <label for="password" class="control-label">Password</label>
-                        <div class="input-wrapper">
-                            {{-- <span class="input-icon left">
-                                <i class="fa-solid fa-lock"></i>
-                            </span> --}}
-                            <input id="password"
-                                type="password"
-                                class="form-control"
-                                name="password"
-                                tabindex="2"
-                                required>
-                            <span class="input-icon right" id="togglePassword">
-                                <i class="fa-solid fa-eye"></i>
-                            </span>
-                        </div>
-                        <div class="invalid-feedback">Please fill in your password</div>
-                    </div>
-
-                    {{-- Submit Button --}}
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-danger btn-lg btn-block" tabindex="4">
-                            <i class="fa-solid fa-sign-in-alt"></i> Login
-                        </button>
-                    </div>
-                </form>
-
-                {{-- Script Toggle Password --}}
-                <script>
-                    const togglePassword = document.getElementById('togglePassword');
-                    const passwordInput = document.getElementById('password');
-
-                    togglePassword.addEventListener('click', function () {
-                        const type = passwordInput.type === 'password' ? 'text' : 'password';
-                        passwordInput.type = type;
-
-                        const icon = this.querySelector('i');
-                        icon.classList.toggle('fa-eye');
-                        icon.classList.toggle('fa-eye-slash');
-                    });
-                </script>
-
-                @if (session('alert.config'))
-                    <script>
-                        Swal.fire({!! session('alert.config') !!});
-                    </script>
-                @endif
-
-            </div>
+<div class="login-wrapper">
+    
+    <!-- Bagian KIRI: Visual Branding -->
+    <div class="login-visual">
+        <div class="visual-content">
+            <h2>Sistem Informasi<br>Monitoring Indikator Kinerja INSTIKI</h2>
+            <p>Kelola indikator kinerja, pantau capaian, dan tingkatkan kualitas mutu pendidikan kampus INSTIKI.</p>
         </div>
     </div>
+
+    <!-- Bagian KANAN: Form Login -->
+    <div class="login-form-container">
+        <div class="login-form-wrapper">
+            
+            <div class="text-center text-lg-left mb-4">
+                <div class="brand-logo animate__animated animate__bounceIn">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </div>
+                <div class="form-title">
+                    <h4>Selamat Datang Kembali</h4>
+                    <p>Masukkan kredensial Anda untuk mengakses sistem.</p>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ route('login.action') }}" class="needs-validation" novalidate id="loginForm">
+                @csrf
+
+                <!-- Username -->
+                <div class="form-group">
+                    <label for="username" class="form-label">Username</label>
+                    <div class="input-box">
+                        <input id="username" type="text" class="form-control-pro" name="username" required autofocus tabindex="1">
+                        <i class="fa-regular fa-user input-icon"></i>
+                    </div>
+                    @error('username')
+                        <div class="invalid-tooltip-custom">
+                            <i class="fa-solid fa-circle-exclamation"></i> {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <div class="d-flex justify-content-between">
+                        <label for="password" class="form-label">Password</label>
+                    </div>
+                    <div class="input-box">
+                        <input id="password" type="password" class="form-control-pro" name="password" required tabindex="2">
+                        <i class="fa-regular fa-eye input-icon" id="togglePassword" title="Lihat Password"></i>
+                    </div>
+                    @error('password')
+                        <div class="invalid-tooltip-custom">
+                            <i class="fa-solid fa-circle-exclamation"></i> {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+
+                <!-- Tombol Submit -->
+                <button type="submit" class="btn-pro mt-4" tabindex="4" id="btnSubmit">
+                    <span class="loader"></span>
+                    <span>Masuk ke Dashboard <i class="fa-solid fa-arrow-right ml-2"></i></span>
+                </button>
+
+                <div class="login-footer">
+                    &copy; {{ date('Y') }} <strong>INSTIKI</strong>. Institut Bisnis dan Teknologi Indonesia.<br>
+                    All Rights Reserved.
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Script -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Toggle Password
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        // 2. Loading State
+        const form = document.getElementById('loginForm');
+        const btn = document.getElementById('btnSubmit');
+
+        form.addEventListener('submit', function(e) {
+            if (form.checkValidity()) {
+                btn.classList.add('loading');
+                btn.disabled = true;
+            }
+        });
+
+        // 3. SweetAlert Notifikasi
+        @if (session('success'))
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: '{{ session('success') }}',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        @endif
+
+        @if (session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Akses Ditolak',
+                text: '{{ session('error') }}',
+                confirmButtonColor: '#e63946'
+            });
+        @endif
+    });
+</script>
 @endsection

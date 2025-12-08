@@ -16,7 +16,7 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Form Edit Target</h1>
+                <h1>Form Edit Target Indikator</h1>
             </div>
 
             <div class="section-body">
@@ -39,7 +39,7 @@
                                     @method('PUT')
 
                                     <div class="form-group d-flex align-items-center">
-                                        <label for="th_id" class="mr-2" style="font-size: 1rem;">Tahun Aktif:</label>
+                                        <label for="th_id" class="mr-2" style="font-size: 1rem;">Tahun Aktif :</label>
                                         @foreach ($tahuns as $tahun)
                                             @if ($tahun->th_is_aktif === 'y')
                                                 <span class="badge badge-primary p-3" style="font-size: 1rem;">
