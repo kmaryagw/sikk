@@ -380,14 +380,19 @@ class DashboardController extends Controller
 
         foreach ($semuaProdi as $prodi) {
             $isFinal = false;
+            $currentMtiId = null; // Variabel penampung MTI ID
 
             if ($tahunAktif) {
+                // Cari ID Monitoring untuk Prodi & Tahun ini
                 $monitoringIku = DB::table('monitoring_iku')
                     ->where('prodi_id', $prodi->prodi_id)
                     ->where('th_id', $tahunAktif->th_id)
                     ->first();
 
                 if ($monitoringIku) {
+                    $currentMtiId = $monitoringIku->mti_id; // Simpan MTI ID
+
+                    // Cek apakah Unit ini sudah finalisasi untuk monitoring ID tersebut
                     $cekFinal = DB::table('monitoring_final_units')
                         ->where('unit_id', $unit->unit_id)
                         ->where('monitoring_iku_id', $monitoringIku->mti_id)
@@ -401,9 +406,11 @@ class DashboardController extends Controller
                 }
             }
 
+            // Masukkan ke array detail (Tambahkan mti_id)
             $listFinalisasi[] = [
                 'nama_prodi' => $prodi->nama_prodi,
-                'status' => $isFinal
+                'status'     => $isFinal,
+                'mti_id'     => $currentMtiId // <--- PENTING: Kirim ID Monitoring ke View
             ];
         }
 

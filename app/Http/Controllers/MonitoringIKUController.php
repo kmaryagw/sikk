@@ -224,15 +224,15 @@ class MonitoringIKUController extends Controller
 
     public function createDetail($mti_id, Request $request)
     {
+        // 1. Load Data Utama
         $monitoringiku = MonitoringIKU::with(['prodi', 'tahunKerja'])->findOrFail($mti_id);
-        $status = ['tercapai', 'tidak tercapai', 'tidak terlaksana'];
         $user = Auth::user();
-        $status = ['tercapai', 'tidak tercapai', 'tidak terlaksana'];
 
-        $q = trim($request->input('q', '')); // keyword search
-        $unitKerjaFilter = $request->input('unit_kerja', ''); // filter unit kerja
+        // 2. Ambil Input Filter
+        $q = trim($request->input('q', '')); // Keyword pencarian
+        $unitKerjaFilter = $request->input('unit_kerja', ''); // Filter dari dropdown
 
-        // Query untuk target indikator
+        // 3. Query Dasar Target Indikator
         $targetIndikatorQuery = target_indikator::where('prodi_id', $monitoringiku->prodi_id)
             ->where('th_id', $monitoringiku->th_id)
             ->with([
@@ -241,13 +241,12 @@ class MonitoringIKUController extends Controller
                     $sub->where('prodi_id', $monitoringiku->prodi_id)
                         ->where('th_id', $monitoringiku->th_id);
                 },
-                // Mengambil monitoringDetail
-                'monitoringDetail' => function ($q) use ($mti_id) {
-                    $q->where('mti_id', $mti_id); // Pastikan data monitoringDetail yang sesuai dengan mti_id diambil
+                'monitoringDetail' => function ($query) use ($mti_id) {
+                    $query->where('mti_id', $mti_id);
                 },
             ]);
 
-        // Filter pencarian
+        // 4. Terapkan Filter Pencarian (Keyword)
         if ($q !== '') {
             $targetIndikatorQuery->whereHas('indikatorKinerja', function ($sub) use ($q) {
                 $sub->where('ik_nama', 'LIKE', "%{$q}%")
@@ -255,60 +254,64 @@ class MonitoringIKUController extends Controller
             });
         }
 
-        // Filter unit kerja
-        if ($unitKerjaFilter) {
-            $targetIndikatorQuery->whereHas('indikatorKinerja.unitKerja', function ($sub) use ($unitKerjaFilter) {
-                $sub->where('unit_kerja.unit_id', $unitKerjaFilter);
-            });
-        }
+        // 5. Logika Filter Unit Kerja
+        $isAdminOrFakultas = ($user->role === 'admin' || $user->role === 'fakultas');
 
-        // Filter jika bukan admin/fakultas
-        if ($user->role !== 'admin' && $user->role !== 'fakultas') {
+        if ($isAdminOrFakultas) {
+            // Jika Admin/Fakultas: Filter berdasarkan dropdown (jika dipilih)
+            if ($unitKerjaFilter) {
+                $targetIndikatorQuery->whereHas('indikatorKinerja.unitKerja', function ($sub) use ($unitKerjaFilter) {
+                    $sub->where('unit_kerja.unit_id', $unitKerjaFilter);
+                });
+            }
+        } else {
+            // Jika User Biasa (Prodi/Unit Kerja): PAKSA filter ke unit_id mereka sendiri
             $targetIndikatorQuery->whereHas('indikatorKinerja.unitKerja', function ($sub) use ($user) {
                 $sub->where('unit_kerja.unit_id', $user->unit_id);
             });
         }
 
-        // Eksekusi query untuk mengambil target indikator
+        // 6. Eksekusi Query
         $targetIndikator = $targetIndikatorQuery->get();
 
-        if ($targetIndikator->isEmpty()) {
+        // Cek kosong (Hanya redirect jika benar-benar tidak ada data, bukan karena hasil filter pencarian kosong)
+        if ($targetIndikator->isEmpty() && empty($q) && empty($unitKerjaFilter)) {
             return redirect()->route('monitoringiku.index')
-                ->with('error', 'Tidak ada indikator yang bisa diukur atau Anda tidak memiliki akses.');
+                ->with('error', 'Tidak ada indikator yang tersedia atau Anda tidak memiliki akses.');
         }
 
-        // Ambil atau buat detail untuk setiap indikator terlebih dahulu (agar monitoringikuDetail tersedia)
+        // 7. Generate Data Detail (Draft) jika belum ada
+        // Loop ini penting agar row detail terbuat sebelum ditampilkan di form
         foreach ($targetIndikator as $target) {
             MonitoringIKU_Detail::firstOrCreate(
                 ['mti_id' => $mti_id, 'ti_id' => $target->ti_id],
                 [
-                    'mtid_id' => 'MTID'.Str::uuid(),
+                    'mtid_id'     => 'MTID'.Str::uuid(),
                     'mtid_target' => $target->ti_target,
-                    'mtid_capaian' => null,
+                    'mtid_capaian'=> null,
                     'mtid_status' => 'Draft',
                 ]
             );
         }
 
-        // Ambil collection monitoring detail untuk semua ti_id yang akan ditampilkan
-        // **Key by ti_id supaya pencocokan di view selalu tepat**
+        // 8. Ambil Data Detail yang sudah match
         $monitoringikuDetail = MonitoringIKU_Detail::where('mti_id', $mti_id)
             ->whereIn('ti_id', $targetIndikator->pluck('ti_id'))
             ->get()
-            ->keyBy('ti_id'); // <<< penting
+            ->keyBy('ti_id'); 
 
-        $unitKerja = UnitKerja::all();
+        // 9. Ambil List Unit Kerja untuk Dropdown Filter (Admin Only)
+        $unitKerjas = \App\Models\UnitKerja::orderBy('unit_nama', 'asc')->get();
 
         return view('pages.create-detail-monitoringiku', [
             'monitoringiku'       => $monitoringiku,
             'targetIndikator'     => $targetIndikator,
-            'status'              => $status,
-            'monitoringikuDetail' => $monitoringikuDetail, // <<-- pastikan ini di-pass
-            'unitKerja'           => $unitKerja,
+            'monitoringikuDetail' => $monitoringikuDetail,
+            'unitKerjas'          => $unitKerjas,       // Data untuk isi dropdown
+            'selectedUnit'        => $unitKerjaFilter,  // Agar dropdown tetap terpilih setelah submit
             'type_menu'           => 'monitoringiku',
-            'isAdmin'             => $user->role === 'admin' || $user->role === 'fakultas',
+            'isAdmin'             => $isAdminOrFakultas,
             'q'                   => $q,
-            'unitKerjaFilter'     => $unitKerjaFilter,
         ]);
     }
 
@@ -894,37 +897,48 @@ public function storeDetail(Request $request, $mti_id)
         return response()->json(['success' => true, 'message' => 'Unit berhasil difinalisasi.']);
     }
 
-    // public function cancelFinalizeByAdmin($unit_id)
-    // {
-    //     if (Auth::user()->role !== 'admin') {
-    //         return response()->json(['success' => false, 'message' => 'Akses ditolak.']);
-    //     }
-
-    //     $record = \App\Models\MonitoringFinalUnit::where('unit_id', $unit_id)
-    //         ->where('status', true)
-    //         ->first();
-
-    //     if (!$record) {
-    //         return response()->json(['success' => false, 'message' => 'Tidak ada finalisasi aktif untuk unit ini.']);
-    //     }
-
-    //     $record->update([
-    //         'status' => false,
-    //         'finalized_by' => null,
-    //         'finalized_at' => null,
-    //     ]);
-
-    //     return response()->json(['success' => true, 'message' => 'Finalisasi unit berhasil dibatalkan oleh admin.']);
-    // }
-    
-    public function cancelFinalizeByAdmin($mti_id)
+    public function batalFinalUnitDashboard($unit_id)
     {
-        \App\Models\MonitoringFinalUnit::where('monitoring_iku_id', $mti_id)->delete();
+        // 1. Cek Tahun Aktif
+        $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->first();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Semua status finalisasi unit pada monitoring ini telah direset.'
+        if (!$tahunAktif) {
+            return response()->json(['success' => false, 'message' => 'Tidak ada tahun aktif.']);
+        }
+
+        // 2. Ambil semua ID Monitoring (MTI) yang ada di tahun aktif
+        // Karena Unit Kerja memfinalisasi per Monitoring, kita harus membuka kunci
+        // untuk semua monitoring di tahun ini yang terkait unit tersebut.
+        $mti_ids = MonitoringIKU::where('th_id', $tahunAktif->th_id)->pluck('mti_id');
+
+        // 3. Hapus data finalisasi unit tersebut di tahun aktif ini
+        $deleted = MonitoringFinalUnit::whereIn('monitoring_iku_id', $mti_ids)
+            ->where('unit_id', $unit_id)
+            ->delete();
+
+        if ($deleted) {
+            return response()->json(['success' => true, 'message' => 'Validasi unit berhasil dibatalkan. Data bisa diedit kembali.']);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Unit belum melakukan finalisasi atau data tidak ditemukan.']);
+        }
+    }
+
+    public function batalFinalSpesifik(Request $request)
+    {
+        $request->validate([
+            'unit_id' => 'required',
+            'mti_id'  => 'required'
         ]);
+
+        $deleted = MonitoringFinalUnit::where('monitoring_iku_id', $request->mti_id)
+            ->where('unit_id', $request->unit_id)
+            ->delete();
+
+        if ($deleted) {
+            return response()->json(['success' => true, 'message' => 'Validasi untuk Prodi tersebut berhasil dibatalkan.']);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Data tidak ditemukan atau sudah dibatalkan.']);
+        }
     }
 
     public function history($mti_id, $ti_id)
@@ -1054,17 +1068,40 @@ public function storeDetail(Request $request, $mti_id)
 
         $unit_kerja_id = $request->query('unit_kerja');
 
-        $monitoring = MonitoringIKU::with(['targetIndikator.prodi', 'targetIndikator.tahunKerja'])
+        $monitoring = MonitoringIKU::with(['prodi.Fakultasn', 'tahunKerja'])
             ->findOrFail($mti_id);
 
-        $rawProdi = $monitoring->targetIndikator->prodi->nama_prodi ?? 'Prodi_Umum';
-        $rawTahun = $monitoring->targetIndikator->tahunKerja->th_tahun ?? date('Y');
+        $query = target_indikator::with([
+                'indikatorKinerja.unitKerja', 
+                'monitoringDetail'
+            ])
+            ->select('target_indikator.*')
+            ->selectRaw("(
+                SELECT baseline 
+                FROM ik_baseline_tahun 
+                WHERE ik_baseline_tahun.ik_id = target_indikator.ik_id 
+                AND ik_baseline_tahun.th_id = target_indikator.th_id 
+                AND ik_baseline_tahun.prodi_id = target_indikator.prodi_id 
+                LIMIT 1
+            ) as fetched_baseline") 
+            ->where('prodi_id', $monitoring->prodi_id)
+            ->where('th_id', $monitoring->th_id);
+
+        if ($unit_kerja_id) {
+            $query->whereHas('indikatorKinerja.unitKerja', function($q) use ($unit_kerja_id) {
+                $q->where('indikatorkinerja_unitkerja.unit_id', $unit_kerja_id);
+            });
+        }
+
+        $data = $query->orderBy('ti_id', 'asc')->get();
+
+        $rawProdi = $monitoring->prodi->nama_prodi ?? 'Prodi_Umum';
+        $rawTahun = $monitoring->tahunKerja->th_tahun ?? date('Y');
 
         $cleanType  = ucfirst($type);
         $cleanProdi = Str::slug($rawProdi, '_'); 
         $cleanTahun = Str::slug($rawTahun, '-'); 
-
-        // 6. Cek Unit Kerja
+        
         $unitSuffix = '';
         if ($unit_kerja_id) {
             $unit = UnitKerja::find($unit_kerja_id);
@@ -1076,7 +1113,7 @@ public function storeDetail(Request $request, $mti_id)
 
         $fileName = "Monitoring_{$cleanType}_{$cleanProdi}_{$cleanTahun}{$unitSuffix}.xlsx";
 
-        return Excel::download(new MonitoringIKUDetailExport($mti_id, $type, $unit_kerja_id), $fileName);
+        return Excel::download(new MonitoringIKUDetailExport($data, $type), $fileName);
     }
 
     public function exportPdfDetail(Request $request, $mti_id)
@@ -1091,25 +1128,32 @@ public function storeDetail(Request $request, $mti_id)
         ])->findOrFail($mti_id);
 
         $query = target_indikator::with([
-                'indikatorKinerja.unitKerja', 
-                'baselineTahun', 
-                'monitoringDetail'
-            ])
-            ->where('prodi_id', $monitoring->prodi_id)
-            ->where('th_id', $monitoring->th_id);
+            'indikatorKinerja.unitKerja', 
+            'monitoringDetail'
+        ])
+        ->select('target_indikator.*') 
+        ->addSelect(['fetched_baseline' => DB::table('ik_baseline_tahun')
+            ->select('baseline')
+            ->whereColumn('ik_id', 'target_indikator.ik_id')
+            ->whereColumn('th_id', 'target_indikator.th_id')
+            ->whereColumn('prodi_id', 'target_indikator.prodi_id')
+            ->limit(1)
+        ])
+        ->where('prodi_id', $monitoring->prodi_id)
+        ->where('th_id', $monitoring->th_id);
 
-        if (!empty($unit_kerja_id)) {
-            $query->whereHas('indikatorKinerja.unitKerja', function($query) use ($unit_kerja_id) {
-                $query->where('indikatorkinerja_unitkerja.unit_id', $unit_kerja_id);
-            });
-        }
+    if (!empty($unit_kerja_id)) {
+        $query->whereHas('indikatorKinerja.unitKerja', function($query) use ($unit_kerja_id) {
+            $query->where('indikatorkinerja_unitkerja.unit_id', $unit_kerja_id);
+        });
+    }
 
-        if (!empty($q)) {
-            $query->whereHas('indikatorKinerja', function($query) use ($q) {
-                $query->where('ik_nama', 'like', '%' . $q . '%')
-                    ->orWhere('ik_kode', 'like', '%' . $q . '%');
-            });
-        }
+    if (!empty($q)) {
+        $query->whereHas('indikatorKinerja', function($query) use ($q) {
+            $query->where('ik_nama', 'like', '%' . $q . '%')
+                ->orWhere('ik_kode', 'like', '%' . $q . '%');
+        });
+    }
 
         $targetIndikators = $query->orderBy('ti_id', 'asc')->get();
 

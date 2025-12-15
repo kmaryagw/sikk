@@ -14,16 +14,60 @@
 
      <style>
         .table-responsive {
-            max-height: 50rem;   /* tinggi maksimum tabel */
-            overflow-y: auto;    /* aktifkan scroll vertikal */
+            max-height: 50rem; 
+            overflow-y: auto;    
         }
 
         .table thead th {
             position: sticky;
             top: 0;
             z-index: 10;
-            background-color: #f8f9fa !important; /* warna solid agar tidak transparan */
+            background-color: #f8f9fa !important; 
         }
+        .filter-capsule {
+            background-color: #f8f9fa;
+            border: 1px solid #e3e6f0;
+            border-radius: 30px;
+            padding: 4px 15px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+            min-width: 600px; 
+        }
+
+        .filter-capsule:hover, .filter-capsule:focus-within {
+            background-color: #fff;
+            border-color: #6777ef; 
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+
+        .filter-capsule .select2-container--default .select2-selection--single {
+            background-color: transparent !important;
+            border: none !important;
+            height: 32px !important;
+        }
+
+        .filter-capsule .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 32px !important;
+            color: #6c757d;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .filter-capsule .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 32px !important;
+        }
+
+        .btn-reset-filter {
+            color: #fc544b;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        .btn-reset-filter:hover {
+            background-color: #ffe5e5;
+    }
     </style>
 @endpush
 
@@ -35,11 +79,50 @@
             </div>
                 <div class="card">
                     <div class="card-header">
-                        <h4>Data Monitoring Indikator Kinerja dari Prodi: 
-                            <span class="badge badge-info">{{ optional($monitoringiku->prodi)->nama_prodi ?? 'N/A' }}</span> 
-                            Tahun: <span class="badge badge-primary">{{ optional($monitoringiku->tahunKerja)->th_tahun ?? 'N/A' }}</span>
-                        </h4>
-                    </div>
+                        <div class="row w-100 align-items-center justify-content-between m-0">
+                            <div class="col-md-7 col-12 p-0 mb-2 mb-md-0">
+                                <h4 class="m-0" style="font-size: 1.1rem; line-height: 1.5;">
+                                    Data Monitoring Prodi : 
+                                    <span class="badge badge-info shadow-sm mx-1">
+                                        {{ optional($monitoringiku->prodi)->nama_prodi ?? 'N/A' }}
+                                    </span> 
+                                    Tahun : 
+                                    <span class="badge badge-primary shadow-sm mx-1">
+                                        {{ optional($monitoringiku->tahunKerja)->th_tahun ?? 'N/A' }}
+                                    </span>
+                                </h4>
+                            </div>
+                            @if(Auth::user()->role === 'admin')
+                                <div class="card-header-action">
+                                    <form method="GET" action="{{ route('monitoringiku.create-detail', $monitoringiku->mti_id) }}">
+                                        
+                                        <div class="filter-capsule">
+                                            <i class="fa-solid fa-filter text-muted mr-2"></i>
+                                            <div style="flex-grow: 1;">
+                                                <select class="form-control select2" name="unit_kerja" onchange="this.form.submit()">
+                                                    <option value="">Filter Unit Kerja...</option>
+                                                    @foreach($unitKerjas as $unit)
+                                                        <option value="{{ $unit->unit_id }}" {{ $selectedUnit == $unit->unit_id ? 'selected' : '' }}>
+                                                            {{ $unit->unit_nama }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            @if($selectedUnit)
+                                                <div class="border-left ml-2 pl-2">
+                                                    <a href="{{ route('monitoringiku.create-detail', $monitoringiku->mti_id) }}" 
+                                                    class="btn-reset-filter" 
+                                                    title="Hapus Filter">
+                                                        <i class="fa-solid fa-times"></i>
+                                                    </a>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </form>
+                                </div>
+                            @endif
+                        </div>
+                    </div>  
                     <div class="card-body">
                         <form action="{{ route('monitoringiku.store-detail', ['mti_id' => $monitoringiku->mti_id]) }}" method="POST">
                             @csrf
@@ -82,28 +165,21 @@
                                         
                                         @foreach ($targetIndikator as $indikator)
                                             @php
-                                                // Mengambil detail berdasarkan ti_id (menggunakan keyBy dari controller lebih efisien, tapi cara ini juga jalan)
                                                 $detail = $monitoringikuDetail->get($indikator->ti_id); 
                                                 
                                                 $indikatorKinerja = optional($indikator->indikatorKinerja);
                                                 $idx = $loop->index;
                                                 
-                                                // Ambil nilai baseline dan target
                                                 $baselineValue = optional($indikator->baselineTahun)->baseline;
                                                 $targetValue   = $indikator->ti_target;                                                
                                                 $isTargetMissing = ($targetValue === null || trim((string)$targetValue) === '');
                                                 $isBaselineMissing = ($baselineValue === null || trim((string)$baselineValue) === '');
 
-                                                // Kunci form jika Baseline ATAU Target kosong.
                                                 $isLocked = $isTargetMissing || $isBaselineMissing;
 
-                                                // Ambil data lama (old input) atau data dari database
                                                 $capaianRaw = $detail->mtid_capaian ?? '';
                                                 $capaianValue = old("mtid_capaian.$idx", $capaianRaw);
 
-                                                // --- PERBAIKAN DISINI ---
-                                                // Jika jenisnya 'persentase' dan ada simbol '%', kita hapus dulu simbolnya
-                                                // agar bisa terbaca oleh <input type="number">
                                                 if (strtolower($indikatorKinerja->ik_ketercapaian) === 'persentase' && !empty($capaianValue)) {
                                                     $capaianValue = str_replace('%', '', $capaianValue);
                                                 }
@@ -111,7 +187,6 @@
                                             <tr>
                                                 <td class="text-center">{{ $no++ }}</td>
 
-                                                {{-- Kolom Indikator --}}
                                                 @if($isAdmin)
                                                     <td class="text-justify">
                                                         {{ $indikatorKinerja->ik_kode ?? 'N/A' }} - {{ $indikatorKinerja->ik_nama ?? 'N/A' }}
@@ -122,11 +197,9 @@
                                                     </td>
                                                 @endif
 
-                                                {{-- Kolom Baseline & Target --}}
                                                 <td class="text-center">{{ $baselineValue !== null && $baselineValue !== '' ? $baselineValue : '-' }}</td>
                                                 <td class="text-center">{{ $targetValue !== null && $targetValue !== '' ? $targetValue : '-' }}</td>
 
-                                                {{-- Kolom Jenis Ketercapaian --}}
                                                 <td>
                                                     <div class="input-group">
                                                         <div class="input-group-prepend">
@@ -148,7 +221,6 @@
                                                         </div>
                                                         <input type="text" class="form-control text-capitalize"
                                                             value="{{ $indikatorKinerja->ik_ketercapaian ?? '-' }}" readonly>
-                                                        {{-- Hidden input untuk jenis ketercapaian --}}
                                                         <input type="hidden" name="mtid_ketercapaian[{{ $idx }}]"
                                                             value="{{ $indikatorKinerja->ik_ketercapaian }}">
                                                     </div>
@@ -162,10 +234,8 @@
                                                             value="{{ old("mtid_url.$idx", $detail->mtid_url ?? '') }}" readonly>
                                                     </td>
                                                     <td>
-                                                        {{-- ID Indikator wajib dikirim --}}
                                                         <input type="hidden" name="ti_id[{{ $idx }}]" value="{{ $indikator->ti_id }}">
 
-                                                        {{-- Tampilan Capaian (Read Only untuk Admin) --}}
                                                         @if(in_array(strtolower($indikatorKinerja->ik_ketercapaian), ['nilai', 'persentase']))
                                                             <input type="number" class="form-control" style="max-width:150px"
                                                                 name="mtid_capaian[{{ $idx }}]" step="any"
@@ -188,7 +258,6 @@
                                                             name="mtid_keterangan[{{ $idx }}]" readonly>{{ old("mtid_keterangan.$idx", $detail->mtid_keterangan ?? '') }}</textarea>
                                                     </td>
                                                     
-                                                    {{-- Form Evaluasi Admin (Aktif hanya jika capaian sudah diisi user) --}}
                                                     <td>
                                                         <textarea class="form-control" rows="3" style="max-width:200px"
                                                             name="mtid_evaluasi[{{ $idx }}]"
@@ -208,11 +277,9 @@
                                                     </td>
 
                                                 @else
-                                                    {{-- AREA USER (PRODI/UNIT) --}}
                                                     <td>
                                                         <input type="hidden" name="ti_id[{{ $idx }}]" value="{{ $indikator->ti_id }}">
 
-                                                        {{-- INPUT CAPAIAN --}}
                                                         @if(in_array(strtolower($indikatorKinerja->ik_ketercapaian), ['nilai', 'persentase']))
                                                             <input type="number" class="form-control" style="max-width:150px"
                                                                 name="mtid_capaian[{{ $idx }}]" step="any"
@@ -226,13 +293,11 @@
                                                                 <option value="draft" {{ $capaianValue == 'draft' ? 'selected' : '' }}>Draft</option>
                                                             </select>
                                                             
-                                                            {{-- FIX UTAMA: Jika disabled, kirim value ASLI (bukan kosong) agar data tidak hilang --}}
                                                             @if($isLocked)
                                                                 <input type="hidden" name="mtid_capaian[{{ $idx }}]" value="{{ $capaianValue }}">
                                                             @endif
 
                                                         @else
-                                                            {{-- Rasio / Lainnya --}}
                                                             <input type="text" class="form-control" style="max-width:100px"
                                                                 name="mtid_capaian[{{ $idx }}]" value="{{ $capaianValue }}"
                                                                 @if($isLocked) readonly @endif>

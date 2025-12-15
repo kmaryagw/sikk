@@ -174,7 +174,7 @@
                                 
                                 <!-- TAB 1: EDIT BIODATA -->
                                 <div class="tab-pane fade show active" id="biodata" role="tabpanel" aria-labelledby="bio-tab">
-                                    <form method="POST" action="{{ route('profile.update') }}" id="profileForm">
+                                    <form method="POST" action="{{ route('profile.update') }}" id="profileForm" class="no-loader">
                                         @csrf
                                         @method('PUT')
                                         
@@ -233,7 +233,7 @@
 
                                 <!-- TAB 2: KEAMANAN / PASSWORD -->
                                 <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
-                                    <form id="securityForm">
+                                    <form id="securityForm" class="no-loader">
                                         @csrf
                                         <input type="hidden" name="_method" value="PUT">
                                         

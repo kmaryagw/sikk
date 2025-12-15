@@ -41,8 +41,7 @@
                         <i class="fas fa-bullhorn"></i> Pengumuman
                     </a> --}}
                     <div class="dropdown-divider"></div>
-                    <a href="{{ route('logout') }}" class="dropdown-item has-icon text-danger"
-                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <a href="#" class="dropdown-item has-icon text-danger" id="logout-link">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a>
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
@@ -57,4 +56,28 @@
             </li>
         @endif
     </ul>
+
+@push('scripts')
+    <script>
+        document.getElementById('logout-link').addEventListener('click', function(e) {
+            e.preventDefault();
+
+            Swal.fire({
+                title: 'Yakin ingin keluar?',
+                text: "Sesi Anda akan berakhir!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ED3500',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Keluar!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('logout-form').submit();
+                }
+            });
+        });
+    </script>
+@endpush
+
 </nav>

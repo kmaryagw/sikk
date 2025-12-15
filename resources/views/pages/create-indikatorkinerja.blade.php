@@ -6,6 +6,34 @@
     <!-- CSS Libraries -->
     <link rel="stylesheet" href="{{ asset('library/bootstrap-daterangepicker/daterangepicker.css') }}">
     <link rel="stylesheet" href="{{ asset('library/select2/dist/css/select2.min.css') }}">
+
+    <style>
+        /* Memastikan Select2 mengisi lebar penuh di dalam input-group */
+        .input-group > .select2-container--default {
+            width: auto !important;
+            flex: 1 1 auto;
+        }
+
+        /* Memastikan height dan border menyatu dengan ikon */
+        .input-group > .select2-container--default .select2-selection--multiple {
+            height: auto;
+            min-height: 38px; /* Tinggi standar input Bootstrap 4 */
+            border: 1px solid #ced4da;
+            border-radius: 0 0.25rem 0.25rem 0 !important; /* Hilangkan radius kiri agar nempel sama ikon */
+        }
+
+        /* Menangani fokus agar border menjadi biru seperti input bootstrap */
+        .input-group > .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        
+        /* Agar ikon mengikuti tinggi input jika pilihannya banyak (multiline) */
+        .input-group-text {
+            height: 100%; 
+        }
+    </style>
 @endpush
 
 @section('main')
@@ -116,10 +144,11 @@
                                         <label for="unit_id">Unit Kerja Penanggung Jawab</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
-                                                <div class="input-group-text">
+                                                <span class="input-group-text">
                                                     <i class="fas fa-building"></i>
-                                                </div>
+                                                </span>
                                             </div>
+                                            
                                             <select id="unit_id" name="unit_id[]" class="form-control select2" multiple required>
                                                 <option value="" disabled>Pilih Unit Kerja</option>
                                                 @foreach ($unitKerjas as $unit)
@@ -131,7 +160,6 @@
                                             </select>
                                         </div>
                                     </div>
-
                                     <div class="form-group">
                                         <label for="ik_jenis">Jenis Indikator Kinerja</label>
                                         <div class="input-group">
@@ -225,109 +253,13 @@
 
     <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>
-    {{-- <script>
-        function updateBaselinePlaceholder() {
-            const ketercapaian = document.getElementById('ik_ketercapaian').value;
-            const baselineInput = document.getElementById('ik_baseline');
-            const tibaselineHint = document.getElementById("ti_baseline_hint");
-
-            if (ketercapaian === 'nilai') {
-                baselineInput.placeholder = 'Menggunakan Ketercapaian Nilai';
-                tibaselineHint.textContent = "Isi dengan angka (contoh: 1.1, 1.2)";
-                baselineInput.type = 'number';
-                baselineInput.min = 0;
-                baselineInput.step = '0.1';
-            } else if (ketercapaian === 'persentase') {
-                baselineInput.placeholder = 'Menggunakan Ketercapaian Persentase';
-                tibaselineHint.textContent = "Isi dengan angka 1-100%";
-                baselineInput.type = 'number';
-                baselineInput.min = 0;
-                baselineInput.max = 100;
-                baselineInput.step = '1';
-            } else if (ketercapaian === 'ketersediaan') {
-                baselineInput.placeholder = 'Menggunakan Ketercapaian Ketersediaan';
-                tibaselineHint.textContent = 'Isi dengan "ada" atau "draft"';
-                baselineInput.type = 'text';
-                baselineInput.removeAttribute('min');
-                baselineInput.removeAttribute('max');
-                baselineInput.removeAttribute('step');
-            } else if (ketercapaian === 'rasio') {
-                baselineInput.placeholder = 'Menggunakan Ketercapaian Rasio';
-                tibaselineHint.textContent = "Isi dengan rasio (contoh: 1:20, 1:25)";
-                baselineInput.type = 'text';
-                baselineInput.removeAttribute('min');
-                baselineInput.removeAttribute('max');
-                baselineInput.removeAttribute('step');
-            }
-        }
-    </script>
-
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const ketercapaianSelect = document.getElementById('ik_ketercapaian');
-            const baselineContainer = document.querySelector('#ik_baseline').parentNode;
-            let baselineInput = document.getElementById('ik_baseline');
-
-            function createSelectBaseline() {
-                const select = document.createElement('select');
-                select.name = 'ik_baseline';
-                select.id = 'ik_baseline';
-                select.className = baselineInput.className;
-
-                const options = ['ada', 'draft'];
-                options.forEach(opt => {
-                    const option = document.createElement('option');
-                    option.value = opt;
-                    option.textContent = opt;
-                    select.appendChild(option);
-                });
-
-                baselineContainer.replaceChild(select, baselineInput);
-                baselineInput = select;
-            }
-
-            function createNumberBaseline(min, max = null) {
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.name = 'ik_baseline';
-                input.id = 'ik_baseline';
-                input.className = baselineInput.className;
-                input.min = min;
-                input.step = 1;
-                if (max !== null) input.max = max;
-                input.value = "{{ old('ik_baseline') }}";
-                baselineContainer.replaceChild(input, baselineInput);
-                baselineInput = input;
-            }
-
-            function createTextBaseline(placeholder = '') {
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.name = 'ik_baseline';
-                input.id = 'ik_baseline';
-                input.className = baselineInput.className;
-                input.placeholder = placeholder;
-                input.value = "{{ old('ik_baseline') }}";
-                baselineContainer.replaceChild(input, baselineInput);
-                baselineInput = input;
-            }
-
-            function updateBaselineField() {
-                const type = ketercapaianSelect.value.toLowerCase();
-
-                if (type === 'nilai') {
-                    createNumberBaseline(0);
-                } else if (type === 'persentase') {
-                    createNumberBaseline(0, 100);
-                } else if (type === 'ketersediaan') {
-                    createSelectBaseline();
-                } else if (type === 'rasio') {
-                    createTextBaseline('contoh: 1:20');
-                }
-            }
-
-            ketercapaianSelect.addEventListener('change', updateBaselineField);
-            updateBaselineField(); // initial load
+        $(document).ready(function() {
+            $('#unit_id').select2({
+                placeholder: "Pilih Unit Kerja",
+                allowClear: true,
+                width: 'resolve' // atau '100%' jika CSS di atas sudah dipasang
+            });
         });
-    </script> --}}
+    </script>
 @endpush

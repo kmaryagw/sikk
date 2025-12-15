@@ -63,14 +63,20 @@
                     $indikator = trim($ik_kode ? ($ik_kode . ' - ' . $ik_nama) : $ik_nama);
                     $ketercapaian = strtolower(optional($item->indikatorKinerja)->ik_ketercapaian ?? '');
 
-                    // --- LOGIKA BASELINE (PORTING DARI WEB) ---
-                    $baselineRaw = trim((string) (data_get($item->baselineTahun, 'baseline') ?? data_get($item->baselineTahun, '0.baseline') ?? '0'));
+                    // --- LOGIKA BASELINE (PERBAIKAN) ---
+                    // Kita ambil dari atribut 'fetched_baseline' yang kita buat di controller
+                    $baselineRaw = trim((string) ($item->fetched_baseline ?? '0')); 
+                    
                     $cleanNumBase = str_replace(['%', ' '], '', $baselineRaw);
                     
                     // Format Tampilan Baseline
                     $baselineDisplay = $baselineRaw;
+                    
                     if ($ketercapaian === 'persentase' && is_numeric($cleanNumBase)) {
-                        $baselineDisplay = $cleanNumBase . '%';
+                        // Cek jika baselineRaw sudah mengandung %, jika tidak tambahkan
+                        if (strpos($baselineRaw, '%') === false) {
+                            $baselineDisplay = $cleanNumBase . '%';
+                        }
                     } elseif ($ketercapaian === 'rasio') {
                         // Format Rasio x:y
                         $cleaned = preg_replace('/\s*/', '', $baselineRaw);
@@ -79,9 +85,8 @@
                             $baselineDisplay = "{$a} : {$b}";
                         }
                     } elseif (in_array(strtolower($baselineRaw), ['ada', 'draft'])) {
-                        $baselineDisplay = ucfirst($baselineRaw); // Menjadi "Ada" atau "Draft"
+                        $baselineDisplay = ucfirst($baselineRaw); 
                     }
-
                     // --- LOGIKA TARGET ---
                     $targetRaw = trim($item->ti_target);
                     $cleanNumTarget = str_replace(['%', ' '], '', $targetRaw);

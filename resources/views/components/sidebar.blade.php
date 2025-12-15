@@ -206,6 +206,14 @@
             </li>
             @endif
 
+            @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi' || Auth::user()->role == 'unit kerja' || Auth::user()->role == 'fakultas')
+            <li class="{{ $type_menu === 'hasil-monitoring' ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('hasil.monitoring') }}">
+                    <i class="fa-solid fa-chart-line"></i> <span>Hasil Monitoring</span>
+                </a>
+            </li>
+            @endif
+
             {{-- @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi' || Auth::user()->role == 'unit kerja' || Auth::user()->role == 'fakultas')
              <li class="nav-item dropdown {{ $type_menu === 'laporan' ? 'active' : '' }}">
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fa-solid fa-file-alt"></i> <span>Laporan</span></a>

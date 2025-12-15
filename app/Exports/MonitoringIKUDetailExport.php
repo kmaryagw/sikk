@@ -2,108 +2,131 @@
 
 namespace App\Exports;
 
-use App\Models\MonitoringIKU;
-use App\Models\target_indikator;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Illuminate\Support\Collection;
 
 class MonitoringIKUDetailExport implements FromCollection, WithHeadings, ShouldAutoSize, WithStyles
 {
-    protected $mti_id;
+    protected $data;
     protected $type;
-    protected $unit_kerja_id; 
 
-    public function __construct($mti_id, $type, $unit_kerja_id = null)
+    public function __construct($data, $type)
     {
-        $this->mti_id = $mti_id;
-        $this->type   = $type;
-        $this->unit_kerja_id = $unit_kerja_id;
+        $this->data = $data;
+        $this->type = $type;
     }
 
     public function collection()
     {
-        $monitoring = MonitoringIKU::findOrFail($this->mti_id);
+        return $this->data->map(function ($item, $index) {
+            
+            // Helper string aman
+            $safeString = function($value) {
+                if (is_array($value) || is_object($value)) return ''; 
+                return trim((string) $value);
+            };
 
-        // Perbaikan 1: 'indikatorKinerja.unitKerja' (sesuai nama fungsi di model Anda)
-        $query = target_indikator::with([
-                'indikatorKinerja.unitKerja', 
-                'baselineTahun',
-                'monitoringDetail'
-            ])
-            ->where('prodi_id', $monitoring->prodi_id)
-            ->where('th_id', $monitoring->th_id);
+            $ik_kode = $safeString(optional($item->indikatorKinerja)->ik_kode);
+            $ik_nama = $safeString(optional($item->indikatorKinerja)->ik_nama);
+            $indikator = $ik_kode ? ($ik_kode . ' - ' . $ik_nama) : $ik_nama;
+            
+            $ketercapaian = strtolower($safeString(optional($item->indikatorKinerja)->ik_ketercapaian));
 
-        // Perbaikan 2: Filter menggunakan 'unitKerja'
-        if (!empty($this->unit_kerja_id)) {
-            $query->whereHas('indikatorKinerja.unitKerja', function($q) {
-                // Pastikan nama tabel pivot benar sesuai database
-                $q->where('indikatorkinerja_unitkerja.unit_id', $this->unit_kerja_id);
-            });
-        }
+            $baselineRaw = $safeString($item->fetched_baseline);
+            $cleanNumBase = str_replace(['%', ' '], '', $baselineRaw);
+            $baselineDisplay = $baselineRaw;
 
-        $indikators = $query->orderBy('ti_id')->get();
-
-        return $indikators->map(function ($item, $index) {
-            $ik_kode = optional($item->indikatorKinerja)->ik_kode ?? '';
-            $ik_nama = optional($item->indikatorKinerja)->ik_nama ?? '';
-            $indikator = trim($ik_kode ? ($ik_kode . ' - ' . $ik_nama) : $ik_nama);
-
-            $baseline = data_get($item->baselineTahun, 'baseline')
-                     ?? data_get($item->baselineTahun, '0.baseline')
-                     ?? '';
-
-            $target = $item->ti_target ?? '';
-            $detail = $item->monitoringDetail ?? null;
-
-            $capaian     = $detail->mtid_capaian ?? '';
-            $url         = $detail->mtid_url ?? '';
-            $status      = $detail->mtid_status ?? '';
-            $keterangan  = $detail->mtid_keterangan ?? '';
-            $evaluasi    = $detail->mtid_evaluasi ?? '';
-            $tindak      = $detail->mtid_tindaklanjut ?? '';
-            $peningkatan = $detail->mtid_peningkatan ?? '';
-
-            switch ($this->type) {
-                case 'penetapan':
-                    return [$index+1, $indikator, $baseline, $target];
-                case 'pelaksanaan':
-                    return [$index+1, $indikator, $baseline, $target, $capaian, $url];
-                case 'evaluasi':
-                    return [$index+1, $indikator, $baseline, $target, $capaian, $url, $status];
-                case 'pengendalian':
-                    return [$index+1, $indikator, $baseline, $target, $capaian, $url, $status, $keterangan, $evaluasi, $tindak];
-                case 'peningkatan':
-                default:
-                    return [$index+1, $indikator, $baseline, $target, $capaian, $url, $status, $keterangan, $evaluasi, $tindak, $peningkatan];
+            if ($ketercapaian === 'persentase' && is_numeric($cleanNumBase)) {
+                if (strpos($baselineRaw, '%') === false && $baselineRaw !== '') {
+                     $baselineDisplay = $cleanNumBase . '%';
+                }
+            } elseif ($ketercapaian === 'rasio') {
+                $cleaned = preg_replace('/\s*/', '', $baselineRaw);
+                if (preg_match('/^\d+:\d+$/', $cleaned)) {
+                    [$a, $b] = explode(':', $cleaned);
+                    $baselineDisplay = "{$a} : {$b}";
+                }
+            } elseif (in_array(strtolower($baselineRaw), ['ada', 'draft'])) {
+                $baselineDisplay = ucfirst($baselineRaw); 
             }
+
+            $targetRaw = $safeString($item->ti_target);
+            $cleanNumTarget = str_replace(['%', ' '], '', $targetRaw);
+            $targetDisplay = $targetRaw;
+            
+            if ($ketercapaian === 'persentase' && is_numeric($cleanNumTarget) && $targetRaw !== '') {
+                 if (strpos($targetRaw, '%') === false) {
+                     $targetDisplay = $cleanNumTarget . '%';
+                 }
+            }
+
+            $detail = $item->monitoringDetail;
+            if ($detail instanceof \Illuminate\Support\Collection) {
+                $detail = $detail->first();
+            }
+
+            $capaian     = $detail ? $safeString($detail->mtid_capaian) : '';
+            $url         = $detail ? $safeString($detail->mtid_url) : '';
+            $status      = $detail ? ucfirst($safeString($detail->mtid_status)) : '';
+            $keterangan  = $detail ? $safeString($detail->mtid_keterangan) : '';
+            $evaluasi    = $detail ? $safeString($detail->mtid_evaluasi) : '';
+            $tindak      = $detail ? $safeString($detail->mtid_tindaklanjut) : '';
+            $peningkatan = $detail ? $safeString($detail->mtid_peningkatan) : '';
+
+            $row = [(string)($index+1), $indikator, $baselineDisplay, $targetDisplay];
+
+            if (in_array($this->type, ['pelaksanaan', 'evaluasi', 'pengendalian', 'peningkatan'])) {
+                $row[] = $capaian;
+                $row[] = $url;
+            }
+            if (in_array($this->type, ['evaluasi', 'pengendalian', 'peningkatan'])) {
+                $row[] = $status;
+            }
+            if (in_array($this->type, ['pengendalian', 'peningkatan'])) {
+                $row[] = $keterangan;
+                $row[] = $evaluasi;
+                $row[] = $tindak;
+            }
+            if ($this->type == 'peningkatan') {
+                $row[] = $peningkatan;
+            }
+
+            return $row;
         });
     }
 
     public function headings(): array
     {
-        switch ($this->type) {
-            case 'penetapan':
-                return ['No', 'Indikator Kinerja', 'Baseline', 'Target'];
-            case 'pelaksanaan':
-                return ['No', 'Indikator Kinerja', 'Baseline', 'Target', 'Capaian', 'URL'];
-            case 'evaluasi':
-                return ['No', 'Indikator Kinerja', 'Baseline', 'Target', 'Capaian', 'URL', 'Status'];
-            case 'pengendalian':
-                return ['No', 'Indikator Kinerja', 'Baseline', 'Target', 'Capaian', 'URL', 'Status', 'Keterangan', 'Evaluasi', 'Tindak Lanjut'];
-            case 'peningkatan':
-            default:
-                return ['No', 'Indikator Kinerja', 'Baseline', 'Target', 'Capaian', 'URL', 'Status', 'Keterangan', 'Evaluasi', 'Tindak Lanjut', 'Peningkatan'];
+        $headers = ['No', 'Indikator Kinerja', 'Baseline', 'Target'];
+
+        if (in_array($this->type, ['pelaksanaan', 'evaluasi', 'pengendalian', 'peningkatan'])) {
+            array_push($headers, 'Capaian', 'URL');
         }
+        if (in_array($this->type, ['evaluasi', 'pengendalian', 'peningkatan'])) {
+            array_push($headers, 'Status');
+        }
+        if (in_array($this->type, ['pengendalian', 'peningkatan'])) {
+            array_push($headers, 'Keterangan', 'Evaluasi', 'Tindak Lanjut');
+        }
+        if ($this->type == 'peningkatan') {
+            array_push($headers, 'Peningkatan');
+        }
+
+        return $headers;
     }
 
     public function styles(Worksheet $sheet)
     {
         $sheet->getStyle('A:K')->getAlignment()->setWrapText(true);
         $sheet->getStyle('A:K')->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+        
         $sheet->getStyle('A')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('C')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('D')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         $sheet->getStyle('A1:' . $sheet->getHighestColumn() . $sheet->getHighestRow())
               ->getBorders()->getAllBorders()
@@ -121,19 +144,12 @@ class MonitoringIKUDetailExport implements FromCollection, WithHeadings, ShouldA
         foreach (range(1, $sheet->getHighestRow()) as $row) {
             $sheet->getRowDimension($row)->setRowHeight(-1);
         }
-
+        
         $sheet->getColumnDimension('A')->setWidth(5);
-        $sheet->getColumnDimension('B')->setWidth(40);
-        $sheet->getColumnDimension('C')->setWidth(10);
-        $sheet->getColumnDimension('D')->setWidth(10);
-        $sheet->getColumnDimension('E')->setWidth(10);
-        $sheet->getColumnDimension('F')->setWidth(15);
-        $sheet->getColumnDimension('G')->setWidth(15);
-        $sheet->getColumnDimension('H')->setWidth(20);
-        $sheet->getColumnDimension('I')->setWidth(20);
-        $sheet->getColumnDimension('J')->setWidth(20);
-        $sheet->getColumnDimension('K')->setWidth(20);
-
+        $sheet->getColumnDimension('B')->setWidth(20);
+        $sheet->getColumnDimension('C')->setWidth(15);
+        $sheet->getColumnDimension('D')->setWidth(15);
+        
         return [];
     }
 }

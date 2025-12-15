@@ -39,7 +39,7 @@
             <h1>
                 Log untuk <span class="text-primary">Prodi {{ $Monitoringiku->prodi->nama_prodi }}</span> 
                 &mdash; 
-                <span>Tahun: {{ $Monitoringiku->tahunKerja->th_tahun }}</span>
+                <span>Tahun : {{ $Monitoringiku->tahunKerja->th_tahun }}</span>
             </h1>
             <div class="section-header-breadcrumb">
                 <a href="{{ route('pages.index-history-monitoring') }}" class="btn btn-danger btn-icon icon-left">

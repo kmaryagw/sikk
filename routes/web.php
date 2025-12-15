@@ -171,6 +171,8 @@ Route::middleware('auth')->group(function () {
         ->name('monitoringiku.history');
     });
 
+    Route::get('/hasil-monitoring', [App\Http\Controllers\HasilMonitoringController::class, 'index'])->name('hasil.monitoring');
+
     Route::put('/tahun/{id}/toggle-lock', [App\Http\Controllers\TahunController::class, 'toggleLock'])
     ->name('tahun.toggle-lock');
 
@@ -181,9 +183,12 @@ Route::middleware('auth')->group(function () {
     // Route::post('/monitoring/batal-final/{unit_id}', [MonitoringIKUController::class, 'batalFinal'])
     // ->name('monitoring.batalFinal')
     // ->middleware('auth');
-    Route::post('/monitoring/batal-final/{unit_id}', [MonitoringIKUController::class, 'cancelFinalizeByAdmin'])
-    ->name('monitoringiku.cancelFinalizeByAdmin')
-    ->middleware('auth');
+    // Route untuk membatalkan finalisasi Unit dari Dashboard
+    Route::post('/monitoring/batal-final/{unit_id}', [App\Http\Controllers\MonitoringIKUController::class, 'batalFinalUnitDashboard'])
+        ->name('monitoring.batal-final-dashboard');
+        
+    Route::post('/monitoring/batal-final-spesifik', [App\Http\Controllers\MonitoringIKUController::class, 'batalFinalSpesifik'])
+    ->name('monitoring.batal-final-spesifik');    
 
 
 

@@ -15,7 +15,7 @@
         }
 
         .table-responsive {
-        max-height: 50rem;  
+        max-height: 31rem;  
         overflow-y: auto;    
         }
 
@@ -50,7 +50,7 @@
                         @if (Auth::user()->role == 'admin')
                             {{-- Tombol Export PDF --}}
                             <div class="dropdown mr-3">
-                                <button class="btn btn-danger btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <button class="btn btn-danger btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" target="_blank">
                                     <i class="fa-solid fa-file-pdf"></i> Export PDF
                                 </button>
                                 <ul class="dropdown-menu">
@@ -98,7 +98,7 @@
                             </div>
 
                             {{-- Tombol Export Excel --}}
-                            <div class="dropdown mr-3">
+                            <div class="dropdown mr-3 no-loader">
                                 <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fa-solid fa-file-excel"></i> Export Excel
                                 </button>
@@ -182,9 +182,13 @@
                     </div>
                 </form>
 
-                @if (Auth::user()->role == 'unit kerja' || Auth::user()->role == 'admin')
+                @if ( Auth::user()->role == 'admin')
                     <a class="btn btn-primary" href="{{ route('monitoringiku.create-detail', ['mti_id' => $Monitoringiku->mti_id]) }}">
                         <i class="fa-solid fa-plus"></i> Isi Monitoring
+                    </a>
+                @elseif ( Auth::user()->role == 'unit kerja')
+                    <a class="btn btn-primary" href="{{ route('monitoringiku.create-detail', ['mti_id' => $Monitoringiku->mti_id]) }}">
+                        <i class="fa-solid fa-plus"></i> Isi Capaian
                     </a>
                 @endif           
             </div>
@@ -202,7 +206,7 @@
                             <th style="width: 29%;">Indikator Kinerja</th>
                             <th style="width: 5%;">Baseline</th>
                             <th>Target</th>
-                            @if (Auth::user()->role == 'admin')
+                            @if (Auth::user()->role == 'admin' || Auth::user()->role == 'fakultas')
                                 <th>Capaian</th>
                                 <th style="width: 10%;">URL</th>
                                 <th>Status</th>
@@ -210,6 +214,7 @@
                                 <th style="width: 15%;">Evaluasi</th>
                                 <th style="width: 15%;">Tindak Lanjut</th>
                                 <th style="width: 15%;">Peningkatan</th>
+                            @elseif (Auth::user()->role == 'admin')
                                 <th style="width: 10%;">Aksi</th>
                             @elseif (Auth::user()->role == 'unit kerja')    
                                 <th>Capaian</th>
@@ -547,7 +552,7 @@
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title">
-                                        Keterangan - <span id="modalIndikatorNama"></span>
+                                        <span id="modalIndikatorNama"></span>
                                     </h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true"></span>

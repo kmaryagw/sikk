@@ -37,7 +37,7 @@ class UserController extends Controller
                 $user->status = 1;
                 $user->save();
 
-                $nama = $user->name ?? $user->username;
+                $nama = $user->name ?? $user->username; 
 
                 if ($user->role === 'admin') {
                     $nama = 'Admin';
@@ -50,8 +50,11 @@ class UserController extends Controller
                 }
 
                 Alert::success('Sukses', 'Selamat Datang, ' . $nama);
-                return redirect()->route('dashboard');
+
+                return redirect()->route('dashboard')->with('from_login', true);
+
             } else {
+                Auth::logout();
                 Alert::error('Error', 'Username Tidak Valid!');
                 return back();
             }
@@ -81,13 +84,13 @@ class UserController extends Controller
         if ($user instanceof User) {
             $user->status = 0;
             $user->save();
-        } else {
-            return redirect('/')->withErrors(['logout' => 'Tidak ada pengguna yang sedang login.']);
         }
 
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
+        Alert::success('Sampai Jumpa!', 'Hati-hati di jalan 👋');
 
         return redirect('/');
     }

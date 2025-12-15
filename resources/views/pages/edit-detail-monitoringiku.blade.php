@@ -35,7 +35,7 @@
                                 <!-- Card 1: Informasi Utama -->
                                 <div class="card mb-3">
                                     <div class="card-body">
-                                        <h4 class="text-danger mb-3">Data Target Capaian</h4>
+                                        <h4 class="text-danger mb-3">Data Target Indikator</h4>
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">

@@ -12,18 +12,15 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
 
     <style>
-        /* CSS UTAMA: Rata Tengah Vertikal & Horizontal */
         .table td, .table th {
-            vertical-align: middle !important; /* Rata tengah vertikal */
-            text-align: center !important;     /* Rata tengah horizontal */
+            vertical-align: middle !important;
+            text-align: center !important;     
         }
 
-        /* PENGECUALIAN: Agar kolom Indikator yang panjang tetap rapi rata kiri */
         .table td.text-left {
             text-align: left !important;
         }
 
-        /* Style tambahan untuk Header DataTables agar ikon sorting pas */
         table.dataTable thead .sorting:before, 
         table.dataTable thead .sorting_asc:before, 
         table.dataTable thead .sorting_desc:before, 
@@ -33,7 +30,6 @@
             bottom: 0.8em; 
         }
         
-        /* Menghilangkan border bawah pada info datatables */
         .dataTables_info {
             padding: 1rem;
             font-weight: 600;
@@ -174,7 +170,7 @@
                                 
                                 @elseif ($ketercapaian === 'rasio')
                                     @php
-                                        $formattedRasio = $targetRaw; // Default tampilkan apa adanya
+                                        $formattedRasio = $targetRaw;
                                         $cleaned = preg_replace('/\s*/', '', $targetRaw);
                                         if (preg_match('/^\d+:\d+$/', $cleaned)) {
                                             [$left, $right] = explode(':', $cleaned);

@@ -206,7 +206,7 @@ class IndikatorKinerjaController extends Controller
     {
         $validationRules = [
             'ik_kode'         => 'required|string|max:255',
-            'ik_nama'         => 'required|string|max:255',
+            'ik_nama'         => 'required|string|max:500',
             'std_id'          => 'required|string',
             'ik_jenis'        => 'required|in:IKU,IKT,IKU/IKT',
             'ik_is_aktif'     => 'required|in:y,n',
@@ -217,7 +217,6 @@ class IndikatorKinerjaController extends Controller
 
         $validatedData = $request->validate($validationRules);
 
-        // Update data utama indikator
         $indikatorkinerja->update([
             'ik_kode'         => $validatedData['ik_kode'],
             'ik_nama'         => $validatedData['ik_nama'],
@@ -227,7 +226,6 @@ class IndikatorKinerjaController extends Controller
             'ik_is_aktif'     => $validatedData['ik_is_aktif'],
         ]);
 
-        // Sinkronisasi unit kerja (many-to-many)
         $indikatorkinerja->unitKerja()->sync($validatedData['unit_id']);
 
         Alert::success('Sukses', 'Data Berhasil Diubah');

@@ -189,6 +189,7 @@
                                                 <td>{{ $row->tidak_tercapai }}</td>
                                                 <td>{{ $row->tidak_terlaksana }}</td>
                                                 <td>{{ $row->persentase_tuntas }}%</td>
+                                                
                                                 <td>
                                                     @php
                                                         $mainBtnClass = 'btn-primary';
@@ -199,15 +200,15 @@
                                                             $mainBtnClass = 'btn-success'; 
                                                             $mainBtnText = 'Semua Sudah Final';
                                                             $mainIcon = 'fa-check-double';
-                                                        } elseif($row->status_global === 'sebagian') {
+                                                        } 
+                                                        elseif($row->status_global === 'sebagian') {
                                                             $mainBtnClass = 'btn-warning text-dark';
-                                                            $mainBtnText = 'Lihat Finalisasi';
+                                                            $mainBtnText = 'Proses Finalisasi';
                                                             $mainIcon = 'fa-spinner';
                                                         }
                                                     @endphp
 
                                                     <div class="dropdown">
-                                                        {{-- Tombol Pemicu Dropdown --}}
                                                         <button class="btn btn-sm dropdown-toggle {{ $mainBtnClass }}" 
                                                                 type="button" 
                                                                 data-toggle="dropdown"
@@ -215,35 +216,44 @@
                                                             <i class="fa-solid {{ $mainIcon }} me-1"></i> {{ $mainBtnText }}
                                                         </button>
 
-                                                        {{-- Daftar Prodi dalam Dropdown --}}
-                                                        <ul class="dropdown-menu shadow p-0" style="min-width: 250px; overflow: hidden;">
+                                                        <ul class="dropdown-menu shadow p-0" style="min-width: 320px; overflow: hidden;">
                                                             <li>
                                                                 <div class="dropdown-header bg-light border-bottom fw-bold text-center">
-                                                                    Status per Program Studi
+                                                                    Status Validasi per Program Studi
                                                                 </div>
                                                             </li>
 
                                                             @foreach($row->detail_finalisasi as $dtl)
-                                                                {{-- Tentukan Warna Item Berdasarkan Status --}}
                                                                 @php
-                                                                    $itemClass = $dtl['status'] 
-                                                                        ? 'bg-success text-white'  // HIJAU jika Sudah Final
-                                                                        : 'bg-warning text-dark';  // KUNING jika Belum Final
-                                                                    
-                                                                    $iconStatus = $dtl['status'] 
-                                                                        ? 'fa-check-circle' 
-                                                                        : 'fa-exclamation-circle';
+                                                                    $isFinal = $dtl['status'];
+                                                                    $textClass = $isFinal ? 'text-success' : 'text-warning';
+                                                                    $iconStatus = $isFinal ? 'fa-check-circle' : 'fa-clock';
+                                                                    $bgColor = $isFinal ? 'background-color: #f0fff4;' : ''; 
                                                                 @endphp
 
-                                                                <li class="border-bottom">
-                                                                    {{-- Item Dropdown --}}
-                                                                    <span class="dropdown-item d-flex justify-content-between align-items-center py-2 {{ $itemClass }}" style="cursor: default;">
-                                                                        <span class="fw-semibold" style="font-size: 0.9rem;">
-                                                                            {{ $dtl['nama_prodi'] }}
-                                                                        </span>
-                                                                        
-                                                                        <i class="fa-solid {{ $iconStatus }}"></i>
+                                                                <li class="border-bottom px-3 py-2 d-flex justify-content-between align-items-center" style="{{ $bgColor }}">
+                                                                    <span class="fw-semibold {{ $textClass }}" style="font-size: 0.85rem;">
+                                                                        <i class="fa-solid {{ $iconStatus }} mr-1"></i> {{ $dtl['nama_prodi'] }}
                                                                     </span>
+                                                                    
+                                                                    <div>
+                                                                        @if($isFinal)
+                                                                            @if(Auth::user()->role == 'admin' || Auth::user()->unit_id == $row->unit_id)
+                                                                                <button class="btn btn-outline-danger btn-sm px-2 py-1 ml-2 batalSpesifikBtn" 
+                                                                                        data-unit="{{ $row->unit_id }}" 
+                                                                                        data-mti="{{ $dtl['mti_id'] }}"
+                                                                                        data-prodi="{{ $dtl['nama_prodi'] }}"
+                                                                                        title="Batalkan Validasi Prodi Ini"
+                                                                                        style="font-size: 0.7rem;">
+                                                                                    <i class="fa-solid fa-unlock"></i> Buka Kunci
+                                                                                </button>
+                                                                            @else
+                                                                                <span class="badge badge-success" style="font-size: 0.7rem;">Final</span>
+                                                                            @endif
+                                                                        @else
+                                                                            <span class="badge badge-warning text-dark" style="font-size: 0.7rem;">Belum</span>
+                                                                        @endif
+                                                                    </div>
                                                                 </li>
                                                             @endforeach
                                                         </ul>
@@ -361,44 +371,48 @@
 @push('scripts')
     {{-- Script untuk Batal Finalisasi --}}
     <script>
-        $(document).on('click', '.batalFinalBtn', function() {
+        $(document).on('click', '.batalSpesifikBtn', function(e) {
+            e.stopPropagation(); // Mencegah dropdown tertutup saat diklik
+            e.preventDefault();
+
             let unit_id = $(this).data('unit');
+            let mti_id = $(this).data('mti');
+            let nama_prodi = $(this).data('prodi');
 
             Swal.fire({
-                title: 'Batalkan Finalisasi?',
-                text: "Apakah Anda yakin ingin membatalkan finalisasi unit ini?",
+                title: 'Buka Validasi?',
+                text: `Anda akan membatalkan validasi Unit Kerja untuk Prodi: ${nama_prodi}.`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Ya, batalkan!',
-                cancelButtonText: 'Batal'
+                confirmButtonText: 'Ya, Batalkan!',
+                cancelButtonText: 'Kembali'
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: '/monitoring/batal-final/' + unit_id,
+                        url: "{{ route('monitoring.batal-final-spesifik') }}",
                         type: 'POST',
                         data: {
                             _token: '{{ csrf_token() }}',
-                            unit_id: unit_id
+                            unit_id: unit_id,
+                            mti_id: mti_id
                         },
                         success: function(response) {
-                            Swal.fire({
-                                title: 'Berhasil!',
-                                text: response.message,
-                                icon: 'success',
-                                confirmButtonText: 'OK'
-                            }).then(() => {
-                                location.reload();
-                            });
+                            if (response.success) {
+                                Swal.fire({
+                                    title: 'Berhasil!', 
+                                    text: response.message, 
+                                    icon: 'success',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                }).then(() => location.reload());
+                            } else {
+                                Swal.fire('Gagal!', response.message, 'error');
+                            }
                         },
-                        error: function(xhr) {
-                            Swal.fire({
-                                title: 'Gagal!',
-                                text: 'Terjadi kesalahan: ' + xhr.responseText,
-                                icon: 'error',
-                                confirmButtonText: 'OK'
-                            });
+                        error: function() {
+                            Swal.fire('Error!', 'Terjadi kesalahan sistem.', 'error');
                         }
                     });
                 }
