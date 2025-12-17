@@ -262,7 +262,6 @@
         </div>
 
         <div class="section-body">
-            
             {{-- 1. HERO INFO CARD --}}
             <div class="hero-card p-4">
                 <div class="row align-items-center">
@@ -276,13 +275,13 @@
                         
                         <div class="d-flex flex-wrap text-muted">
                             <div class="mr-4 mb-2">
-                                <i class="fas fa-building mr-1 text-secondary"></i> {{ $monitoringiku->prodi->nama_prodi }}
+                                <i class="fas fa-building mr-1 text-primary"></i> {{ $monitoringiku->prodi->nama_prodi }}
                             </div>
                             <div class="mb-2">
-                                <i class="far fa-calendar-alt mr-1 text-secondary"></i> Tahun {{ $monitoringiku->tahunKerja->th_tahun }}
+                                <i class="far fa-calendar-alt mr-1 text-primary"></i> Tahun {{ $monitoringiku->tahunKerja->th_tahun }}
                             </div>
                             <div class="ml-lg-4 mb-2">
-                                <i class="fas fa-tag mr-1 text-secondary"></i> 
+                                <i class="fas fa-tag mr-1 text-primary"></i> 
                                 Ketercapaian : <span class="text-uppercase font-weight-bold text-dark">{{ $targetIndikator->indikatorKinerja->ik_ketercapaian }}</span>
                             </div>
                         </div>
@@ -459,7 +458,7 @@
                                                         <div class="col-lg-4 mb-2">
                                                             <div class="p-3 bg-white rounded border h-100 shadow-sm">
                                                                 <strong class="text-info d-block mb-1 font-size-12">EVALUASI</strong>
-                                                                <p class="mb-0 text-small text-secondary">{{ $history->hmi_evaluasi }}</p>
+                                                                <p class="mb-0 text-small text-dark">{{ $history->hmi_evaluasi }}</p>
                                                             </div>
                                                         </div>
                                                     @endif
@@ -468,7 +467,7 @@
                                                         <div class="col-lg-4 mb-2">
                                                             <div class="p-3 bg-white rounded border h-100 shadow-sm">
                                                                 <strong class="text-warning d-block mb-1 font-size-12">TINDAK LANJUT</strong>
-                                                                <p class="mb-0 text-small text-secondary">{{ $history->hmi_tindaklanjut }}</p>
+                                                                <p class="mb-0 text-small text-dark">{{ $history->hmi_tindaklanjut }}</p>
                                                             </div>
                                                         </div>
                                                     @endif
@@ -477,7 +476,7 @@
                                                         <div class="col-lg-4 mb-2">
                                                             <div class="p-3 bg-white rounded border h-100 shadow-sm">
                                                                 <strong class="text-success d-block mb-1 font-size-12">PENINGKATAN</strong>
-                                                                <p class="mb-0 text-small text-secondary">{{ $history->hmi_peningkatan }}</p>
+                                                                <p class="mb-0 text-small text-dark">{{ $history->hmi_peningkatan }}</p>
                                                             </div>
                                                         </div>
                                                     @endif

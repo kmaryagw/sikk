@@ -6,7 +6,6 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
     
     <style>
-        /* --- PROFESSIONAL THEME --- */
         :root {
             --primary: #4F46E5;   /* Indigo - Professional Blue */
             --terlampaui: #0e24e9; /* Sky Blue */
@@ -20,7 +19,6 @@
 
         body { background-color: var(--bg-body); }
 
-        /* --- METRIC CARDS --- */
         .metric-card {
             background: #fff;
             border: 1px solid #e2e8f0;
@@ -519,11 +517,12 @@
 @endsection
 
 @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 
     <script>
+        window.addEventListener('load', function() {
         $(document).ready(function() {
             $('#table-monitoring').DataTable({
                 "pageLength": 10,
@@ -553,6 +552,7 @@
                     $('.dataTables_paginate > .paginate_button').addClass('btn btn-sm btn-white border mx-1');
                 }
             });
+        });
         });
     </script>
 
