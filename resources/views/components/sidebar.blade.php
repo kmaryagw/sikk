@@ -115,6 +115,11 @@
                             <i class="fas fa-bullhorn"></i> Pengumuman
                         </a>
                     </li>
+                    <li class="{{ Request::is('history-monitoring') || (isset($sub_menu) && $sub_menu === 'history') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('pages.index-history-monitoring') }}">
+                            <i class="fas fa-clock-rotate-left"></i> Log Monitoring
+                        </a>
+                    </li>
                 </ul>
             </li>
             @endif
@@ -185,34 +190,38 @@
             </li>
             @endif --}}
 
-            @if (Auth::user()->role == 'admin' || Auth::user()->role == 'fakultas')
+            {{-- @if (Auth::user()->role == 'admin' || Auth::user()->role == 'fakultas')
                 <li class="{{ $type_menu === 'history-monitoring' ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('pages.index-history-monitoring') }}">
-                        <i class="fa-solid fa-clock-rotate-left"></i> <span>Log Aktivitas</span>
+                        <i class="fa-solid fa-clock-rotate-left"></i> <span>Log Monitoring</span>
                     </a>
                 </li>
-            @endif
+            @endif --}}
 
             {{-- Monitoring IKU/T --}}
-            @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'fakultas' || Auth::user()->role == 'unit kerja')
+            @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'fakultas' || Auth::user()->role == 'prodi')
             <li class="{{ $type_menu === 'monitoringiku' ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('monitoringiku') }}"><i class="fa-solid fa-eye"></i> <span>Monitoring IKU/T</span></a>
+            </li>
+            @elseif (Auth::user()->role == 'unit kerja')
+            <li class="{{ $type_menu === 'monitoringiku' ? 'active' : '' }}">
+                <a class="nav-link" href="{{ url('monitoringiku') }}"><i class="fa-solid fa-eye"></i> <span>Isi Capaian IKU/T</span></a>
             </li>
             @endif
 
             @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi' || Auth::user()->role == 'unit kerja' || Auth::user()->role == 'fakultas')
             <li class="{{ $type_menu === 'laporan-iku' ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('laporan-iku') }}"><i class="fa-solid fa-book"></i> <span>Laporan IKU/IKT</span></a>
+                <a class="nav-link" href="{{ url('laporan-iku') }}"><i class="fa-solid fa-book"></i> <span>Laporan IKU/T</span></a>
             </li>
             @endif
 
-            @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi' || Auth::user()->role == 'unit kerja' || Auth::user()->role == 'fakultas')
+            {{-- @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi' || Auth::user()->role == 'unit kerja' || Auth::user()->role == 'fakultas')
             <li class="{{ $type_menu === 'hasil-monitoring' ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('hasil.monitoring') }}">
                     <i class="fa-solid fa-chart-line"></i> <span>Hasil Monitoring</span>
                 </a>
             </li>
-            @endif
+            @endif --}}
 
             {{-- @if (Auth::user()->role == 'admin'|| Auth::user()->role == 'prodi' || Auth::user()->role == 'unit kerja' || Auth::user()->role == 'fakultas')
              <li class="nav-item dropdown {{ $type_menu === 'laporan' ? 'active' : '' }}">

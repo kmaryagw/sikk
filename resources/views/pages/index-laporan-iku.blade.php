@@ -296,7 +296,7 @@
             @if(!$target_capaians->isEmpty())
                 $('#table-laporan').DataTable({
                     "paging": false,        
-                    "searching": false,     
+                    "searching": true,     
                     "ordering": true,       
                     "info": true,           
                     "autoWidth": false,     

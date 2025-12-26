@@ -5,24 +5,18 @@
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
     
-    <!-- Title -->
     <title>@yield('title') &mdash; Instiki</title>
-    <!-- Favicon -->
     <link rel="icon" href="{{ asset('/img/instiki-logo.png') }}" type="image/png">
-    <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <!-- General CSS Files -->
     <link rel="stylesheet" href="{{ asset('library/bootstrap/dist/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     @stack('style')
 
-    <!-- Template CSS -->
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/components.css') }}">
 
-    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -31,42 +25,37 @@
         gtag('config', 'UA-94034622-3');
     </script>
 
-    <!-- CSS TRANSISI HALUS (Tanpa Loading Spinner) -->
     <style>
-        /* 1. Kondisi Awal: Transparan & Turun Sedikit */
+        /* CSS TRANSISI */
         #app {
             opacity: 0;
-            transform: translateY(20px); /* Geser ke bawah 20px */
+            transform: translateY(20px);
             transition: opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
-        /* 2. Kondisi Akhir (Saat kelas 'loaded' ditambahkan): Muncul & Naik */
+        /* --- PERBAIKAN PENTING DI SINI --- */
+        /* Gunakan 'transform: none' bukan 'translateY(0)' agar position:fixed Modal kembali normal */
         body.loaded #app {
             opacity: 1;
-            transform: translateY(0); /* Kembali ke posisi asal */
+            transform: none; 
         }
     </style>
 </head>
 
 <body>
-
-    <!-- MAIN APP -->
     <div id="app">
         <div class="main-wrapper">
             @include('components.header')
             @include('components.sidebar')
             
-            <!-- Content -->
             @yield('main')
 
-            <!-- SweetAlert Global -->
             @include('sweetalert::alert')
 
             @include('components.footer')
         </div>
     </div>
 
-    <!-- General JS Scripts -->
     <script src="{{ asset('library/jquery/dist/jquery.min.js') }}"></script>
     <script src="{{ asset('library/popper.js/dist/umd/popper.js') }}"></script>
     <script src="{{ asset('library/tooltip.js/dist/umd/tooltip.js') }}"></script>
@@ -77,30 +66,45 @@
 
     @stack('scripts')
 
-    <!-- Template JS File -->
     <script src="{{ asset('js/scripts.js') }}"></script>
     <script src="{{ asset('js/custom.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- SCRIPT TRANSISI & LOGOUT -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             
-            // 1. Trigger Transisi Masuk (Fade In + Slide Up)
-            // setTimeout kecil (10ms) memastikan browser merender state awal (opacity 0) dulu
+            // 1. Trigger Transisi Masuk
             setTimeout(() => {
                 document.body.classList.add('loaded');
+                
+                // --- PERBAIKAN PENTING DI SINI ---
+                // Paksa hapus style transform setelah animasi selesai (700ms)
+                // Ini memastikan browser merender ulang z-index Modal dengan benar
+                setTimeout(() => {
+                    var appElement = document.getElementById('app');
+                    if(appElement) {
+                        appElement.style.transform = 'none';
+                        appElement.style.transition = 'none'; // Matikan transisi agar ringan
+                    }
+                }, 700);
             }, 10);
 
-            // 2. Fix untuk Tombol Back Browser (BFCache)
-            // Agar saat di-back, halaman tetap muncul (tidak transparan)
+            // 2. Fix BFCache
             window.addEventListener('pageshow', function(event) {
                 if (event.persisted) {
                     document.body.classList.add('loaded');
                 }
             });
 
-            // 3. Logic Logout dengan SweetAlert
+            // 3. Fix Backdrop Global (Jaga-jaga)
+            if (typeof $ !== 'undefined') {
+                $('.modal').on('hidden.bs.modal', function () {
+                    $('.modal-backdrop').remove();
+                    $('body').removeClass('modal-open');
+                });
+            }
+
+            // 4. Logout Logic
             const logoutLink = document.getElementById('logout-link');
             if (logoutLink) {
                 logoutLink.addEventListener('click', function(e) {
@@ -124,6 +128,5 @@
             }
         });
     </script>
-
 </body>
 </html>

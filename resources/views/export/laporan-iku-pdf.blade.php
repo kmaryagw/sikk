@@ -77,7 +77,7 @@
     <h4>
         Tahun : {{ $tahun ?? 'Semua Tahun' }} | 
         Prodi : {{ $prodi ?? 'Semua Prodi' }} | 
-        Unit : {{ $unit ?? 'Semua Unit' }}
+        {{-- Unit : {{ $unit ?? 'Semua Unit' }} --}}
     </h4>
 
     <table>
@@ -95,22 +95,18 @@
         <tbody>
             @forelse ($target_capaians as $index => $target)
                 @php
-                    // --- PERBAIKAN AKSES DATA RELASI ---
                     $indikatorRel = $target->indikatorKinerja;
                     $detailRel    = $target->monitoringDetail;
                     $tahunRel     = $target->tahunKerja;
                     $prodiRel     = $target->prodi;
 
-                    // Ambil Data dari Relasi (Fallback ke '-' jika null)
                     $th_tahun   = $tahunRel->th_tahun ?? '-';
                     $nama_prodi = $prodiRel->nama_prodi ?? '-';
                     
-                    // Gabungkan Kode & Nama Indikator
                     $ik_kode = $indikatorRel->ik_kode ?? '';
                     $ik_nama = $indikatorRel->ik_nama ?? '-';
                     $display_indikator = $ik_kode ? "{$ik_kode} - {$ik_nama}" : $ik_nama;
 
-                    // Logic Formatting
                     $ketercapaian = strtolower($indikatorRel->ik_ketercapaian ?? '');
                     $targetValue  = trim($target->ti_target ?? '');
                     $capaian      = trim($detailRel->mtid_capaian ?? '');
@@ -122,10 +118,9 @@
                     <td>{{ $th_tahun }}</td>
                     <td>{{ $nama_prodi }}</td>
                     
-                    {{-- Indikator Kinerja (Rata Kiri) --}}
                     <td class="text-left">{{ $display_indikator }}</td>
 
-                    {{-- Target --}}
+                    {{-- Target Capaian --}}
                     <td>
                         @if ($ketercapaian === 'persentase' && is_numeric(str_replace('%', '', $targetValue)))
                             {{ floatval(str_replace('%', '', $targetValue)) }}%
@@ -137,7 +132,7 @@
                             </span>
                         @elseif ($ketercapaian === 'rasio')
                             @php
-                                $formattedRasio = $targetValue; // Default
+                                $formattedRasio = $targetValue; 
                                 $cleaned = preg_replace('/\s*/', '', $targetValue);
                                 if (preg_match('/^\d+:\d+$/', $cleaned)) {
                                     [$left, $right] = explode(':', $cleaned);
@@ -158,7 +153,7 @@
                             <span class="badge badge-primary">{{ $capaian }}</span>
                         @elseif ($ketercapaian === 'rasio')
                             @php
-                                $formattedRasio = $capaian; // Default
+                                $formattedRasio = $capaian;
                                 $cleaned = preg_replace('/\s*/', '', $capaian);
                                 if (preg_match('/^\d+:\d+$/', $cleaned)) {
                                     [$left, $right] = explode(':', $cleaned);
