@@ -14,8 +14,8 @@
         }
         
         .table-modern thead th {
-            background-color: #ff5550;
-            color: white;
+            background-color: #ffffff;
+            color: rgb(0, 0, 0);
             border: none;
             padding: 15px;
             font-weight: 600;
