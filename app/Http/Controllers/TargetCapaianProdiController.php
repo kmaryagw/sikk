@@ -29,21 +29,17 @@ class TargetCapaianProdiController extends Controller
     {
         $title = 'Data Target Capaian Prodi';
         
-        // 1. Ambil Parameter
         $q = $request->query('q');
         $tahunId = $request->query('tahun');
         $prodiId = $request->query('prodi');
         $unitKerjaId = $request->query('unit_kerja');
 
-        // 2. Data Master
         $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->first();
         $tahun = tahun_kerja::all();
         $prodis = program_studi::all();
         
-        // Ambil Unit Kerja untuk dropdown
         $unitKerjas = UnitKerja::orderBy('unit_nama', 'asc')->get();
 
-        // 3. Label & Default Tahun
         $tahunLabel = '-';
         if ($tahunId) {
             $tahunModel = tahun_kerja::find($tahunId);
@@ -53,7 +49,6 @@ class TargetCapaianProdiController extends Controller
             $tahunId = $tahunAktif->th_id;
         }
 
-        // 4. QUERY UTAMA (Tanpa Join ke Pivot Table)
         $query = target_indikator::query()
             ->select(
                 'target_indikator.*', 
@@ -64,19 +59,15 @@ class TargetCapaianProdiController extends Controller
                 'program_studi.nama_prodi',
                 'tahun_kerja.th_tahun'
             )
-            // Join tabel relasi utama saja
             ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
             ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
             ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id');
-            // HAPUS JOIN KE indikatorkinerja_unitkerja DISINI AGAR TIDAK DUPLIKAT
 
-        // Filter Role Prodi
         if (Auth::user()->role == 'prodi') {
             $query->where('target_indikator.prodi_id', Auth::user()->prodi_id);
             $prodis = program_studi::where('prodi_id', Auth::user()->prodi_id)->get();
         }
 
-        // Filter Pencarian
         if ($q) {
             $query->where(function ($sub) use ($q) {
                 $sub->where('target_indikator.ti_target', 'like', "%$q%")
@@ -85,17 +76,14 @@ class TargetCapaianProdiController extends Controller
             });
         }
 
-        // Filter Tahun
         if ($tahunId) {
             $query->where('target_indikator.th_id', $tahunId);
         }
 
-        // Filter Prodi
         if ($prodiId) {
             $query->where('program_studi.prodi_id', $prodiId);
         }
 
-        // Gunakan Subquery untuk mengecek tabel pivot tanpa join langsung
         if ($unitKerjaId) {
             $query->whereIn('indikator_kinerja.ik_id', function($subQuery) use ($unitKerjaId) {
                 $subQuery->select('ik_id')
@@ -107,10 +95,8 @@ class TargetCapaianProdiController extends Controller
 
         $query->orderBy('indikator_kinerja.ik_nama', 'asc');
 
-        // 5. Eksekusi
         $target_capaians = $query->get();
 
-        // 6. Logika Baseline
         $ikProdiPairs = $target_capaians->map(function ($item) {
             return [
                 'ik_id' => $item->ik_id,
@@ -148,21 +134,32 @@ class TargetCapaianProdiController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(Request $request) 
     {
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->firstOrFail();
         $title = 'Tambah Target Capaian';
+        
+        $selectedUnit = $request->query('unit_kerja');
 
-        // Ambil baseline yang sudah di-generate oleh TahunController
+        $unitKerjas = UnitKerja::orderBy('unit_nama', 'asc')->get();
+
         $baseline_from_prev = IkBaselineTahun::where('th_id', $tahuns->th_id)
             ->where('prodi_id', Auth::user()->prodi_id)
             ->pluck('baseline', 'ik_id')
             ->toArray();
 
-        $indikatorkinerjas = IndikatorKinerja::where('ik_is_aktif', 'y')
-            ->whereNotNull('unit_id')
-            ->where('unit_id', '!=', '')
-            ->orderBy('ik_nama')
+        $queryIndikator = IndikatorKinerja::query()
+            ->where('ik_is_aktif', 'y');
+
+        if ($selectedUnit) {
+            $queryIndikator->whereHas('unitKerja', function($q) use ($selectedUnit) {
+                $q->where('indikatorkinerja_unitkerja.unit_id', $selectedUnit);
+            });
+        } else {
+            $queryIndikator->has('unitKerja'); 
+        }
+
+        $indikatorkinerjas = $queryIndikator->orderBy('ik_nama')
             ->get()
             ->map(function ($ik) use ($baseline_from_prev) {
                 $ik->baseline_tahun = $baseline_from_prev[$ik->ik_id] ?? null;
@@ -178,15 +175,17 @@ class TargetCapaianProdiController extends Controller
         $userProdi = $userRole === 'prodi' ? Auth::user()->programStudi : null;
 
         return view('targetcapaian.create', [
-            'title' => $title,
+            'title'             => $title,
             'indikatorkinerjas' => $indikatorkinerjas,
-            'targetindikators' => $targetindikators,
-            'prodis' => $prodis,
-            'tahuns' => $tahuns,
-            'baseline_from_prev' => $baseline_from_prev,
-            'type_menu' => 'targetcapaianprodi',
-            'userRole' => $userRole,
-            'userProdi' => $userProdi,
+            'targetindikators'  => $targetindikators,
+            'prodis'            => $prodis,
+            'tahuns'            => $tahuns,
+            'baseline_from_prev'=> $baseline_from_prev,
+            'type_menu'         => 'targetcapaianprodi',
+            'userRole'          => $userRole,
+            'userProdi'         => $userProdi,
+            'unitKerjas'        => $unitKerjas,   
+            'selectedUnit'      => $selectedUnit, 
         ]);
     }
 
@@ -198,9 +197,6 @@ class TargetCapaianProdiController extends Controller
             'indikator.*.ik_id' => 'required|string|exists:indikator_kinerja,ik_id',
             'indikator.*.keterangan' => 'nullable',
             
-            // ==========================================
-            // 1. VALIDASI BASELINE
-            // ==========================================
             'indikator.*.baseline' => [
                 'nullable',
                 function ($attribute, $value, $fail) use ($request) {
@@ -216,14 +212,26 @@ class TargetCapaianProdiController extends Controller
                     $ketercapaian = strtolower($indikator->ik_ketercapaian);
                     $value = is_null($value) ? '' : strtolower(trim($value));
 
-                    // A. NILAI & PERSENTASE (Auto '0')
-                    if ($ketercapaian === 'nilai' || $ketercapaian === 'persentase') {
+                    // A. PERSENTASE (Harus 0 - 100)
+                    if ($ketercapaian === 'persentase') {
                         if ($value === '') {
                             $request->merge([ "indikator.$index.baseline" => '0' ]);
                             return;
                         }
-                        if (!ctype_digit($value) || $value < 0 || $value > 100) {
-                            $fail("Baseline '$indikator->ik_nama' harus angka bulat 0–100.");
+                        // Menggunakan is_numeric agar bisa menerima desimal jika diperlukan, 
+                        // atau ganti ctype_digit jika harus angka bulat
+                        if (!is_numeric($value) || $value < 0 || $value > 100) {
+                            $fail("Baseline '$indikator->ik_nama' (Persentase) harus angka antara 0–100.");
+                        }
+                    } 
+                    // B. NILAI (Bebas minimal 0)
+                    elseif ($ketercapaian === 'nilai') {
+                        if ($value === '') {
+                            $request->merge([ "indikator.$index.baseline" => '0' ]);
+                            return;
+                        }
+                        if (!is_numeric($value) || $value < 0) {
+                            $fail("Baseline '$indikator->ik_nama' (Nilai) harus angka minimal 0.");
                         }
                     } 
                     // B. KETERSEDIAAN (Auto 'draft')
@@ -254,9 +262,6 @@ class TargetCapaianProdiController extends Controller
                 }
             ],
 
-            // ==========================================
-            // 2. VALIDASI TARGET
-            // ==========================================
             'indikator.*.target' => [
                 'nullable',
                 function ($attribute, $value, $fail) use ($request) {
@@ -272,16 +277,26 @@ class TargetCapaianProdiController extends Controller
                     $ketercapaian = strtolower($indikator->ik_ketercapaian);
                     $value = is_null($value) ? '' : strtolower(trim($value));
 
-                    // A. NILAI & PERSENTASE (Auto '0')
-                    if ($ketercapaian === 'nilai' || $ketercapaian === 'persentase') {
+                    // A. PERSENTASE (Harus 0 - 100)
+                    if ($ketercapaian === 'persentase') {
                         if ($value === '') {
                             $request->merge([ "indikator.$index.target" => '0' ]);
                             return;
                         }
-                        if (!ctype_digit($value) || $value < 0 || $value > 100) {
-                            $fail("Target '$indikator->ik_nama' harus angka bulat 0–100.");
+                        if (!is_numeric($value) || $value < 0 || $value > 100) {
+                            $fail("Target '$indikator->ik_nama' (Persentase) harus angka antara 0–100.");
                         }
                     } 
+                    // B. NILAI (Bebas minimal 0)
+                    elseif ($ketercapaian === 'nilai') {
+                        if ($value === '') {
+                            $request->merge([ "indikator.$index.target" => '0' ]);
+                            return;
+                        }
+                        if (!is_numeric($value) || $value < 0) {
+                            $fail("Target '$indikator->ik_nama' (Nilai) harus angka minimal 0.");
+                        }
+                    }
                     // B. KETERSEDIAAN (Auto 'draft')
                     elseif ($ketercapaian === 'ketersediaan') {
                         if ($value === '') {
@@ -335,7 +350,6 @@ class TargetCapaianProdiController extends Controller
             $md5Hash = md5($timestamp . $data["ik_id"]);
             $ti_id = $customPrefix . strtoupper($md5Hash);
 
-            // 3. Simpan Target (Ambil dari request yang sudah di-merge)
             target_indikator::updateOrCreate(
                 [
                     'ik_id'    => $data["ik_id"],
@@ -352,7 +366,6 @@ class TargetCapaianProdiController extends Controller
                 ]
             );
 
-            // 4. Simpan Baseline (Gunakan isset && !== '' untuk mengizinkan '0' dan '0:0')
             if (isset($data["baseline"]) && $data["baseline"] !== '') {
                 IkBaselineTahun::updateOrCreate(
                     [
@@ -367,7 +380,6 @@ class TargetCapaianProdiController extends Controller
             }
         });
 
-        // 5. Generate Header MonitoringIKU
         $exists = MonitoringIKU::where('prodi_id', $prodi_id)
             ->where('th_id', $th_id)
             ->exists();
@@ -389,24 +401,19 @@ class TargetCapaianProdiController extends Controller
     {
         $title = 'Edit Target Capaian';
 
-        // Ambil target capaian prodi
         $targetcapaian = target_indikator::findOrFail($targetcapaian);
 
-        // Ambil baseline tahun terkait
         $baselineTahun = IkBaselineTahun::where('ik_id', $targetcapaian->ik_id)
             ->where('th_id', $targetcapaian->th_id)
             ->where('prodi_id', $targetcapaian->prodi_id)
             ->value('baseline');
 
-        // Simpan ke properti tambahan supaya bisa dipanggil di view
         $targetcapaian->baseline_tahun = $baselineTahun ?? 'Baseline belum diinput';
 
-        // Data dropdown
         $indikatorkinerjautamas = IndikatorKinerja::orderBy('ik_nama')->get();
         $prodis = program_studi::orderBy('nama_prodi')->get();
         $tahuns = tahun_kerja::orderBy('th_tahun', 'desc')->get();
 
-        // Role & Prodi User
         $userRole = Auth::user()->role;
         $userProdi = $userRole === 'prodi' ? Auth::user()->programStudi : null;
 
@@ -428,7 +435,6 @@ class TargetCapaianProdiController extends Controller
         $targetcapaian = target_indikator::findOrFail($targetcapaian);
         $indikatorKinerjas = IndikatorKinerja::find($request->ik_id);
 
-        // Validasi umum
         $validationRules = [
             'ik_id'         => 'required|string',
             'ti_target'     => 'required',
@@ -445,48 +451,33 @@ class TargetCapaianProdiController extends Controller
                     $ketercapaian = strtolower($indikatorKinerjas->ik_ketercapaian);
                     $value = trim(strtolower($value));
 
-                    if ($ketercapaian === 'nilai' || $ketercapaian === 'persentase') {
-                        if (!ctype_digit($value) || $value < 0 || $value > 100) {
-                            $fail("Baseline harus bilangan bulat antara 0-100.");
+                    // VALIDASI BASELINE - PERSENTASE (0 - 100)
+                    if ($ketercapaian === 'persentase') {
+                        if (!is_numeric($value) || $value < 0 || $value > 100) {
+                            $fail("Baseline (Persentase) harus berupa angka antara 0-100.");
                         }
-                    } elseif ($ketercapaian === 'ketersediaan') {
-                        if ($value === '' || is_null($value)) {
-                            $value = 'draft';
-                            request()->merge(['baseline' => 'draft']);
-                            return;
+                    } 
+                    // VALIDASI BASELINE - NILAI (Bebas >= 0)
+                    elseif ($ketercapaian === 'nilai') {
+                        if (!is_numeric($value) || $value < 0) {
+                            $fail("Baseline (Nilai) harus berupa angka minimal 0.");
                         }
+                    } 
+                    elseif ($ketercapaian === 'ketersediaan') {
                         if (!in_array($value, ['ada', 'draft'])) {
                             $fail("Baseline hanya boleh 'ada' atau 'draft'.");
                         }
-                    } elseif ($ketercapaian === 'rasio') {
-                        // ✅ Izinkan "0" atau "angka:angka"
+                    } 
+                    elseif ($ketercapaian === 'rasio') {
                         if (!preg_match('/^(0|\d+\s*:\s*\d+)$/', $value)) {
-                            $fail("Baseline harus berupa '0' atau format 'angka:angka' (contoh: 0, 1:2, 0:5).");
+                            $fail("Baseline harus berupa '0' atau format 'angka:angka'.");
                             return;
                         }
-
-                        // Hilangkan semua spasi
                         $value = preg_replace('/\s*/', '', $value);
-
-                        // Jika hanya 0 → valid, tidak perlu proses lebih lanjut
-                        if ($value === '0') {
-                            return;
-                        }
-
-                        // Jika mengandung titik dua
-                        if (strpos($value, ':') !== false) {
+                        if ($value !== '0' && strpos($value, ':') !== false) {
                             [$left, $right] = explode(':', $value);
-
-                            // Validasi bahwa kedua sisi adalah angka
-                            if (!is_numeric($left) || !is_numeric($right)) {
-                                $fail("Baseline harus berisi angka di kedua sisi (contoh: 1:2).");
-                                return;
-                            }
-
-                            // Tidak boleh 0:0
                             if ((int)$left === 0 && (int)$right === 0) {
-                                $fail("Baseline tidak boleh 0:0.");
-                                return;
+                                $fail("Baseline rasio tidak boleh 0:0.");
                             }
                         }
                     }
@@ -494,7 +485,6 @@ class TargetCapaianProdiController extends Controller
             ],
         ];
 
-        // Validasi khusus berdasarkan jenis ketercapaian
         if ($indikatorKinerjas) {
             $ketercapaian = strtolower($indikatorKinerjas->ik_ketercapaian);
 
@@ -502,8 +492,9 @@ class TargetCapaianProdiController extends Controller
                 $validationRules['ti_target'] = [
                     'required',
                     function ($attribute, $value, $fail) use ($indikatorKinerjas) {
-                        if ($value !== '' && (!ctype_digit($value) || $value < 0 || $value > 100)) {
-                            $fail("Target untuk indikator '{$indikatorKinerjas->ik_nama}' harus bilangan bulat >= 0 dan <= 100.");
+                        // Target Nilai: Bebas >= 0
+                        if ($value !== '' && (!is_numeric($value) || $value < 0)) {
+                            $fail("Target (Nilai) untuk '{$indikatorKinerjas->ik_nama}' harus angka minimal 0.");
                         }
                     }
                 ];
@@ -511,59 +502,35 @@ class TargetCapaianProdiController extends Controller
                 $validationRules['ti_target'] = [
                     'required',
                     function ($attribute, $value, $fail) use ($indikatorKinerjas) {
-                        if ($value !== '' && (!ctype_digit($value) || $value < 0 || $value > 100)) {
-                            $fail("Target untuk indikator '{$indikatorKinerjas->ik_nama}' harus bilangan bulat antara 0-100.");
+                        // Target Persentase: 0 - 100
+                        if ($value !== '' && (!is_numeric($value) || $value < 0 || $value > 100)) {
+                            $fail("Target (Persentase) untuk '{$indikatorKinerjas->ik_nama}' harus angka antara 0-100.");
                         }
                     }
                 ];
             } elseif ($ketercapaian === 'ketersediaan') {
                 $validationRules['ti_target'] = [
-                'nullable',
-                function ($attribute, $value, $fail) {
-                    if ($value === '' || is_null($value)) {
-                        // request()->merge(['ti_target' => 'draft']);
-                        return;
+                    'required',
+                    function ($attribute, $value, $fail) {
+                        if (!in_array(strtolower($value), ['ada', 'draft'])) {
+                            $fail("Target hanya boleh 'ada' atau 'draft'.");
+                        }
                     }
-                    if (!in_array(strtolower($value), ['ada', 'draft'])) {
-                        $fail("Target hanya boleh 'ada' atau 'draft'.");
-                    }
-                }
-            ];
+                ];
             } elseif ($ketercapaian === 'rasio') {
                 $validationRules['ti_target'] = [
                     'required',
                     function ($attribute, $value, $fail) use ($indikatorKinerjas) {
-
                         $value = trim($value);
-
-                        // ✅ izinkan 0 atau angka:angka
                         if ($value !== '' && !preg_match('/^(0|\d+\s*:\s*\d+)$/', $value)) {
-                            $fail("Target untuk indikator '{$indikatorKinerjas->ik_nama}' harus berupa '0' atau format 'angka:angka' (contoh: 0, 1:2, 0:5).");
+                            $fail("Target harus berupa '0' atau format 'angka:angka'.");
                             return;
                         }
-
-                        // hilangkan spasi
                         $clean = preg_replace('/\s*/', '', $value);
-
-                        // Jika hanya "0", valid — langsung return
-                        if ($clean === '0') {
-                            return;
-                        }
-
-                        // Jika ada titik dua
-                        if (strpos($clean, ':') !== false) {
+                        if ($clean !== '0' && strpos($clean, ':') !== false) {
                             [$left, $right] = explode(':', $clean);
-
-                            // validasi numeric
-                            if (!is_numeric($left) || !is_numeric($right)) {
-                                $fail("Target untuk indikator '{$indikatorKinerjas->ik_nama}' harus berisi angka di kedua sisi (contoh: 1:2).");
-                                return;
-                            }
-
-                            // Tidak boleh 0:0
                             if ((int)$left === 0 && (int)$right === 0) {
-                                $fail("Rasio untuk indikator '{$indikatorKinerjas->ik_nama}' tidak boleh 0:0.");
-                                return;
+                                $fail("Rasio tidak boleh 0:0.");
                             }
                         }
                     }
@@ -571,19 +538,10 @@ class TargetCapaianProdiController extends Controller
             }
         }
 
+        $request->validate($validationRules);
 
-        $customMessages = [
-            'ti_target.in' => 'Untuk jenis ketersediaan, hanya boleh diisi "ada" atau "draft".',
-        ];
-
-        $request->validate($validationRules, $customMessages);
-
-
-        $target = $request->ti_target;
-        if ($target === null || $target === '') {
-            $target = $targetcapaian->ti_target; // gunakan nilai lama
-        }
-
+        // Update Target
+        $target = $request->ti_target ?? $targetcapaian->ti_target;
         $targetcapaian->update([
             'ik_id' => $request->ik_id,
             'ti_target' => $target,
@@ -592,16 +550,15 @@ class TargetCapaianProdiController extends Controller
             'th_id' => $request->th_id,
         ]);
 
-        // Ambil baseline lama kalau field kosong
+        // Update atau Simpan Baseline
         $baselineValue = $request->baseline;
-        if (empty($baselineValue)) {
+        if (is_null($baselineValue) || $baselineValue === '') {
             $baselineValue = IkBaselineTahun::where('ik_id', $request->ik_id)
                 ->where('th_id', $request->th_id)
                 ->where('prodi_id', $request->prodi_id)
                 ->value('baseline');
         }
 
-        // Simpan baseline (update atau create)
         if (!is_null($baselineValue)) {
             IkBaselineTahun::updateOrCreate(
                 [
@@ -610,7 +567,7 @@ class TargetCapaianProdiController extends Controller
                     'prodi_id' => $request->prodi_id
                 ],
                 [
-                    'baseline' => $baselineValue
+                    'baseline' => strtolower($baselineValue)
                 ]
             );
         }

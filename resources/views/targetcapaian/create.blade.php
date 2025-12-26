@@ -15,15 +15,15 @@
     
     <style>
         .table-responsive {
-            max-height: 50rem;   /* tinggi maksimum tabel */
-            overflow-y: auto;    /* aktifkan scroll vertikal */
+            max-height: 50rem;  
+            overflow-y: auto;  
         }
 
         .table thead th {
             position: sticky;
             top: 0;
             z-index: 10;
-            background-color: #f8f9fa !important; /* biar solid, tidak transparan */
+            background-color: #f8f9fa !important;
         }
     </style>
 
@@ -42,44 +42,89 @@
                         <div class="card">
                             <div class="card-body">
                                 @if ($errors->any())
-                                    <div class="alert alert-danger">
-                                        <ul>
-                                            @foreach ($errors->all() as $err)
-                                                <li>{{ $err }}</li>
-                                            @endforeach
-                                        </ul>
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        <div class="alert-icon"><i class="fas fa-exclamation-triangle"></i> ERROR</div>
+                                        <div class="alert-body">
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                            <ul class="mb-0 pl-3">
+                                                @foreach ($errors->all() as $err)
+                                                    <li>{{ $err }}</li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
                                     </div>
                                 @endif
 
-                                <div class="form-group d-flex align-items-center">
-                                    <label for="th_id" class="mr-2" style="font-size: 1rem;">Tahun Aktif :</label>
-                                        <span class="badge badge-primary p-3" style="font-size: 1rem;">
-                                            <i class="fa-solid fa-calendar-alt"></i> {{ $tahuns->th_tahun }}
-                                        </span>
+                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                                    <div class="mb-3 mb-md-0 w-100" style="max-width: 400px;">
+                                        <form method="GET" action="{{ route('targetcapaianprodi.create') }}">
+                                            <label class="text-muted font-weight-bold small text-uppercase mb-1">Filter Indikator:</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text bg-white border-right-0">
+                                                        <i class="fa-solid fa-filter text-primary"></i>
+                                                    </span>
+                                                </div>
+                                                <select class="custom-select border-left-0" name="unit_kerja" onchange="this.form.submit()">
+                                                    <option value="">Semua Unit Kerja</option>
+                                                    @foreach($unitKerjas as $unit)
+                                                        <option value="{{ $unit->unit_id }}" {{ $selectedUnit == $unit->unit_id ? 'selected' : '' }}>
+                                                            {{ $unit->unit_nama }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                @if($selectedUnit)
+                                                    <div class="input-group-append">
+                                                        <a href="{{ route('targetcapaianprodi.create') }}" class="btn btn-outline-secondary" title="Reset Filter">
+                                                            <i class="fa-solid fa-times"></i>
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="d-flex align-items-center flex-wrap gap-3">
+                                        <div class="d-flex align-items-center bg-white shadow-sm rounded-lg p-2 mr-3 border-left-primary" style="border-left: 4px solid #4e73df; min-width: 160px;">
+                                            <div class="p-2 mr-2 bg-primary-soft rounded-circle text-primary" style="background-color: #f0f4ff;">
+                                                <i class="fa-solid fa-calendar-check fa-lg"></i>
+                                            </div>
+                                            <div>
+                                                <small class="text-uppercase text-muted font-weight-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">Tahun Aktif</small>
+                                                <h6 class="mb-0 text-dark font-weight-bold">{{ $tahuns->th_tahun }}</h6>
+                                            </div>
+                                        </div>
+
+                                        @if ($userRole === 'prodi' && $userProdi)
+                                        <div class="d-flex align-items-center bg-white shadow-sm rounded-lg p-2 border-left-success" style="border-left: 4px solid #1cc88a; min-width: 200px;">
+                                            <div class="p-2 mr-2 bg-success-soft rounded-circle text-success" style="background-color: #e6fffa;">
+                                                <i class="fa-solid fa-university fa-lg"></i>
+                                            </div>
+                                            <div>
+                                                <small class="text-uppercase text-muted font-weight-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">Program Studi</small>
+                                                <h6 class="mb-0 text-dark font-weight-bold" style="line-height: 1.2;">{{ $userProdi->nama_prodi }}</h6>
+                                            </div>
+                                        </div>
+                                        @endif
+                                    </div>
                                 </div>
-                                <div class="form-group d-flex align-items-center">
-                                    <label for="th_id" class="mr-2" style="font-size: 1rem;">Prodi :</label>
-                                    @if ($userRole === 'prodi' && $userProdi)
-                                        <!-- Jika user adalah prodi, tampilkan readonly input -->
-                                        <span class="badge badge-primary p-3" style="font-size: 1rem;">
-                                            <i class="fa-solid fa-calendar-alt"></i> {{ $userProdi->nama_prodi }}
-                                        </span>
-                                    @endif
-                                </div>
-                                {{-- <div class="alert alert-warning alert-has-icon alert-dismissible show fade">
-                                    <div class="alert-icon"><i class="far fa-lightbulb"></i></div>
-                                    <div class="alert-body">
-                                        <button class="close" data-dismiss="alert">
-                                            <span>&times;</span>
-                                        </button>
-                                        <div class="alert-title">Catatan Pengisian</div>
-                                        Jika kolom <b>Nilai Baseline</b> atau <b>Target</b> dikosongkan, sistem akan otomatis menyimpannya sebagai nilai <b>0 (Nol)</b>. 
-                                        <br>
-                                        <small>*(Kecuali untuk indikator jenis Pengukuran yang akan otomatis terisi Draft/Ada).</small>
+
+                                {{-- <div class="alert alert-light border-left-primary shadow-sm mb-4" role="alert">
+                                    <div class="d-flex align-items-start">
+                                        <div class="alert-icon text-primary mt-1 mr-3">
+                                            <i class="far fa-lightbulb fa-lg"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="alert-heading font-weight-bold text-primary mb-1">Catatan Pengisian</h6>
+                                            <p class="mb-0 text-muted small">
+                                                Jika kolom <b>Nilai Baseline</b> atau <b>Target</b> dikosongkan, sistem akan otomatis menyimpannya sebagai nilai <b>0 (Nol)</b> atau <b>0:0</b> (untuk Rasio).
+                                                <br>
+                                                <i class="fa-solid fa-info-circle mr-1"></i> <em>Kecuali untuk indikator jenis <b>Ketersediaan</b>, otomatis terisi 'Draft'.</em>
+                                            </p>
+                                        </div>
                                     </div>
                                 </div> --}}
-
-                                </form>
                             </div>
                         </div>
                     </div>
@@ -373,9 +418,15 @@
                     { "sortable": false, "targets": [4, 5, 6] }
                 ],
                 "paging": false, 
+                "searching": true, 
                 "order": [[1, 'asc']],
-                info: true,
-                infoCallback: function(settings, start, end, max, total, pre) {
+                "info": true,
+                "dom": '<"d-flex justify-content-between align-items-center mb-3"f>rt<"bottom"i><"clear">',
+                "language": {
+                    "search": "Cari :", 
+                    // "searchPlaceholder": "..."
+                },
+                "infoCallback": function(settings, start, end, max, total, pre) {
                     return `
                         <span class="badge bg-primary text-light px-3 py-2 m-3">
                             Total Data : ${total}
