@@ -247,15 +247,29 @@
                 <form action="{{ route('indikatorkinerja.import') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
+                        <div class="mb-4 text-center">
+                            <p class="text-muted mb-2 font-weight-bold"><small>Contoh Format Template :</small></p>
+                            <img src="{{ asset('img/Tamplate-Indikator-Kinerja.png') }}" 
+                                alt="Contoh Template Excel" 
+                                class="img-fluid rounded border shadow-sm mb-2"
+                                style="max-height: 150px; width: auto; object-fit: contain;">
+                        </div>
+
                         <div class="form-group">
-                            <label for="file">Pilih File Excel (Format .xlsx)</label>
+                            <label for="file" class="font-weight-bold">Pilih File Excel (Format .xlsx)</label>
                             <input type="file" class="form-control-file" name="file" required accept=".xlsx">
-                            <small class="form-text text-muted">Pastikan format sudah sesuai dengan template</small>
+                            <small class="form-text text-muted pt-2">
+                                <i class="fa-solid fa-info-circle"></i> Pastikan urutan kolom sesuai dengan gambar di atas.
+                            </small>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-times"></i> Batal</button>
-                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Import</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">
+                            <i class="fa-solid fa-times"></i> Batal
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-save"></i> Import
+                        </button>
                     </div>
                 </form>
             </div>

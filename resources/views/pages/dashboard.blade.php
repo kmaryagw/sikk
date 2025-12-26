@@ -285,9 +285,9 @@
                             <div class="table-responsive mt-2" style="max-height: 505px; overflow-y: auto;">
                                 <table class="table table-striped table-bordered">
                                     <!-- Sticky header hanya diterapkan pada tabel Surat -->
-                                    <thead class="thead-dark text-center" style="position: sticky; top: 0; background-color: #fff; z-index: 2;">
+                                    <thead class="thead-dark text-center" ... >
                                         <tr>
-                                            <th>Organisasi Jabatan</th>
+                                            <th>{{ Auth::user()->role == 'admin' ? 'Nama Unit Kerja' : 'Tujuan Jabatan' }}</th>
                                             <th>Jumlah Surat</th>
                                             <th>Jumlah Revisi</th>
                                             <th>Jumlah Valid</th>
@@ -296,18 +296,19 @@
                                     <tbody class="text-center">
                                         @foreach($suratSummary as $summary)
                                         <tr>
-                                            <td>{{ $summary->organisasiJabatan->oj_nama }}</td>
+                                            {{-- Ubah Isi kolom pertama --}}
+                                            <td>
+                                                @if(Auth::user()->role == 'admin')
+                                                    {{ optional($summary->unitKerja)->unit_nama ?? 'Unit Tidak Ditemukan' }}
+                                                @else
+                                                    {{ optional($summary->organisasiJabatan)->oj_nama ?? 'Jabatan Tidak Ditemukan' }}
+                                                @endif
+                                            </td>
                                             <td>{{ $summary->jumlah_surat }}</td>
                                             <td>{{ $summary->jumlah_revisi }}</td>
                                             <td>{{ $summary->jumlah_valid }}</td>
                                         </tr>
                                         @endforeach
-                                        
-                                        @if ($suratSummary->isEmpty())
-                                        <tr>
-                                            <td colspan="4" class="text-center">Tidak ada data</td>
-                                        </tr>
-                                        @endif
                                     </tbody>
                                 </table>
                             </div>

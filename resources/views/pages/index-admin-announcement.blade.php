@@ -8,11 +8,6 @@
         <h2 class="mb-4 text-danger">Daftar Pengumuman</h2>
     </div>
 
-    {{-- Alert sukses --}}
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-
     <style>
         /* Dropdown item styling */
         .dropdown-menu .dropdown-item {
@@ -49,14 +44,12 @@
     </style>
 
 
-    {{-- Tombol tambah --}}
     <div class="mb-4 d-flex justify-content-end">
         <a href="{{ route('announcement.create') }}" class="btn btn-primary">
             + Tambah Pengumuman
         </a>
     </div>
 
-    {{-- Tabel daftar --}}
     <div class="card shadow-sm border-0 text-center">
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -114,11 +107,10 @@
                                                 </a>
                                             </li>
                                             <li>
-                                                <form action="{{ route('announcement.destroy', $item->id) }}" method="POST"
-                                                    onsubmit="return confirm('Yakin ingin menghapus pengumuman ini?')" class="m-0">
+                                                <form action="{{ route('announcement.destroy', $item->id) }}" method="POST" class="m-0 form-delete">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="dropdown-item d-flex align-items-center text-danger fw-semibold">
+                                                    <button type="button" class="dropdown-item d-flex align-items-center text-danger fw-semibold btn-delete">
                                                         <i class="fa-solid fa-trash me-2 pr-4"></i> Hapus
                                                     </button>
                                                 </form>
@@ -139,7 +131,6 @@
             </div>
         </div>
 
-        {{-- Pagination --}}
         <div class="card-footer">
             {{ $announcement->links('pagination::bootstrap-5') }}
         </div>
@@ -149,4 +140,43 @@
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '{{ session('success') }}',
+                showConfirmButton: true,
+                confirmButtonText: 'Oke',
+                confirmButtonColor: '#85409D', 
+            });
+        @endif
+
+        const deleteButtons = document.querySelectorAll('.btn-delete');
+        
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const form = this.closest('.form-delete');
+                
+                Swal.fire({
+                    title: 'Yakin ingin menghapus?',
+                    text: "Data pengumuman yang dihapus tidak bisa dikembalikan!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Ya, Hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
 @endpush

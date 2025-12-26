@@ -66,6 +66,7 @@
                          style="max-height: 150px;">
                 </div>
             @endif
+            <p>Sebaiknya diisi dengan gambar landscape</p>
             <input type="file" 
                    id="image" 
                    name="image" 

@@ -179,23 +179,31 @@ class DashboardController extends Controller
                 });
         }
         
-        //surat
-        // Ambil data SuratNomor dengan pagination
+
         $suratNomors = SuratNomor::paginate(10);
 
-        // Ambil data Organisasi Jabatan dan hitung jumlah surat, revisi, dan valid per organisasi
-        $suratSummary = SuratNomor::select(
-                'oj_id', // Kolom yang menghubungkan ke OrganisasiJabatan
-                DB::raw('count(*) as jumlah_surat'),
-                DB::raw('count(case when sn_status = "revisi" then 1 end) as jumlah_revisi'),
-                DB::raw('count(case when sn_status = "validasi" then 1 end) as jumlah_valid')
+        $querySummary = SuratNomor::select(
+            DB::raw('count(*) as jumlah_surat'),
+            DB::raw('sum(case when sn_status = "revisi" then 1 else 0 end) as jumlah_revisi'),
+            DB::raw('sum(case when sn_status = "validasi" then 1 else 0 end) as jumlah_valid')
+        );
 
-            )
-            ->with('organisasiJabatan') // Memuat relasi organisasiJabatan
-            ->groupBy('oj_id') // Mengelompokkan berdasarkan organisasi jabatan
-            ->get();
+        if ($user->role === 'unit kerja') {
+            $suratSummary = $querySummary
+                ->addSelect('oj_id') 
+                ->where('unit_id', $user->unit_id)
+                ->with('organisasiJabatan')
+                ->groupBy('oj_id')
+                ->get();
+        } 
+        else {
+            $suratSummary = $querySummary
+                ->addSelect('unit_id') 
+                ->with('unitKerja')   
+                ->groupBy('unit_id')
+                ->get();
+        }
 
-        // Ambil data Monitoring dan rincian terkait
         $renjaPerPeriode = periode_monev::with(['rencanaKerjas' => function ($query) {
             $query->select('pm_id', 'rencana_kerja.rk_id')
                 ->withCount([

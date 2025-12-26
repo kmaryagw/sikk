@@ -4,61 +4,93 @@
 
 @section('main')
 <div class="main-content section">
+    
     <div class="section-header">
-        <h2 class="mb-4 text-danger">Detail Pengumuman</h2>
+        <h1>Detail Pengumuman</h1>
+        {{-- <div class="section-header-breadcrumb">
+            <div class="breadcrumb-item active"><a href="{{ route('announcement.index') }}">Pengumuman</a></div>
+            <div class="breadcrumb-item">Detail</div>
+        </div> --}}
     </div>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body">
-            {{-- Judul --}}
-            <h4 class="fw-bold">{{ $announcement->title }}</h4>
+    <div class="section-body">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-10 col-lg-8">
+                
+                <div class="card card-primary shadow">
+                    
+                    @if($announcement->image)
+                        <div style="height: 350px; overflow: hidden; border-top-left-radius: 4px; border-top-right-radius: 4px;">
+                            <img src="{{ asset('storage/' . $announcement->image) }}" 
+                                 alt="{{ $announcement->title }}" 
+                                 class="w-100" 
+                                 style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+                        </div>
+                    @endif
 
-            {{-- Tanggal --}}
-            <p class="text-muted mb-1">
-                {{ \Carbon\Carbon::parse($announcement->date)->translatedFormat('d F Y') }}
-            </p>
+                    <div class="card-body pt-4 pb-4 px-5">
+                        
+                        <div class="d-flex align-items-center mb-3">
+                            @if($announcement->is_main)
+                                <span class="badge badge-success px-3 py-2 mr-2">
+                                    <i class="fas fa-star mr-1"></i> Utama
+                                </span>
+                            @else
+                                <span class="badge badge-secondary px-3 py-2 mr-2">
+                                    <i class="fas fa-info-circle mr-1"></i> Biasa
+                                </span>
+                            @endif
 
-            {{-- Status utama --}}
-            @if($announcement->is_main)
-                <span class="badge bg-success">Pengumuman Utama</span>
-            @else
-                <span class="badge bg-secondary">Biasa</span>
-            @endif
+                            <span class="text-muted small">
+                                <i class="far fa-calendar-alt mr-1"></i> 
+                                {{ \Carbon\Carbon::parse($announcement->date)->translatedFormat('d F Y') }}
+                            </span>
+                        </div>
 
-            {{-- Gambar --}}
-            @if($announcement->image)
-                <div class="my-3">
-                    <img src="{{ asset('storage/' . $announcement->image) }}" 
-                         alt="Gambar Pengumuman" 
-                         class="img-fluid rounded shadow-sm" 
-                         style="max-height: 300px;">
+                        <h2 class="font-weight-bold text-dark mb-4" style="line-height: 1.3;">
+                            {{ $announcement->title }}
+                        </h2>
+
+                        <hr>
+
+                        <div class="content-text text-secondary mt-4">
+                            <div style="font-size: 16px; line-height: 1.8;">
+                                @if($announcement->summary)
+                                    {!! nl2br(e($announcement->summary)) !!}
+                                @else
+                                    <p class="text-muted font-italic text-center my-5">
+                                        Tidak ada deskripsi lengkap.
+                                    </p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-whitesmoke text-right">
+                        <a href="{{ route('announcement.index') }}" class="btn btn-secondary mr-2">
+                            <i class="fas fa-arrow-left mr-1"></i> Kembali
+                        </a>
+                        
+                        <div class="d-inline-block">
+                            <a href="{{ route('announcement.edit', $announcement->id) }}" class="btn btn-warning mr-1">
+                                <i class="fas fa-edit mr-1"></i> Edit
+                            </a>
+                            
+                            <form action="{{ route('announcement.destroy', $announcement->id) }}" 
+                                  method="POST" 
+                                  class="d-inline"
+                                  onsubmit="return confirm('Yakin ingin menghapus pengumuman ini?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-trash-alt mr-1"></i> Hapus
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-            @endif
-
-            {{-- Ringkasan --}}
-            <div class="mt-3">
-                @if($announcement->summary)
-                    <p>{{ $announcement->summary }}</p>
-                @else
-                    <p class="text-muted"><em>Tidak ada ringkasan</em></p>
-                @endif
+                
             </div>
-        </div>
-
-        {{-- Footer tombol --}}
-        <div class="card-footer d-flex justify-content-between">
-            <div>
-                <a href="{{ route('announcement.edit', $announcement->id) }}" class="btn btn-warning">Edit</a>
-                <form action="{{ route('announcement.destroy', $announcement->id) }}" 
-                      method="POST" 
-                      class="d-inline"
-                      onsubmit="return confirm('Yakin ingin menghapus pengumuman ini?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger">Hapus</button>
-                </form>
-            </div>
-            <a href="{{ route('announcement.index') }}" class="btn btn-primary">Kembali</a>
         </div>
     </div>
 </div>
