@@ -3,45 +3,60 @@
 namespace App\Imports;
 
 use App\Models\IndikatorKinerja;
-use App\Models\standar;
-use Maatwebsite\Excel\Concerns\ToModel;
+use App\Models\Standar;
+use App\Models\UnitKerja;
+use Maatwebsite\Excel\Concerns\OnEachRow;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Row;
 use Illuminate\Support\Str;
 
-class IndikatorKinerjaImport implements ToModel, WithHeadingRow
+class IndikatorKinerjaImport implements OnEachRow, WithHeadingRow
 {
-    public function model(array $row)
+    public function onRow(Row $row)
     {
-        // Validasi jika ada kolom kosong
-        if (!isset($row['ik_kode'], $row['ik_nama'], $row['std_nama'], $row['ik_jenis'], $row['ik_baseline'], $row['ik_ketercapaian'])) {
-            return null; // Lewati baris jika ada yang kosong
+        $rowIndex = $row->getIndex();
+        $row      = $row->toArray();
+
+        if (!isset($row['kode_ikuikt'], $row['nama_ikuikt'], $row['standar'], $row['jenis'], $row['ketercapaian'])) {
+            return; 
         }
 
-        // Cari std_id berdasarkan std_nama
-        $standar = standar::where('std_nama', $row['std_nama'])->first();
-
+        $standar = Standar::where('std_nama', trim($row['standar']))->first();
         if (!$standar) {
-            return null; // Lewati jika Standar tidak ditemukan
+            return; 
         }
 
-        $validKetercapaian = ['nilai', 'persentase', 'ketersediaan'];
+        $validKetercapaian = ['nilai', 'persentase', 'rasio', 'ada', 'ketersediaan'];
+        $ketercapaian = strtolower(trim($row['ketercapaian']));
 
-        // Pastikan `ik_ketercapaian` memiliki nilai yang valid
-        $ketercapaian = strtolower(trim($row['ik_ketercapaian']));
-    
-        // Jika isinya angka atau tidak valid, beri default atau abaikan
         if (!in_array($ketercapaian, $validKetercapaian)) {
-            return null; // Lewati jika data tidak valid
+            return; 
         }
-        return new IndikatorKinerja([
-            'ik_id' => Str::uuid()->toString(), // Menggunakan UUID
-            'ik_kode' => trim($row['ik_kode']),
-            'ik_nama' => trim($row['ik_nama']),
-            'std_id' => $standar->std_id, // Gunakan ID standar yang ditemukan
-            'ik_jenis' => strtoupper(trim($row['ik_jenis'])),
-            'ik_baseline' => trim($row['ik_baseline']),
-            'ik_is_aktif' => strtolower(trim($row['ik_is_aktif'])) === 'y' ? 'y' : 'n',
-            'ik_ketercapaian' => $ketercapaian, 
-        ]);
+
+        $indikator = IndikatorKinerja::updateOrCreate(
+            ['ik_kode' => trim($row['kode_ikuikt'])], 
+            [
+                'ik_id'           => IndikatorKinerja::where('ik_kode', trim($row['kode_ikuikt']))->exists() 
+                                     ? IndikatorKinerja::where('ik_kode', trim($row['kode_ikuikt']))->first()->ik_id 
+                                     : Str::uuid()->toString(),
+                'ik_nama'         => trim($row['nama_ikuikt']),
+                'std_id'          => $standar->std_id,
+                'ik_jenis'        => strtoupper(trim($row['jenis'])),
+                'ik_ketercapaian' => $ketercapaian,
+                'ik_is_aktif'     => isset($row['status_aktif_yn']) && strtolower(trim($row['status_aktif_yn'])) === 'y' ? 'y' : 'n',
+            ]
+        );
+
+        if (!empty($row['unit_kerja_pic'])) {
+            $unitNames = preg_split('/[,\/]/', $row['unit_kerja_pic']);
+            
+            $unitNames = array_map('trim', $unitNames);
+            $unitNames = array_filter($unitNames);
+
+            $unitIds = UnitKerja::whereIn('unit_nama', $unitNames)->pluck('unit_id');
+            if ($unitIds->isNotEmpty()) {
+                $indikator->unitKerja()->sync($unitIds);
+            }
+        }
     }
 }

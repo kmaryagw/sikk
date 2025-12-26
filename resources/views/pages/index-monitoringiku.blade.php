@@ -10,9 +10,12 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Daftar Monitoring Per Program Studi</h1>
+                @if (Auth::user()->role == 'admin' || Auth::user()->role == 'fakultas' || Auth::user()->role == 'prodi')
+                <h1>Daftar Monitoring Indikator Kinerja Per Program Studi</h1>
+                @else
+                <h1>Daftar Capaian Indikator Kinerja Per Program Studi</h1>
+                @endif
             </div>
-
             <div class="card mb-3">
                 <div class="card-header">
                     <form class="row g-2 align-items-center">
@@ -52,7 +55,7 @@
                                     <td>
                                         @php
                                             $user = Auth::user();
-                                            $isAdmin = $user->role === 'admin' || $user->role === 'fakultas';
+                                            $isAdmin = $user->role === 'admin' || $user->role === 'fakultas'|| $user->role === 'prodi';
                                             $unitId = $user->unit_id;
 
                                             $isFinalForUnit = $monitoringiku->isFinalForUnit($unitId);

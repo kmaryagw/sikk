@@ -14,60 +14,106 @@
 
      <style>
         .table-responsive {
-            max-height: 50rem; 
-            overflow-y: auto;    
+            max-height: none !important; /* Menghilangkan batas tinggi */
+            overflow-y: visible !important; /* Menghilangkan scroll bar vertical */
+            overflow-x: auto; /* Tetap izinkan scroll horizontal jika layar hp/kecil */      
+        }
+        .table thead th {
+           position: sticky;
+            top: 0; 
+            z-index: 100;
+            background-color: #f8f9fa !important;
+            box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
         }
 
-        .table thead th {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background-color: #f8f9fa !important; 
-        }
-        .filter-capsule {
-            background-color: #f8f9fa;
-            border: 1px solid #e3e6f0;
-            border-radius: 30px;
-            padding: 4px 15px;
+        /* Styling Filter Baru yang Lebih Compact */
+        .filter-group-clean {
             display: flex;
             align-items: center;
-            transition: all 0.3s;
-            min-width: 600px; 
-        }
-
-        .filter-capsule:hover, .filter-capsule:focus-within {
             background-color: #fff;
-            border-color: #6777ef; 
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            border: 1px solid #e3e6f0;
+            border-radius: 0.25rem;
+            padding: 0;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
         }
 
-        .filter-capsule .select2-container--default .select2-selection--single {
-            background-color: transparent !important;
+        .filter-group-clean:focus-within {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .filter-group-clean .input-group-icon {
+            padding: 0.375rem 0.75rem;
+            background: transparent;
+            border: none;
+            color: #4e73df; /* Warna Primary */
+        }
+
+        .filter-group-clean .custom-select {
             border: none !important;
-            height: 32px !important;
+            box-shadow: none !important;
+            background-color: transparent;
+            height: calc(2.25rem + 2px);
         }
 
-        .filter-capsule .select2-container--default .select2-selection--single .select2-selection__rendered {
-            line-height: 32px !important;
-            color: #6c757d;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .filter-capsule .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 32px !important;
-        }
-
-        .btn-reset-filter {
-            color: #fc544b;
+        .filter-group-clean .btn-reset {
+            border: none;
+            background: transparent;
+            color: #e74a3b; /* Warna Danger */
+            padding: 0.375rem 0.75rem;
+            display: flex;
+            align-items: center;
             cursor: pointer;
-            padding: 5px;
-            border-radius: 50%;
-            transition: 0.3s;
+            text-decoration: none;
         }
-        .btn-reset-filter:hover {
-            background-color: #ffe5e5;
-    }
+        
+        .filter-group-clean .btn-reset:hover {
+            background-color: #f8f9fa;
+            color: #c0392b;
+        }
+
+        /* Merapikan area info dan paging */
+        .dataTables_wrapper .dataTables_info {
+            padding-top: 1rem;
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+        .dataTables_wrapper .dataTables_paginate {
+            padding-top: 1rem;
+        }
+
+        /* Mempercantik Tombol Pagination */
+        .paginate_button.page-item.active .page-link {
+            background-color: #4e73df !important; /* Warna Primary Anda */
+            border-color: #4e73df !important;
+            box-shadow: 0 4px 6px rgba(78, 115, 223, 0.2);
+        }
+
+        .paginate_button.page-item .page-link {
+            border-radius: 5px !important;
+            margin: 0 3px;
+            color: #4e73df;
+            transition: all 0.3s ease;
+        }
+
+        .paginate_button.page-item:hover .page-link {
+            background-color: #f8f9fa;
+            transform: translateY(-1px);
+        }
+
+        /* Sticky Bottom Action Bar (UX SANGAT PENTING) */
+        /* Karena tabel panjang, tombol simpan harus selalu terlihat */
+        .action-bar-sticky {
+            position: sticky;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
+            padding: 15px;
+            border-top: 1px solid #e3e6f0;
+            z-index: 100;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
+        }
     </style>
 @endpush
 
@@ -75,54 +121,67 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
-                <h1>Daftar Monitoring Indikator Kinerja</h1>
+                <h1>Form Pengisian Capaian Indikator Kinerja</h1>
             </div>
                 <div class="card">
-                    <div class="card-header">
-                        <div class="row w-100 align-items-center justify-content-between m-0">
-                            <div class="col-md-7 col-12 p-0 mb-2 mb-md-0">
-                                <h4 class="m-0" style="font-size: 1.1rem; line-height: 1.5;">
-                                    Data Monitoring Prodi : 
-                                    <span class="badge badge-info shadow-sm mx-1">
-                                        {{ optional($monitoringiku->prodi)->nama_prodi ?? 'N/A' }}
-                                    </span> 
-                                    Tahun : 
-                                    <span class="badge badge-primary shadow-sm mx-1">
-                                        {{ optional($monitoringiku->tahunKerja)->th_tahun ?? 'N/A' }}
-                                    </span>
-                                </h4>
+                    <div class="card-header bg-white pt-4 pb-3">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center w-100">
+                            
+                            <div class="d-flex align-items-center flex-wrap mb-3 mb-md-0">
+                                
+                                <div class="d-flex align-items-center bg-white shadow-sm rounded p-2 mr-3 border" style="border-left: 4px solid #4e73df !important;">
+                                    <div class="p-2 mr-2 rounded-circle text-primary" style="background-color: #f0f4ff;">
+                                        <i class="fa-solid fa-calendar-check fa-lg"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-uppercase text-muted font-weight-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">Tahun</small>
+                                        <h6 class="mb-0 text-dark font-weight-bold">{{ optional($monitoringiku->tahunKerja)->th_tahun ?? 'N/A' }}</h6>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex align-items-center bg-white shadow-sm rounded p-2 border" style="border-left: 4px solid #36b9cc !important;">
+                                    <div class="p-2 mr-2 rounded-circle text-info" style="background-color: #e0faff;">
+                                        <i class="fa-solid fa-university fa-lg"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-uppercase text-muted font-weight-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">Prodi</small>
+                                        <h6 class="mb-0 text-dark font-weight-bold">{{ optional($monitoringiku->prodi)->nama_prodi ?? 'N/A' }}</h6>
+                                    </div>
+                                </div>
+                                
                             </div>
+
                             @if(Auth::user()->role === 'admin')
-                                <div class="card-header-action">
+                                <div style="width: 100%; max-width: 300px;"> 
                                     <form method="GET" action="{{ route('monitoringiku.create-detail', $monitoringiku->mti_id) }}">
                                         
-                                        <div class="filter-capsule">
-                                            <i class="fa-solid fa-filter text-muted mr-2"></i>
-                                            <div style="flex-grow: 1;">
-                                                <select class="form-control select2" name="unit_kerja" onchange="this.form.submit()">
-                                                    <option value="">Filter Unit Kerja...</option>
-                                                    @foreach($unitKerjas as $unit)
-                                                        <option value="{{ $unit->unit_id }}" {{ $selectedUnit == $unit->unit_id ? 'selected' : '' }}>
-                                                            {{ $unit->unit_nama }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
+                                        <div class="filter-group-clean shadow-sm">
+                                            
+                                            <div class="input-group-icon">
+                                                <i class="fa-solid fa-filter"></i>
                                             </div>
+                                            <select class="custom-select" name="unit_kerja" onchange="this.form.submit()">
+                                                <option value="">Semua Unit Kerja...</option>
+                                                @foreach($unitKerjas as $unit)
+                                                    <option value="{{ $unit->unit_id }}" {{ $selectedUnit == $unit->unit_id ? 'selected' : '' }}>
+                                                        {{ $unit->unit_nama }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
                                             @if($selectedUnit)
-                                                <div class="border-left ml-2 pl-2">
-                                                    <a href="{{ route('monitoringiku.create-detail', $monitoringiku->mti_id) }}" 
-                                                    class="btn-reset-filter" 
-                                                    title="Hapus Filter">
-                                                        <i class="fa-solid fa-times"></i>
-                                                    </a>
-                                                </div>
+                                                <a href="{{ route('monitoringiku.create-detail', $monitoringiku->mti_id) }}" 
+                                                class="btn-reset" 
+                                                title="Hapus Filter">
+                                                    <i class="fa-solid fa-times"></i>
+                                                </a>
                                             @endif
                                         </div>
+
                                     </form>
                                 </div>
                             @endif
                         </div>
-                    </div>  
+                    </div> 
                     <div class="card-body">
                         <form action="{{ route('monitoringiku.store-detail', ['mti_id' => $monitoringiku->mti_id]) }}" method="POST">
                             @csrf
@@ -275,18 +334,23 @@
                                                             name="mtid_peningkatan[{{ $idx }}]"
                                                             @if(empty($detail->mtid_capaian)) disabled @endif>{{ old("mtid_peningkatan.$idx", $detail->mtid_peningkatan ?? '') }}</textarea>
                                                     </td>
-
                                                 @else
                                                     <td>
                                                         <input type="hidden" name="ti_id[{{ $idx }}]" value="{{ $indikator->ti_id }}">
+                                                        
+                                                        {{-- 1. TAMBAHKAN: Hidden input untuk mengirimkan TIPE ketercapaian ke Controller --}}
+                                                        <input type="hidden" name="mtid_capaian[{{ $idx }}]" value="{{ strtolower($indikatorKinerja->ik_ketercapaian) }}">
 
+                                                        {{-- 2. UBAH: Nama atribut input dari mtid_capaian menjadi capaian_value --}}
                                                         @if(in_array(strtolower($indikatorKinerja->ik_ketercapaian), ['nilai', 'persentase']))
                                                             <input type="number" class="form-control" style="max-width:150px"
-                                                                name="mtid_capaian[{{ $idx }}]" step="any"
-                                                                value="{{ $capaianValue }}" @if($isLocked) readonly @endif>
+                                                                name="capaian_value[{{ $idx }}]" {{-- UBAH DI SINI --}}
+                                                                step="any"
+                                                                value="{{ $capaianValue }}" 
+                                                                @if($isLocked) readonly @endif>
 
                                                         @elseif(strtolower($indikatorKinerja->ik_ketercapaian) === 'ketersediaan')
-                                                            <select name="mtid_capaian[{{ $idx }}]" class="form-control" style="max-width:150px"
+                                                            <select name="capaian_value[{{ $idx }}]" class="form-control" style="max-width:150px" {{-- UBAH DI SINI --}}
                                                                     @if($isLocked) disabled @endif>
                                                                 <option value="" {{ $capaianValue ? '' : 'selected' }}>Pilih</option>
                                                                 <option value="ada"   {{ $capaianValue == 'ada' ? 'selected' : '' }}>Ada</option>
@@ -294,28 +358,35 @@
                                                             </select>
                                                             
                                                             @if($isLocked)
-                                                                <input type="hidden" name="mtid_capaian[{{ $idx }}]" value="{{ $capaianValue }}">
+                                                                <input type="hidden" name="capaian_value[{{ $idx }}]" value="{{ $capaianValue }}">
                                                             @endif
 
+                                                        @elseif(strtolower($indikatorKinerja->ik_ketercapaian) === 'rasio')
+                                                            {{-- KHUSUS RASIO --}}
+                                                            <input type="text" class="form-control" style="max-width:150px"
+                                                                name="capaian_value[{{ $idx }}]" {{-- UBAH DI SINI --}}
+                                                                value="{{ $capaianRaw }}" 
+                                                                placeholder="Contoh: 1:20"
+                                                                @if($isLocked) readonly @endif>
                                                         @else
+                                                            {{-- DEFAULT LAINNYA --}}
                                                             <input type="text" class="form-control" style="max-width:100px"
-                                                                name="mtid_capaian[{{ $idx }}]" value="{{ $capaianValue }}"
+                                                                name="capaian_value[{{ $idx }}]" {{-- UBAH DI SINI --}}
+                                                                value="{{ $capaianValue }}"
                                                                 @if($isLocked) readonly @endif>
                                                         @endif
                                                     </td>
-
                                                     <td>
                                                         <textarea class="form-control" rows="3" style="max-width:200px"
                                                             name="mtid_keterangan[{{ $idx }}]"
                                                             @if($isLocked) readonly @endif>{{ old("mtid_keterangan.$idx", $detail->mtid_keterangan ?? '') }}</textarea>
                                                     </td>
-
                                                     <td>
                                                         <input type="url" class="form-control" style="max-width:200px"
-                                                            name="mtid_url[{{ $idx }}]"
-                                                            value="{{ old("mtid_url.$idx", $detail->mtid_url ?? '') }}"
-                                                            placeholder="https://..."
-                                                            @if($isLocked) readonly @endif>
+                                                        name="mtid_url[{{ $idx }}]"
+                                                        value="{{ old("mtid_url.$idx", $detail->mtid_url ?? '') }}"
+                                                        placeholder="https://..."
+                                                        @if($isLocked) readonly @endif>
                                                     </td>
                                                 @endif
                                             </tr>
@@ -357,19 +428,49 @@
     <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>
     <script>
         $(document).ready(function () {
-            $("#table-indikator").DataTable({
-                "columnDefs": [
-                    { "sortable": false, "targets": [4, 5, 6] }
-                ],
-                "paging": false, 
+            var table = $("#table-indikator").DataTable({
+                "paging": true,
+                "pageLength": 10, // Menampilkan 10 data per halaman agar tidak terlalu berat
+                "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Semua"]],
                 "order": [[1, 'asc']],
-                info: true,
-                infoCallback: function(settings, start, end, max, total, pre) {
-                    return `
-                        <span class="badge bg-primary text-light px-3 py-2 m-3">
-                            Total Data : ${total}
-                        </span>
-                    `;
+                "dom": "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                "language": {
+                    "search": "_INPUT_",
+                    "searchPlaceholder": "Cari Indikator...",
+                    "lengthMenu": "Tampilkan _MENU_ data",
+                    "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                    "paginate": {
+                        "previous": "<i class='fas fa-chevron-left'></i>",
+                        "next": "<i class='fas fa-chevron-right'></i>",
+                        "first": "<i class='fas fa-angle-double-left'></i>",
+                        "last": "<i class='fas fa-angle-double-right'></i>"
+                    }
+                },
+                "pagingType": "full_numbers", // Menampilkan angka halaman lengkap + First/Last
+                "drawCallback": function() {
+                    // Merapikan style tombol pagination agar serasi dengan Bootstrap
+                    $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+                }
+            });
+        });
+
+        $('form').on('submit', function(e) {
+            var form = this;
+
+            // Ambil semua data input dari seluruh halaman tabel (termasuk yang tidak terlihat)
+            var params = table.$('input,select,textarea').serializeArray();
+
+            // Tambahkan input tersembunyi tersebut ke dalam form sebelum submit
+            $.each(params, function() {
+                if (!$.contains(document, form[this.name])) {
+                    $(form).append(
+                        $('<input>')
+                            .attr('type', 'hidden')
+                            .attr('name', this.name)
+                            .val(this.value)
+                    );
                 }
             });
         });

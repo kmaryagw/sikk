@@ -9,7 +9,7 @@
 <div class="main-content">
     <section class="section">
         <div class="section-header">
-            <h1>Edit Monitoring Indikator Kinerja</h1>
+            <h1>Ubah Data Capaian Indikator Kinerja</h1>
         </div>
 
         <div class="section-body">
@@ -32,7 +32,6 @@
                                 @csrf
                                 @method('PUT')
 
-                                <!-- Card 1: Informasi Utama -->
                                 <div class="card mb-3">
                                     <div class="card-body">
                                         <h4 class="text-danger mb-3">Data Target Indikator</h4>

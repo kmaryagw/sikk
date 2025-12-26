@@ -4,15 +4,21 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use Illuminate\Support\Collection;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
-class MonitoringIKUDetailExport implements FromCollection, WithHeadings, ShouldAutoSize, WithStyles
+class MonitoringIKUDetailExport implements FromCollection, WithHeadings, WithStyles, WithMapping, WithEvents
 {
     protected $data;
     protected $type;
+    protected $rowIndex = 0;
 
     public function __construct($data, $type)
     {
@@ -22,81 +28,85 @@ class MonitoringIKUDetailExport implements FromCollection, WithHeadings, ShouldA
 
     public function collection()
     {
-        return $this->data->map(function ($item, $index) {
-            
-            // Helper string aman
-            $safeString = function($value) {
-                if (is_array($value) || is_object($value)) return ''; 
-                return trim((string) $value);
-            };
+        // Logika Sorting: Mengurutkan berdasarkan ik_kode secara natural (A-Z, 1-10)
+        return $this->data->sortBy(function ($item) {
+            return optional($item->indikatorKinerja)->ik_kode;
+        }, SORT_NATURAL | SORT_FLAG_CASE);
+    }
 
-            $ik_kode = $safeString(optional($item->indikatorKinerja)->ik_kode);
-            $ik_nama = $safeString(optional($item->indikatorKinerja)->ik_nama);
-            $indikator = $ik_kode ? ($ik_kode . ' - ' . $ik_nama) : $ik_nama;
-            
-            $ketercapaian = strtolower($safeString(optional($item->indikatorKinerja)->ik_ketercapaian));
+    public function map($item): array
+    {
+        $this->rowIndex++;
+        
+        $safeString = function($value) {
+            if (is_array($value) || is_object($value)) return ''; 
+            return trim((string) $value);
+        };
 
-            $baselineRaw = $safeString($item->fetched_baseline);
-            $cleanNumBase = str_replace(['%', ' '], '', $baselineRaw);
-            $baselineDisplay = $baselineRaw;
+        $ik_kode = $safeString(optional($item->indikatorKinerja)->ik_kode);
+        $ik_nama = $safeString(optional($item->indikatorKinerja)->ik_nama);
+        $indikator = $ik_kode ? ($ik_kode . ' - ' . $ik_nama) : $ik_nama;
+        
+        $ketercapaian = strtolower($safeString(optional($item->indikatorKinerja)->ik_ketercapaian));
 
-            if ($ketercapaian === 'persentase' && is_numeric($cleanNumBase)) {
-                if (strpos($baselineRaw, '%') === false && $baselineRaw !== '') {
-                     $baselineDisplay = $cleanNumBase . '%';
-                }
-            } elseif ($ketercapaian === 'rasio') {
-                $cleaned = preg_replace('/\s*/', '', $baselineRaw);
-                if (preg_match('/^\d+:\d+$/', $cleaned)) {
-                    [$a, $b] = explode(':', $cleaned);
-                    $baselineDisplay = "{$a} : {$b}";
-                }
-            } elseif (in_array(strtolower($baselineRaw), ['ada', 'draft'])) {
-                $baselineDisplay = ucfirst($baselineRaw); 
+        $baselineRaw = $safeString($item->fetched_baseline);
+        $cleanNumBase = str_replace(['%', ' '], '', $baselineRaw);
+        $baselineDisplay = $baselineRaw;
+
+        if ($ketercapaian === 'persentase' && is_numeric($cleanNumBase)) {
+            if (strpos($baselineRaw, '%') === false && $baselineRaw !== '') {
+                 $baselineDisplay = $cleanNumBase . '%';
             }
-
-            $targetRaw = $safeString($item->ti_target);
-            $cleanNumTarget = str_replace(['%', ' '], '', $targetRaw);
-            $targetDisplay = $targetRaw;
-            
-            if ($ketercapaian === 'persentase' && is_numeric($cleanNumTarget) && $targetRaw !== '') {
-                 if (strpos($targetRaw, '%') === false) {
-                     $targetDisplay = $cleanNumTarget . '%';
-                 }
+        } elseif ($ketercapaian === 'rasio') {
+            $cleaned = preg_replace('/\s*/', '', $baselineRaw);
+            if (preg_match('/^\d+:\d+$/', $cleaned)) {
+                [$a, $b] = explode(':', $cleaned);
+                $baselineDisplay = "{$a} : {$b}";
             }
+        } elseif (in_array(strtolower($baselineRaw), ['ada', 'draft'])) {
+            $baselineDisplay = ucfirst($baselineRaw); 
+        }
 
-            $detail = $item->monitoringDetail;
-            if ($detail instanceof \Illuminate\Support\Collection) {
-                $detail = $detail->first();
-            }
+        $targetRaw = $safeString($item->ti_target);
+        $cleanNumTarget = str_replace(['%', ' '], '', $targetRaw);
+        $targetDisplay = $targetRaw;
+        
+        if ($ketercapaian === 'persentase' && is_numeric($cleanNumTarget) && $targetRaw !== '') {
+             if (strpos($targetRaw, '%') === false) {
+                 $targetDisplay = $cleanNumTarget . '%';
+             }
+        }
 
-            $capaian     = $detail ? $safeString($detail->mtid_capaian) : '';
-            $url         = $detail ? $safeString($detail->mtid_url) : '';
-            $status      = $detail ? ucfirst($safeString($detail->mtid_status)) : '';
-            $keterangan  = $detail ? $safeString($detail->mtid_keterangan) : '';
-            $evaluasi    = $detail ? $safeString($detail->mtid_evaluasi) : '';
-            $tindak      = $detail ? $safeString($detail->mtid_tindaklanjut) : '';
-            $peningkatan = $detail ? $safeString($detail->mtid_peningkatan) : '';
+        $detail = $item->monitoringDetail;
+        if ($detail instanceof \Illuminate\Support\Collection) {
+            $detail = $detail->first();
+        }
 
-            $row = [(string)($index+1), $indikator, $baselineDisplay, $targetDisplay];
+        $row = [
+            $this->rowIndex,
+            $indikator,
+            $baselineDisplay,
+            $targetDisplay
+        ];
 
-            if (in_array($this->type, ['pelaksanaan', 'evaluasi', 'pengendalian', 'peningkatan'])) {
-                $row[] = $capaian;
-                $row[] = $url;
-            }
-            if (in_array($this->type, ['evaluasi', 'pengendalian', 'peningkatan'])) {
-                $row[] = $status;
-            }
-            if (in_array($this->type, ['pengendalian', 'peningkatan'])) {
-                $row[] = $keterangan;
-                $row[] = $evaluasi;
-                $row[] = $tindak;
-            }
-            if ($this->type == 'peningkatan') {
-                $row[] = $peningkatan;
-            }
+        if (in_array($this->type, ['pelaksanaan', 'evaluasi', 'pengendalian', 'peningkatan'])) {
+            $row[] = $detail ? $safeString($detail->mtid_capaian) : '';
+            $row[] = $detail ? $safeString($detail->mtid_url) : '';
+        }
+        if (in_array($this->type, ['evaluasi', 'pengendalian', 'peningkatan'])) {
+            $statusRaw = $detail ? ucfirst($safeString($detail->mtid_status)) : '';
+            $row[] = $statusRaw;
+        }
+        if (in_array($this->type, ['pengendalian', 'peningkatan'])) {
+            $row[] = $detail ? $safeString($detail->mtid_keterangan) : '';
+            $row[] = $detail ? $safeString($detail->mtid_evaluasi) : '';
+            $row[] = $detail ? $safeString($detail->mtid_tindaklanjut) : '';
+        }
+        if ($this->type == 'peningkatan') {
+            $row[] = $detail ? $safeString($detail->mtid_peningkatan) : '';
+        }
 
-            return $row;
-        });
+        return $row;
     }
 
     public function headings(): array
@@ -104,7 +114,7 @@ class MonitoringIKUDetailExport implements FromCollection, WithHeadings, ShouldA
         $headers = ['No', 'Indikator Kinerja', 'Baseline', 'Target'];
 
         if (in_array($this->type, ['pelaksanaan', 'evaluasi', 'pengendalian', 'peningkatan'])) {
-            array_push($headers, 'Capaian', 'URL');
+            array_push($headers, 'Capaian', 'URL Bukti Dukung');
         }
         if (in_array($this->type, ['evaluasi', 'pengendalian', 'peningkatan'])) {
             array_push($headers, 'Status');
@@ -121,35 +131,116 @@ class MonitoringIKUDetailExport implements FromCollection, WithHeadings, ShouldA
 
     public function styles(Worksheet $sheet)
     {
-        $sheet->getStyle('A:K')->getAlignment()->setWrapText(true);
-        $sheet->getStyle('A:K')->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+        $lastColumn = $sheet->getHighestColumn();
+        $lastRow = $sheet->getHighestRow();
+
+        $sheet->getParent()->getDefaultStyle()->getFont()->setName('Arial');
+        $sheet->getParent()->getDefaultStyle()->getFont()->setSize(10);
         
-        $sheet->getStyle('A')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle('C')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle('D')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle("A1:{$lastColumn}{$lastRow}")
+              ->getAlignment()
+              ->setVertical(Alignment::VERTICAL_CENTER)
+              ->setWrapText(true);
 
-        $sheet->getStyle('A1:' . $sheet->getHighestColumn() . $sheet->getHighestRow())
-              ->getBorders()->getAllBorders()
-              ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-
-        $sheet->getStyle('1:1')->applyFromArray([
-            'font' => ['bold' => true],
-            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
-            'fill' => [
-                'fillType' => 'solid',
-                'color' => ['rgb' => 'F2F2F2']
+        $headerStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['argb' => 'FFFFFFFF'],
+                'size' => 11,
             ],
-        ]);
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'color' => ['argb' => 'FFC00000'],
+            ],
+        ];
+        $sheet->getStyle("A1:{$lastColumn}1")->applyFromArray($headerStyle);
+        $sheet->getRowDimension(1)->setRowHeight(30);
 
-        foreach (range(1, $sheet->getHighestRow()) as $row) {
-            $sheet->getRowDimension($row)->setRowHeight(-1);
-        }
-        
+        $borderStyle = [
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FFCCCCCC'],
+                ],
+                'outline' => [
+                    'borderStyle' => Border::BORDER_MEDIUM,
+                ]
+            ],
+        ];
+        $sheet->getStyle("A1:{$lastColumn}{$lastRow}")->applyFromArray($borderStyle);
+
+        $sheet->getStyle("A2:A{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle("C2:D{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
         $sheet->getColumnDimension('A')->setWidth(5);
-        $sheet->getColumnDimension('B')->setWidth(20);
-        $sheet->getColumnDimension('C')->setWidth(15);
-        $sheet->getColumnDimension('D')->setWidth(15);
-        
+        $sheet->getColumnDimension('B')->setWidth(35);
+        $sheet->getColumnDimension('C')->setWidth(12);
+        $sheet->getColumnDimension('D')->setWidth(12);
+
+        $highestColumnIndex = Coordinate::columnIndexFromString($lastColumn);
+        for ($col = 5; $col <= $highestColumnIndex; $col++) {
+            $columnLetter = Coordinate::stringFromColumnIndex($col);
+            $sheet->getColumnDimension($columnLetter)->setWidth(25);
+        }
+
         return [];
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function(AfterSheet $event) {
+                $sheet = $event->sheet->getDelegate();
+                $lastColumn = $sheet->getHighestColumn();
+                $lastRow = $sheet->getHighestRow();
+
+                $sheet->setAutoFilter("A1:{$lastColumn}{$lastRow}");
+
+                $sheet->freezePane('A2');
+
+                for ($row = 2; $row <= $lastRow; $row++) {
+                    if ($row % 2 == 0) {
+                        $sheet->getStyle("A{$row}:{$lastColumn}{$row}")->applyFromArray([
+                            'fill' => [
+                                'fillType' => Fill::FILL_SOLID,
+                                'color' => ['argb' => 'FFF9FAFB'],
+                            ],
+                        ]);
+                    }
+                }
+
+                $headers = $this->headings();
+                $urlColIndex = null;
+                foreach ($headers as $index => $label) {
+                    if (str_contains(strtolower($label), 'url')) {
+                        $urlColIndex = $index + 1;
+                        break;
+                    }
+                }
+
+                if ($urlColIndex) {
+                    $urlColLetter = Coordinate::stringFromColumnIndex($urlColIndex);
+                    
+                    for ($row = 2; $row <= $lastRow; $row++) {
+                        $cell = $sheet->getCell("{$urlColLetter}{$row}");
+                        $val = $cell->getValue();
+                        
+                        if (!empty($val) && filter_var($val, FILTER_VALIDATE_URL)) {
+                            $cell->getHyperlink()->setUrl($val);
+                            $sheet->getStyle("{$urlColLetter}{$row}")->applyFromArray([
+                                'font' => [
+                                    'color' => ['rgb' => '0000FF'],
+                                    'underline' => true
+                                ]
+                            ]);
+                        }
+                    }
+                }
+            },
+        ];
     }
 }

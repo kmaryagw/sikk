@@ -18,7 +18,7 @@
         }
 
         .table-responsive {
-            max-height: 50rem;  
+            max-height: 31rem;  
             overflow-y: auto;    
         }
 
@@ -42,7 +42,11 @@
         <div class="section-header">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
+                    @if(Auth::user()->role == 'admin' || Auth::user()->role == 'fakultas' || Auth::user()->role == 'prodi')
                     <h1 class="mb-0">Daftar Monitoring Indikator Kinerja</h1>
+                    @else
+                    <h1 class="mb-0">Daftar Capaian Indikator Kinerja</h1>
+                    @endif
                     <a class="btn btn-danger" href="{{ route('monitoringiku.index') }}">
                         <i class="fa-solid fa-arrow-left"></i> Kembali
                     </a>
@@ -59,7 +63,6 @@
                 
                 <form action="{{ route('monitoringiku.show', $Monitoringiku->mti_id) }}" method="GET">
                     <div class="form-row align-items-center">
-                        {{-- Filter Unit Kerja (Jika variabel dikirim dari controller) --}}
                         @if((Auth::user()->role == 'admin' || Auth::user()->role == 'fakultas') && isset($unitKerjas))
                         <div class="col-auto">
                             <select name="unit_kerja" class="form-control form-control-sm">
