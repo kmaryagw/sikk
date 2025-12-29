@@ -2,12 +2,10 @@
 @section('title', 'Target Capaian')
 
 @push('style')
-    <!-- CSS Libraries -->
     <link rel="stylesheet" href="{{ asset('library/jqvmap/dist/jqvmap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('library/summernote/dist/summernote-bs4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/circular-progress-bar.css') }}">
 
-    <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
     
     <style>
@@ -20,7 +18,6 @@
             text-align: left !important;
         }
 
-        /* Style tambahan untuk Header DataTables agar ikon sorting pas */
         table.dataTable thead .sorting:before, 
         table.dataTable thead .sorting_asc:before, 
         table.dataTable thead .sorting_desc:before, 
@@ -30,7 +27,6 @@
             bottom: 0.8em; 
         }
         
-        /* Menghilangkan border bawah pada info datatables */
         .dataTables_info {
             padding: 1rem;
             font-weight: 600;
@@ -50,7 +46,6 @@
                 <div class="card-header">
                     <form class="row g-2 align-items-center">
                         
-                        {{-- Filter Tahun --}}
                         @if (Auth::user()->role== 'admin' || Auth::user()->role == 'prodi')
                         <div class="col-auto">
                             <select class="form-control" name="tahun">
@@ -64,7 +59,6 @@
                         </div>
                         @endif
                         
-                        {{-- Filter Unit Kerja (Hanya muncul jika variabel dikirim dari controller) --}}
                         <div class="col-auto">
                             <select class="form-control" name="unit_kerja">
                                 <option value="">Semua Unit Kerja</option>
@@ -110,7 +104,6 @@
                         <tbody>
                             @foreach ($target_capaians as $targetcapaian)
                                 <tr>
-                                    {{-- Menggunakan $loop->iteration karena pagination dihapus --}}
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $targetcapaian->th_tahun }}</td>
                                     <td><span class="badge">{{ $targetcapaian->nama_prodi }}</span></td>
@@ -130,7 +123,6 @@
                                     </td>
                                     <td>
                                         @php
-                                            // --- LOGIC BASELINE ---
                                             $ketercapaian = strtolower((string) ($targetcapaian->indikatorKinerja->ik_ketercapaian ?? ''));
                                             $bt = trim((string) ($targetcapaian->baseline_tahun ?? ''));
                                             $baselineRaw = $bt !== '' ? $bt : '0';
@@ -139,7 +131,6 @@
                                             $progressColor = ($baselineValue !== null && $baselineValue == 0) ? '#dc3545' : '#28a745';
                                         @endphp
 
-                                        {{-- Visualisasi Baseline --}}
                                         @if ($ketercapaian === 'persentase' && $baselineValue !== null)
                                             <div class="d-flex justify-content-center">
                                                 <div class="ring-progress-wrapper">
@@ -175,14 +166,11 @@
 
                                     <td>
                                         @php
-                                            // --- LOGIC TARGET ---
                                             $ketercapaian = strtolower($targetcapaian->indikatorKinerja->ik_ketercapaian ?? '');
                                             $targetRaw = trim($targetcapaian->ti_target ?? '');
                                             $numericValue = (float) str_replace('%', '', $targetRaw);
                                             $progressColor = $numericValue == 0 ? '#dc3545' : '#28a745';
                                         @endphp
-
-                                        {{-- Visualisasi Target --}}
                                         @if ($ketercapaian === 'persentase' && is_numeric($numericValue))
                                             <div class="d-flex justify-content-center">
                                                 <div class="ring-progress-wrapper">
@@ -217,7 +205,6 @@
                                     </td>  
                                     <td>
                                         <div class="d-flex justify-content-center">
-                                            {{-- Tombol Edit --}}
                                             <a href="{{ route('targetcapaianprodi.edit', $targetcapaian->ti_id) }}" class="btn btn-warning btn-sm">
                                                 <i class="fa-solid fa-pen-to-square"></i> Edit
                                             </a>
@@ -240,7 +227,6 @@
 @endsection
 
 @push('scripts')
-    <!-- JS Libraries -->
     <script src="{{ asset('library/simpleweather/jquery.simpleWeather.min.js') }}"></script>
     <script src="{{ asset('library/chart.js/dist/Chart.min.js') }}"></script>
     <script src="{{ asset('library/jqvmap/dist/jquery.vmap.min.js') }}"></script>
@@ -248,10 +234,8 @@
     <script src="{{ asset('library/summernote/dist/summernote-bs4.min.js') }}"></script>
     <script src="{{ asset('library/chocolat/dist/js/jquery.chocolat.min.js') }}"></script>
 
-    <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 
-    <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/index-0.js') }}"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

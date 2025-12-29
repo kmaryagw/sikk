@@ -176,6 +176,12 @@ Route::middleware('auth')->group(function () {
     Route::put('/tahun/{id}/toggle-lock', [App\Http\Controllers\TahunController::class, 'toggleLock'])
     ->name('tahun.toggle-lock');
 
+    // Route untuk Menandai Dibaca & Redirect (Sudah ada sebelumnya)
+    Route::get('/notifikasi/read/{id}', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifikasi.read');
+
+    // Route untuk Menghapus Notifikasi
+    Route::get('/notifikasi/delete/{id}', [App\Http\Controllers\NotificationController::class, 'delete'])->name('notifikasi.delete');
+
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
     Route::post('/monitoringiku/{mti_id}/finalize-unit', [App\Http\Controllers\MonitoringIKUController::class, 'finalizeUnit'])->name('monitoringiku.finalize-unit');

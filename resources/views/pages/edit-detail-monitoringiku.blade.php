@@ -77,32 +77,7 @@
                                             </div>
 
                                             <!-- Baseline Input -->
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label for="baseline">Baseline</label>
-                                                    <div class="input-group">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text">
-                                                                <i class="fa-solid fa-sort-amount-down"></i>
-                                                            </span>
-                                                        </div>
-                                                        <input class="form-control" name="baseline" value="{{ old('baseline', $baseline ?? '') }}" readonly>
-                                                    </div>
-                                                </div>
-                                            </div>                                        
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label for="ti_target">Target</label>
-                                                    <div class="input-group">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text">
-                                                                <i class="fa-solid fa-award"></i>
-                                                            </span>
-                                                        </div>
-                                                        <input type="text" id="ti_target" class="form-control" value="{{ $targetIndikator->ti_target }}" readonly>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="ik_ketercapaian">Jenis Ketercapaian</label>
@@ -141,16 +116,12 @@
                                     $readonlyMonitoring = $isAdmin; 
                                     $readonlyEvaluasi = $isAdmin && empty($monitoringikuDetail->mtid_capaian);
 
-                                    // Ambil Jenis dari Master Data (Source of Truth)
                                     $jenis_ik_db = strtolower($targetIndikator->indikatorKinerja->ik_ketercapaian ?? 'nilai');
                                     
-                                    // Cek apakah jenisnya kategori "Pilihan" (Ketersediaan) atau "Isian" (Angka/Rasio)
                                     $is_ketersediaan = in_array($jenis_ik_db, ['ketersediaan', 'status', 'ada/tidak']);
 
-                                    // Persiapan Data Value (Memisahkan angka dari simbol %)
                                     $capaian_terakhir = old('mtid_capaian', $monitoringikuDetail->mtid_capaian);
                                     
-                                    // Logic parsing value untuk ditampilkan di input text
                                     $input_value = '';
                                     if (!$is_ketersediaan) {
                                         if (str_ends_with($capaian_terakhir, '%')) {
@@ -162,17 +133,41 @@
                                         }
                                     }
                                     
-                                    // Jika form error (validasi gagal), kembalikan input user dari 'old'
                                     if(old('capaian_value')) {
                                         $input_value = old('capaian_value');
                                     }
                                 @endphp
 
-                                <!-- Card 2: Data Monitoring Indikator Kinerja -->
                                 <div class="card shadow-sm mb-3">
                                     <div class="card-body">
                                         <h4 class="text-danger mb-3">Data Capaian</h4>
-                                        <div class="row">                                            
+                                        <div class="row">      
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="baseline">Baseline</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">
+                                                                <i class="fa-solid fa-sort-amount-down"></i>
+                                                            </span>
+                                                        </div>
+                                                        <input class="form-control" name="baseline" value="{{ old('baseline', $baseline ?? '') }}" readonly>
+                                                    </div>
+                                                </div>
+                                            </div>                                        
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="ti_target">Target</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">
+                                                                <i class="fa-solid fa-award"></i>
+                                                            </span>
+                                                        </div>
+                                                        <input type="text" id="ti_target" class="form-control" value="{{ $targetIndikator->ti_target }}" readonly>
+                                                    </div>
+                                                </div>
+                                            </div>                                      
                                             @if($is_ketersediaan)
                                                 {{-- KASUS 1: Ketersediaan (Dropdown Ada/Draft) --}}
                                                 <div class="col-md-6">
@@ -190,25 +185,25 @@
                                                 </div>
                                             @else                                                
                                                 {{-- Kolom 1: Jenis (Read Only) --}}
-                                                <div class="col-md-6">
+                                                {{-- <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label>Jenis Ketercapaian</label>
-                                                        <!-- Tampilan Visual -->
                                                         <input type="text" class="form-control text-capitalize" value="{{ $jenis_ik_db }}" readonly style="background-color: #e9ecef;">
-                                                        
-                                                        <!-- Value Hidden yang dikirim ke Controller -->
                                                         <input type="hidden" name="mtid_capaian" value="{{ $jenis_ik_db }}">
                                                     </div>
-                                                </div>
+                                                </div> --}}
 
-                                                {{-- Kolom 2: Input Angka/Value --}}
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label for="capaian_value">
+                                                        @if ($isAdmin)
+                                                                Nilai Capaian 
+                                                            @else
                                                             Masukkan Nilai Capaian 
                                                             @if($jenis_ik_db == 'persentase') (Tanpa %) 
                                                             @elseif($jenis_ik_db == 'rasio') (Format x:y) 
                                                             @endif
+                                                        @endif
                                                             <span class="text-danger">*</span>
                                                         </label>
                                                         

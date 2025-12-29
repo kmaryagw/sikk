@@ -18,7 +18,7 @@
     <h3>{{ $judul }}</h3>
         
         <h4>
-            {{ strtoupper(optional($monitoring->prodi->Fakultasn)->nama_fakultas ?? 'FAKULTAS TIDAK DITEMUKAN') }}
+            FAKULTAS {{ strtoupper(optional($monitoring->prodi->Fakultasn)->nama_fakultas ?? 'FAKULTAS TIDAK DITEMUKAN') }}
         </h4>
 
         <h4>PROGRAM STUDI {{ strtoupper($monitoring->prodi->nama_prodi ?? '-') }}</h4>
@@ -33,7 +33,6 @@
                 <th width="8%">Baseline</th>
                 <th width="8%">Target</th>
                 
-                {{-- Logika Header Sesuai Type --}}
                 @if(in_array($type, ['pelaksanaan', 'evaluasi', 'pengendalian', 'peningkatan']))
                     <th width="8%">Capaian</th>
                     <th width="10%">URL</th>
@@ -44,7 +43,7 @@
                 @endif
 
                 @if(in_array($type, ['pengendalian', 'peningkatan']))
-                    <th width="10%">Keterangan</th>
+                    <th width="10%">Keterlaksanaan</th>
                     <th width="10%">Evaluasi</th>
                     <th width="10%">Tindak Lanjut</th>
                 @endif
@@ -57,28 +56,22 @@
         <tbody>
             @forelse($data as $index => $item)
                 @php
-                    // --- LOGIKA INDIKATOR ---
                     $ik_kode = optional($item->indikatorKinerja)->ik_kode ?? '';
                     $ik_nama = optional($item->indikatorKinerja)->ik_nama ?? '';
                     $indikator = trim($ik_kode ? ($ik_kode . ' - ' . $ik_nama) : $ik_nama);
                     $ketercapaian = strtolower(optional($item->indikatorKinerja)->ik_ketercapaian ?? '');
 
-                    // --- LOGIKA BASELINE (PERBAIKAN) ---
-                    // Kita ambil dari atribut 'fetched_baseline' yang kita buat di controller
                     $baselineRaw = trim((string) ($item->fetched_baseline ?? '0')); 
                     
                     $cleanNumBase = str_replace(['%', ' '], '', $baselineRaw);
                     
-                    // Format Tampilan Baseline
                     $baselineDisplay = $baselineRaw;
                     
                     if ($ketercapaian === 'persentase' && is_numeric($cleanNumBase)) {
-                        // Cek jika baselineRaw sudah mengandung %, jika tidak tambahkan
                         if (strpos($baselineRaw, '%') === false) {
                             $baselineDisplay = $cleanNumBase . '%';
                         }
                     } elseif ($ketercapaian === 'rasio') {
-                        // Format Rasio x:y
                         $cleaned = preg_replace('/\s*/', '', $baselineRaw);
                         if (preg_match('/^\d+:\d+$/', $cleaned)) {
                             [$a, $b] = explode(':', $cleaned);
@@ -87,7 +80,6 @@
                     } elseif (in_array(strtolower($baselineRaw), ['ada', 'draft'])) {
                         $baselineDisplay = ucfirst($baselineRaw); 
                     }
-                    // --- LOGIKA TARGET ---
                     $targetRaw = trim($item->ti_target);
                     $cleanNumTarget = str_replace(['%', ' '], '', $targetRaw);
                     $targetDisplay = $targetRaw;
@@ -96,7 +88,6 @@
                         $targetDisplay = $cleanNumTarget . '%';
                     }
 
-                    // --- LOGIKA CAPAIAN (PORTING DARI WEB) ---
                     $detail = $item->monitoringDetail;
                     $capaianRaw = optional($detail)->mtid_capaian ?? '';
                     $cleanNumCapaian = str_replace(['%', ' '], '', $capaianRaw);

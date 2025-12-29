@@ -4,7 +4,6 @@
 
 @push('style')
 <style>
-    /* --- Modern Card Styling --- */
     .card-profile {
         border: none;
         border-radius: 15px;
@@ -13,14 +12,12 @@
         transition: transform 0.3s ease;
     }
     
-    /* --- Profile Header Gradient --- */
     .profile-header-bg {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         height: 150px;
         position: relative;
     }
 
-    /* --- Avatar Styling --- */
     .user-avatar-wrapper {
         position: relative;
         margin-top: -75px;
@@ -47,7 +44,6 @@
         border-radius: 50%;
     }
 
-    /* --- Custom Tabs --- */
     .nav-pills .nav-link {
         border-radius: 50px;
         padding: 10px 25px;
@@ -65,7 +61,6 @@
         color: #6777ef;
     }
 
-    /* --- Form Styling --- */
     .form-control {
         border-radius: 8px;
         height: 45px;
@@ -82,7 +77,6 @@
         margin-bottom: 8px;
     }
     
-    /* Readonly input styling to look like text */
     .form-control[readonly] {
         background-color: #f9f9f9;
         border-color: transparent;
@@ -94,7 +88,6 @@
         border-color: #e4e6fc;
     }
 
-    /* --- Password Strength Meter --- */
     .password-strength-bar {
         height: 5px;
         border-radius: 5px;
@@ -308,7 +301,6 @@
 <script>
     $(document).ready(function() {
         
-        // --- 1. GLOBAL SWEETALERT ---
         @if(session('success'))
             Swal.fire({ icon: 'success', title: 'Berhasil', text: '{{ session("success") }}', timer: 2000, showConfirmButton: false });
         @endif
@@ -316,7 +308,6 @@
             Swal.fire({ icon: 'error', title: 'Gagal', text: '{{ session("error") }}' });
         @endif
 
-        // --- 2. LOGIC TAB BIODATA (Toggle Readonly) ---
         const $bioInputs = $('#biodata input');
         const $btnEnable = $('#btnEnableEdit');
         const $bioActions = $('#biodataActions');
@@ -324,29 +315,23 @@
         let originalData = {};
 
         $btnEnable.on('click', function() {
-            // Backup data
             $bioInputs.each(function() { originalData[$(this).attr('name')] = $(this).val(); });
             
-            // Enable inputs & Style
             $bioInputs.prop('readonly', false).addClass('bg-white');
             $(this).fadeOut();
             $bioActions.removeClass('d-none').hide().fadeIn();
             
-            // Focus first input
             $bioInputs.first().focus();
         });
 
         $btnCancel.on('click', function() {
-            // Restore data
             $bioInputs.each(function() { $(this).val(originalData[$(this).attr('name')]); });
             
-            // Disable inputs & Style
             $bioInputs.prop('readonly', true).removeClass('bg-white');
             $bioActions.addClass('d-none');
             $btnEnable.fadeIn();
         });
 
-        // --- 3. LOGIC PASSWORD SHOW/HIDE ---
         $('.toggle-password').on('click', function() {
             const inputId = $(this).data('target');
             const $input = $(inputId);
@@ -361,7 +346,6 @@
             }
         });
 
-        // --- 4. PASSWORD STRENGTH METER ---
         $('#new_password').on('input', function() {
             const val = $(this).val();
             let strength = 0;
@@ -378,7 +362,6 @@
             else $bar.removeClass('bg-danger bg-warning').addClass('bg-success');
         });
 
-        // --- 5. PASSWORD MATCH CHECK ---
         $('#password_confirmation, #new_password').on('input', function() {
             const pass = $('#new_password').val();
             const conf = $('#password_confirmation').val();
@@ -389,7 +372,6 @@
             }
         });
 
-        // --- 6. AJAX UPDATE PASSWORD ---
         $('#securityForm').on('submit', function(e) {
             e.preventDefault();
             const btn = $('#btnUpdatePassword');

@@ -10,6 +10,9 @@ use App\Models\Standar;
 use App\Models\tahun_kerja;
 use App\Models\UnitKerja;
 use RealRashid\SweetAlert\Facades\Alert;
+use App\Notifications\IndikatorBaruNotification;
+use Illuminate\Support\Facades\Notification;
+use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\IndikatorKinerjaImport;
@@ -28,37 +31,32 @@ class IndikatorKinerjaController extends Controller
 {
     $title = 'Data Indikator Kinerja Utama';
     
-    // 1. Ambil Parameter Filter
     $q = $request->query('q');
-    $unit_id = $request->query('unit_id'); // Ambil filter PIC
+    $unit_id = $request->query('unit_id'); 
 
-    // 2. Query Dasar
-    $query = IndikatorKinerja::select('indikator_kinerja.*', 'standar.std_nama')
+    $query = IndikatorKinerja::select('indikator_kinerja.*', 'standar.std_deskripsi', 'standar.std_nama')
         ->leftJoin('standar', 'standar.std_id', '=', 'indikator_kinerja.std_id')
-        ->with('unitKerja') // Optimization: Eager Load relasi Unit Kerja agar query cepat
+        ->with('unitKerja') 
         ->orderBy('ik_kode', 'asc');
 
-    // 3. Filter Pencarian Keyword (Kode, Nama, Standar)
     if ($q) {
         $query->where(function ($subQuery) use ($q) {
             $subQuery->where('ik_kode', 'like', '%' . $q . '%')
                 ->orWhere('ik_nama', 'like', '%' . $q . '%')
+                ->orWhere('std_deskripsi', 'like', '%' . $q . '%')
                 ->orWhere('std_nama', 'like', '%' . $q . '%');
         });
     }
 
-    // 4. Filter PIC / Unit Kerja (Menggunakan Pivot Table)
     if ($unit_id) {
         $query->whereHas('unitKerja', function ($subQuery) use ($unit_id) {
             $subQuery->where('unit_kerja.unit_id', $unit_id);
         });
     }
 
-    // 5. Eksekusi Pagination
     $indikatorkinerjas = $query->paginate(10)->withQueryString();
     $no = $indikatorkinerjas->firstItem();
 
-    // 6. Ambil Data Master Unit Kerja (Untuk isi Dropdown Filter)
     $unitKerjas = \App\Models\UnitKerja::orderBy('unit_nama', 'asc')->get();
 
     return view('pages.index-indikatorkinerja', [
@@ -66,8 +64,8 @@ class IndikatorKinerjaController extends Controller
         'indikatorkinerjas' => $indikatorkinerjas,
         'q'                 => $q,
         'no'                => $no,
-        'unitKerjas'        => $unitKerjas,  // Dikirim ke View
-        'selectedUnit'      => $unit_id,     // Dikirim agar dropdown terpilih otomatis
+        'unitKerjas'        => $unitKerjas, 
+        'selectedUnit'      => $unit_id,    
         'type_menu'         => 'masterdata',
         'sub_menu'          => 'indikatorkinerja',
     ]);
@@ -85,7 +83,6 @@ class IndikatorKinerjaController extends Controller
             $sheet = $spreadsheet->getActiveSheet();
             $rows = $sheet->toArray();
 
-            // Lewati baris pertama jika itu header
             array_shift($rows);
 
             foreach ($rows as $row) {
@@ -166,8 +163,13 @@ class IndikatorKinerjaController extends Controller
             'ik_ketercapaian' => strtolower($validatedData['ik_ketercapaian']),
         ]);
 
-        // Simpan relasi ke tabel pivot
         $indikator->unitKerja()->sync($validatedData['unit_id']);
+
+        $usersProdi = User::where('role', 'prodi')->get();
+
+        if ($usersProdi->count() > 0) {
+            Notification::send($usersProdi, new IndikatorBaruNotification('baru', $validatedData['ik_nama']));
+        }
 
         Alert::success('Sukses', 'Data Berhasil Ditambah');
         return redirect()->route('indikatorkinerja.index');
@@ -227,6 +229,12 @@ class IndikatorKinerjaController extends Controller
         ]);
 
         $indikatorkinerja->unitKerja()->sync($validatedData['unit_id']);
+
+        $usersProdi = User::where('role', 'prodi')->get();
+
+        if ($usersProdi->count() > 0) {
+            Notification::send($usersProdi, new IndikatorBaruNotification('update', $validatedData['ik_nama']));
+        }
 
         Alert::success('Sukses', 'Data Berhasil Diubah');
         return redirect()->route('indikatorkinerja.index');

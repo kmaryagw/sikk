@@ -52,7 +52,6 @@
                                     <div class="row">
                                         <!-- Kolom Kiri -->
                                         <div class="col-md-6">
-                                            <!-- Prodi -->
                                             <div class="form-group">
                                                 <label>Prodi</label>
                                                 <div class="input-group">
@@ -77,8 +76,6 @@
                                                     @endif
                                                 </div>
                                             </div>
-
-                                            <!-- BASELINE (Dinamis) -->
                                             <div class="form-group">
                                                 <label for="baseline">Nilai Baseline</label>
                                                 <div class="input-group">
@@ -87,13 +84,9 @@
                                                             <i class="fas fa-sort-amount-down"></i>
                                                         </div>
                                                     </div>
-                                                    
-                                                    {{-- Input Teks/Angka (Default) --}}
                                                     <input type="text" id="baseline_input" class="form-control dynamic-input-baseline" 
                                                         value="{{ old('baseline', $baseline) }}" 
                                                         placeholder="Masukkan Nilai Baseline">
-
-                                                    {{-- Input Dropdown (Khusus Ketersediaan) --}}
                                                     <select id="baseline_select" class="form-control dynamic-input-baseline" style="display: none;">
                                                         <option value="draft" {{ strtolower(old('baseline', $baseline)) == 'draft' ? 'selected' : '' }}>Draft</option>
                                                         <option value="ada" {{ strtolower(old('baseline', $baseline)) == 'ada' ? 'selected' : '' }}>Ada</option>
@@ -101,8 +94,6 @@
                                                 </div>
                                                 <small class="form-text text-muted" id="baseline_hint">Baseline dapat diedit.</small>
                                             </div>
-
-                                            <!-- Keterangan -->
                                             <div class="form-group">
                                                 <label>Keterangan</label>
                                                 <div class="input-group">
@@ -118,7 +109,6 @@
 
                                         <!-- Kolom Kanan -->
                                         <div class="col-md-6">
-                                            <!-- Indikator Kinerja -->
                                             <div class="form-group">
                                                 <label for="ik_id">Indikator Kinerja</label>
                                                 <div class="input-group">
@@ -127,12 +117,7 @@
                                                             <i class="fa-solid fa-bullseye"></i>
                                                         </div>
                                                     </div>
-                                                    
-                                                    {{-- 1. Input Hidden untuk mengirim data ke Controller (Karena Select Disabled tidak terkirim) --}}
                                                     <input type="hidden" name="ik_id" value="{{ $targetcapaian->ik_id }}">
-
-                                                    {{-- 2. Select Disabled (Hanya untuk tampilan & Logic JS) --}}
-                                                    {{-- Note: name dihapus atau dibiarkan tidak masalah karena disabled, tapi styling dibuat abu-abu --}}
                                                     <select class="form-control" id="ik_id" disabled style="background-color: #e9ecef; cursor: not-allowed;">
                                                         <option value="" disabled>Pilih Indikator Kinerja</option>
                                                         @foreach ($indikatorkinerjautamas as $indikatorkinerja)
@@ -147,7 +132,6 @@
                                                 </div>
                                                 <small class="form-text text-muted">Indikator kinerja tidak dapat diubah pada mode edit.</small>
                                             </div>
-                                            <!-- Jenis Ketercapaian -->
                                             <div class="form-group">
                                                 <label for="jenis_ketercapaian">Jenis Ketercapaian</label>
                                                 <div class="input-group">
@@ -160,7 +144,6 @@
                                                 </div>
                                             </div>
 
-                                            <!-- TARGET CAPAIAN (Dinamis) -->
                                             <div class="form-group">
                                                 <label for="ti_target">Target</label>
                                                 <div class="input-group">
@@ -170,12 +153,10 @@
                                                         </div>
                                                     </div>
 
-                                                    {{-- Input Teks/Angka (Default) --}}
                                                     <input type="text" id="target_input" class="form-control dynamic-input-target" 
                                                         value="{{ old('ti_target', $targetcapaian->ti_target) }}" 
                                                         placeholder="Isi Target Capaian">
 
-                                                    {{-- Input Dropdown (Khusus Ketersediaan) --}}
                                                     <select id="target_select" class="form-control dynamic-input-target" style="display: none;">
                                                         <option value="draft" {{ strtolower(old('ti_target', $targetcapaian->ti_target)) == 'draft' ? 'selected' : '' }}>Draft</option>
                                                         <option value="ada" {{ strtolower(old('ti_target', $targetcapaian->ti_target)) == 'ada' ? 'selected' : '' }}>Ada</option>
@@ -201,7 +182,6 @@
 @endsection
 
 @push('scripts')
-    <!-- JS Libraries -->
     @include('sweetalert::alert')
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -209,37 +189,30 @@
             const jenisInput = document.getElementById("jenis_ketercapaian");
             const targetHint = document.getElementById("ti_target_hint");
             
-            // Elemen Baseline
             const baselineInput = document.getElementById("baseline_input");
             const baselineSelect = document.getElementById("baseline_select");
             
-            // Elemen Target
             const targetInput = document.getElementById("target_input");
             const targetSelect = document.getElementById("target_select");
 
             function adjustInputType(jenis, inputEl, selectEl, fieldName) {
-                // Reset display
                 inputEl.style.display = 'none';
                 selectEl.style.display = 'none';
                 
-                // Hapus atribut name dari keduanya dulu (supaya tidak double submit)
                 inputEl.removeAttribute('name');
                 selectEl.removeAttribute('name');
 
                 if (jenis === 'ketersediaan') {
-                    // Tampilkan Dropdown
                     selectEl.style.display = 'block';
-                    selectEl.setAttribute('name', fieldName); // Set name ke select
+                    selectEl.setAttribute('name', fieldName); 
                 } else {
-                    // Tampilkan Input Biasa
                     inputEl.style.display = 'block';
-                    inputEl.setAttribute('name', fieldName); // Set name ke input
+                    inputEl.setAttribute('name', fieldName); 
                     
                     if (jenis === 'nilai' || jenis === 'persentase') {
                         inputEl.type = 'number';
-                        inputEl.step = '0.01'; // Izinkan desimal
+                        inputEl.step = '0.01'; 
                     } else {
-                        // Rasio atau lainnya
                         inputEl.type = 'text';
                     }
                 }
@@ -249,11 +222,9 @@
                 const selectedOption = selectIK.options[selectIK.selectedIndex];
                 const jenis = selectedOption.getAttribute("data-jenis");
                 
-                // Update Text Jenis Ketercapaian
                 if (jenis) {
                     jenisInput.value = jenis.charAt(0).toUpperCase() + jenis.slice(1);
                     
-                    // Update Hint Text
                     if (jenis === 'nilai') {
                         targetHint.textContent = "Isi dengan angka, contoh: 2.5 atau 80";
                     } else if (jenis === 'persentase') {
@@ -264,10 +235,8 @@
                         targetHint.textContent = "Isi dengan format x : y, contoh: 2 : 1";
                     }
 
-                    // --- LOGIC DINAMIS BASELINE ---
                     adjustInputType(jenis, baselineInput, baselineSelect, 'baseline');
 
-                    // --- LOGIC DINAMIS TARGET ---
                     adjustInputType(jenis, targetInput, targetSelect, 'ti_target');
 
                 } else {
@@ -276,27 +245,22 @@
                 }
             }
 
-            // Event saat dropdown indikator berubah
             selectIK.addEventListener("change", function() {
                 updateInfo();
                 
-                // Khusus saat GANTI indikator secara manual, isi baseline dengan default master
                 const selectedOption = selectIK.options[selectIK.selectedIndex];
                 const jenis = selectedOption.getAttribute("data-jenis");
                 const defaultBaseline = selectedOption.getAttribute("data-baseline");
                 
                 if (jenis === 'ketersediaan') {
-                    // Set default dropdown ke 'draft' jika master kosong, atau sesuai master
                     baselineSelect.value = (defaultBaseline && (defaultBaseline === 'ada' || defaultBaseline === 'draft')) 
                                             ? defaultBaseline 
                                             : 'draft';
                 } else {
-                    // Set input text/number
                     baselineInput.value = defaultBaseline ? defaultBaseline : '';
                 }
             });
 
-            // Jalankan sekali saat load halaman
             if (selectIK.value) {
                 updateInfo();
             }

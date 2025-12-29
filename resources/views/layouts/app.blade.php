@@ -128,5 +128,35 @@
             }
         });
     </script>
+
+    {{-- AJAX HAPUS NOTIFIKASI --}}
+    <script>
+        $(document).ready(function() {
+            $(document).on('click', '.btn-delete-notif', function(e) {
+                e.preventDefault(); // Mencegah link bertindak normal
+                e.stopPropagation(); // Mencegah dropdown tertutup saat klik
+
+                let notifId = $(this).data('id');
+                let notifElement = $('#notif-item-' + notifId);
+                let url = "{{ url('/notifikasi/delete') }}/" + notifId;
+
+                notifElement.slideUp(300, function() {
+                    $(this).remove();
+                });
+
+                $.ajax({
+                    url: url,
+                    type: 'GET', 
+                    success: function(response) {
+                        console.log('Notifikasi dihapus');
+                    },
+                    error: function(xhr) {
+                        console.error('Gagal menghapus');
+                        notifElement.show(); 
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

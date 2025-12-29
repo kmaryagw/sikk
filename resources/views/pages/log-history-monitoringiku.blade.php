@@ -23,10 +23,10 @@
         .circular-progress::before {
             content: '';
             position: absolute;
-            width: 84px; /* Lebar dalam (tebal ring = 100-84 / 2 = 8px) */
+            width: 84px; 
             height: 84px;
             border-radius: 50%;
-            background-color: #f8f9fa; /* Sesuaikan dengan warna bg card */
+            background-color: #f8f9fa;
         }
         .progress-value {
             position: relative;
@@ -36,7 +36,6 @@
             z-index: 1;
         }
         
-        /* --- Styles untuk Tipe Target Lainnya --- */
         .target-box {
             background-color: #f8f9fa;
             border: 1px solid #e4e6fc;
@@ -48,7 +47,7 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            min-height: 140px; /* Tinggi minimum agar seimbang */
+            min-height: 140px;
         }
 
         .target-number {
@@ -83,7 +82,6 @@
             margin-bottom: 30px;
         }
 
-        /* Container untuk Back Button & Title agar menyatu rapi */
         .header-left {
             display: flex;
             align-items: center;
@@ -116,7 +114,6 @@
             transform: translateX(-3px);
         }
 
-        /* --- Hero Card (Info Indikator) --- */
         .hero-card {
             background: #fff;
             border-radius: 12px;
@@ -141,7 +138,6 @@
             margin-bottom: 4px;
         }
 
-        /* --- Timeline Styles --- */
         .timeline-wrapper {
             position: relative;
             padding-left: 40px;
@@ -205,11 +201,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap; /* Agar aman di HP */
+            flex-wrap: wrap; 
             gap: 10px;
         }
 
-        /* Markers & Feedback Colors */
         .marker-success { border-color: #47c363; color: #47c363; }
         .marker-primary { border-color: #6777ef; color: #6777ef; }
         .marker-warning { border-color: #ffa426; color: #ffa426; }
@@ -233,7 +228,6 @@
             color: #fff !important;
             border-color: #6777ef;
         }
-
         /* Responsiveness for Header */
         @media (max-width: 576px) {
             .section-header {
@@ -262,10 +256,8 @@
         </div>
 
         <div class="section-body">
-            {{-- 1. HERO INFO CARD --}}
             <div class="hero-card p-4">
                 <div class="row align-items-center">
-                    {{-- Kolom Kiri: Info Indikator --}}
                     <div class="col-lg-8 col-md-12 mb-4 mb-lg-0">
                         <div class="hero-label"><i class="fas fa-bullseye mr-1"></i> Indikator Kinerja</div>
                         <h4 class="text-dark mt-2 mb-3" style="line-height: 1.4;">
@@ -335,7 +327,6 @@
                 </div>
             </div>
 
-            {{-- 2. TIMELINE HISTORY --}}
             <div class="row">
                 <div class="col-12">
                     @if($histories->isEmpty())
@@ -343,7 +334,6 @@
                             <div class="card-body py-5 text-center">
                                 <div class="empty-state" data-height="400">
                                     
-                                    {{-- PERBAIKAN ICON: Menggunakan Flexbox agar bulat sempurna & center --}}
                                     <div class="d-flex justify-content-center mb-4">
                                         <div class="bg-primary shadow-primary rounded-circle d-flex align-items-center justify-content-center" 
                                              style="width: 90px; height: 90px; box-shadow: 0 10px 20px rgba(103, 119, 239, 0.3);">
@@ -370,7 +360,6 @@
                                 @php
                                     $statusLower = strtolower($history->hmi_status);
                                     
-                                    // Logic Warna & Ikon
                                     if ($statusLower == 'tercapai') {
                                         $markerClass = 'marker-success';
                                         $iconClass = 'fa-check';
@@ -391,13 +380,11 @@
                                 @endphp
 
                                 <div class="timeline-item">
-                                    {{-- Marker Bulat --}}
                                     <div class="timeline-marker {{ $markerClass }}">
                                         <i class="fas {{ $iconClass }}"></i>
                                     </div>
 
                                     <div class="timeline-content">
-                                        {{-- Header Timeline --}}
                                         <div class="timeline-header">
                                             <div>
                                                 <span class="text-dark font-weight-bold">

@@ -109,7 +109,8 @@
                                                     <i class="fa-solid fa-thumbs-up"></i>
                                                 </div>
                                             </div>
-                                            <select id="std_id" name="std_id" class="form-control" required>
+                                            <!-- Tambahkan class 'select2' di bawah ini -->
+                                            <select id="std_id" name="std_id" class="form-control select2" required>
                                                 <option value="" disabled selected>Pilih Standar</option>
                                                 @foreach ($standar as $s)
                                                     <option value="{{ $s->std_id }}" {{ old('std_id', $indikatorkinerja->std_id ?? '') == $s->std_id ? 'selected' : '' }}>
@@ -204,54 +205,6 @@
                                         </div> 
                                     </div>
 
-                                    {{-- <div class="form-group">
-                                        <label for="ik_baseline">Nilai Baseline</label>
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <i class="fas fa-sort-amount-down"></i>
-                                                </div>
-                                            </div>
-
-                                            @php
-                                                $baselineValue = old('ik_baseline', $baseline_tahun_aktif);
-                                                $ketercapaianType = strtolower($indikatorkinerja->ik_ketercapaian);
-                                            @endphp
-
-                                            @if($ketercapaianType === 'nilai')
-                                                <input type="number" id="ik_baseline" name="ik_baseline"
-                                                    class="form-control @error('ik_baseline') is-invalid @enderror"
-                                                    value="{{ $baselineValue }}"
-                                                    min="0" step="1"
-                                                    placeholder="Masukkan nilai baseline untuk tahun {{ $activeTahun->th_tahun ?? 'aktif' }}" required>
-                                            @elseif($ketercapaianType === 'persentase')
-                                                <input type="number" id="ik_baseline" name="ik_baseline"
-                                                    class="form-control @error('ik_baseline') is-invalid @enderror"
-                                                    value="{{ $baselineValue }}"
-                                                    min="0" max="100" step="1"
-                                                    placeholder="Masukkan nilai baseline (0–100) untuk tahun {{ $activeTahun->th_tahun ?? 'aktif' }}" required>
-                                            @elseif($ketercapaianType === 'ketersediaan')
-                                                <select id="ik_baseline" name="ik_baseline"
-                                                    class="form-control @error('ik_baseline') is-invalid @enderror" required>
-                                                    <option value="ada" {{ $baselineValue === 'ada' ? 'selected' : '' }}>ada</option>
-                                                    <option value="draft" {{ $baselineValue === 'draft' ? 'selected' : '' }}>draft</option>
-                                                </select>
-                                            @elseif($ketercapaianType === 'rasio')
-                                                <input type="text" id="ik_baseline" name="ik_baseline"
-                                                    class="form-control @error('ik_baseline') is-invalid @enderror"
-                                                    value="{{ $baselineValue }}"
-                                                    placeholder="contoh: 1:20" required>
-                                            @endif
-
-                                            @error('ik_baseline')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        <small id="ti_baseline_hint" class="form-text text-muted">
-                                            Isi sesuai dengan jenis ketercapaian.
-                                        </small>
-                                    </div> --}}
-
                                 </div>
                             </div>
 
@@ -292,6 +245,17 @@
                 placeholder: "Pilih Unit Kerja",
                 allowClear: true,
                 width: 'resolve' // Mengikuti CSS yang kita buat
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                theme: 'bootstrap4', 
+                placeholder: "Pilih Standar",
+                allowClear: true,
+                width: 'resolve' 
             });
         });
     </script>

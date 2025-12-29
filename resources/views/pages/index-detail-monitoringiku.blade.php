@@ -425,8 +425,9 @@
 
                                         @endif
                                     </td>         
-                                    <td>
-                                        @if(optional($target->monitoringDetail)->mtid_keterangan)
+                                    <td class="text-left">
+                                        <span>{{ optional($target->monitoringDetail)->mtid_keterangan }}</span>
+                                        {{-- @if(optional($target->monitoringDetail)->mtid_keterangan)
                                             <button type="button" 
                                                     class="btn btn-info btn-sm btn-lihat-detail"
                                                     data-jenis="Keterangan"
@@ -437,11 +438,13 @@
                                             </button>
                                         @else
                                             <span class="text-muted">Belum ada keterangan</span>
-                                        @endif
+                                        @endif --}}
                                     </td>
                                     {{-- tambahan untuk Admin --}}
-                                    <td>
-                                        @if(optional($target->monitoringDetail)->mtid_evaluasi)
+                                    <td class="text-left">
+                                        <span>{{ optional($target->monitoringDetail)->mtid_evaluasi }}</span>
+                                            
+                                        {{-- @if(optional($target->monitoringDetail)->mtid_evaluasi)
                                             <button type="button" 
                                                     class="btn btn-primary btn-sm btn-lihat-detail"
                                                     data-jenis="Evaluasi"
@@ -452,12 +455,13 @@
                                             </button>
                                         @else
                                             <span class="text-muted">Belum ada evaluasi</span>
-                                        @endif
+                                        @endif --}}
                                     </td>
 
                                     {{-- 3. Kolom Tindak Lanjut --}}
-                                    <td>
-                                        @if(optional($target->monitoringDetail)->mtid_tindaklanjut)
+                                    <td class="text-left">
+                                        <span>{{ optional($target->monitoringDetail)->mtid_tindaklanjut }}</span>
+                                        {{-- @if(optional($target->monitoringDetail)->mtid_tindaklanjut)
                                             <button type="button" 
                                                     class="btn btn-primary btn-sm btn-lihat-detail"
                                                     data-jenis="Tindak Lanjut"
@@ -468,12 +472,13 @@
                                             </button>
                                         @else
                                             <span class="text-muted">Belum ada tindak lanjut</span>
-                                        @endif
+                                        @endif --}}
                                     </td>
 
                                     {{-- 4. Kolom Peningkatan --}}
-                                    <td>
-                                        @if(optional($target->monitoringDetail)->mtid_peningkatan)
+                                    <td class="text-left">
+                                        <span>{{ optional($target->monitoringDetail)->mtid_peningkatan }}</span>
+                                        {{-- @if(optional($target->monitoringDetail)->mtid_peningkatan)
                                             <button type="button" 
                                                     class="btn btn-primary btn-sm btn-lihat-detail"
                                                     data-jenis="Peningkatan"
@@ -484,7 +489,7 @@
                                             </button>
                                         @else
                                             <span class="text-muted">Belum ada peningkatan</span>
-                                        @endif
+                                        @endif --}}
                                     </td>
                                     {{-- Tambahan untuk ADMIN --}}
 

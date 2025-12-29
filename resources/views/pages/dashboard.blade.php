@@ -201,11 +201,11 @@
                                                             $mainBtnText = 'Semua Sudah Final';
                                                             $mainIcon = 'fa-check-double';
                                                         } 
-                                                        elseif($row->status_global === 'sebagian') {
-                                                            $mainBtnClass = 'btn-warning text-dark';
-                                                            $mainBtnText = 'Proses Finalisasi';
-                                                            $mainIcon = 'fa-spinner';
-                                                        }
+                                                        // elseif($row->status_global === 'sebagian') {
+                                                        //     $mainBtnClass = 'btn-warning text-dark';
+                                                        //     $mainBtnText = 'Proses Finalisasi';
+                                                        //     $mainIcon = 'fa-spinner';
+                                                        // }
                                                     @endphp
 
                                                     <div class="dropdown">
@@ -238,7 +238,7 @@
                                                                     
                                                                     <div>
                                                                         @if($isFinal)
-                                                                            @if(Auth::user()->role == 'admin' || Auth::user()->unit_id == $row->unit_id)
+                                                                            @if(Auth::user()->role == 'admin')
                                                                                 <button class="btn btn-outline-danger btn-sm px-2 py-1 ml-2 batalSpesifikBtn" 
                                                                                         data-unit="{{ $row->unit_id }}" 
                                                                                         data-mti="{{ $dtl['mti_id'] }}"

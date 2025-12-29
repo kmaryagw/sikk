@@ -86,7 +86,7 @@
                                 {{-- <th>Baseline</th> --}}
                                 <th>Status</th>
                                 {{-- <th style="width: 1%"><i class="fa-solid fa-user" title="Unit kerja penanggung jawab sudah ditetapkan" style="color:grey; font-size:0.8em;"></i></th> --}}
-                                <th>Unit Kerja Penanggung Jawab (PIC)</th>
+                                <th>PIC</th>
                                 @if (Auth::user()->role== 'admin')
                                 <th>Aksi</th>
                                 @endif
@@ -99,7 +99,15 @@
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $indikatorkinerja->ik_kode }}</td>
                                     <td class="text-left">{{ $indikatorkinerja->ik_nama }}</td>
-                                    <td style="padding: 3rem;">{{ $indikatorkinerja->std_nama ?? '-' }}</td>
+                                    <td style="padding: 1.5rem; vertical-align: top;">
+                                        <div style="font-weight: bold; margin-bottom: 5px;">
+                                            {{ $indikatorkinerja->std_nama ?? '-' }}
+                                        </div>
+                                        
+                                        <div style="font-weight: normal; color: #555;">
+                                            {{ $indikatorkinerja->std_deskripsi ?? '-' }}
+                                        </div>
+                                    </td>
                                     <td>
                                         @if (strtolower($indikatorkinerja->ik_jenis) === 'iku')
                                             <span class="badge badge-success">IKU</span>

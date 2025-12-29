@@ -166,13 +166,11 @@
                                                 @endphp
                                                 @foreach ($indikatorkinerjas as $ik)
                                                     @php
-                                                        // 🔍 Cari data tersimpan di database
                                                         $found = $data_tersimpan->where('th_id', $tahuns->th_id)
                                                                 ->where('ik_id', $ik->ik_id)
                                                                 ->where('prodi_id', Auth::user()->prodi_id)
                                                                 ->first();
 
-                                                        // 1. LOGIC BASELINE
                                                         $db_baseline = $found ? $found['baseline'] : null;
                                                         
                                                         // Prioritas 1: Ambil dari DB (izinkan angka 0 karena pakai !== '')
@@ -189,24 +187,19 @@
                                                         }
 
                                                         if ($raw_baseline === '') {
-                                                            // Jika Nilai/Persentase kosong -> 0
                                                             if ($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase') {
                                                                 $raw_baseline = '0';
                                                             }
-                                                            // Jika Ketersediaan kosong -> draft
                                                             elseif ($ik->ik_ketercapaian == 'ketersediaan') {
                                                                 $raw_baseline = 'draft';
                                                             }
-                                                            // [BARU] Jika Rasio kosong -> 0:0
                                                             elseif ($ik->ik_ketercapaian == 'rasio') {
                                                                 $raw_baseline = '0:0';
                                                             }
                                                         }
 
-                                                        // Finalisasi Baseline (cek old input jika validasi gagal)
                                                         $baseline_value = old("indikator.$no.baseline", $raw_baseline);
 
-                                                        // 2. LOGIC TARGET
                                                         $db_target = ($found && isset($found['ti_target'])) ? $found['ti_target'] : null;
 
                                                         if ($db_target !== null && $db_target !== '') {
@@ -216,21 +209,17 @@
                                                         }
 
                                                         if ($raw_target === '') {
-                                                            // Jika Nilai/Persentase kosong -> 0
                                                             if ($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase') {
                                                                 $raw_target = '0';
                                                             }
-                                                            // Jika Ketersediaan kosong -> Ada
                                                             elseif ($ik->ik_ketercapaian == 'ketersediaan') {
                                                                 $raw_target = 'Ada';
                                                             }
-                                                            // [BARU] Jika Rasio kosong -> 0:0
                                                             elseif ($ik->ik_ketercapaian == 'rasio') {
                                                                 $raw_target = '0:0';
                                                             }
                                                         }
 
-                                                        // Finalisasi Target
                                                         $target_value = old("indikator.$no.target", $raw_target);
                                                         $target_keterangan = $found ? $found['ti_keterangan'] : '';
                                                     @endphp
@@ -253,7 +242,6 @@
                                                             <span class="text-primary"> {{ $ik->ik_ketercapaian }}</span>
                                                         </td>
                                                         
-                                                        {{-- KOLOM BASELINE --}}
                                                         <td class="text-center">
                                                             @if($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase')
                                                                 <input type="number" 
@@ -297,7 +285,6 @@
                                                             <input type="hidden" name="indikator[{{ $no }}][ik_id]" value="{{ $ik->ik_id }}">
                                                         </td>     
 
-                                                        {{-- KOLOM TARGET --}}
                                                         <td>
                                                             @if($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase')
                                                                 <input type="number" 
