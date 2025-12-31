@@ -176,6 +176,11 @@ class TargetCapaianProdiController extends Controller
         $userRole = Auth::user()->role;
         $userProdi = $userRole === 'prodi' ? Auth::user()->programStudi : null;
 
+        $allYearsInRenstra = tahun_kerja::where('ren_id', $tahuns->ren_id)
+                            ->orderBy('th_tahun', 'asc')
+                            ->get();
+        $isFirstYear = ($allYearsInRenstra->first()->th_id == $tahuns->th_id);
+
         return view('targetcapaian.create', [
             'title'             => $title,
             'indikatorkinerjas' => $indikatorkinerjas,
@@ -186,6 +191,7 @@ class TargetCapaianProdiController extends Controller
             'type_menu'         => 'targetcapaianprodi',
             'userRole'          => $userRole,
             'userProdi'         => $userProdi,
+            'isFirstYear'       => $isFirstYear,
             'unitKerjas'        => $unitKerjas,   
             'selectedUnit'      => $selectedUnit, 
         ]);

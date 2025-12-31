@@ -25,8 +25,17 @@
             z-index: 10;
             background-color: #f8f9fa !important;
         }
-    </style>
 
+        .baseline-readonly {
+            background-color: #f0f4f8;
+            padding: 8px;
+            border-radius: 5px;
+            display: inline-block;
+            min-width: 80px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+    </style>
 @endpush
 
 @section('main')
@@ -109,26 +118,11 @@
                                         @endif
                                     </div>
                                 </div>
-
-                                {{-- <div class="alert alert-light border-left-primary shadow-sm mb-4" role="alert">
-                                    <div class="d-flex align-items-start">
-                                        <div class="alert-icon text-primary mt-1 mr-3">
-                                            <i class="far fa-lightbulb fa-lg"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="alert-heading font-weight-bold text-primary mb-1">Catatan Pengisian</h6>
-                                            <p class="mb-0 text-muted small">
-                                                Jika kolom <b>Nilai Baseline</b> atau <b>Target</b> dikosongkan, sistem akan otomatis menyimpannya sebagai nilai <b>0 (Nol)</b> atau <b>0:0</b> (untuk Rasio).
-                                                <br>
-                                                <i class="fa-solid fa-info-circle mr-1"></i> <em>Kecuali untuk indikator jenis <b>Ketersediaan</b>, otomatis terisi 'Draft'.</em>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div> --}}
                             </div>
                         </div>
                     </div>
                 </div>
+
                 <div class="row">
                     <div class="col-12 col-md-12 col-lg-12">
                         <form method="POST" action="{{ route('targetcapaianprodi.store') }}">
@@ -140,12 +134,6 @@
                                     <h4>Data Indikator</h4>
                                 </div>
                                 <div class="card-body">
-                                    {{-- <div class="form-footer text-right">
-                                        <button type="submit" class="btn btn-primary">Simpan</button>
-                                        <a href="{{ url('targetcapaianprodi') }}" class="btn btn-danger">Kembali</a>
-                                    </div> --}}
-                                    <br/>
-
                                     <div class="table-responsive">
                                         <table class="table table-hover table-bordered table-striped m-0" id="table-indikator">
                                             <thead>
@@ -156,7 +144,6 @@
                                                     <th>Pengukuran</th>
                                                     <th>Nilai Baseline</th>
                                                     <th>Target</th>
-                                                    {{-- <th>Keterangan</th> --}}
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -166,171 +153,98 @@
                                                 @endphp
                                                 @foreach ($indikatorkinerjas as $ik)
                                                     @php
-                                                        $found = $data_tersimpan->where('th_id', $tahuns->th_id)
-                                                                ->where('ik_id', $ik->ik_id)
-                                                                ->where('prodi_id', Auth::user()->prodi_id)
-                                                                ->first();
-
+                                                        $found = $data_tersimpan->where('ik_id', $ik->ik_id)->first();
                                                         $db_baseline = $found ? $found['baseline'] : null;
                                                         
-                                                        // Prioritas 1: Ambil dari DB (izinkan angka 0 karena pakai !== '')
+                                                        // Tentukan nilai baseline
                                                         if ($db_baseline !== null && $db_baseline !== '') {
                                                             $raw_baseline = $db_baseline;
-                                                        } 
-                                                        // Prioritas 2: Ambil dari tahun lalu
-                                                        elseif (isset($baseline_from_prev[$ik->ik_id])) {
+                                                        } elseif (isset($baseline_from_prev[$ik->ik_id])) {
                                                             $raw_baseline = $baseline_from_prev[$ik->ik_id];
-                                                        } 
-                                                        // Prioritas 3: Default Kosong
-                                                        else {
-                                                            $raw_baseline = '';
-                                                        }
-
-                                                        if ($raw_baseline === '') {
-                                                            if ($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase') {
-                                                                $raw_baseline = '0';
-                                                            }
-                                                            elseif ($ik->ik_ketercapaian == 'ketersediaan') {
-                                                                $raw_baseline = 'draft';
-                                                            }
-                                                            elseif ($ik->ik_ketercapaian == 'rasio') {
-                                                                $raw_baseline = '0:0';
-                                                            }
+                                                        } else {
+                                                            // Fallback default
+                                                            $raw_baseline = match($ik->ik_ketercapaian) {
+                                                                'nilai', 'persentase' => '0',
+                                                                'ketersediaan' => 'draft',
+                                                                'rasio' => '0:0',
+                                                                default => ''
+                                                            };
                                                         }
 
                                                         $baseline_value = old("indikator.$no.baseline", $raw_baseline);
 
-                                                        $db_target = ($found && isset($found['ti_target'])) ? $found['ti_target'] : null;
-
+                                                        // Tentukan nilai target
+                                                        $db_target = $found ? $found['ti_target'] : null;
                                                         if ($db_target !== null && $db_target !== '') {
                                                             $raw_target = $db_target;
                                                         } else {
-                                                            $raw_target = '';
+                                                            $raw_target = match($ik->ik_ketercapaian) {
+                                                                'nilai', 'persentase' => '0',
+                                                                'ketersediaan' => 'ada',
+                                                                'rasio' => '0:0',
+                                                                default => ''
+                                                            };
                                                         }
-
-                                                        if ($raw_target === '') {
-                                                            if ($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase') {
-                                                                $raw_target = '0';
-                                                            }
-                                                            elseif ($ik->ik_ketercapaian == 'ketersediaan') {
-                                                                $raw_target = 'Ada';
-                                                            }
-                                                            elseif ($ik->ik_ketercapaian == 'rasio') {
-                                                                $raw_target = '0:0';
-                                                            }
-                                                        }
-
                                                         $target_value = old("indikator.$no.target", $raw_target);
-                                                        $target_keterangan = $found ? $found['ti_keterangan'] : '';
                                                     @endphp
 
                                                     <tr>
-                                                        <td>{{ $no }}</td>
+                                                        <td class="text-center">{{ $no }}</td>
                                                         <td>{{ $ik->ik_kode }} - {{ $ik->ik_nama }}</td>
-                                                        <td>
-                                                            @if (strtolower($ik->ik_jenis == 'IKU'))
+                                                        <td class="text-center">
+                                                            @if (strtoupper($ik->ik_jenis) == 'IKU')
                                                                 <span class="badge badge-success">IKU</span>
-                                                            @elseif (strtolower($ik->ik_jenis == 'IKT'))
+                                                            @elseif (strtoupper($ik->ik_jenis) == 'IKT')
                                                                 <span class="badge badge-primary">IKT</span>
-                                                            @elseif (strtolower($ik->ik_jenis == 'IKU/IKT'))
-                                                                <span class="badge badge-danger">IKU/IKT</span>
                                                             @else
-                                                                <span class="badge badge-secondary">Tidak Diketahui</span>
+                                                                <span class="badge badge-danger">IKU/IKT</span>
                                                             @endif
                                                         </td>
-                                                        <td class="text-center">
-                                                            <span class="text-primary"> {{ $ik->ik_ketercapaian }}</span>
+                                                        <td class="text-center text-capitalize">
+                                                            <span class="text-primary font-weight-bold"> {{ $ik->ik_ketercapaian }}</span>
                                                         </td>
                                                         
+                                                        {{-- KOLOM BASELINE --}}
                                                         <td class="text-center">
-                                                            @if($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase')
-                                                                <input type="number" 
-                                                                    class="form-control @error('indikator.' . $no . '.baseline') is-invalid @enderror" 
-                                                                    name="indikator[{{ $no }}][baseline]" 
-                                                                    step="any" 
-                                                                    value="{{ $baseline_value }}">
-
-                                                                @error('indikator.' . $no . '.baseline')
-                                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                                @enderror
-
-                                                            @elseif($ik->ik_ketercapaian == 'ketersediaan')
-                                                                <select class="form-control @error('indikator.' . $no . '.baseline') is-invalid @enderror" name="indikator[{{ $no }}][baseline]">
-                                                                    <option value="" disabled {{ $baseline_value == '' ? 'selected' : '' }}>-- Pilih --</option>
-                                                                    <option value="ada" {{ strtolower($baseline_value) == 'ada' ? 'selected' : '' }}>Ada</option>
-                                                                    <option value="draft" {{ strtolower($baseline_value) == 'draft' ? 'selected' : '' }}>Draft</option>
-                                                                </select>
-
-                                                                @error('indikator.' . $no . '.baseline')
-                                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                                @enderror
-
-                                                            @elseif($ik->ik_ketercapaian == 'rasio')
-                                                                <input type="text" 
-                                                                    class="form-control @error('indikator.' . $no . '.baseline') is-invalid @enderror" 
-                                                                    name="indikator[{{ $no }}][baseline]" 
-                                                                    pattern="^\d+\s*:\s*\d+$"
-                                                                    placeholder="Contoh: 0:0" 
-                                                                    value="{{ $baseline_value }}">
-                                                                @error('indikator.' . $no . '.baseline')
-                                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                                @enderror
-
+                                                            @if($isFirstYear)
+                                                                {{-- Jika Tahun Pertama: Tampilkan Input --}}
+                                                                @if($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase')
+                                                                    <input type="number" class="form-control" name="indikator[{{ $no }}][baseline]" step="any" value="{{ $baseline_value }}">
+                                                                @elseif($ik->ik_ketercapaian == 'ketersediaan')
+                                                                    <select class="form-control" name="indikator[{{ $no }}][baseline]">
+                                                                        <option value="ada" {{ strtolower($baseline_value) == 'ada' ? 'selected' : '' }}>Ada</option>
+                                                                        <option value="draft" {{ strtolower($baseline_value) == 'draft' ? 'selected' : '' }}>Draft</option>
+                                                                    </select>
+                                                                @elseif($ik->ik_ketercapaian == 'rasio')
+                                                                    <input type="text" class="form-control" name="indikator[{{ $no }}][baseline]" pattern="^\d+\s*:\s*\d+$" placeholder="0:0" value="{{ $baseline_value }}">
+                                                                @else
+                                                                    <input type="text" class="form-control" name="indikator[{{ $no }}][baseline]" value="{{ $baseline_value }}">
+                                                                @endif
                                                             @else
-                                                                <input type="text" 
-                                                                    class="form-control @error('indikator.' . $no . '.baseline') is-invalid @enderror" 
-                                                                    name="indikator[{{ $no }}][baseline]" 
-                                                                    value="{{ $baseline_value }}">
+                                                                {{-- Jika Bukan Tahun Pertama: Tampilkan View Only + Hidden Input --}}
+                                                                <span class="baseline-readonly">
+                                                                    {{ ($baseline_value !== null && $baseline_value !== '') ? $baseline_value : '-' }}
+                                                                </span>
+                                                                <input type="hidden" name="indikator[{{ $no }}][baseline]" value="{{ $baseline_value }}">
                                                             @endif
                                                             <input type="hidden" name="indikator[{{ $no }}][ik_id]" value="{{ $ik->ik_id }}">
                                                         </td>     
 
-                                                        <td>
+                                                        {{-- KOLOM TARGET --}}
+                                                        <td class="text-center">
                                                             @if($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase')
-                                                                <input type="number" 
-                                                                    class="form-control @error('indikator.' . $no . '.target') is-invalid @enderror" 
-                                                                    name="indikator[{{ $no }}][target]" 
-                                                                    step="any" 
-                                                                    value="{{ $target_value }}">
-
-                                                                @error('indikator.' . $no . '.target')
-                                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                                @enderror
-
+                                                                <input type="number" class="form-control" name="indikator[{{ $no }}][target]" step="any" value="{{ $target_value }}">
                                                             @elseif($ik->ik_ketercapaian == 'ketersediaan')
-                                                                <select class="form-control @error('indikator.' . $no . '.target') is-invalid @enderror" name="indikator[{{ $no }}][target]">
-                                                                    <option value="" disabled {{ $target_value == '' ? 'selected' : '' }}>-- Pilih --</option>
+                                                                <select class="form-control" name="indikator[{{ $no }}][target]">
                                                                     <option value="ada" {{ strtolower($target_value) == 'ada' ? 'selected' : '' }}>Ada</option>
                                                                     <option value="draft" {{ strtolower($target_value) == 'draft' ? 'selected' : '' }}>Draft</option>
                                                                 </select>
-                                                                @error('indikator.' . $no . '.target')
-                                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                                @enderror
-
                                                             @elseif($ik->ik_ketercapaian == 'rasio')
-                                                                <input type="text" 
-                                                                    class="form-control @error('indikator.' . $no . '.target') is-invalid @enderror" 
-                                                                    name="indikator[{{ $no }}][target]"
-                                                                    pattern="^(0|\d+\s*:\s*\d+)$"
-                                                                    placeholder="Contoh: 0:0" 
-                                                                    value="{{ $target_value }}">
-                                                                @error('indikator.' . $no . '.target')
-                                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                                @enderror
+                                                                <input type="text" class="form-control" name="indikator[{{ $no }}][target]" pattern="^\d+\s*:\s*\d+$" placeholder="0:0" value="{{ $target_value }}">
                                                             @else
-                                                                <input type="text" 
-                                                                    class="form-control @error('indikator.' . $no . '.target') is-invalid @enderror" 
-                                                                    name="indikator[{{ $no }}][target]" 
-                                                                    value="{{ $target_value }}">
-                                                                @error('indikator.' . $no . '.target')
-                                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                                @enderror
+                                                                <input type="text" class="form-control" name="indikator[{{ $no }}][target]" value="{{ $target_value }}">
                                                             @endif
                                                         </td>
-
-                                                        {{-- <td>
-                                                            <input type="text" class="form-control" name="indikator[{{ $no }}][keterangan]" value="{{ $target_keterangan }}">
-                                                        </td> --}}
                                                         @php $no++; @endphp
                                                     </tr>
                                                 @endforeach
@@ -338,13 +252,10 @@
                                         </table>
                                     </div>
                                 </div>
-                                <div class="card-footer">
-                                    <div class="form-footer text-right">
-                                        <button type="submit" class="btn btn-primary">Simpan</button>
-                                        <a href="{{ url('targetcapaianprodi') }}" class="btn btn-danger">Kembali</a>
-                                    </div>
+                                <div class="card-footer text-right">
+                                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Simpan</button>
+                                    <a href="{{ url('targetcapaianprodi') }}" class="btn btn-danger"><i class="fa-solid fa-arrow-left"></i> Kembali</a>
                                 </div>
-                                
                             </div>
                         </form>  
                     </div>
@@ -356,90 +267,26 @@
 
 @push('scripts')
     <!-- JS Libraries -->
-    <script src="{{ asset('library/cleave.js/dist/cleave.min.js') }}"></script>
-    <script src="{{ asset('library/cleave.js/dist/addons/cleave-phone.us.js') }}"></script>
-    <script src="{{ asset('library/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
-    <script src="{{ asset('library/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js') }}"></script>
-    <script src="{{ asset('library/bootstrap-timepicker/js/bootstrap-timepicker.min.js') }}"></script>
-    <script src="{{ asset('library/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js') }}"></script>
-    <script src="{{ asset('library/select2/dist/js/select2.full.min.js') }}"></script>
-    <script src="{{ asset('library/selectric/public/jquery.selectric.min.js') }}"></script>
-
-    <script src="{{ asset('library/datatables/media/js/jquery.dataTables.js') }}"></script>
     <script src="{{ asset('library/datatables/media/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('library/select2/dist/js/select2.full.min.js') }}"></script>
 
     @include('sweetalert::alert')
 
-    <!-- Page Specific JS File -->
-    <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>
-
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const ikSelect = document.getElementById("ik_id");
-            const tiTargetInput = document.getElementById("ti_target");
-            const tiTargetHint = document.getElementById("ti_target_hint");
-
-            ikSelect.addEventListener("change", function () {
-                const selectedOption = this.options[this.selectedIndex];
-                const jenis = selectedOption.getAttribute("data-jenis");
-
-                if (jenis === "nilai") {
-                    tiTargetInput.placeholder = "Indikator ini menggunakan ketercapaian nilai";
-                    tiTargetHint.textContent = "Isi nilai ketercapaian seperti 1.2 atau 1.3.";
-                } else if (jenis === "persentase") {
-                    tiTargetInput.placeholder = "Indikator ini menggunakan ketercapaian persentase";
-                    tiTargetHint.textContent = "Isi angka dalam rentang 0 hingga 100.";
-                } else if (jenis === "ketersediaan") {
-                    tiTargetInput.placeholder = "Indikator ini menggunakan ketercapaian ketersediaan";
-                    tiTargetHint.textContent = "Isi dengan 'Ada' atau 'Draft'.";
-                } else {
-                    tiTargetInput.placeholder = "Isi Target Capaian";
-                    tiTargetHint.textContent = "Isi sesuai dengan jenis ketercapaian.";
-                }
-            });
-        });
-
         $(document).ready(function () {
+            // Inisialisasi DataTable
             $("#table-indikator").DataTable({
                 "columnDefs": [
-                    { "sortable": false, "targets": [4, 5, 6] }
+                    { "sortable": false, "targets": [4, 5] }
                 ],
                 "paging": false, 
                 "searching": true, 
                 "order": [[1, 'asc']],
                 "info": true,
-                "dom": '<"d-flex justify-content-between align-items-center mb-3"f>rt<"bottom"i><"clear">',
                 "language": {
-                    "search": "Cari :", 
-                    // "searchPlaceholder": "..."
-                },
-                "infoCallback": function(settings, start, end, max, total, pre) {
-                    return `
-                        <span class="badge bg-primary text-light px-3 py-2 m-3">
-                            Total Data : ${total}
-                        </span>
-                    `;
+                    "search": "Cari Indikator:",
                 }
             });
         });
-    </script>
-
-    {{-- <script>
-        document.getElementById('ik_id').addEventListener('change', function() {
-            var selectedOption = this.options[this.selectedIndex];
-            var baseline = selectedOption.getAttribute('data-baseline');
-            document.getElementById('ik_baseline').value = baseline;
-        });
-    </script> --}}
-    <script>
-        // Kosongkan baseline saat halaman dimuat
-        //document.getElementById('baseline').value = 'Pilih Indikator Kinerja Terlebih Dahulu';
-    
-        // Ketika ada perubahan pada pilihan indikator kinerja
-        // document.getElementById('ik_id').addEventListener('change', function() {
-        //     var selectedOption = this.options[this.selectedIndex];
-        //     var baseline = selectedOption.getAttribute('data-baseline');
-        //     document.getElementById('baseline').value = baseline;
-        // });
     </script>
 @endpush
