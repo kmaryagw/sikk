@@ -156,13 +156,11 @@
                                                         $found = $data_tersimpan->where('ik_id', $ik->ik_id)->first();
                                                         $db_baseline = $found ? $found['baseline'] : null;
                                                         
-                                                        // Tentukan nilai baseline
                                                         if ($db_baseline !== null && $db_baseline !== '') {
                                                             $raw_baseline = $db_baseline;
                                                         } elseif (isset($baseline_from_prev[$ik->ik_id])) {
                                                             $raw_baseline = $baseline_from_prev[$ik->ik_id];
                                                         } else {
-                                                            // Fallback default
                                                             $raw_baseline = match($ik->ik_ketercapaian) {
                                                                 'nilai', 'persentase' => '0',
                                                                 'ketersediaan' => 'draft',
@@ -173,7 +171,6 @@
 
                                                         $baseline_value = old("indikator.$no.baseline", $raw_baseline);
 
-                                                        // Tentukan nilai target
                                                         $db_target = $found ? $found['ti_target'] : null;
                                                         if ($db_target !== null && $db_target !== '') {
                                                             $raw_target = $db_target;
@@ -204,10 +201,8 @@
                                                             <span class="text-primary font-weight-bold"> {{ $ik->ik_ketercapaian }}</span>
                                                         </td>
                                                         
-                                                        {{-- KOLOM BASELINE --}}
                                                         <td class="text-center">
                                                             @if($isFirstYear)
-                                                                {{-- Jika Tahun Pertama: Tampilkan Input --}}
                                                                 @if($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase')
                                                                     <input type="number" class="form-control" name="indikator[{{ $no }}][baseline]" step="any" value="{{ $baseline_value }}">
                                                                 @elseif($ik->ik_ketercapaian == 'ketersediaan')
@@ -221,7 +216,6 @@
                                                                     <input type="text" class="form-control" name="indikator[{{ $no }}][baseline]" value="{{ $baseline_value }}">
                                                                 @endif
                                                             @else
-                                                                {{-- Jika Bukan Tahun Pertama: Tampilkan View Only + Hidden Input --}}
                                                                 <span class="baseline-readonly">
                                                                     {{ ($baseline_value !== null && $baseline_value !== '') ? $baseline_value : '-' }}
                                                                 </span>
@@ -230,7 +224,6 @@
                                                             <input type="hidden" name="indikator[{{ $no }}][ik_id]" value="{{ $ik->ik_id }}">
                                                         </td>     
 
-                                                        {{-- KOLOM TARGET --}}
                                                         <td class="text-center">
                                                             @if($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase')
                                                                 <input type="number" class="form-control" name="indikator[{{ $no }}][target]" step="any" value="{{ $target_value }}">
