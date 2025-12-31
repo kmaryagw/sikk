@@ -184,36 +184,30 @@
                                                     </div>
                                                 </div>
                                             @else                                                
-                                                {{-- Kolom 1: Jenis (Read Only) --}}
-                                                {{-- <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label>Jenis Ketercapaian</label>
-                                                        <input type="text" class="form-control text-capitalize" value="{{ $jenis_ik_db }}" readonly style="background-color: #e9ecef;">
-                                                        <input type="hidden" name="mtid_capaian" value="{{ $jenis_ik_db }}">
-                                                    </div>
-                                                </div> --}}
+                                                {{-- Kolom 1: Jenis (Hidden agar terkirim ke controller) --}}
+                                            <input type="hidden" name="mtid_capaian" value="{{ $jenis_ik_db }}">
 
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label for="capaian_value">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="capaian_value">
                                                         @if ($isAdmin)
-                                                                Nilai Capaian 
-                                                            @else
+                                                            Nilai Capaian 
+                                                        @else
                                                             Masukkan Nilai Capaian 
                                                             @if($jenis_ik_db == 'persentase') (Tanpa %) 
                                                             @elseif($jenis_ik_db == 'rasio') (Format x:y) 
                                                             @endif
                                                         @endif
-                                                            <span class="text-danger">*</span>
-                                                        </label>
-                                                        
-                                                        <input type="text" class="form-control" name="capaian_value" id="capaian_value"
-                                                            value="{{ $input_value }}" 
-                                                            @if($readonlyMonitoring) readonly @endif
-                                                            placeholder="{{ $jenis_ik_db == 'rasio' ? 'Contoh 1:20' : 'Masukkan Angka' }}"
-                                                            required>
-                                                    </div>
+                                                        <span class="text-danger">*</span>
+                                                    </label>
+                                                    
+                                                    <input type="text" class="form-control" name="capaian_value" id="capaian_value"
+                                                        value="{{ $input_value }}" 
+                                                        @if($readonlyMonitoring) readonly @endif
+                                                        placeholder="{{ $jenis_ik_db == 'rasio' ? 'Contoh 1:20' : 'Masukkan Angka' }}"
+                                                        required>
                                                 </div>
+                                            </div>
                                             @endif
 
                                             {{-- Sisa Form: URL & Keterangan --}}
@@ -230,7 +224,7 @@
 
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="mtid_keterangan">Keterangan Tambahan</label>
+                                                    <label for="mtid_keterangan">Pelaksanaan</label>
                                                     <textarea class="form-control" name="mtid_keterangan" rows="4" 
                                                         @if($readonlyMonitoring) readonly @endif>{{ old('mtid_keterangan', $monitoringikuDetail->mtid_keterangan) }}</textarea>
                                                 </div>

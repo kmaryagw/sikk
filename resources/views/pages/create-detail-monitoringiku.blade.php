@@ -121,7 +121,11 @@
     <div class="main-content">
         <section class="section">
             <div class="section-header">
+                @if(auth()->user()->role === 'admin')
+                <h1>Form Pengisian Monitoring Indikator Kinerja</h1>
+                @else
                 <h1>Form Pengisian Capaian Indikator Kinerja</h1>
+                @endif
             </div>
                 <div class="card">
                     <div class="card-header bg-white pt-4 pb-3">
@@ -199,7 +203,7 @@
                                                 <th width="5%">URL</th>
                                                 <th width="6.6%">Capaian</th>
                                                 {{-- <th width="10%">Status</th> --}}
-                                                <th width="10%">Keterangan</th>
+                                                <th width="10%">Pelaksanaan</th>
                                                 <th>Evaluasi</th>
                                                 <th>Tindak Lanjut</th>
                                                 <th>Peningkatan</th>
@@ -211,7 +215,7 @@
                                                 <th width="15%">Jenis Ketercapaian</th>
                                                 <th width="10%">Capaian</th>
                                                 {{-- <th width="10%">Status</th> --}}
-                                                <th width="15%">Keterangan</th>
+                                                <th width="15%">Pelaksanaan</th>
                                                 <th width="10%">URL</th>
                                             @endif
                                         </tr>
@@ -337,20 +341,17 @@
                                                 @else
                                                     <td>
                                                         <input type="hidden" name="ti_id[{{ $idx }}]" value="{{ $indikator->ti_id }}">
-                                                        
-                                                        {{-- 1. TAMBAHKAN: Hidden input untuk mengirimkan TIPE ketercapaian ke Controller --}}
                                                         <input type="hidden" name="mtid_capaian[{{ $idx }}]" value="{{ strtolower($indikatorKinerja->ik_ketercapaian) }}">
 
-                                                        {{-- 2. UBAH: Nama atribut input dari mtid_capaian menjadi capaian_value --}}
                                                         @if(in_array(strtolower($indikatorKinerja->ik_ketercapaian), ['nilai', 'persentase']))
                                                             <input type="number" class="form-control" style="max-width:150px"
-                                                                name="capaian_value[{{ $idx }}]" {{-- UBAH DI SINI --}}
+                                                                name="capaian_value[{{ $idx }}]" 
                                                                 step="any"
                                                                 value="{{ $capaianValue }}" 
                                                                 @if($isLocked) readonly @endif>
 
                                                         @elseif(strtolower($indikatorKinerja->ik_ketercapaian) === 'ketersediaan')
-                                                            <select name="capaian_value[{{ $idx }}]" class="form-control" style="max-width:150px" {{-- UBAH DI SINI --}}
+                                                            <select name="capaian_value[{{ $idx }}]" class="form-control" style="max-width:150px" 
                                                                     @if($isLocked) disabled @endif>
                                                                 <option value="" {{ $capaianValue ? '' : 'selected' }}>Pilih</option>
                                                                 <option value="ada"   {{ $capaianValue == 'ada' ? 'selected' : '' }}>Ada</option>
@@ -364,14 +365,14 @@
                                                         @elseif(strtolower($indikatorKinerja->ik_ketercapaian) === 'rasio')
                                                             {{-- KHUSUS RASIO --}}
                                                             <input type="text" class="form-control" style="max-width:150px"
-                                                                name="capaian_value[{{ $idx }}]" {{-- UBAH DI SINI --}}
+                                                                name="capaian_value[{{ $idx }}]" 
                                                                 value="{{ $capaianRaw }}" 
                                                                 placeholder="Contoh: 1:20"
                                                                 @if($isLocked) readonly @endif>
                                                         @else
                                                             {{-- DEFAULT LAINNYA --}}
                                                             <input type="text" class="form-control" style="max-width:100px"
-                                                                name="capaian_value[{{ $idx }}]" {{-- UBAH DI SINI --}}
+                                                                name="capaian_value[{{ $idx }}]" 
                                                                 value="{{ $capaianValue }}"
                                                                 @if($isLocked) readonly @endif>
                                                         @endif

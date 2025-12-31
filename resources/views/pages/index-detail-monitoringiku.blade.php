@@ -189,7 +189,7 @@
         </div>
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h4>Prodi : <span class="badge badge-info">{{ $Monitoringiku->targetIndikator->prodi->nama_prodi }}</span> Tahun : <span class="badge badge-primary">{{ $Monitoringiku->targetIndikator->tahunKerja->th_tahun }}</span></h4>
+                <h4>Prodi : <span class="badge badge-info">{{ $Monitoringiku->targetIndikator->prodi->nama_prodi }}</span> Tahun : <span class="badge badge-primary">{{ $Monitoringiku->tahunKerja->th_tahun }}</span></h4>
                 <form action="{{ route('monitoringiku.index-detail', $Monitoringiku->mti_id) }}" method="GET">
                     <div class="form-row align-items-center">
                         @if (Auth::user()->role == 'admin' || Auth::user()->role == 'fakultas' || Auth::user()->role == 'prodi')
@@ -240,14 +240,14 @@
                     <thead class="thead-light">
                         <tr>
                             <th>No</th>
-                            <th style="width: 29%;">Indikator Kinerja</th>
+                            <th style="width: 25%;">Indikator Kinerja</th>
                             <th style="width: 5%;">Baseline</th>
                             <th>Target</th>
                             @if (Auth::user()->role == 'fakultas' || Auth::user()->role == 'prodi')
                                 <th>Capaian</th>
                                 <th style="width: 10%;">URL</th>
                                 <th>Status</th>
-                                <th style="width: 9%;">Keterangan</th>
+                                <th style="width: 15%;">Pelaksanaan</th>
                                 <th style="width: 15%;">Evaluasi</th>
                                 <th style="width: 15%;">Tindak Lanjut</th>
                                 <th style="width: 15%;">Peningkatan</th>
@@ -255,7 +255,7 @@
                                 <th>Capaian</th>
                                 <th style="width: 10%;">URL</th>
                                 <th>Status</th>
-                                <th style="width: 9%;">Keterangan</th>
+                                <th style="width: 15%;">Pelaksanaan</th>
                                 <th style="width: 15%;">Evaluasi</th>
                                 <th style="width: 15%;">Tindak Lanjut</th>
                                 <th style="width: 15%;">Peningkatan</th>
@@ -263,13 +263,13 @@
                             @elseif (Auth::user()->role == 'unit kerja')    
                                 <th>Capaian</th>
                                 <th>Status</th>
-                                <th>Keterangan</th>
+                                <th style="width: 25%">Pelaksanaan</th>
                                 <th>URL</th>
                                 <th style="width: 10%;">Aksi</th>
                             @else
                                 <th>Capaian</th>
                                 <th>Status</th>
-                                <th>Keterangan</th>
+                                <th>Pelaksanaan</th>
                                 <th>URL</th>
                             @endif
                         </tr>
@@ -402,14 +402,14 @@
                                     </td>
                                     <td>
                                         @if(isset($target->monitoringDetail->mtid_url) && $target->monitoringDetail->mtid_url)
-                                            <a href="{{ $target->monitoringDetail->mtid_url }}" target="_blank" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> Lihat</a>
+                                            <a href="{{ $target->monitoringDetail->mtid_url }}" target="_blank" class="btn btn-sm btn-success"><i class="fa fa-eye"></i> URL</a>
                                         @else
                                             <span class="text-danger"><i class="fa-solid fa-times-circle"></i></span>
                                         @endif
                                     </td>   
                                     <td>
                                         @php
-                                            $status = strtolower(optional($target->monitoringDetail)->mtid_status ?? ' ');
+                                            $status = strtolower(optional($target->monitoringDetail)->mtid_status ?? '');
                                         @endphp
                                     
                                         @if($status === 'tercapai')
@@ -424,72 +424,77 @@
                                             <span class="text-danger"> Tidak Terlaksana</span>
 
                                         @endif
-                                    </td>         
-                                    <td class="text-left">
-                                        <span>{{ optional($target->monitoringDetail)->mtid_keterangan }}</span>
-                                        {{-- @if(optional($target->monitoringDetail)->mtid_keterangan)
-                                            <button type="button" 
-                                                    class="btn btn-info btn-sm btn-lihat-detail"
-                                                    data-jenis="Keterangan"
-                                                    data-isi="{{ $target->monitoringDetail->mtid_keterangan }}"
-                                                    data-indikator="{{ optional($target->indikatorKinerja)->ik_nama }}"
-                                                    data-kode="{{ optional($target->indikatorKinerja)->ik_kode }}">
-                                                <i class="fa fa-eye"></i> Lihat Data
-                                            </button>
+                                    </td>    
+                                    {{-- 1. Kolom Pelaksanaan --}}     
+                                    @php 
+                                        $pelaksanaan = optional($target->monitoringDetail)->mtid_keterangan; 
+                                    @endphp
+
+                                    <td style="vertical-align: middle; text-align: {{ $pelaksanaan ? 'left' : 'center' }}; padding: 8px;">
+
+                                        @if($pelaksanaan)
+                                            <div style="line-height: 1.5;">
+                                                {{ $pelaksanaan }}
+                                            </div>
                                         @else
-                                            <span class="text-muted">Belum ada keterangan</span>
-                                        @endif --}}
+                                            <span style="color: #999; font-style: italic; font-size: 9pt;">
+                                                (Belum ada pelaksanaan)
+                                            </span>
+                                        @endif
                                     </td>
-                                    {{-- tambahan untuk Admin --}}
-                                    <td class="text-left">
-                                        <span>{{ optional($target->monitoringDetail)->mtid_evaluasi }}</span>
-                                            
-                                        {{-- @if(optional($target->monitoringDetail)->mtid_evaluasi)
-                                            <button type="button" 
-                                                    class="btn btn-primary btn-sm btn-lihat-detail"
-                                                    data-jenis="Evaluasi"
-                                                    data-isi="{{ $target->monitoringDetail->mtid_evaluasi }}"
-                                                    data-indikator="{{ optional($target->indikatorKinerja)->ik_nama }}"
-                                                    data-kode="{{ optional($target->indikatorKinerja)->ik_kode }}">
-                                                <i class="fa fa-eye"></i> Lihat Data
-                                            </button>
+
+                                    {{-- 2. Kolom Evaluasi --}}
+                                    @php 
+                                        $evaluasi = optional($target->monitoringDetail)->mtid_evaluasi; 
+                                    @endphp
+
+                                    <td style="vertical-align: middle; text-align: {{ $evaluasi ? 'left' : 'center' }}; padding: 8px;">
+
+                                        @if($evaluasi)
+                                            <div style="line-height: 1.5;">
+                                                {{ $evaluasi }}
+                                            </div>
                                         @else
-                                            <span class="text-muted">Belum ada evaluasi</span>
-                                        @endif --}}
+                                            <span style="color: #999; font-style: italic; font-size: 9pt;">
+                                                (Belum ada evaluasi)
+                                            </span>
+                                        @endif
                                     </td>
 
                                     {{-- 3. Kolom Tindak Lanjut --}}
-                                    <td class="text-left">
-                                        <span>{{ optional($target->monitoringDetail)->mtid_tindaklanjut }}</span>
-                                        {{-- @if(optional($target->monitoringDetail)->mtid_tindaklanjut)
-                                            <button type="button" 
-                                                    class="btn btn-primary btn-sm btn-lihat-detail"
-                                                    data-jenis="Tindak Lanjut"
-                                                    data-isi="{{ $target->monitoringDetail->mtid_tindaklanjut }}"
-                                                    data-indikator="{{ optional($target->indikatorKinerja)->ik_nama }}"
-                                                    data-kode="{{ optional($target->indikatorKinerja)->ik_kode }}">
-                                                <i class="fa fa-eye"></i> Lihat Data
-                                            </button>
+                                    @php 
+                                        $tindak_lanjut = optional($target->monitoringDetail)->mtid_tindaklanjut; 
+                                    @endphp
+
+                                    <td style="vertical-align: middle; text-align: {{ $tindak_lanjut ? 'left' : 'center' }}; padding: 8px;">
+
+                                        @if($tindak_lanjut)
+                                            <div style="line-height: 1.5;">
+                                                {{ $tindak_lanjut }}
+                                            </div>
                                         @else
-                                            <span class="text-muted">Belum ada tindak lanjut</span>
-                                        @endif --}}
+                                            <span style="color: #999; font-style: italic; font-size: 9pt;">
+                                                (Belum ada tindak lanjut)
+                                            </span>
+                                        @endif
                                     </td>
 
                                     {{-- 4. Kolom Peningkatan --}}
-                                    <td class="text-left">
-                                        <span>{{ optional($target->monitoringDetail)->mtid_peningkatan }}</span>
-                                        {{-- @if(optional($target->monitoringDetail)->mtid_peningkatan)
-                                            <button type="button" 
-                                                    class="btn btn-primary btn-sm btn-lihat-detail"
-                                                    data-jenis="Peningkatan"
-                                                    data-isi="{{ $target->monitoringDetail->mtid_peningkatan }}"
-                                                    data-indikator="{{ optional($target->indikatorKinerja)->ik_nama }}"
-                                                    data-kode="{{ optional($target->indikatorKinerja)->ik_kode }}">
-                                                <i class="fa fa-eye"></i> Lihat Data
-                                            </button>
+                                    @php 
+                                        $peningkatan = optional($target->monitoringDetail)->mtid_peningkatan; 
+                                    @endphp
+
+                                    <td style="vertical-align: middle; text-align: {{ $peningkatan ? 'left' : 'center' }}; padding: 8px;">
+
+                                        @if($peningkatan)
+                                            <div style="line-height: 1.5;">
+                                                {{ $peningkatan }}
+                                            </div>
                                         @else
-                                            <span class="text-muted">Belum ada peningkatan</span>
-                                        @endif --}}
+                                            <span style="color: #999; font-style: italic; font-size: 9pt;">
+                                                (Belum ada peningkatan)
+                                            </span>
+                                        @endif
                                     </td>
                                     {{-- Tambahan untuk ADMIN --}}
 
@@ -548,22 +553,25 @@
 
                                         @endif
                                     </td>         
-                                    <td>
-                                        @if(optional($target->monitoringDetail)->mtid_keterangan)
-                                            <!-- Tombol buka modal -->
-                                            <button type="button" 
-                                                    class="btn btn-info btn-sm btn-lihat-keterangan"
-                                                    data-keterangan="{{ $target->monitoringDetail->mtid_keterangan }}"
-                                                    data-indikator="{{ optional($target->indikatorKinerja)->ik_nama }}">
-                                                <i class="fa fa-eye"></i> Lihat Data
-                                            </button>
+                                    @php 
+                                        $pelaksanaan = optional($target->monitoringDetail)->mtid_keterangan; 
+                                    @endphp
+
+                                    <td style="vertical-align: middle; text-align: {{ $pelaksanaan ? 'left' : 'center' }}; padding: 8px;">
+
+                                        @if($pelaksanaan)
+                                            <div style="line-height: 1.5;">
+                                                {{ $pelaksanaan }}
+                                            </div>
                                         @else
-                                            <span class="text-muted">Belum ada keterangan</span>
+                                            <span style="color: #999; font-style: italic; font-size: 9pt;">
+                                                (Belum ada data pelaksanaan)
+                                            </span>
                                         @endif
                                     </td>
                                     <td>
                                         @if(isset($target->monitoringDetail->mtid_url) && $target->monitoringDetail->mtid_url)
-                                            <a href="{{ $target->monitoringDetail->mtid_url }}" target="_blank" class="btn btn-sm btn-success">Lihat URL</a>
+                                            <a href="{{ $target->monitoringDetail->mtid_url }}" target="_blank" class="btn btn-sm btn-success">URL</a>
                                         @else
                                             Belum Ada URL
                                         @endif
@@ -593,7 +601,7 @@
             </div>        
         </section>
     </div>
-    <div class="modal fade" id="keteranganModal" tabindex="-1" role="dialog" aria-hidden="true">
+    {{-- <div class="modal fade" id="keteranganModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content shadow-lg border-0">
                 <div class="modal-header bg-danger text-white">
@@ -625,7 +633,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 
 @endsection
 

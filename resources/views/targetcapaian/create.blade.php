@@ -156,7 +156,7 @@
                                                     <th>Pengukuran</th>
                                                     <th>Nilai Baseline</th>
                                                     <th>Target</th>
-                                                    <th>Keterangan</th>
+                                                    {{-- <th>Keterangan</th> --}}
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -328,9 +328,9 @@
                                                             @endif
                                                         </td>
 
-                                                        <td>
+                                                        {{-- <td>
                                                             <input type="text" class="form-control" name="indikator[{{ $no }}][keterangan]" value="{{ $target_keterangan }}">
-                                                        </td>
+                                                        </td> --}}
                                                         @php $no++; @endphp
                                                     </tr>
                                                 @endforeach

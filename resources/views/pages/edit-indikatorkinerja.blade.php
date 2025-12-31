@@ -244,7 +244,7 @@
             $('#unit_id').select2({
                 placeholder: "Pilih Unit Kerja",
                 allowClear: true,
-                width: 'resolve' // Mengikuti CSS yang kita buat
+                width: 'resolve' 
             });
         });
     </script>
