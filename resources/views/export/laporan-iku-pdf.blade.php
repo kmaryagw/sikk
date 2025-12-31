@@ -6,90 +6,80 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            font-size: 12px;
+            font-size: 11px; /* Sedikit diperkecil agar muat kolom baru */
         }
 
         h1 {
             text-align: center;
+            font-size: 16px;
+        }
+
+        h4 {
+            text-align: center;
+            font-weight: normal;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 15px;
+            table-layout: fixed; /* Agar lebar kolom patuh pada persentase */
         }
 
         th, td {
             border: 1px solid #000;
-            padding: 6px;
+            padding: 5px;
             text-align: center;
+            vertical-align: top; /* Agar teks panjang rata atas */
+            word-wrap: break-word; /* Mencegah teks keluar tabel */
         }
 
         th {
             background-color: #f2f2f2;
+            font-weight: bold;
         }
 
         .badge {
             display: inline-block;
-            padding: 3px 6px;
-            border-radius: 4px;
-            font-size: 11px;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 10px;
         }
 
-        .badge-primary {
-            background-color: #007bff;
-            color: white;
-        }
+        .badge-primary { background-color: #007bff; color: white; }
+        .badge-info { background-color: #17a2b8; color: white; }
 
-        .badge-info {
-            background-color: #17a2b8;
-            color: white;
-        }
-
-        .text-success {
-            color: green;
-        }
-
-        .text-danger {
-            color: red;
-        }
-
-        .text-warning {
-            color: orange;
-        }
-
-        .text-primary {
-            color: #007bff;
-        }
+        .text-success { color: green; font-weight: bold; }
+        .text-danger { color: red; font-weight: bold; }
+        .text-warning { color: orange; font-weight: bold; }
+        .text-primary { color: #007bff; font-weight: bold; }
+        .text-muted { color: #888; font-style: italic; }
         
-        /* Helper untuk rata kiri indikator */
-        .text-left {
-            text-align: left !important;
-        }
+        /* Helper untuk rata kiri */
+        .text-left { text-align: left !important; }
     </style>
 </head>
 <body>
 
-    <h1>
-        Laporan Indikator Kinerja Utama/Tambahan
-    </h1>
-    <br>
+    <h1>Laporan Indikator Kinerja Utama/Tambahan</h1>
+    
     <h4>
         Tahun : {{ $tahun ?? 'Semua Tahun' }} | 
         Prodi : {{ $prodi ?? 'Semua Prodi' }} | 
-        {{-- Unit : {{ $unit ?? 'Semua Unit' }} --}}
+        Unit : {{ $unit ?? 'Semua Unit' }}
     </h4>
 
     <table>
         <thead>
             <tr>
-                <th style="width: 1%;">No</th>
-                <th style="width: 10%;">Tahun</th>
-                <th style="width: 10%;">Prodi</th>
-                <th style="width: 30%;">Indikator Kinerja</th>
-                <th style="width: 10%;">Target Capaian</th>
+                {{-- Penyesuaian Lebar Kolom --}}
+                <th style="width: 4%;">No</th>
+                <th style="width: 8%;">Tahun</th>
+                <th style="width: 12%;">Prodi</th>
+                <th style="width: 12%;">Unit Kerja</th> <th style="width: 28%;">Indikator Kinerja</th>
+                <th style="width: 10%;">Target</th>
                 <th style="width: 10%;">Capaian</th>
-                <th style="width: 14%;">Status</th>
+                <th style="width: 12%;">Status</th>
             </tr>
         </thead>
         <tbody>
@@ -103,6 +93,13 @@
                     $th_tahun   = $tahunRel->th_tahun ?? '-';
                     $nama_prodi = $prodiRel->nama_prodi ?? '-';
                     
+                    // --- LOGIKA UNIT KERJA ---
+                    // Mengambil relasi unitKerja (menggunakan pluck jaga-jaga jika many-to-many)
+                    $units = $indikatorRel->unitKerja ?? collect([]);
+                    $unitKerja = $units->pluck('unit_nama')->join(', ');
+                    if(empty($unitKerja)) $unitKerja = '-';
+                    // -------------------------
+
                     $ik_kode = $indikatorRel->ik_kode ?? '';
                     $ik_nama = $indikatorRel->ik_nama ?? '-';
                     $display_indikator = $ik_kode ? "{$ik_kode} - {$ik_nama}" : $ik_nama;
@@ -117,8 +114,7 @@
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $th_tahun }}</td>
                     <td>{{ $nama_prodi }}</td>
-                    
-                    <td class="text-left">{{ $display_indikator }}</td>
+                    <td>{{ $unitKerja }}</td> <td class="text-left">{{ $display_indikator }}</td>
 
                     {{-- Target Capaian --}}
                     <td>
@@ -183,14 +179,13 @@
                         @elseif ($status === 'tidak terlaksana')
                             <span class="text-danger">Tidak Terlaksana</span>
                         @else
-                            <span class="text-muted">Belum ada status</span>
+                            <span class="text-muted">-</span>
                         @endif
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7">Tidak ada data</td>
-                </tr>
+                    <td colspan="8">Tidak ada data</td> </tr>
             @endforelse
         </tbody>
     </table>

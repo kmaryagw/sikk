@@ -28,7 +28,6 @@ class MonitoringIKUDetailExport implements FromCollection, WithHeadings, WithSty
 
     public function collection()
     {
-        // Logika Sorting: Mengurutkan berdasarkan ik_kode secara natural (A-Z, 1-10)
         return $this->data->sortBy(function ($item) {
             return optional($item->indikatorKinerja)->ik_kode;
         }, SORT_NATURAL | SORT_FLAG_CASE);
@@ -43,38 +42,32 @@ class MonitoringIKUDetailExport implements FromCollection, WithHeadings, WithSty
             return trim((string) $value);
         };
 
+        $standarDeskripsi = optional($item->indikatorKinerja->standar)->std_deskripsi ?? '-';
+
         $ik_kode = $safeString(optional($item->indikatorKinerja)->ik_kode);
         $ik_nama = $safeString(optional($item->indikatorKinerja)->ik_nama);
-        $indikator = $ik_kode ? ($ik_kode . ' - ' . $ik_nama) : $ik_nama;
+        $indikator = trim($ik_kode ? ($ik_kode . ' - ' . $ik_nama) : $ik_nama);
         
         $ketercapaian = strtolower($safeString(optional($item->indikatorKinerja)->ik_ketercapaian));
 
-        $baselineRaw = $safeString($item->fetched_baseline);
+        $baselineRaw = trim((string) ($item->fetched_baseline ?? '0')); 
         $cleanNumBase = str_replace(['%', ' '], '', $baselineRaw);
         $baselineDisplay = $baselineRaw;
-
         if ($ketercapaian === 'persentase' && is_numeric($cleanNumBase)) {
-            if (strpos($baselineRaw, '%') === false && $baselineRaw !== '') {
-                 $baselineDisplay = $cleanNumBase . '%';
-            }
+            $baselineDisplay = (strpos($baselineRaw, '%') === false) ? $cleanNumBase . '%' : $baselineRaw;
         } elseif ($ketercapaian === 'rasio') {
             $cleaned = preg_replace('/\s*/', '', $baselineRaw);
             if (preg_match('/^\d+:\d+$/', $cleaned)) {
                 [$a, $b] = explode(':', $cleaned);
                 $baselineDisplay = "{$a} : {$b}";
             }
-        } elseif (in_array(strtolower($baselineRaw), ['ada', 'draft'])) {
-            $baselineDisplay = ucfirst($baselineRaw); 
         }
 
-        $targetRaw = $safeString($item->ti_target);
+        $targetRaw = trim($item->ti_target);
         $cleanNumTarget = str_replace(['%', ' '], '', $targetRaw);
         $targetDisplay = $targetRaw;
-        
-        if ($ketercapaian === 'persentase' && is_numeric($cleanNumTarget) && $targetRaw !== '') {
-             if (strpos($targetRaw, '%') === false) {
-                 $targetDisplay = $cleanNumTarget . '%';
-             }
+        if ($ketercapaian === 'persentase' && is_numeric($cleanNumTarget)) {
+            $targetDisplay = $cleanNumTarget . '%';
         }
 
         $detail = $item->monitoringDetail;
@@ -84,26 +77,31 @@ class MonitoringIKUDetailExport implements FromCollection, WithHeadings, WithSty
 
         $row = [
             $this->rowIndex,
+            $standarDeskripsi, 
             $indikator,
-            $baselineDisplay,
-            $targetDisplay
         ];
 
+        if ($this->type == 'penetapan') {
+            $row[] = $baselineDisplay;
+            $row[] = $targetDisplay;
+        }
+
         if (in_array($this->type, ['pelaksanaan', 'evaluasi', 'pengendalian', 'peningkatan'])) {
-            $row[] = $detail ? $safeString($detail->mtid_capaian) : '';
-            $row[] = $detail ? $safeString($detail->mtid_url) : '';
+            $keterlaksanaan = ($detail->mtid_keterangan ?? '-') . "\n(Status: " . ucfirst($detail->mtid_status ?? 'Draft') . ")";
+            $row[] = $keterlaksanaan;
+            $row[] = $detail ? $safeString($detail->mtid_url) : ''; 
         }
+
         if (in_array($this->type, ['evaluasi', 'pengendalian', 'peningkatan'])) {
-            $statusRaw = $detail ? ucfirst($safeString($detail->mtid_status)) : '';
-            $row[] = $statusRaw;
+            $row[] = $detail->mtid_evaluasi ?? '-';
         }
+
         if (in_array($this->type, ['pengendalian', 'peningkatan'])) {
-            $row[] = $detail ? $safeString($detail->mtid_keterangan) : '';
-            $row[] = $detail ? $safeString($detail->mtid_evaluasi) : '';
-            $row[] = $detail ? $safeString($detail->mtid_tindaklanjut) : '';
+            $row[] = $detail->mtid_tindaklanjut ?? '-';
         }
+
         if ($this->type == 'peningkatan') {
-            $row[] = $detail ? $safeString($detail->mtid_peningkatan) : '';
+            $row[] = $detail->mtid_peningkatan ?? '-';
         }
 
         return $row;
@@ -111,17 +109,24 @@ class MonitoringIKUDetailExport implements FromCollection, WithHeadings, WithSty
 
     public function headings(): array
     {
-        $headers = ['No', 'Indikator Kinerja', 'Baseline', 'Target'];
+        $headers = ['No', 'Standar', 'Indikator Kinerja'];
+
+        if ($this->type == 'penetapan') {
+            array_push($headers, 'Baseline', 'Target');
+        }
 
         if (in_array($this->type, ['pelaksanaan', 'evaluasi', 'pengendalian', 'peningkatan'])) {
-            array_push($headers, 'Capaian', 'URL Bukti Dukung');
+            array_push($headers, 'Keterlaksanaan', 'URL Bukti Dukung');
         }
+        
         if (in_array($this->type, ['evaluasi', 'pengendalian', 'peningkatan'])) {
-            array_push($headers, 'Status');
+            array_push($headers, 'Evaluasi');
         }
+
         if (in_array($this->type, ['pengendalian', 'peningkatan'])) {
-            array_push($headers, 'Keterangan', 'Evaluasi', 'Tindak Lanjut');
+            array_push($headers, 'Tindak Lanjut');
         }
+
         if ($this->type == 'peningkatan') {
             array_push($headers, 'Peningkatan');
         }
@@ -139,7 +144,7 @@ class MonitoringIKUDetailExport implements FromCollection, WithHeadings, WithSty
         
         $sheet->getStyle("A1:{$lastColumn}{$lastRow}")
               ->getAlignment()
-              ->setVertical(Alignment::VERTICAL_CENTER)
+              ->setVertical(Alignment::VERTICAL_TOP) 
               ->setWrapText(true);
 
         $headerStyle = [
@@ -174,17 +179,28 @@ class MonitoringIKUDetailExport implements FromCollection, WithHeadings, WithSty
         $sheet->getStyle("A1:{$lastColumn}{$lastRow}")->applyFromArray($borderStyle);
 
         $sheet->getStyle("A2:A{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle("C2:D{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
-        $sheet->getColumnDimension('A')->setWidth(5);
-        $sheet->getColumnDimension('B')->setWidth(35);
-        $sheet->getColumnDimension('C')->setWidth(12);
-        $sheet->getColumnDimension('D')->setWidth(12);
+        
+        $sheet->getColumnDimension('A')->setWidth(5);   // No
+        $sheet->getColumnDimension('B')->setWidth(40);  // Standar
+        $sheet->getColumnDimension('C')->setWidth(30);  // Indikator
+        $sheet->getColumnDimension('D')->setWidth(40);  // Pelaksanaan
+        $sheet->getColumnDimension('F')->setWidth(40);  // Evaluasi
+        $sheet->getColumnDimension('G')->setWidth(40);  // Tindak Lanjut
+        $sheet->getColumnDimension('H')->setWidth(40);  // Peningkatan
 
         $highestColumnIndex = Coordinate::columnIndexFromString($lastColumn);
-        for ($col = 5; $col <= $highestColumnIndex; $col++) {
+        for ($col = 1; $col <= $highestColumnIndex; $col++) {
             $columnLetter = Coordinate::stringFromColumnIndex($col);
-            $sheet->getColumnDimension($columnLetter)->setWidth(25);
+            
+            // Jika kolom belum diatur lebarnya secara manual di atas, beri lebar default 25
+            if (!in_array($columnLetter, ['A', 'B', 'C', 'D', 'F', 'G', 'H'])) {
+                $sheet->getColumnDimension($columnLetter)->setWidth(25);
+            }
+
+            if ($this->type == 'penetapan' && ($columnLetter == 'D' || $columnLetter == 'E')) {
+                $sheet->getStyle("{$columnLetter}2:{$columnLetter}{$lastRow}")
+                    ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            }
         }
 
         return [];
@@ -199,7 +215,6 @@ class MonitoringIKUDetailExport implements FromCollection, WithHeadings, WithSty
                 $lastRow = $sheet->getHighestRow();
 
                 $sheet->setAutoFilter("A1:{$lastColumn}{$lastRow}");
-
                 $sheet->freezePane('A2');
 
                 for ($row = 2; $row <= $lastRow; $row++) {
@@ -224,18 +239,13 @@ class MonitoringIKUDetailExport implements FromCollection, WithHeadings, WithSty
 
                 if ($urlColIndex) {
                     $urlColLetter = Coordinate::stringFromColumnIndex($urlColIndex);
-                    
                     for ($row = 2; $row <= $lastRow; $row++) {
                         $cell = $sheet->getCell("{$urlColLetter}{$row}");
                         $val = $cell->getValue();
-                        
                         if (!empty($val) && filter_var($val, FILTER_VALIDATE_URL)) {
                             $cell->getHyperlink()->setUrl($val);
                             $sheet->getStyle("{$urlColLetter}{$row}")->applyFromArray([
-                                'font' => [
-                                    'color' => ['rgb' => '0000FF'],
-                                    'underline' => true
-                                ]
+                                'font' => ['color' => ['rgb' => '0000FF'], 'underline' => true]
                             ]);
                         }
                     }

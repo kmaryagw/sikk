@@ -18,13 +18,13 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 class IkuExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithEvents
 {
     protected $tahunId, $prodiId, $keyword;
-    // protected $unitId; // Unit Kerja
+    protected $unitId; // Unit Kerja
 
-    public function __construct($tahunId = null, $prodiId = null, /* $unitId = null, */ $keyword = null)
+    public function __construct($tahunId = null, $prodiId = null, $unitId = null, $keyword = null)
     {
         $this->tahunId = $tahunId;
         $this->prodiId = $prodiId;
-        // $this->unitId = $unitId; // Unit Kerja
+        $this->unitId = $unitId;
         $this->keyword = $keyword;
     }
 
@@ -57,14 +57,12 @@ class IkuExport implements FromCollection, WithHeadings, WithMapping, WithStyles
             $query->where('program_studi.prodi_id', $this->prodiId);
         }
 
-        /*
         // Filter Unit Kerja (Commented)
         if ($this->unitId) {
             $query->whereHas('indikatorKinerja.unitKerja', function ($q) {
                 $q->where('unit_kerja.unit_id', $this->unitId);
             });
         }
-        */
 
         // Filter Keyword
         if ($this->keyword) {
@@ -88,10 +86,10 @@ class IkuExport implements FromCollection, WithHeadings, WithMapping, WithStyles
         return [
             'Tahun',
             'Prodi',
-            // 'Unit Kerja', 
-            'Kode IK',          // Kolom Baru
+            'Unit Kerja', 
+            'Kode Indikator',      
             'Indikator Kinerja',
-            'Target Capaian',
+            'Target',
             'Capaian',
             'Status',
         ];
@@ -99,7 +97,7 @@ class IkuExport implements FromCollection, WithHeadings, WithMapping, WithStyles
 
     public function map($row): array
     {
-        // $unitKerja = $row->indikatorKinerja->unitKerja->pluck('unit_nama')->join(', '); 
+        $unitKerja = $row->indikatorKinerja->unitKerja->pluck('unit_nama')->join(', '); 
 
         $detail = $row->monitoringDetail;
         $capaian = $detail->mtid_capaian ?? 'Belum Ada';
@@ -118,8 +116,8 @@ class IkuExport implements FromCollection, WithHeadings, WithMapping, WithStyles
         return [
             $row->th_tahun ?? '-',
             $row->nama_prodi ?? '-',
-            // $unitKerja ?: '-', 
-            $row->indikatorKinerja->ik_kode ?? '-', // Isi Kolom Kode IK
+            $unitKerja ?: '-', 
+            $row->indikatorKinerja->ik_kode ?? '-',
             $row->indikatorKinerja->ik_nama ?? '-',
             $row->ti_target ?? '-',
             $capaian,
@@ -127,15 +125,13 @@ class IkuExport implements FromCollection, WithHeadings, WithMapping, WithStyles
         ];
     }
 
-    /**
-     * TAMPILAN VISUAL
-     */
+   
+    //  * TAMPILAN VISUAL
     public function styles(Worksheet $sheet)
     {
         $lastColumn = $sheet->getHighestColumn();
         $lastRow = $sheet->getHighestRow();
 
-        // 1. Font & Alignment Global
         $sheet->getParent()->getDefaultStyle()->getFont()->setName('Arial');
         $sheet->getParent()->getDefaultStyle()->getFont()->setSize(10);
         
@@ -144,7 +140,6 @@ class IkuExport implements FromCollection, WithHeadings, WithMapping, WithStyles
               ->setVertical(Alignment::VERTICAL_CENTER)
               ->setWrapText(true);
 
-        // 2. Header Style
         $headerStyle = [
             'font' => [
                 'bold' => true,
@@ -157,13 +152,11 @@ class IkuExport implements FromCollection, WithHeadings, WithMapping, WithStyles
             ],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
-                'color' => ['argb' => 'FFC00000'], // Merah
+                'color' => ['argb' => 'FFC00000'], // Merah Marun
             ],
         ];
         $sheet->getStyle("A1:{$lastColumn}1")->applyFromArray($headerStyle);
-        $sheet->getRowDimension(1)->setRowHeight(50);
-
-        // 3. Borders
+        $sheet->getRowDimension(1)->setRowHeight(40); 
         $borderStyle = [
             'borders' => [
                 'allBorders' => [
@@ -177,21 +170,29 @@ class IkuExport implements FromCollection, WithHeadings, WithMapping, WithStyles
         ];
         $sheet->getStyle("A1:{$lastColumn}{$lastRow}")->applyFromArray($borderStyle);
 
-        // A=Tahun, B=Prodi, C=Kode IK, D=Indikator, E=Target, F=Capaian, G=Status
-        
-        // Center: A (Tahun), C (Kode IK), E (Target), F (Capaian), G (Status)
-        $sheet->getStyle("A2:A{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER); 
-        $sheet->getStyle("C2:C{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER); 
-        $sheet->getStyle("E2:G{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER); 
+        // 4. Alignment Spesifik per Kolom
+        // Urutan Kolom berdasarkan Headings:
+        // A: Tahun | B: Prodi | C: Unit Kerja | D: Kode IK | E: Indikator | F: Target | G: Capaian | H: Status
 
-        // 5. Lebar Kolom Manual
-        $sheet->getColumnDimension('A')->setWidth(10); // Tahun
-        $sheet->getColumnDimension('B')->setWidth(25); // Prodi
-        $sheet->getColumnDimension('C')->setWidth(12); // Kode IK (Baru, Cukup Sempit)
-        $sheet->getColumnDimension('D')->setWidth(50); // Indikator (Lebar)
-        $sheet->getColumnDimension('E')->setWidth(15); // Target
-        $sheet->getColumnDimension('F')->setWidth(15); // Capaian
-        $sheet->getColumnDimension('G')->setWidth(15); // Status
+        // Rata Tengah (Center): Tahun(A), Kode IK(D), Target(F), Capaian(G), Status(H)
+        $sheet->getStyle("A2:A{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle("D2:D{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle("F2:H{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        // Rata Kiri (Left): Prodi(B), Unit Kerja(C), Indikator(E) 
+        // (Default biasanya sudah kiri, tapi kita pertegas agar rapi)
+        $sheet->getStyle("B2:C{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+        $sheet->getStyle("E2:E{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+
+        // 5. Lebar Kolom Manual (Disesuaikan dengan konten)
+        $sheet->getColumnDimension('A')->setWidth(10);  // Tahun (Pendek)
+        $sheet->getColumnDimension('B')->setWidth(30);  // Prodi (Agak Panjang)
+        $sheet->getColumnDimension('C')->setWidth(40);  // Unit Kerja (Sedang)
+        $sheet->getColumnDimension('D')->setWidth(12);  // Kode IK (Pendek, misal: 1.1.2)
+        $sheet->getColumnDimension('E')->setWidth(60);  // Indikator (Paling Panjang/Deskripsi)
+        $sheet->getColumnDimension('F')->setWidth(18);  // Target (Angka/Persen)
+        $sheet->getColumnDimension('G')->setWidth(18);  // Capaian (Angka/Persen)
+        $sheet->getColumnDimension('H')->setWidth(20);  // Status (Tercapai/Tidak)
 
         return [];
     }

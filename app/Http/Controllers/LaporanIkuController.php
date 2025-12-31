@@ -101,7 +101,7 @@ class LaporanIkuController extends Controller
     {
         $tahunId = $request->tahun;
         $prodiId = $request->prodi;
-        // $unitId  = $request->unit;
+        $unitId  = $request->unit;
         $keyword = $request->q;
 
         if (!$tahunId) {
@@ -111,7 +111,7 @@ class LaporanIkuController extends Controller
 
         $tahunText = $tahunId ? tahun_kerja::find($tahunId)?->th_tahun : 'Semua-Tahun';
         $prodiText = $prodiId ? program_studi::find($prodiId)?->nama_prodi : 'Semua-Prodi';
-        // $unitText  = $unitId ? UnitKerja::find($unitId)?->unit_nama : 'Semua-Unit';
+        $unitText  = $unitId ? UnitKerja::find($unitId)?->unit_nama : 'Semua-Unit';
 
         $tanggal = now()->format('Ymd_His');
 
@@ -122,7 +122,7 @@ class LaporanIkuController extends Controller
         $filename = "Laporan_IKU_" 
             . $sanitize($tahunText) . "_" 
             . $sanitize($prodiText) . "_" 
-            // . $sanitize($unitText) . "_" 
+            . $sanitize($unitText) . "_" 
             . $tanggal . ".xlsx";
 
         // Ekspor Excel
@@ -130,7 +130,7 @@ class LaporanIkuController extends Controller
             new IkuExport(
                 $tahunId,
                 $prodiId,
-                // $unitId,
+                $unitId,
                 $keyword
             ),
             $filename
@@ -141,7 +141,7 @@ class LaporanIkuController extends Controller
     {
         $tahunId = $request->query('tahun');
         $prodiId = $request->query('prodi');
-        // $unitId  = $request->query('unit');
+        $unitId  = $request->query('unit');
         $keyword = $request->query('q');
 
         if (!$tahunId) {
@@ -168,11 +168,11 @@ class LaporanIkuController extends Controller
         if ($prodiId) {
             $query->where('target_indikator.prodi_id', $prodiId);
         }
-        // if ($unitId) {
-        //     $query->whereHas('indikatorKinerja.unitKerja', function ($q) use ($unitId) {
-        //         $q->where('unit_kerja.unit_id', $unitId);
-        //     });
-        // }
+        if ($unitId) {
+            $query->whereHas('indikatorKinerja.unitKerja', function ($q) use ($unitId) {
+                $q->where('unit_kerja.unit_id', $unitId);
+            });
+        }
         if ($keyword) {
             $query->where('indikator_kinerja.ik_nama', 'like', '%' . $keyword . '%');
         }
@@ -182,17 +182,16 @@ class LaporanIkuController extends Controller
         // 3. Data Header
         $tahun = $tahunId ? tahun_kerja::find($tahunId)?->th_tahun : 'Semua-Tahun';
         $prodi = $prodiId ? program_studi::find($prodiId)?->nama_prodi : 'Semua-Prodi';
-        // $unit  = $unitId ? UnitKerja::find($unitId)?->unit_nama : 'Semua-Unit';
+        $unit  = $unitId ? UnitKerja::find($unitId)?->unit_nama : 'Semua-Unit';
 
         $sanitize = fn($string) => preg_replace('/[\/\\\\]+/', '-', str_replace(' ', '-', $string ?? ''));
 
-        $namaFile = "Laporan_IKU_" . $sanitize($tahun) . "_" . $sanitize($prodi) . "_" /** . $sanitize($unit) */. ".pdf";
-
+        $namaFile = "Laporan_IKU_" . $sanitize($tahun) . "_" . $sanitize($prodi) . "_" . $sanitize($unit) . ".pdf";
         $pdf = Pdf::loadView('export.laporan-iku-pdf', [
             'target_capaians' => $target_capaians,
             'tahun' => $tahun,
             'prodi' => $prodi,
-            // 'unit'  => $unit,
+            'unit'  => $unit,
         ])->setPaper('a4', 'landscape');
 
         return $pdf->download($namaFile);
