@@ -84,15 +84,28 @@
                                                             <i class="fas fa-sort-amount-down"></i>
                                                         </div>
                                                     </div>
-                                                    <input type="text" id="baseline_input" class="form-control dynamic-input-baseline" 
-                                                        value="{{ old('baseline', $baseline) }}" 
-                                                        placeholder="Masukkan Nilai Baseline">
-                                                    <select id="baseline_select" class="form-control dynamic-input-baseline" style="display: none;">
-                                                        <option value="draft" {{ strtolower(old('baseline', $baseline)) == 'draft' ? 'selected' : '' }}>Draft</option>
-                                                        <option value="ada" {{ strtolower(old('baseline', $baseline)) == 'ada' ? 'selected' : '' }}>Ada</option>
-                                                    </select>
+
+                                                    @if($isFirstYear)
+                                                        <input type="text" id="baseline_input" class="form-control dynamic-input-baseline" 
+                                                            value="{{ old('baseline', $baseline) }}" 
+                                                            placeholder="Masukkan Nilai Baseline">
+                                                        
+                                                        <select id="baseline_select" class="form-control dynamic-input-baseline" style="display: none;">
+                                                            <option value="draft" {{ strtolower(old('baseline', $baseline)) == 'draft' ? 'selected' : '' }}>Draft</option>
+                                                            <option value="ada" {{ strtolower(old('baseline', $baseline)) == 'ada' ? 'selected' : '' }}>Ada</option>
+                                                        </select>
+                                                    @else
+                                                        <input type="text" class="form-control" style="background-color: #e9ecef; font-weight: bold;" 
+                                                            value="{{ $baseline ?: '-' }}" readonly>
+                                                        
+                                                        <input type="hidden" name="baseline" value="{{ $baseline }}">
+                                                    @endif
                                                 </div>
-                                                <small class="form-text text-muted" id="baseline_hint">Baseline dapat diedit.</small>
+                                                
+                                                @if($isFirstYear)
+                                                    <small class="form-text text-muted" id="baseline_hint">Baseline dapat diedit karena ini adalah tahun pertama.</small>
+                                                @else
+                                                @endif
                                             </div>
                                             <div class="form-group">
                                                 <label>Keterangan</label>
@@ -196,6 +209,9 @@
             const targetSelect = document.getElementById("target_select");
 
             function adjustInputType(jenis, inputEl, selectEl, fieldName) {
+                // Cek apakah elemen ada (mengantisipasi isFirstYear = false)
+                if (!inputEl || !selectEl) return;
+
                 inputEl.style.display = 'none';
                 selectEl.style.display = 'none';
                 
@@ -211,7 +227,7 @@
                     
                     if (jenis === 'nilai' || jenis === 'persentase') {
                         inputEl.type = 'number';
-                        inputEl.step = '0.01'; 
+                        inputEl.step = 'any'; 
                     } else {
                         inputEl.type = 'text';
                     }
@@ -235,8 +251,12 @@
                         targetHint.textContent = "Isi dengan format x : y, contoh: 2 : 1";
                     }
 
-                    adjustInputType(jenis, baselineInput, baselineSelect, 'baseline');
+                    // Hanya jalankan adjustInputType untuk baseline jika elemennya ada (isFirstYear)
+                    if (baselineInput && baselineSelect) {
+                        adjustInputType(jenis, baselineInput, baselineSelect, 'baseline');
+                    }
 
+                    // Target selalu bisa diedit, jadi langsung jalankan
                     adjustInputType(jenis, targetInput, targetSelect, 'ti_target');
 
                 } else {

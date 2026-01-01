@@ -373,7 +373,7 @@
                                             $progressColor = $numericValue == 0 ? '#dc3545' : '#28a745';
                                         @endphp
 
-                                        @if (strpos($capaian, '%') !== false || $ketercapaian === 'persentase'){{-- Jika ada "%" berarti persentase --}}
+                                        @if (strpos($capaian, '%') !== false || $ketercapaian === 'persentase')
                                             <div class="ring-progress-wrapper">
                                                 <div class="ring-progress" style="--value: {{ $numericValue }}; --progress-color: {{ $progressColor }};">
                                                     <div class="ring-inner">
@@ -431,10 +431,9 @@
                                     @endphp
 
                                     <td style="vertical-align: middle; text-align: {{ $pelaksanaan ? 'left' : 'center' }}; padding: 8px;">
-
                                         @if($pelaksanaan)
                                             <div style="line-height: 1.5;">
-                                                {{ $pelaksanaan }}
+                                                {{ ucfirst($pelaksanaan) }} {{-- <-- Huruf kapital di awal --}}
                                             </div>
                                         @else
                                             <span style="color: #999; font-style: italic; font-size: 9pt;">
@@ -449,10 +448,9 @@
                                     @endphp
 
                                     <td style="vertical-align: middle; text-align: {{ $evaluasi ? 'left' : 'center' }}; padding: 8px;">
-
                                         @if($evaluasi)
                                             <div style="line-height: 1.5;">
-                                                {{ $evaluasi }}
+                                                {{ ucfirst($evaluasi) }} {{-- <-- Huruf kapital di awal --}}
                                             </div>
                                         @else
                                             <span style="color: #999; font-style: italic; font-size: 9pt;">
@@ -467,10 +465,9 @@
                                     @endphp
 
                                     <td style="vertical-align: middle; text-align: {{ $tindak_lanjut ? 'left' : 'center' }}; padding: 8px;">
-
                                         @if($tindak_lanjut)
                                             <div style="line-height: 1.5;">
-                                                {{ $tindak_lanjut }}
+                                                {{ ucfirst($tindak_lanjut) }} {{-- <-- Huruf kapital di awal --}}
                                             </div>
                                         @else
                                             <span style="color: #999; font-style: italic; font-size: 9pt;">
@@ -485,10 +482,9 @@
                                     @endphp
 
                                     <td style="vertical-align: middle; text-align: {{ $peningkatan ? 'left' : 'center' }}; padding: 8px;">
-
                                         @if($peningkatan)
                                             <div style="line-height: 1.5;">
-                                                {{ $peningkatan }}
+                                                {{ ucfirst($peningkatan) }} {{-- <-- Huruf kapital di awal --}}
                                             </div>
                                         @else
                                             <span style="color: #999; font-style: italic; font-size: 9pt;">
@@ -508,7 +504,7 @@
                                             $progressColor = $numericValue == 0 ? '#dc3545' : '#28a745';
                                         @endphp
 
-                                        @if (strpos($capaian, '%') !== false || $ketercapaian === 'persentase'){{-- Jika ada "%" berarti persentase --}}
+                                        @if (strpos($capaian, '%') !== false || $ketercapaian === 'persentase')
                                             <div class="ring-progress-wrapper">
                                                 <div class="ring-progress" style="--value: {{ $numericValue }}; --progress-color: {{ $progressColor }};">
                                                     <div class="ring-inner">

@@ -11,6 +11,7 @@ use App\Models\target_indikator;
 use App\Models\UnitKerja;  
 use App\Notifications\TargetTersediaNotification;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use App\Models\MonitoringIKU;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -199,7 +200,23 @@ class TargetCapaianProdiController extends Controller
 
     public function store(Request $request)
     {
-        // 1. Validasi Input
+        $inputIndikator = $request->input('indikator', []);
+        foreach ($inputIndikator as $index => $data) {
+            $ik = \App\Models\IndikatorKinerja::find($data['ik_id']);
+            if ($ik) {
+                $jenis = strtolower($ik->ik_ketercapaian);
+                if (in_array($jenis, ['persentase', 'nilai'])) {
+                    if (isset($data['baseline'])) {
+                        $inputIndikator[$index]['baseline'] = str_replace(['%', ','], ['', '.'], $data['baseline']);
+                    }
+                    if (isset($data['target'])) {
+                        $inputIndikator[$index]['target'] = str_replace(['%', ','], ['', '.'], $data['target']);
+                    }
+                }
+            }
+        }
+        $request->merge(['indikator' => $inputIndikator]);
+
         $validationRules = [
             'prodi_id' => 'required|string',
             'th_id'    => 'required|string',
@@ -212,30 +229,26 @@ class TargetCapaianProdiController extends Controller
                     $index = explode('.', $attribute)[1];
                     $ikId = $request->input("indikator.$index.ik_id");
                     $indikator = \App\Models\IndikatorKinerja::find($ikId);
-
                     if (!$indikator) return;
 
                     $ketercapaian = strtolower($indikator->ik_ketercapaian);
-                    $value = is_null($value) ? '' : strtolower(trim($value));
+                    $value = is_null($value) ? '' : trim($value);
 
                     if ($ketercapaian === 'persentase') {
-                        if ($value === '') { $request->merge([ "indikator.$index.baseline" => '0' ]); return; }
-                        if (!is_numeric($value) || $value < 0 || $value > 100) $fail("Baseline Persentase harus 0-100.");
+                        if ($value === '') return;
+                        if (!is_numeric($value) || $value < 0 || $value > 100) $fail("Baseline Persentase harus angka 0-100.");
                     } 
                     elseif ($ketercapaian === 'nilai') {
-                        if ($value === '') { $request->merge([ "indikator.$index.baseline" => '0' ]); return; }
+                        if ($value === '') return;
                         if (!is_numeric($value) || $value < 0) $fail("Baseline Nilai minimal 0.");
                     } 
                     elseif ($ketercapaian === 'ketersediaan') {
-                        if ($value === '') { $request->merge([ "indikator.$index.baseline" => 'draft' ]); return; }
-                        if (!in_array($value, ['ada', 'draft'])) $fail("Baseline harus 'ada' atau 'draft'.");
+                        if ($value === '') return;
+                        if (!in_array(strtolower($value), ['ada', 'draft'])) $fail("Baseline harus 'ada' atau 'draft'.");
                     } 
                     elseif ($ketercapaian === 'rasio') {
-                        if ($value === '') { $request->merge([ "indikator.$index.baseline" => '0:0' ]); return; }
-                        if (!preg_match('/^\d+\s*:\s*\d+$/', $value)) { $fail("Format Baseline harus 'angka:angka'."); return; }
-                        $value = preg_replace('/\s*/', '', $value);
-                        [$left, $right] = explode(':', $value);
-                        $request->merge([ "indikator.$index.baseline" => "{$left} : {$right}" ]);
+                        if ($value === '') return;
+                        if (!preg_match('/^\d+\s*:\s*\d+$/', $value)) $fail("Format Baseline harus 'angka:angka'.");
                     }
                 }
             ],
@@ -246,31 +259,26 @@ class TargetCapaianProdiController extends Controller
                     $index = explode('.', $attribute)[1];
                     $ikId = $request->input("indikator.$index.ik_id");
                     $indikator = \App\Models\IndikatorKinerja::find($ikId);
-
                     if (!$indikator) return;
 
                     $ketercapaian = strtolower($indikator->ik_ketercapaian);
-                    $value = is_null($value) ? '' : strtolower(trim($value));
+                    $value = is_null($value) ? '' : trim($value);
 
                     if ($ketercapaian === 'persentase') {
-                        if ($value === '') { $request->merge([ "indikator.$index.target" => '0' ]); return; }
-                        if (!is_numeric($value) || $value < 0 || $value > 100) $fail("Target Persentase harus 0-100.");
+                        if ($value === '') return;
+                        if (!is_numeric($value) || $value < 0 || $value > 100) $fail("Target Persentase harus angka 0-100.");
                     } 
                     elseif ($ketercapaian === 'nilai') {
-                        if ($value === '') { $request->merge([ "indikator.$index.target" => '0' ]); return; }
+                        if ($value === '') return;
                         if (!is_numeric($value) || $value < 0) $fail("Target Nilai minimal 0.");
                     }
                     elseif ($ketercapaian === 'ketersediaan') {
-                        if ($value === '') { $request->merge([ "indikator.$index.target" => 'draft' ]); return; }
-                        if (!in_array($value, ['ada', 'draft'])) $fail("Target harus 'ada' atau 'draft'.");
+                        if ($value === '') return;
+                        if (!in_array(strtolower($value), ['ada', 'draft'])) $fail("Target harus 'ada' atau 'draft'.");
                     } 
                     elseif ($ketercapaian === 'rasio') {
-                        if ($value === '') { $request->merge([ "indikator.$index.target" => '0:0' ]); return; }
-                        if (!preg_match('/^(0|\d+\s*:\s*\d+)$/', $value)) { $fail("Format Target harus 'angka:angka' atau '0'."); return; }
-                        if ($value === '0') { $request->merge([ "indikator.$index.target" => '0' ]); return; }
-                        $value = preg_replace('/\s*/', '', $value);
-                        [$left, $right] = explode(':', $value);
-                        $request->merge([ "indikator.$index.target" => "{$left} : {$right}" ]);
+                        if ($value === '') return;
+                        if (!preg_match('/^(0|\d+\s*:\s*\d+)$/', $value)) $fail("Format Target harus 'angka:angka' atau '0'.");
                     }
                 }
             ],
@@ -278,96 +286,71 @@ class TargetCapaianProdiController extends Controller
 
         $request->validate($validationRules);
 
-        // 2. Proses Penyimpanan Loop
         $th_id    = $request->th_id;
         $prodi_id = $request->prodi_id;
         $affectedUnits = [];
 
-        collect($request->indikator)->each(function ($data) use ($th_id, $prodi_id, &$affectedUnits) {
-            $customPrefix = 'TC';
-            $timestamp = time();
-            $md5Hash = md5($timestamp . $data["ik_id"]);
-            $ti_id = $customPrefix . strtoupper($md5Hash);
+        DB::transaction(function () use ($request, $th_id, $prodi_id, &$affectedUnits) {
+            foreach ($request->indikator as $data) {
+                $ik = \App\Models\IndikatorKinerja::find($data['ik_id']);
+                $jenis = strtolower($ik->ik_ketercapaian);
 
-            // A. Simpan Target Indikator
-            target_indikator::updateOrCreate(
-                [
-                    'ik_id'    => $data["ik_id"],
-                    'th_id'    => $th_id,
-                    'prodi_id' => $prodi_id
-                ],
-                [
-                    'ti_id'         => $ti_id,
-                    'ik_id'         => $data["ik_id"],
-                    'ti_target'     => $data["target"] ?? '0', 
-                    'ti_keterangan' => $data["keterangan"] ?? '-',
-                    'prodi_id'      => $prodi_id,
-                    'th_id'         => $th_id
-                ]
-            );
+                $valBaseline = $data['baseline'] ?? '';
+                $valTarget   = $data['target'] ?? '';
 
-            // B. Simpan Baseline Tahun
-            if (isset($data["baseline"]) && $data["baseline"] !== '') {
-                IkBaselineTahun::updateOrCreate(
+                if ($jenis === 'persentase') {
+                    $valBaseline = ($valBaseline === '' ? '0' : $valBaseline) . '%';
+                    $valTarget   = ($valTarget === '' ? '0' : $valTarget) . '%';
+                } elseif ($jenis === 'nilai') {
+                    $valBaseline = ($valBaseline === '' ? '0' : $valBaseline);
+                    $valTarget   = ($valTarget === '' ? '0' : $valTarget);
+                } elseif ($jenis === 'ketersediaan') {
+                    $valBaseline = ($valBaseline === '' ? 'draft' : strtolower($valBaseline));
+                    $valTarget   = ($valTarget === '' ? 'draft' : strtolower($valTarget));
+                } elseif ($jenis === 'rasio') {
+                    if ($valBaseline === '') $valBaseline = '0:0';
+                    else $valBaseline = str_replace(' ', '', $valBaseline); 
+
+                    if ($valTarget === '' || $valTarget === '0') $valTarget = '0:0';
+                    else $valTarget = str_replace(' ', '', $valTarget);
+                }
+
+                \App\Models\target_indikator::updateOrCreate(
+                    ['ik_id' => $data["ik_id"], 'th_id' => $th_id, 'prodi_id' => $prodi_id],
                     [
-                        'ik_id'    => $data["ik_id"],
-                        'th_id'    => $th_id,
-                        'prodi_id' => $prodi_id
-                    ],
-                    [
-                        'baseline' => strtolower($data["baseline"])
+                        'ti_id'         => 'TC' . strtoupper(md5(time() . $data["ik_id"])),
+                        'ti_target'     => $valTarget, 
+                        'ti_keterangan' => $data["keterangan"] ?? '-',
                     ]
                 );
+
+                \App\Models\IkBaselineTahun::updateOrCreate(
+                    ['ik_id' => $data["ik_id"], 'th_id' => $th_id, 'prodi_id' => $prodi_id],
+                    ['baseline' => $valBaseline]
+                );
+
+                $pivotUnits = \DB::table('indikatorkinerja_unitkerja')->where('ik_id', $data["ik_id"])->pluck('unit_id')->toArray();
+                if (!empty($pivotUnits)) $affectedUnits = array_merge($affectedUnits, $pivotUnits);
             }
 
-            // C. Ambil Unit ID dari Tabel Pivot untuk Notifikasi
-            $pivotUnits = \DB::table('indikatorkinerja_unitkerja')
-                            ->where('ik_id', $data["ik_id"])
-                            ->pluck('unit_id')
-                            ->toArray();
-            
-            if (!empty($pivotUnits)) {
-                $affectedUnits = array_merge($affectedUnits, $pivotUnits);
+            $monitoringHeader = \App\Models\MonitoringIKU::firstOrCreate(
+                ['prodi_id' => $prodi_id, 'th_id' => $th_id],
+                ['mti_id' => 'EV' . md5(uniqid(rand(), true)), 'status' => 0]
+            );
+
+            $uniqueUnits = array_unique($affectedUnits);
+            if ($monitoringHeader && !empty($uniqueUnits)) {
+                $namaProdi = \Auth::user()->programStudi->nama_prodi ?? 'Prodi';
+                $tahunString = \App\Models\tahun_kerja::find($th_id)->th_tahun ?? date('Y');
+                $usersToNotify = \App\Models\User::where('role', 'unit kerja')->whereIn('unit_id', $uniqueUnits)->get();
+
+                foreach ($usersToNotify as $user) {
+                    $user->notify(new \App\Notifications\TargetTersediaNotification($namaProdi, $tahunString, $monitoringHeader->mti_id, 'update'));
+                }
             }
         });
 
-        // 3. Proses Header Monitoring (MonitoringIKU)
-        // Menggunakan firstOrCreate agar lebih efisien (Cari dulu, kalau tidak ada baru buat)
-        $monitoringHeader = MonitoringIKU::firstOrCreate(
-            [
-                'prodi_id' => $prodi_id,
-                'th_id'    => $th_id
-            ],
-            [
-                'mti_id'   => 'EV' . md5(uniqid(rand(), true)),
-                'status'   => 0
-            ]
-        );
-        
-        // Ambil ID Monitoring untuk link notifikasi
-        $mti_id = $monitoringHeader->mti_id;
-
-        // 4. Proses Pengiriman Notifikasi
-        $uniqueUnits = array_unique($affectedUnits);
-
-        if ($mti_id && !empty($uniqueUnits)) {
-            
-            $namaProdi = \Illuminate\Support\Facades\Auth::user()->programStudi->nama_prodi ?? 'Prodi';
-            $tahunAktif = \App\Models\tahun_kerja::where('th_is_aktif', 'y')->first();
-            $tahunString = $tahunAktif ? $tahunAktif->th_tahun : date('Y');
-
-            // Ambil User dengan role 'unit kerja' yang terlibat
-            $usersToNotify = User::where('role', 'unit kerja')
-                                ->whereIn('unit_id', $uniqueUnits)
-                                ->get();
-
-            foreach ($usersToNotify as $user) {
-                // Parameter: Nama Prodi, Tahun, ID Monitoring (untuk link)
-                $user->notify(new \App\Notifications\TargetTersediaNotification($namaProdi, $tahunString, $mti_id, 'update'));
-            }
-        }
-
-        Alert::success('Sukses', 'Data Berhasil Disimpan');
+        \Alert::success('Sukses', 'Data Berhasil Disimpan');
         return redirect()->route('targetcapaianprodi.index');
     }
 
@@ -387,13 +370,20 @@ class TargetCapaianProdiController extends Controller
         $indikatorkinerjautamas = IndikatorKinerja::orderBy('ik_nama')->get();
         $prodis = program_studi::orderBy('nama_prodi')->get();
         $tahuns = tahun_kerja::orderBy('th_tahun', 'desc')->get();
+        $tahunAktif = $tahuns->where('th_is_aktif', 'y')->first();
 
         $userRole = Auth::user()->role;
         $userProdi = $userRole === 'prodi' ? Auth::user()->programStudi : null;
 
+        $allYearsInRenstra = tahun_kerja::where('ren_id', $tahunAktif->ren_id)
+                            ->orderBy('th_tahun', 'asc')
+                            ->get();
+        $isFirstYear = ($allYearsInRenstra->first()->th_id == $tahunAktif->th_id);
+
         return view('targetcapaian.edit', [
             'title' => $title,
             'targetcapaian' => $targetcapaian,
+            'isFirstYear' => $isFirstYear,
             'indikatorkinerjautamas' => $indikatorkinerjautamas,
             'baseline' => $targetcapaian->baseline_tahun,
             'prodis' => $prodis,
