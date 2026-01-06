@@ -141,7 +141,8 @@
                                 <div class="card shadow-sm mb-3">
                                     <div class="card-body">
                                         <h4 class="text-danger mb-3">Data Capaian</h4>
-                                        <div class="row">      
+                                        <div class="row">
+                                            {{-- Baseline --}}
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="baseline">Baseline</label>
@@ -154,7 +155,9 @@
                                                         <input class="form-control" name="baseline" value="{{ old('baseline', $baseline ?? '') }}" readonly>
                                                     </div>
                                                 </div>
-                                            </div>                                        
+                                            </div>
+
+                                            {{-- Target --}}
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="ti_target">Target</label>
@@ -167,73 +170,87 @@
                                                         <input type="text" id="ti_target" class="form-control" value="{{ $targetIndikator->ti_target }}" readonly>
                                                     </div>
                                                 </div>
-                                            </div>                                      
+                                            </div>
+
                                             @if($is_ketersediaan)
-                                                {{-- KASUS 1: Ketersediaan (Dropdown Ada/Draft) --}}
                                                 <div class="col-md-6">
                                                     <div class="form-group">
-                                                        <label for="mtid_capaian">Status Ketercapaian <span class="text-danger">*</span></label>
-                                                        <select class="form-control select2" name="mtid_capaian" id="mtid_capaian" required @if($readonlyMonitoring) disabled @endif>
-                                                            <option value="" disabled {{ empty($capaian_terakhir) ? 'selected' : '' }}>-- Pilih Status --</option>
-                                                            <option value="ada" {{ $capaian_terakhir == 'ada' ? 'selected' : '' }}>Ada (Tercapai/Tersedia)</option>
-                                                            <option value="draft" {{ $capaian_terakhir == 'draft' ? 'selected' : '' }}>Draft (Belum Lengkap)</option>
-                                                        </select>
-                                                        
-                                                        {{-- Input hidden untuk capaian_value agar validasi controller tidak error (opsional, tapi aman) --}}
+                                                        <label for="mtid_capaian" class="font-weight-bold">Status Ketercapaian <span class="text-danger">*</span></label>
+                                                        <div class="input-group">
+                                                            <select class="form-control select2" name="mtid_capaian" id="mtid_capaian" required @if($readonlyMonitoring) disabled @endif>
+                                                                <option value="" disabled {{ empty($capaian_terakhir) ? 'selected' : '' }}>-- Pilih Status --</option>
+                                                                <option value="ada" {{ $capaian_terakhir == 'ada' ? 'selected' : '' }}>Ada (Tercapai/Tersedia)</option>
+                                                                <option value="draft" {{ $capaian_terakhir == 'draft' ? 'selected' : '' }}>Draft (Belum Lengkap)</option>
+                                                            </select>
+                                                        </div>
                                                         <input type="hidden" name="capaian_value" value="">
                                                     </div>
                                                 </div>
                                             @else                                                
-                                                {{-- Kolom 1: Jenis (Hidden agar terkirim ke controller) --}}
-                                            <input type="hidden" name="mtid_capaian" value="{{ $jenis_ik_db }}">
+                                                <input type="hidden" name="mtid_capaian" value="{{ $jenis_ik_db }}">
 
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label for="capaian_value">
-                                                        @if ($isAdmin)
-                                                            Nilai Capaian 
-                                                        @else
-                                                            Masukkan Nilai Capaian 
-                                                            @if($jenis_ik_db == 'persentase') (Tanpa %) 
-                                                            @elseif($jenis_ik_db == 'rasio') (Format x:y) 
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="capaian_value" class="font-weight-bold">
+                                                            @if ($isAdmin)
+                                                                Nilai Capaian 
+                                                            @else
+                                                                Masukkan Nilai Capaian 
+                                                                @if($jenis_ik_db == 'persentase') (Tanpa %) 
+                                                                @elseif($jenis_ik_db == 'rasio') (Format x:y) 
+                                                                @endif
                                                             @endif
-                                                        @endif
-                                                        <span class="text-danger">*</span>
-                                                    </label>
-                                                    
-                                                    <input type="text" class="form-control" name="capaian_value" id="capaian_value"
-                                                        value="{{ $input_value }}" 
-                                                        @if($readonlyMonitoring) readonly @endif
-                                                        placeholder="{{ $jenis_ik_db == 'rasio' ? 'Contoh 1:20' : 'Masukkan Angka' }}"
-                                                        required>
+                                                            <span class="text-danger">*</span>
+                                                        </label>
+                                                        <div class="input-group">
+                                                            <div class="input-group-prepend">
+                                                                <div class="input-group-text">
+                                                                    <i class="fa-solid fa-chart-line fa-fw"></i>
+                                                                </div>
+                                                            </div>
+                                                            <input type="text" class="form-control" name="capaian_value" id="capaian_value"
+                                                                value="{{ $input_value }}" 
+                                                                @if($readonlyMonitoring) readonly @endif
+                                                                placeholder="{{ $jenis_ik_db == 'rasio' ? 'Contoh 1:20' : 'Masukkan Angka' }}"
+                                                                required>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
                                             @endif
-
-                                            {{-- Sisa Form: URL & Keterangan --}}
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="mtid_url">URL Bukti Dukung <span class="text-danger">*</span></label>
-                                                    <input class="form-control" type="url" name="mtid_url" 
-                                                        value="{{ old('mtid_url', $monitoringikuDetail->mtid_url) }}" 
-                                                        placeholder="https://..."
-                                                        required
-                                                        @if($readonlyMonitoring) readonly @endif>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">
+                                                                <i class="fa-solid fa-link"></i>
+                                                            </span>
+                                                        </div>
+                                                        <input class="form-control" type="url" name="mtid_url" 
+                                                            value="{{ old('mtid_url', $monitoringikuDetail->mtid_url) }}" 
+                                                            placeholder="https://..."
+                                                            required
+                                                            @if($readonlyMonitoring) readonly @endif>
+                                                    </div>
                                                 </div>
                                             </div>
-
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="mtid_keterangan">Pelaksanaan</label>
-                                                    <textarea class="form-control" name="mtid_keterangan" rows="4" 
-                                                        @if($readonlyMonitoring) readonly @endif>{{ old('mtid_keterangan', $monitoringikuDetail->mtid_keterangan) }}</textarea>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">
+                                                                <i class="fa-solid fa-clipboard-list"></i>
+                                                            </span>
+                                                        </div>
+                                                        <textarea class="form-control" name="mtid_keterangan" rows="4" 
+                                                            @if($readonlyMonitoring) readonly @endif>{{ old('mtid_keterangan', $monitoringikuDetail->mtid_keterangan) }}</textarea>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Card 3: Data Evaluasi (hanya admin) -->
                                 @if($isAdmin)
                                     <div class="card mt-3">
                                         <div class="card-body">

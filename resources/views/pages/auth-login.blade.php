@@ -233,6 +233,42 @@
             .login-form-container { flex: 1; padding: 20px; }
             .login-form-wrapper { max-width: 100%; padding: 0 20px; }
         }
+
+        /* ==== SIMPLE BACK BUTTON ==== */
+        .back-btn-minimal {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            width: 45px;
+            height: 45px;
+            background-color: var(--input-bg);
+            color: var(--text-main);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            z-index: 10;
+        }
+
+        .back-btn-minimal:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateX(-3px);
+            box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
+            text-decoration: none;
+        }
+
+        @media (max-width: 992px) {
+            .back-btn-minimal {
+                top: 20px;
+                left: 20px;
+                width: 40px;
+                height: 40px;
+            }
+        }
     </style>
 @endpush
 
@@ -249,6 +285,9 @@
 
     <!-- Bagian KANAN: Form Login -->
     <div class="login-form-container">
+        <a href="{{ url('/') }}" class="back-btn-minimal" title="Kembali ke Pengumuman">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
         <div class="login-form-wrapper">
             
             <div class="text-center text-lg-left mb-4">

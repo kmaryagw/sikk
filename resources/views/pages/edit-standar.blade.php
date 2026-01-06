@@ -75,7 +75,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="form-group">
+                                    {{-- <div class="form-group">
                                         <label for="std_url">URL Standar</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
@@ -85,7 +85,7 @@
                                             </div>
                                             <input class="form-control" type="url" name="std_url" value="{{ old('std_url', $standar->std_url) }}" />
                                         </div>
-                                    </div>
+                                    </div> --}}
 
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Simpan</button>

@@ -74,7 +74,7 @@
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
+    {{-- <script>
         function confirmDelete(event, formid) {
             event.preventDefault();
             Swal.fire({
@@ -91,7 +91,7 @@
                 }
             });
         }
-    </script>
+    </script> --}}
 
     <script>
         $(document).ready(function () {
@@ -136,6 +136,30 @@
                     }
                 });
             }
+
+            $(document).on('click', '.btn-delete-custom', function (e) {
+                e.preventDefault();
+                
+                let id = $(this).data('id');
+                let nama = $(this).data('nama');
+                let form = $('#delete-form-' + id);
+
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Standar \"" + nama + "\" akan dihapus secara permanen!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33', 
+                    cancelButtonColor: '#3085d6', 
+                    confirmButtonText: 'Ya, Hapus!',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true 
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
         });
     </script>
 

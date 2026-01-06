@@ -88,7 +88,7 @@ class StandarController extends Controller
             'std_kategori' => 'required|string|max:255',
             'std_nama' => 'required|string|max:255',
             'std_deskripsi' => 'required',
-            'std_url' => 'required|url',
+            'std_url' => 'nullable|url',
         ]);
 
         $customPrefix = 'STD';
@@ -127,7 +127,7 @@ class StandarController extends Controller
             'std_kategori' => 'required|string|max:255',
             'std_nama' => 'required|string|max:250',
             'std_deskripsi' => 'required',
-            'std_url' => 'required|url',
+            'std_url' => 'nullable|url',
         ]);
 
         $standar->std_kategori = $request->std_kategori;

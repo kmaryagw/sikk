@@ -1096,7 +1096,7 @@ class MonitoringIKUController extends Controller
 
         $fileName = "Monitoring_{$cleanType}_{$cleanProdi}_{$cleanTahun}{$unitSuffix}.xlsx";
 
-        return Excel::download(new MonitoringIKUDetailExport($data, $type), $fileName);
+        return Excel::download(new MonitoringIKUDetailExport($data, $type, $monitoring), $fileName);
     }
 
     public function exportPdfDetail(Request $request, $mti_id)

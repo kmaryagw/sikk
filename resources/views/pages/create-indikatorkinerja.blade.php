@@ -8,30 +8,37 @@
     <link rel="stylesheet" href="{{ asset('library/select2/dist/css/select2.min.css') }}">
 
     <style>
-        /* Memastikan Select2 mengisi lebar penuh di dalam input-group */
         .input-group > .select2-container--default {
-            width: auto !important;
             flex: 1 1 auto;
+            width: 1% !important; 
         }
 
-        /* Memastikan height dan border menyatu dengan ikon */
+        .input-group > .select2-container--default .select2-selection--single,
         .input-group > .select2-container--default .select2-selection--multiple {
-            height: auto;
-            min-height: 38px; /* Tinggi standar input Bootstrap 4 */
+            border-top-left-radius: 0 !important;
+            border-bottom-left-radius: 0 !important;
             border: 1px solid #ced4da;
-            border-radius: 0 0.25rem 0.25rem 0 !important; /* Hilangkan radius kiri agar nempel sama ikon */
+            min-height: 38px; 
+        }
+        
+        .input-group > .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 38px;
         }
 
-        /* Menangani fokus agar border menjadi biru seperti input bootstrap */
+        .input-group > .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 37px;
+        }
+
+        .input-group > .select2-container--default.select2-container--focus .select2-selection--single,
         .input-group > .select2-container--default.select2-container--focus .select2-selection--multiple {
             border-color: #80bdff;
             outline: 0;
             box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
         }
         
-        /* Agar ikon mengikuti tinggi input jika pilihannya banyak (multiline) */
         .input-group-text {
-            height: 100%; 
+            display: flex;
+            align-items: center;
         }
     </style>
 @endpush
@@ -100,11 +107,10 @@
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
-                                                    <i class="fas fa-check-circle"></i>
+                                                    <i class="fa-solid fa-thumbs-up"></i> <!-- Ikon disamakan dengan Edit -->
                                                 </div>
                                             </div>
-                                            <select id="std_id" name="std_id" 
-                                                class="form-control @error('std_id') is-invalid @enderror" required>
+                                            <select id="std_id" name="std_id" class="form-control select2" required>
                                                 <option value="" disabled selected>Pilih Standar</option>
                                                 @foreach ($standar as $s)
                                                     <option value="{{ $s->std_id }}" {{ old('std_id') == $s->std_id ? 'selected' : '' }}>
@@ -112,9 +118,6 @@
                                                     </option>
                                                 @endforeach
                                             </select>
-                                            @error('std_id')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
                                         </div>
                                     </div>
 
@@ -255,10 +258,18 @@
     <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>
     <script>
         $(document).ready(function() {
+            $('#std_id').select2({
+                theme: 'bootstrap4',
+                placeholder: "Pilih Standar",
+                allowClear: true,
+                width: 'resolve'
+            });
+
             $('#unit_id').select2({
+                theme: 'bootstrap4',
                 placeholder: "Pilih Unit Kerja",
                 allowClear: true,
-                width: 'resolve' // atau '100%' jika CSS di atas sudah dipasang
+                width: 'resolve'
             });
         });
     </script>

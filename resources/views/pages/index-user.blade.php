@@ -17,7 +17,16 @@
 
             <div class="card mb-3">
                 <div class="card-header">
-                    <form class="row g-2 align-items-center">
+                    <form class="row g-2 align-items-center" method="GET" action="{{ route('user.index') }}">
+                        <div class="col-auto">
+                            <select name="limit" class="form-control" onchange="this.form.submit()">
+                                <option value="10" {{ request('limit') == 10 ? 'selected' : '' }}>10</option>
+                                <option value="25" {{ request('limit') == 25 ? 'selected' : '' }}>25</option>
+                                <option value="50" {{ request('limit') == 50 ? 'selected' : '' }}>50</option>
+                                <option value="100" {{ request('limit') == 100 ? 'selected' : '' }}>100</option>
+                            </select>
+                        </div>
+
                         <div class="col-auto">
                             <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>

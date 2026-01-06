@@ -28,7 +28,12 @@
                         <form id="delete-form-{{ $standar->std_id }}" method="POST" action="{{ route('standar.destroy', $standar->std_id) }}">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="dropdown-item text-danger font-weight-bold" onclick="return confirm('Yakin ingin menghapus?')">
+                            {{-- Ganti type="submit" menjadi type="button" agar tidak langsung mengirim form --}}
+                            {{-- Tambahkan class btn-delete-custom dan atribut data-id & data-nama --}}
+                            <button type="button" 
+                                class="dropdown-item text-danger font-weight-bold btn-delete-custom" 
+                                data-id="{{ $standar->std_id }}" 
+                                data-nama="{{ $standar->std_nama }}">
                                 <i class="fa-solid fa-trash"></i> Hapus
                             </button>
                         </form>

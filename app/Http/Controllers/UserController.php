@@ -29,41 +29,35 @@ class UserController extends Controller
         ]);
         
         if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
-            $request->session()->regenerate();
-
+            
             $user = Auth::user();
 
-            if ($user instanceof User) {
-                $user->status = 1;
-                $user->save();
-
-                $nama = $user->name ?? $user->username; 
-
-                if ($user->role === 'admin') {
-                    $nama = 'Admin';
-                } elseif ($user->role === 'prodi' && $user->programStudi) {
-                    $nama = $user->programStudi->nama_prodi;
-                } elseif ($user->role === 'unit kerja' && $user->unitKerja) {
-                    $nama = $user->unitKerja->unit_nama;
-                } elseif ($user->role === 'fakultas' && $user->fakultas) {
-                    $nama = $user->fakultas->nama_fakultas;
-                }
-
-                Alert::success('Sukses', 'Selamat Datang, ' . $nama);
-
-                return redirect()->route('dashboard')->with('from_login', true);
-
-            } else {
+            if ($user->status == '0') {
                 Auth::logout();
-                Alert::error('Error', 'Username Tidak Valid!');
+                Alert::error('Error', 'Akun Anda telah dinonaktifkan oleh Admin!');
                 return back();
             }
+
+            $request->session()->regenerate();
+
+            $nama = $user->name ?? $user->username; 
+            if ($user->role === 'admin') {
+                $nama = 'Admin';
+            } elseif ($user->role === 'prodi' && $user->programStudi) {
+                $nama = $user->programStudi->nama_prodi;
+            } elseif ($user->role === 'unit kerja' && $user->unitKerja) {
+                $nama = $user->unitKerja->unit_nama;
+            } elseif ($user->role === 'fakultas' && $user->fakultas) {
+                $nama = $user->fakultas->nama_fakultas;
+            }
+
+            Alert::success('Sukses', 'Selamat Datang, ' . $nama);
+            return redirect()->route('dashboard')->with('from_login', true);
         }
 
         Alert::error('Error', 'Username atau Password salah!');
         return back();
     }
-
 
     public function profile()
     {
@@ -82,7 +76,7 @@ class UserController extends Controller
         $user = Auth::user();
         
         if ($user instanceof User) {
-            $user->status = 0;
+            // $user->status = 0;
             $user->save();
         }
 
@@ -106,28 +100,32 @@ class UserController extends Controller
         
         $title = 'Data User';
         $q = $request->query('q');
-        $user = Auth::user();
+        
+        $limit = $request->query('limit', 10);
 
-        $usersQuery = User::where('username', 'like', '%' . $q . '%')
+        $usersQuery = User::select('users.*', 'program_studi.nama_prodi', 'unit_kerja.unit_nama', 'fakultasn.nama_fakultas')
             ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'users.prodi_id')
             ->leftJoin('unit_kerja', 'unit_kerja.unit_id', '=', 'users.unit_id')
             ->leftJoin('fakultasn', 'fakultasn.id_fakultas', '=', 'users.id_fakultas')
-            ->orderBy('role', 'asc');
+            ->where('users.username', 'like', '%' . $q . '%')
+            ->orderBy('users.role', 'asc');
 
         if ($user->role === 'admin') {
             $usersQuery->where(function($query) use ($user) {
                 $query->where('users.role', '<>', 'admin')
-                      ->orWhere('users.id_user', $user->id_user);
+                    ->orWhere('users.id_user', $user->id_user);
             });
         }
 
-        $users = $usersQuery->paginate(10)->withQueryString();
+        $users = $usersQuery->paginate($limit)->withQueryString();
+        
         $no = $users->firstItem();
 
         return view('pages.index-user', [
             'title' => $title,
             'users' => $users,
             'q' => $q,
+            'limit' => $limit, 
             'no' => $no,
             'type_menu' => 'masterdata',
             'sub_menu' => 'user',
