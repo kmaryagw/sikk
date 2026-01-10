@@ -228,10 +228,10 @@
                                         
                                         @foreach ($targetIndikator as $indikator)
                                             @php
-                                                $detail = $monitoringikuDetail->get($indikator->ti_id); 
+                                                $tid = $indikator->ti_id; 
                                                 
+                                                $detail = $monitoringikuDetail->get($tid); 
                                                 $indikatorKinerja = optional($indikator->indikatorKinerja);
-                                                $idx = $loop->index;
                                                 
                                                 $baselineValue = optional($indikator->baselineTahun)->baseline;
                                                 $targetValue   = $indikator->ti_target;                                                
@@ -241,7 +241,9 @@
                                                 $isLocked = $isTargetMissing || $isBaselineMissing;
 
                                                 $capaianRaw = $detail->mtid_capaian ?? '';
-                                                $capaianValue = old("mtid_capaian.$idx", $capaianRaw);
+                                                
+                                                // 2. Gunakan $tid sebagai key di fungsi old()
+                                                $capaianValue = old("capaian_value.$tid", $capaianRaw);
 
                                                 if (strtolower($indikatorKinerja->ik_ketercapaian) === 'persentase' && !empty($capaianValue)) {
                                                     $capaianValue = str_replace('%', '', $capaianValue);
@@ -284,8 +286,9 @@
                                                         </div>
                                                         <input type="text" class="form-control text-capitalize"
                                                             value="{{ $indikatorKinerja->ik_ketercapaian ?? '-' }}" readonly>
-                                                        <input type="hidden" name="mtid_ketercapaian[{{ $idx }}]"
-                                                            value="{{ $indikatorKinerja->ik_ketercapaian }}">
+                                                        {{-- Gunakan $tid sebagai key --}}
+                                                        <input type="hidden" name="mtid_capaian[{{ $tid }}]"
+                                                            value="{{ strtolower($indikatorKinerja->ik_ketercapaian) }}">
                                                     </div>
                                                 </td>
 
@@ -293,99 +296,92 @@
                                                 @if($isAdmin)
                                                     <td>
                                                         <input type="url" class="form-control" style="max-width:200px"
-                                                            name="mtid_url[{{ $idx }}]"
-                                                            value="{{ old("mtid_url.$idx", $detail->mtid_url ?? '') }}" readonly>
+                                                            name="mtid_url[{{ $tid }}]"
+                                                            value="{{ old("mtid_url.$tid", $detail->mtid_url ?? '') }}" readonly>
                                                     </td>
                                                     <td>
-                                                        <input type="hidden" name="ti_id[{{ $idx }}]" value="{{ $indikator->ti_id }}">
+                                                        <input type="hidden" name="ti_id[]" value="{{ $tid }}">
 
                                                         @if(in_array(strtolower($indikatorKinerja->ik_ketercapaian), ['nilai', 'persentase']))
                                                             <input type="number" class="form-control" style="max-width:150px"
-                                                                name="mtid_capaian[{{ $idx }}]" step="any"
+                                                                name="capaian_value[{{ $tid }}]" step="any"
                                                                 value="{{ $capaianValue }}" readonly>
                                                         @elseif(strtolower($indikatorKinerja->ik_ketercapaian) === 'ketersediaan')
-                                                            <select name="mtid_capaian[{{ $idx }}]" class="form-control" style="max-width:150px" disabled>
+                                                            <select name="capaian_value[{{ $tid }}]" class="form-control" style="max-width:150px" disabled>
                                                                 <option value="" {{ $capaianValue ? '' : 'selected' }}>Pilih</option>
                                                                 <option value="ada"   {{ $capaianValue == 'ada' ? 'selected' : '' }}>Ada</option>
                                                                 <option value="draft" {{ $capaianValue == 'draft' ? 'selected' : '' }}>Draft</option>
                                                             </select>
-                                                            <input type="hidden" name="mtid_capaian[{{ $idx }}]" value="{{ $capaianValue }}">
                                                         @else
                                                             <input type="text" class="form-control" style="max-width:100px"
-                                                                name="mtid_capaian[{{ $idx }}]" value="{{ $capaianValue }}" readonly>
+                                                                name="capaian_value[{{ $tid }}]" value="{{ $capaianValue }}" readonly>
                                                         @endif
                                                     </td>
 
                                                     <td>
                                                         <textarea class="form-control" rows="3" style="max-width:200px"
-                                                            name="mtid_keterangan[{{ $idx }}]" readonly>{{ old("mtid_keterangan.$idx", $detail->mtid_keterangan ?? '') }}</textarea>
+                                                            name="mtid_keterangan[{{ $tid }}]" readonly>{{ old("mtid_keterangan.$tid", $detail->mtid_keterangan ?? '') }}</textarea>
                                                     </td>
                                                     
                                                     <td>
                                                         <textarea class="form-control" rows="3" style="max-width:200px"
-                                                            name="mtid_evaluasi[{{ $idx }}]"
-                                                            @if(empty($detail->mtid_capaian)) disabled @endif>{{ old("mtid_evaluasi.$idx", $detail->mtid_evaluasi ?? '') }}</textarea>
+                                                            name="mtid_evaluasi[{{ $tid }}]"
+                                                            @if(empty($detail->mtid_capaian)) disabled @endif>{{ old("mtid_evaluasi.$tid", $detail->mtid_evaluasi ?? '') }}</textarea>
                                                     </td>
 
                                                     <td>
                                                         <textarea class="form-control" rows="3" style="max-width:200px"
-                                                            name="mtid_tindaklanjut[{{ $idx }}]"
-                                                            @if(empty($detail->mtid_capaian)) disabled @endif>{{ old("mtid_tindaklanjut.$idx", $detail->mtid_tindaklanjut ?? '') }}</textarea>
+                                                            name="mtid_tindaklanjut[{{ $tid }}]"
+                                                            @if(empty($detail->mtid_capaian)) disabled @endif>{{ old("mtid_tindaklanjut.$tid", $detail->mtid_tindaklanjut ?? '') }}</textarea>
                                                     </td>
 
                                                     <td>
                                                         <textarea class="form-control" rows="3" style="max-width:200px"
-                                                            name="mtid_peningkatan[{{ $idx }}]"
-                                                            @if(empty($detail->mtid_capaian)) disabled @endif>{{ old("mtid_peningkatan.$idx", $detail->mtid_peningkatan ?? '') }}</textarea>
+                                                            name="mtid_peningkatan[{{ $tid }}]"
+                                                            @if(empty($detail->mtid_capaian)) disabled @endif>{{ old("mtid_peningkatan.$tid", $detail->mtid_peningkatan ?? '') }}</textarea>
                                                     </td>
                                                 @else
+                                                    {{-- AREA UNIT --}}
                                                     <td>
-                                                        <input type="hidden" name="ti_id[{{ $idx }}]" value="{{ $indikator->ti_id }}">
-                                                        <input type="hidden" name="mtid_capaian[{{ $idx }}]" value="{{ strtolower($indikatorKinerja->ik_ketercapaian) }}">
+                                                        <input type="hidden" name="ti_id[]" value="{{ $tid }}">
 
                                                         @if(in_array(strtolower($indikatorKinerja->ik_ketercapaian), ['nilai', 'persentase']))
                                                             <input type="number" class="form-control" style="max-width:150px"
-                                                                name="capaian_value[{{ $idx }}]" 
+                                                                name="capaian_value[{{ $tid }}]" 
                                                                 step="any"
                                                                 value="{{ $capaianValue }}" 
                                                                 @if($isLocked) readonly @endif>
 
                                                         @elseif(strtolower($indikatorKinerja->ik_ketercapaian) === 'ketersediaan')
-                                                            <select name="capaian_value[{{ $idx }}]" class="form-control" style="max-width:150px" 
+                                                            <select name="capaian_value[{{ $tid }}]" class="form-control" style="max-width:150px" 
                                                                     @if($isLocked) disabled @endif>
                                                                 <option value="" {{ $capaianValue ? '' : 'selected' }}>Pilih</option>
                                                                 <option value="ada"   {{ $capaianValue == 'ada' ? 'selected' : '' }}>Ada</option>
                                                                 <option value="draft" {{ $capaianValue == 'draft' ? 'selected' : '' }}>Draft</option>
                                                             </select>
-                                                            
-                                                            @if($isLocked)
-                                                                <input type="hidden" name="capaian_value[{{ $idx }}]" value="{{ $capaianValue }}">
-                                                            @endif
 
                                                         @elseif(strtolower($indikatorKinerja->ik_ketercapaian) === 'rasio')
-                                                            {{-- KHUSUS RASIO --}}
                                                             <input type="text" class="form-control" style="max-width:150px"
-                                                                name="capaian_value[{{ $idx }}]" 
+                                                                name="capaian_value[{{ $tid }}]" 
                                                                 value="{{ $capaianRaw }}" 
                                                                 placeholder="Contoh: 1:20"
                                                                 @if($isLocked) readonly @endif>
                                                         @else
-                                                            {{-- DEFAULT LAINNYA --}}
                                                             <input type="text" class="form-control" style="max-width:100px"
-                                                                name="capaian_value[{{ $idx }}]" 
+                                                                name="capaian_value[{{ $tid }}]" 
                                                                 value="{{ $capaianValue }}"
                                                                 @if($isLocked) readonly @endif>
                                                         @endif
                                                     </td>
                                                     <td>
                                                         <textarea class="form-control" rows="3" style="max-width:200px"
-                                                            name="mtid_keterangan[{{ $idx }}]"
-                                                            @if($isLocked) readonly @endif>{{ old("mtid_keterangan.$idx", $detail->mtid_keterangan ?? '') }}</textarea>
+                                                            name="mtid_keterangan[{{ $tid }}]"
+                                                            @if($isLocked) readonly @endif>{{ old("mtid_keterangan.$tid", $detail->mtid_keterangan ?? '') }}</textarea>
                                                     </td>
                                                     <td>
                                                         <input type="url" class="form-control" style="max-width:200px"
-                                                        name="mtid_url[{{ $idx }}]"
-                                                        value="{{ old("mtid_url.$idx", $detail->mtid_url ?? '') }}"
+                                                        name="mtid_url[{{ $tid }}]"
+                                                        value="{{ old("mtid_url.$tid", $detail->mtid_url ?? '') }}"
                                                         placeholder="https://..."
                                                         @if($isLocked) readonly @endif>
                                                     </td>
@@ -425,13 +421,12 @@
     <script src="{{ asset('library/datatables/media/js/jquery.dataTables.js') }}"></script>
     @include('sweetalert::alert')
 
-    <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>
     <script>
         $(document).ready(function () {
             var table = $("#table-indikator").DataTable({
                 "paging": true,
-                "pageLength": 10, // Menampilkan 10 data per halaman agar tidak terlalu berat
+                "pageLength": 10, 
                 "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Semua"]],
                 "order": [[1, 'asc']],
                 "dom": "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
@@ -449,9 +444,8 @@
                         "last": "<i class='fas fa-angle-double-right'></i>"
                     }
                 },
-                "pagingType": "full_numbers", // Menampilkan angka halaman lengkap + First/Last
+                "pagingType": "full_numbers", 
                 "drawCallback": function() {
-                    // Merapikan style tombol pagination agar serasi dengan Bootstrap
                     $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
                 }
             });
@@ -460,10 +454,7 @@
         $('form').on('submit', function(e) {
             var form = this;
 
-            // Ambil semua data input dari seluruh halaman tabel (termasuk yang tidak terlihat)
             var params = table.$('input,select,textarea').serializeArray();
-
-            // Tambahkan input tersembunyi tersebut ke dalam form sebelum submit
             $.each(params, function() {
                 if (!$.contains(document, form[this.name])) {
                     $(form).append(
