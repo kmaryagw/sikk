@@ -109,16 +109,29 @@
                                                     <i class="fa-solid fa-thumbs-up"></i>
                                                 </div>
                                             </div>
-                                            <!-- Tambahkan class 'select2' di bawah ini -->
-                                            <select id="std_id" name="std_id" class="form-control select2" required>
-                                                <option value="" disabled selected>Pilih Standar</option>
+                                            <select id="std_id" name="std_id" class="form-control select2">
+                                                <option value="" {{ is_null(old('std_id', $indikatorkinerja->std_id)) ? 'selected' : '' }}>
+                                                    @if(is_null($indikatorkinerja->std_id))
+                                                        -- Standar sebelumnya telah dihapus (Pilih Standar Baru) --
+                                                    @else
+                                                        -- Tanpa Standar --
+                                                    @endif
+                                                </option>
+
                                                 @foreach ($standar as $s)
-                                                    <option value="{{ $s->std_id }}" {{ old('std_id', $indikatorkinerja->std_id ?? '') == $s->std_id ? 'selected' : '' }}>
-                                                        {{ $s->std_nama }} - {{ $s->std_deskripsi }}
+                                                    <option value="{{ $s->std_id }}" 
+                                                        {{ old('std_id', $indikatorkinerja->std_id) == $s->std_id ? 'selected' : '' }}>
+                                                        {{ $s->std_nama }} - {{ Str::limit($s->std_deskripsi, 100) }}
                                                     </option>
                                                 @endforeach
                                             </select>
                                         </div>
+                                        @if(is_null($indikatorkinerja->std_id))
+                                            <small class="text-danger mt-2 d-block">
+                                                <i class="fas fa-exclamation-triangle"></i> 
+                                                Peringatan: Indikator ini saat ini tidak memiliki standar karena standar lama telah dihapus atau belum ditentukan.
+                                            </small>
+                                        @endif
                                     </div>
 
                                     <div class="form-group">

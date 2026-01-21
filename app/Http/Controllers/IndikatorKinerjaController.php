@@ -89,15 +89,11 @@ class IndikatorKinerjaController extends Controller
                 $stdNama = trim($row[2]); 
                 $standar = \App\Models\Standar::where('std_nama', $stdNama)->first();
 
-                if (!$standar) {
-                    return back()->with('error', "$stdNama tidak ditemukan.");
-                }
-
                 IndikatorKinerja::create([
                     'ik_id' => Str::uuid()->toString(),
                     'ik_kode' => trim($row[0]), 
                     'ik_nama' => trim($row[1]), 
-                    'std_id' => $standar->std_id,
+                    'std_id' => $standar ? $standar->std_id : null,
                     'ik_jenis' => trim($row[3]),
                     'ik_ketercapaian' => trim($row[4]),
                     'ik_is_aktif' => strtolower(trim($row[6])) == 'y' ? 'y' : 'n',
@@ -209,7 +205,7 @@ class IndikatorKinerjaController extends Controller
         $validationRules = [
             'ik_kode'         => 'required|string|max:255',
             'ik_nama'         => 'required|string|max:500',
-            'std_id'          => 'required|string',
+            'std_id'          => 'nullable|string',
             'ik_jenis'        => 'required|in:IKU,IKT,IKU/IKT',
             'ik_is_aktif'     => 'required|in:y,n',
             'ik_ketercapaian' => 'required|in:nilai,persentase,ketersediaan,rasio',

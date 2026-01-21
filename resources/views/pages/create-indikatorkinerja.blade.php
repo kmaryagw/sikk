@@ -107,18 +107,25 @@
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
-                                                    <i class="fa-solid fa-thumbs-up"></i> <!-- Ikon disamakan dengan Edit -->
+                                                    <i class="fa-solid fa-thumbs-up"></i> 
                                                 </div>
                                             </div>
-                                            <select id="std_id" name="std_id" class="form-control select2" required>
-                                                <option value="" disabled selected>Pilih Standar</option>
+                                            {{-- 1. Hapus atribut 'required' agar data bisa disimpan tanpa standar --}}
+                                            <select id="std_id" name="std_id" class="form-control select2">
+                                                {{-- 2. Tambahkan opsi untuk nilai NULL (Kosong) --}}
+                                                <option value="">-- Tanpa Standar / Pilih Nanti --</option>
+                                                
                                                 @foreach ($standar as $s)
                                                     <option value="{{ $s->std_id }}" {{ old('std_id') == $s->std_id ? 'selected' : '' }}>
-                                                        {{ $s->std_nama }} - {{ $s->std_deskripsi }}
+                                                        {{ $s->std_nama }} - {{ Str::limit($s->std_deskripsi, 50) }}
                                                     </option>
                                                 @endforeach
                                             </select>
                                         </div>
+                                        {{-- 3. Tambahkan keterangan kecil di bawah --}}
+                                        <small class="form-text text-muted">
+                                            Pilih standar yang sesuai. Jika belum ada, Anda bisa mengosongkannya terlebih dahulu.
+                                        </small>
                                     </div>
 
                                     <div class="form-group">

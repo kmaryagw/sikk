@@ -209,7 +209,6 @@
             const targetSelect = document.getElementById("target_select");
 
             function adjustInputType(jenis, inputEl, selectEl, fieldName) {
-                // Cek apakah elemen ada (mengantisipasi isFirstYear = false)
                 if (!inputEl || !selectEl) return;
 
                 inputEl.style.display = 'none';
@@ -236,27 +235,29 @@
 
             function updateInfo() {
                 const selectedOption = selectIK.options[selectIK.selectedIndex];
+                if (!selectedOption) return;
+
                 const jenis = selectedOption.getAttribute("data-jenis");
                 
                 if (jenis) {
                     jenisInput.value = jenis.charAt(0).toUpperCase() + jenis.slice(1);
                     
                     if (jenis === 'nilai') {
-                        targetHint.textContent = "Isi dengan angka, contoh: 2.5 atau 80";
+                        targetHint.textContent = "Isi dengan angka, contoh: 80";
                     } else if (jenis === 'persentase') {
-                        targetHint.textContent = "Isi angka antara 0 sampai 100.";
+                        targetHint.textContent = "Isi angka antara 0 sampai 100 (tanpa tanda %).";
                     } else if (jenis === 'ketersediaan') {
                         targetHint.textContent = "Pilih status ketersediaan.";
                     } else if (jenis === 'rasio') {
                         targetHint.textContent = "Isi dengan format x : y, contoh: 2 : 1";
                     }
 
-                    // Hanya jalankan adjustInputType untuk baseline jika elemennya ada (isFirstYear)
+                    // Baseline (hanya jika isFirstYear = true)
                     if (baselineInput && baselineSelect) {
                         adjustInputType(jenis, baselineInput, baselineSelect, 'baseline');
                     }
 
-                    // Target selalu bisa diedit, jadi langsung jalankan
+                    // Target (selalu ada)
                     adjustInputType(jenis, targetInput, targetSelect, 'ti_target');
 
                 } else {
@@ -265,22 +266,7 @@
                 }
             }
 
-            selectIK.addEventListener("change", function() {
-                updateInfo();
-                
-                const selectedOption = selectIK.options[selectIK.selectedIndex];
-                const jenis = selectedOption.getAttribute("data-jenis");
-                const defaultBaseline = selectedOption.getAttribute("data-baseline");
-                
-                if (jenis === 'ketersediaan') {
-                    baselineSelect.value = (defaultBaseline && (defaultBaseline === 'ada' || defaultBaseline === 'draft')) 
-                                            ? defaultBaseline 
-                                            : 'draft';
-                } else {
-                    baselineInput.value = defaultBaseline ? defaultBaseline : '';
-                }
-            });
-
+            // Jalankan saat pertama kali halaman dimuat
             if (selectIK.value) {
                 updateInfo();
             }

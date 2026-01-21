@@ -11,8 +11,11 @@ class IndikatorKinerja extends Model
 
     protected $table = 'indikator_kinerja';
     protected $primaryKey = 'ik_id';
+    
     public $incrementing = false;
-   protected $fillable = [
+    protected $keyType = 'string'; 
+
+    protected $fillable = [
         'ik_id',
         'ik_nama',
         'ik_jenis',
@@ -21,11 +24,14 @@ class IndikatorKinerja extends Model
         'ik_baseline',
         'ik_is_aktif',
         'std_id',
-        // 'unit_id', // tambahkan ini
     ];
+
     public function standar()
     {
-        return $this->belongsTo(standar::class, 'std_id', 'std_id');
+        return $this->belongsTo(Standar::class, 'std_id', 'std_id')->withDefault([
+            'std_nama' => 'Tidak memiliki standar',
+            'std_deskripsi' => 'Standar telah dihapus atau belum ditentukan'
+        ]);
     }
 
     public function baselineTahun()
@@ -33,15 +39,10 @@ class IndikatorKinerja extends Model
         return $this->hasMany(IkBaselineTahun::class, 'ik_id', 'ik_id');
     }
 
-    // public function unitKerja()
-    // {
-    //     return $this->belongsTo(UnitKerja::class, 'unit_id', 'unit_id');
-    // }
-
     public function unitKerja()
     {
         return $this->belongsToMany(UnitKerja::class, 'indikatorkinerja_unitkerja', 'ik_id', 'unit_id')
-                    ->withPivot('ik_id', 'unit_id'); // Menyertakan kolom pivot jika diperlukan
+                    ->withPivot('ik_id', 'unit_id'); 
     }
 
     public function targetIndikator()

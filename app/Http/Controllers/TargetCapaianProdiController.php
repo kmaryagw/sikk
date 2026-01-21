@@ -140,19 +140,23 @@ class TargetCapaianProdiController extends Controller
     public function create(Request $request) 
     {
         $tahuns = tahun_kerja::where('th_is_aktif', 'y')->firstOrFail();
-        $title = 'Tambah Target Capaian';
-        
+        $title = 'Tambah / Update Target Capaian';
+        $userProdiId = Auth::user()->prodi_id;
         $selectedUnit = $request->query('unit_kerja');
 
         $unitKerjas = UnitKerja::orderBy('unit_nama', 'asc')->get();
 
-        $baseline_from_prev = IkBaselineTahun::where('th_id', $tahuns->th_id)
-            ->where('prodi_id', Auth::user()->prodi_id)
-            ->pluck('baseline', 'ik_id')
-            ->toArray();
+        $baseline_data = IkBaselineTahun::where('th_id', $tahuns->th_id)
+            ->where('prodi_id', $userProdiId)
+            ->get()
+            ->keyBy('ik_id');
 
-        $queryIndikator = IndikatorKinerja::query()
-            ->where('ik_is_aktif', 'y');
+        $existing_targets = target_indikator::where('th_id', $tahuns->th_id)
+            ->where('prodi_id', $userProdiId)
+            ->get()
+            ->keyBy('ik_id');
+
+        $queryIndikator = IndikatorKinerja::query()->where('ik_is_aktif', 'y');
 
         if ($selectedUnit) {
             $queryIndikator->whereHas('unitKerja', function($q) use ($selectedUnit) {
@@ -162,21 +166,19 @@ class TargetCapaianProdiController extends Controller
             $queryIndikator->has('unitKerja'); 
         }
 
-        $indikatorkinerjas = $queryIndikator->orderBy('ik_nama')
+        $indikatorkinerjas = $queryIndikator->orderBy('ik_kode', 'asc')
             ->get()
-            ->map(function ($ik) use ($baseline_from_prev) {
-                $ik->baseline_tahun = $baseline_from_prev[$ik->ik_id] ?? null;
+            ->map(function ($ik) use ($baseline_data, $existing_targets) {
+                $raw_baseline = $baseline_data[$ik->ik_id]->baseline ?? null;
+                $raw_target = $existing_targets[$ik->ik_id]->ti_target ?? null;
+
+                $ik->ti_target = str_replace('%', '', $raw_target);
+                $ik->baseline_tahun = str_replace('%', '', $raw_baseline);
+                $ik->ti_keterangan = $existing_targets[$ik->ik_id]->ti_keterangan ?? '';
                 return $ik;
             });
 
-        $targetindikators = target_indikator::where('th_id', $tahuns->th_id)
-            ->where('prodi_id', Auth::user()->prodi_id)
-            ->get();
-
-        $prodis = program_studi::orderBy('nama_prodi', 'asc')->get();
-        $userRole = Auth::user()->role;
-        $userProdi = $userRole === 'prodi' ? Auth::user()->programStudi : null;
-
+        $userProdi = Auth::user()->programStudi;
         $allYearsInRenstra = tahun_kerja::where('ren_id', $tahuns->ren_id)
                             ->orderBy('th_tahun', 'asc')
                             ->get();
@@ -185,16 +187,13 @@ class TargetCapaianProdiController extends Controller
         return view('targetcapaian.create', [
             'title'             => $title,
             'indikatorkinerjas' => $indikatorkinerjas,
-            'targetindikators'  => $targetindikators,
-            'prodis'            => $prodis,
             'tahuns'            => $tahuns,
-            'baseline_from_prev'=> $baseline_from_prev,
-            'type_menu'         => 'targetcapaianprodi',
-            'userRole'          => $userRole,
+            'userRole'          => Auth::user()->role,
             'userProdi'         => $userProdi,
             'isFirstYear'       => $isFirstYear,
             'unitKerjas'        => $unitKerjas,   
             'selectedUnit'      => $selectedUnit, 
+            'type_menu'         => 'targetcapaianprodi',
         ]);
     }
 
@@ -354,18 +353,19 @@ class TargetCapaianProdiController extends Controller
         return redirect()->route('targetcapaianprodi.index');
     }
 
-    public function edit($targetcapaian)
+    public function edit($targetcapaian_id)
     {
         $title = 'Edit Target Capaian';
 
-        $targetcapaian = target_indikator::findOrFail($targetcapaian);
+        $targetcapaian = target_indikator::findOrFail($targetcapaian_id);
 
         $baselineTahun = IkBaselineTahun::where('ik_id', $targetcapaian->ik_id)
             ->where('th_id', $targetcapaian->th_id)
             ->where('prodi_id', $targetcapaian->prodi_id)
             ->value('baseline');
 
-        $targetcapaian->baseline_tahun = $baselineTahun ?? 'Baseline belum diinput';
+        $targetcapaian->ti_target = str_replace('%', '', $targetcapaian->ti_target);
+        $targetcapaian->baseline_tahun = str_replace('%', '', $baselineTahun);
 
         $indikatorkinerjautamas = IndikatorKinerja::orderBy('ik_nama')->get();
         $prodis = program_studi::orderBy('nama_prodi')->get();
@@ -378,14 +378,15 @@ class TargetCapaianProdiController extends Controller
         $allYearsInRenstra = tahun_kerja::where('ren_id', $tahunAktif->ren_id)
                             ->orderBy('th_tahun', 'asc')
                             ->get();
-        $isFirstYear = ($allYearsInRenstra->first()->th_id == $tahunAktif->th_id);
+        
+        $isFirstYear = ($allYearsInRenstra->first()->th_id == $targetcapaian->th_id);
 
         return view('targetcapaian.edit', [
             'title' => $title,
             'targetcapaian' => $targetcapaian,
             'isFirstYear' => $isFirstYear,
             'indikatorkinerjautamas' => $indikatorkinerjautamas,
-            'baseline' => $targetcapaian->baseline_tahun,
+            'baseline' => $targetcapaian->baseline_tahun, 
             'prodis' => $prodis,
             'tahuns' => $tahuns,
             'type_menu' => 'targetcapaianprodi',

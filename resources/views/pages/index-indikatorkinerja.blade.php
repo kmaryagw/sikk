@@ -98,13 +98,23 @@
                                     <td>{{ $indikatorkinerja->ik_kode }}</td>
                                     <td class="text-left">{{ $indikatorkinerja->ik_nama }}</td>
                                     <td style="padding: 1.5rem; vertical-align: top; text-align: left;">
-                                        <div style="font-weight: bold; margin-bottom: 5px;">
-                                            {{ $indikatorkinerja->std_nama ?? '-' }}
-                                        </div>
-                                        
-                                        <div style="font-weight: normal; color: #555;">
-                                            {{ $indikatorkinerja->std_deskripsi ?? '-' }}
-                                        </div>
+                                        @if($indikatorkinerja->std_nama)
+                                            {{-- Jika Standar Ada --}}
+                                            <div style="font-weight: bold; margin-bottom: 5px;">
+                                                {{ $indikatorkinerja->std_nama }}
+                                            </div>
+                                            <div style="font-weight: normal; color: #555;">
+                                                {{ $indikatorkinerja->std_deskripsi }}
+                                            </div>
+                                        @else
+                                            {{-- Jika Standar Terhapus / NULL --}}
+                                            <div style="font-weight: bold; margin-bottom: 5px; color: #dc3545;">
+                                                <i class="fas fa-exclamation-triangle"></i> Indikator ini tidak memiliki standar
+                                            </div>
+                                            <div style="font-size: 0.85rem; color: #777; font-style: italic;">
+                                                Standar telah dihapus atau belum ditentukan. Silakan ubah data untuk mengaitkan standar baru.
+                                            </div>
+                                        @endif
                                     </td>
                                     <td>
                                         @if (strtolower($indikatorkinerja->ik_jenis) === 'iku')

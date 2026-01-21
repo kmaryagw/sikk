@@ -144,8 +144,10 @@ class StandarController extends Controller
 
     public function destroy(standar $standar)
     {
+        \App\Models\IndikatorKinerja::where('std_id', $standar->std_id)->update(['std_id' => null]);
+        
         $standar->delete();
-        Alert::success('Sukses', 'Data Berhasil Dihapus');
+        Alert::success('Sukses', 'Data Standar Berhasil Dihapus. Indikator terkait kini tidak memiliki standar.');
         return redirect()->route('standar.index');
     }
 

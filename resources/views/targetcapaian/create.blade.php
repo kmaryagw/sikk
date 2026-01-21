@@ -147,101 +147,95 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @php 
-                                                    $no = 1; 
-                                                    $data_tersimpan = collect($targetindikators);
-                                                @endphp
-                                                @foreach ($indikatorkinerjas as $ik)
-                                                    @php
-                                                        $found = $data_tersimpan->where('ik_id', $ik->ik_id)->first();
-                                                        $db_baseline = $found ? $found['baseline'] : null;
-                                                        
-                                                        if ($db_baseline !== null && $db_baseline !== '') {
-                                                            $raw_baseline = $db_baseline;
-                                                        } elseif (isset($baseline_from_prev[$ik->ik_id])) {
-                                                            $raw_baseline = $baseline_from_prev[$ik->ik_id];
-                                                        } else {
-                                                            $raw_baseline = match($ik->ik_ketercapaian) {
-                                                                'nilai', 'persentase' => '0',
-                                                                'ketersediaan' => 'draft',
-                                                                'rasio' => '0:0',
-                                                                default => ''
-                                                            };
-                                                        }
+    @foreach ($indikatorkinerjas as $ik)
+        @php
+            // Menggunakan index loop agar konsisten dengan array request
+            $idx = $loop->index;
 
-                                                        $baseline_value = old("indikator.$no.baseline", $raw_baseline);
+            // 1. Logika Baseline
+            // Ambil dari old input (jika validasi gagal), jika tidak ada ambil dari properti $ik yang sudah diisi di controller
+            $baseline_value = old("indikator.$idx.baseline", $ik->baseline_tahun);
+            
+            // Jika benar-benar kosong (belum pernah diisi), gunakan default sesuai jenis
+            if (is_null($baseline_value)) {
+                $baseline_value = match($ik->ik_ketercapaian) {
+                    'nilai', 'persentase' => '0',
+                    'ketersediaan' => 'draft',
+                    'rasio' => '0:0',
+                    default => ''
+                };
+            }
 
-                                                        $db_target = $found ? $found['ti_target'] : null;
-                                                        if ($db_target !== null && $db_target !== '') {
-                                                            $raw_target = $db_target;
-                                                        } else {
-                                                            $raw_target = match($ik->ik_ketercapaian) {
-                                                                'nilai', 'persentase' => '0',
-                                                                'ketersediaan' => 'ada',
-                                                                'rasio' => '0:0',
-                                                                default => ''
-                                                            };
-                                                        }
-                                                        $target_value = old("indikator.$no.target", $raw_target);
-                                                    @endphp
+            // 2. Logika Target
+            $target_value = old("indikator.$idx.target", $ik->ti_target);
+            
+            if (is_null($target_value)) {
+                $target_value = match($ik->ik_ketercapaian) {
+                    'nilai', 'persentase' => '0',
+                    'ketersediaan' => 'ada',
+                    'rasio' => '0:0',
+                    default => ''
+                };
+            }
+        @endphp
 
-                                                    <tr>
-                                                        <td class="text-center">{{ $no }}</td>
-                                                        <td>{{ $ik->ik_kode }} - {{ $ik->ik_nama }}</td>
-                                                        <td class="text-center">
-                                                            @if (strtoupper($ik->ik_jenis) == 'IKU')
-                                                                <span class="badge badge-success">IKU</span>
-                                                            @elseif (strtoupper($ik->ik_jenis) == 'IKT')
-                                                                <span class="badge badge-primary">IKT</span>
-                                                            @else
-                                                                <span class="badge badge-danger">IKU/IKT</span>
-                                                            @endif
-                                                        </td>
-                                                        <td class="text-center text-capitalize">
-                                                            <span class="text-primary font-weight-bold"> {{ $ik->ik_ketercapaian }}</span>
-                                                        </td>
-                                                        
-                                                        <td class="text-center">
-                                                            @if($isFirstYear)
-                                                                @if($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase')
-                                                                    <input type="number" class="form-control" name="indikator[{{ $no }}][baseline]" step="any" value="{{ $baseline_value }}">
-                                                                @elseif($ik->ik_ketercapaian == 'ketersediaan')
-                                                                    <select class="form-control" name="indikator[{{ $no }}][baseline]">
-                                                                        <option value="ada" {{ strtolower($baseline_value) == 'ada' ? 'selected' : '' }}>Ada</option>
-                                                                        <option value="draft" {{ strtolower($baseline_value) == 'draft' ? 'selected' : '' }}>Draft</option>
-                                                                    </select>
-                                                                @elseif($ik->ik_ketercapaian == 'rasio')
-                                                                    <input type="text" class="form-control" name="indikator[{{ $no }}][baseline]" pattern="^\d+\s*:\s*\d+$" placeholder="0:0" value="{{ $baseline_value }}">
-                                                                @else
-                                                                    <input type="text" class="form-control" name="indikator[{{ $no }}][baseline]" value="{{ $baseline_value }}">
-                                                                @endif
-                                                            @else
-                                                                <span class="baseline-readonly">
-                                                                    {{ ($baseline_value !== null && $baseline_value !== '') ? $baseline_value : '-' }}
-                                                                </span>
-                                                                <input type="hidden" name="indikator[{{ $no }}][baseline]" value="{{ $baseline_value }}">
-                                                            @endif
-                                                            <input type="hidden" name="indikator[{{ $no }}][ik_id]" value="{{ $ik->ik_id }}">
-                                                        </td>     
+        <tr>
+            <td class="text-center">{{ $loop->iteration }}</td>
+            <td>{{ $ik->ik_kode }} - {{ $ik->ik_nama }}</td>
+            <td class="text-center">
+                @if (strtoupper($ik->ik_jenis) == 'IKU')
+                    <span class="badge badge-success">IKU</span>
+                @elseif (strtoupper($ik->ik_jenis) == 'IKT')
+                    <span class="badge badge-primary">IKT</span>
+                @else
+                    <span class="badge badge-danger">IKU/IKT</span>
+                @endif
+            </td>
+            <td class="text-center text-capitalize">
+                <span class="text-primary font-weight-bold"> {{ $ik->ik_ketercapaian }}</span>
+            </td>
+            
+            <td class="text-center">
+                <input type="hidden" name="indikator[{{ $idx }}][ik_id]" value="{{ $ik->ik_id }}">
+                
+                @if($isFirstYear)
+                    @if($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase')
+                        <input type="number" class="form-control" name="indikator[{{ $idx }}][baseline]" step="any" value="{{ $baseline_value }}">
+                    @elseif($ik->ik_ketercapaian == 'ketersediaan')
+                        <select class="form-control" name="indikator[{{ $idx }}][baseline]">
+                            <option value="ada" {{ strtolower($baseline_value) == 'ada' ? 'selected' : '' }}>Ada</option>
+                            <option value="draft" {{ strtolower($baseline_value) == 'draft' ? 'selected' : '' }}>Draft</option>
+                        </select>
+                    @elseif($ik->ik_ketercapaian == 'rasio')
+                        <input type="text" class="form-control" name="indikator[{{ $idx }}][baseline]" pattern="^\d+\s*:\s*\d+$" placeholder="0:0" value="{{ $baseline_value }}">
+                    @else
+                        <input type="text" class="form-control" name="indikator[{{ $idx }}][baseline]" value="{{ $baseline_value }}">
+                    @endif
+                @else
+                    <span class="baseline-readonly">
+                        {{ ($baseline_value !== null && $baseline_value !== '') ? $baseline_value : '-' }}
+                    </span>
+                    <input type="hidden" name="indikator[{{ $idx }}][baseline]" value="{{ $baseline_value }}">
+                @endif
+            </td>     
 
-                                                        <td class="text-center">
-                                                            @if($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase')
-                                                                <input type="number" class="form-control" name="indikator[{{ $no }}][target]" step="any" value="{{ $target_value }}">
-                                                            @elseif($ik->ik_ketercapaian == 'ketersediaan')
-                                                                <select class="form-control" name="indikator[{{ $no }}][target]">
-                                                                    <option value="ada" {{ strtolower($target_value) == 'ada' ? 'selected' : '' }}>Ada</option>
-                                                                    <option value="draft" {{ strtolower($target_value) == 'draft' ? 'selected' : '' }}>Draft</option>
-                                                                </select>
-                                                            @elseif($ik->ik_ketercapaian == 'rasio')
-                                                                <input type="text" class="form-control" name="indikator[{{ $no }}][target]" pattern="^\d+\s*:\s*\d+$" placeholder="0:0" value="{{ $target_value }}">
-                                                            @else
-                                                                <input type="text" class="form-control" name="indikator[{{ $no }}][target]" value="{{ $target_value }}">
-                                                            @endif
-                                                        </td>
-                                                        @php $no++; @endphp
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
+            <td class="text-center">
+                @if($ik->ik_ketercapaian == 'nilai' || $ik->ik_ketercapaian == 'persentase')
+                    <input type="number" class="form-control" name="indikator[{{ $idx }}][target]" step="any" value="{{ $target_value }}">
+                @elseif($ik->ik_ketercapaian == 'ketersediaan')
+                    <select class="form-control" name="indikator[{{ $idx }}][target]">
+                        <option value="ada" {{ strtolower($target_value) == 'ada' ? 'selected' : '' }}>Ada</option>
+                        <option value="draft" {{ strtolower($target_value) == 'draft' ? 'selected' : '' }}>Draft</option>
+                    </select>
+                @elseif($ik->ik_ketercapaian == 'rasio')
+                    <input type="text" class="form-control" name="indikator[{{ $idx }}][target]" pattern="^\d+\s*:\s*\d+$" placeholder="0:0" value="{{ $target_value }}">
+                @else
+                    <input type="text" class="form-control" name="indikator[{{ $idx }}][target]" value="{{ $target_value }}">
+                @endif
+            </td>
+        </tr>
+    @endforeach
+</tbody>
                                         </table>
                                     </div>
                                 </div>
