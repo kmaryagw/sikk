@@ -344,6 +344,11 @@ class DashboardController extends Controller
     
     private function hitungStatusUnit($unit, $tahunAktif)
     {
+        $unitFacultyId = DB::table('users')
+            ->where('unit_id', $unit->unit_id)
+            ->whereNotNull('id_fakultas')
+            ->value('id_fakultas');
+
         $statusCount = [
             'unit_id' => $unit->unit_id,
             'unit_nama' => $unit->unit_nama,
@@ -357,10 +362,20 @@ class DashboardController extends Controller
             'status_global' => 'belum',
         ];
 
+        $prodiQuery = program_studi::orderBy('nama_prodi', 'asc');
+        if ($unitFacultyId) {
+            $prodiQuery->where('id_fakultas', $unitFacultyId);
+        }
+        $targetProdis = $prodiQuery->get();
+        $allowedProdiIds = $targetProdis->pluck('prodi_id')->toArray();
+
         foreach ($unit->indikatorKinerja as $indikator) {
+            if ($indikator->ik_jenis !== 'IKU/IKT') continue;
+
             foreach ($indikator->targetIndikator as $target) {
                 if ($tahunAktif && $target->th_id != $tahunAktif->th_id) continue;
-                if ($indikator->ik_jenis !== 'IKU/IKT') continue;
+                
+                if (!in_array($target->prodi_id, $allowedProdiIds)) continue;
 
                 $statusCount['jumlah']++;
                 $status = $this->hitungStatus(
@@ -380,27 +395,22 @@ class DashboardController extends Controller
             );
         }
 
-        $semuaProdi = \App\Models\program_studi::orderBy('nama_prodi', 'asc')->get();
-        
         $listFinalisasi = [];
         $jumlahFinal = 0;
-        $totalProdi = $semuaProdi->count();
+        $totalProdiDalamCakupan = $targetProdis->count();
 
-        foreach ($semuaProdi as $prodi) {
+        foreach ($targetProdis as $prodi) {
             $isFinal = false;
-            $currentMtiId = null; // Variabel penampung MTI ID
+            $currentMtiId = null;
 
             if ($tahunAktif) {
-                // Cari ID Monitoring untuk Prodi & Tahun ini
                 $monitoringIku = DB::table('monitoring_iku')
                     ->where('prodi_id', $prodi->prodi_id)
                     ->where('th_id', $tahunAktif->th_id)
                     ->first();
 
                 if ($monitoringIku) {
-                    $currentMtiId = $monitoringIku->mti_id; // Simpan MTI ID
-
-                    // Cek apakah Unit ini sudah finalisasi untuk monitoring ID tersebut
+                    $currentMtiId = $monitoringIku->mti_id;
                     $cekFinal = DB::table('monitoring_final_units')
                         ->where('unit_id', $unit->unit_id)
                         ->where('monitoring_iku_id', $monitoringIku->mti_id)
@@ -414,20 +424,21 @@ class DashboardController extends Controller
                 }
             }
 
-            // Masukkan ke array detail (Tambahkan mti_id)
             $listFinalisasi[] = [
                 'nama_prodi' => $prodi->nama_prodi,
                 'status'     => $isFinal,
-                'mti_id'     => $currentMtiId // <--- PENTING: Kirim ID Monitoring ke View
+                'mti_id'     => $currentMtiId 
             ];
         }
 
-        if ($jumlahFinal === 0) {
-            $statusCount['status_global'] = 'belum'; 
-        } elseif ($jumlahFinal === $totalProdi) {
-            $statusCount['status_global'] = 'semua'; 
-        } else {
-            $statusCount['status_global'] = 'sebagian';
+        if ($totalProdiDalamCakupan > 0) {
+            if ($jumlahFinal === 0) {
+                $statusCount['status_global'] = 'belum'; 
+            } elseif ($jumlahFinal === $totalProdiDalamCakupan) {
+                $statusCount['status_global'] = 'semua'; 
+            } else {
+                $statusCount['status_global'] = 'sebagian';
+            }
         }
 
         $statusCount['detail_finalisasi'] = $listFinalisasi;

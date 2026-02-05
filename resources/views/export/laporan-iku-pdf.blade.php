@@ -5,38 +5,75 @@
     <title>Laporan Indikator Kinerja Utama/Tambahan</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            font-size: 11px; /* Sedikit diperkecil agar muat kolom baru */
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 11px;
+            margin: 0.5cm;
         }
 
-        h1 {
+        /* --- Style Header Formal --- */
+        .header-container {
             text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 3px double #000; /* Garis ganda formal */
+            padding-bottom: 10px;
+        }
+
+        .header-container h1 {
+            text-transform: uppercase;
+            margin: 0;
             font-size: 16px;
+            margin-bottom: 5px;
         }
 
-        h4 {
-            text-align: center;
+        .header-container p {
+            margin: 2px 0;
+            font-size: 12px;
             font-weight: normal;
         }
+
+        /* Tabel Informasi Metadata */
+        .info-table {
+            width: 100%;
+            margin-bottom: 15px;
+            border: none;
+        }
+
+        .info-table td {
+            border: none !important; /* Menghilangkan border untuk info */
+            text-align: left;
+            padding: 2px 0;
+            vertical-align: middle;
+            font-size: 11px;
+        }
+
+        .info-label {
+            width: 15%;
+            font-weight: bold;
+        }
+
+        .info-separator {
+            width: 2%;
+        }
+        /* --------------------------- */
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
-            table-layout: fixed; /* Agar lebar kolom patuh pada persentase */
+            table-layout: fixed;
         }
 
         th, td {
             border: 1px solid #000;
             padding: 5px;
             text-align: center;
-            vertical-align: top; /* Agar teks panjang rata atas */
-            word-wrap: break-word; /* Mencegah teks keluar tabel */
+            vertical-align: top;
+            word-wrap: break-word;
         }
 
         th {
             background-color: #f2f2f2;
             font-weight: bold;
+            text-transform: uppercase;
         }
 
         .badge {
@@ -48,35 +85,44 @@
 
         .badge-primary { background-color: #007bff; color: white; }
         .badge-info { background-color: #17a2b8; color: white; }
-
         .text-success { color: green; font-weight: bold; }
         .text-danger { color: red; font-weight: bold; }
         .text-warning { color: orange; font-weight: bold; }
         .text-primary { color: #007bff; font-weight: bold; }
         .text-muted { color: #888; font-style: italic; }
-        
-        /* Helper untuk rata kiri */
         .text-left { text-align: left !important; }
     </style>
 </head>
 <body>
 
-    <h1>Laporan Indikator Kinerja Utama/Tambahan</h1>
-    
-    <h4>
-        Tahun : {{ $tahun ?? 'Semua Tahun' }} | 
-        Prodi : {{ $prodi ?? 'Semua Prodi' }} | 
-        Unit : {{ $unit ?? 'Semua Unit' }}
-    </h4>
+    <div class="header-container">
+        <h1>LAPORAN CAPAIAN INDIKATOR KINERJA</h1>
+        <p>Institut Bisnis dan Teknologi Indonesia</p>
+    </div>
+
+    <table class="info-table">
+        <tr>
+            <td class="info-label">Tahun Kerja</td>
+            <td class="info-separator">:</td>
+            <td>{{ $tahun ?? 'Semua Tahun' }}</td>
+        </tr>
+        <tr>
+            <td class="info-label">Program Studi</td>
+            <td class="info-separator">:</td>
+            <td>{{ $prodi ?? 'Semua Program Studi' }}</td>
+        </tr>
+        <tr>
+            <td class="info-label">Unit Kerja</td>
+            <td class="info-separator">:</td>
+            <td>{{ $unit ?? 'Semua Unit Kerja' }}</td>
+        </tr>
+    </table>
 
     <table>
         <thead>
             <tr>
-                {{-- Penyesuaian Lebar Kolom --}}
                 <th style="width: 4%;">No</th>
-                <th style="width: 8%;">Tahun</th>
-                <th style="width: 12%;">Prodi</th>
-                <th style="width: 12%;">Unit Kerja</th> <th style="width: 28%;">Indikator Kinerja</th>
+                <th style="width: 28%;">Indikator Kinerja</th>
                 <th style="width: 10%;">Target</th>
                 <th style="width: 10%;">Capaian</th>
                 <th style="width: 12%;">Status</th>
@@ -87,36 +133,17 @@
                 @php
                     $indikatorRel = $target->indikatorKinerja;
                     $detailRel    = $target->monitoringDetail;
-                    $tahunRel     = $target->tahunKerja;
-                    $prodiRel     = $target->prodi;
-
-                    $th_tahun   = $tahunRel->th_tahun ?? '-';
-                    $nama_prodi = $prodiRel->nama_prodi ?? '-';
-                    
-                    // --- LOGIKA UNIT KERJA ---
-                    // Mengambil relasi unitKerja (menggunakan pluck jaga-jaga jika many-to-many)
-                    $units = $indikatorRel->unitKerja ?? collect([]);
-                    $unitKerja = $units->pluck('unit_nama')->join(', ');
-                    if(empty($unitKerja)) $unitKerja = '-';
-                    // -------------------------
-
                     $ik_kode = $indikatorRel->ik_kode ?? '';
                     $ik_nama = $indikatorRel->ik_nama ?? '-';
                     $display_indikator = $ik_kode ? "{$ik_kode} - {$ik_nama}" : $ik_nama;
-
                     $ketercapaian = strtolower($indikatorRel->ik_ketercapaian ?? '');
                     $targetValue  = trim($target->ti_target ?? '');
                     $capaian      = trim($detailRel->mtid_capaian ?? '');
                     $status       = strtolower($detailRel->mtid_status ?? '');
                 @endphp
-
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td>{{ $th_tahun }}</td>
-                    <td>{{ $nama_prodi }}</td>
-                    <td>{{ $unitKerja }}</td> <td class="text-left">{{ $display_indikator }}</td>
-
-                    {{-- Target Capaian --}}
+                    <td class="text-left">{{ $display_indikator }}</td>
                     <td>
                         @if ($ketercapaian === 'persentase' && is_numeric(str_replace('%', '', $targetValue)))
                             {{ floatval(str_replace('%', '', $targetValue)) }}%
@@ -140,8 +167,6 @@
                             {{ $targetValue }}
                         @endif
                     </td>
-
-                    {{-- Capaian --}}
                     <td>
                         @if ($ketercapaian === 'persentase' && is_numeric(str_replace('%', '', $capaian)))
                             {{ floatval(str_replace('%', '', $capaian)) }}%
@@ -167,8 +192,6 @@
                             <span class="text-danger">Belum ada</span>
                         @endif
                     </td>
-
-                    {{-- Status --}}
                     <td>
                         @if ($status === 'tercapai')
                             <span class="text-success">Tercapai</span>
@@ -185,7 +208,8 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8">Tidak ada data</td> </tr>
+                    <td colspan="5">Tidak ada data</td>
+                </tr>
             @endforelse
         </tbody>
     </table>

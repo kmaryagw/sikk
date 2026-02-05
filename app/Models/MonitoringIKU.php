@@ -62,11 +62,14 @@ class MonitoringIKU extends Model
     public function isFilled()
     {
         $total = $this->monitoringikuDetail()->count();
+        if ($total === 0) return false;
+
         $filled = $this->monitoringikuDetail()
             ->whereNotNull('mtid_capaian')
+            ->where('mtid_capaian', '!=', '')
             ->count();
 
-        return $total > 0 && $filled === $total;
+        return $filled === $total;
     }
 
     public function monitorings()
@@ -78,43 +81,37 @@ class MonitoringIKU extends Model
     {
         $user = Auth::user();
 
-        // 1. Admin/Fakultas tidak mengisi capaian, jadi return false agar tombol tidak muncul bagi mereka
-        if ($user->role === 'admin' || $user->role === 'fakultas' || $user->role === 'prodi') {
+        // Admin dan Fakultas biasanya hanya memantau, tidak mengisi
+        if ($user->role === 'admin' || $user->role === 'fakultas') {
             return false;
         }
 
-        // 2. Ambil Target Indikator (TI_ID) yang menjadi tanggung jawab Unit/Prodi ini
+        // Cari semua target indikator yang menjadi tanggung jawab unit/prodi ini
         $query = target_indikator::where('prodi_id', $this->prodi_id)
             ->where('th_id', $this->th_id);
 
-        // LOGIC FILTER BERDASARKAN TABEL PIVOT
         if ($user->role === 'unit kerja') {
             $query->whereHas('indikatorKinerja.unitKerja', function ($q) use ($user) {
-                // Kita cek ke relasi unitKerja (yang terhubung lewat tabel pivot)
                 $q->where('unit_kerja.unit_id', $user->unit_id);
             });
         } elseif ($user->role === 'prodi') {
-            // Jika prodi, biasanya bertanggung jawab atas semua indikator di prodinya sendiri
-            // atau jika prodi juga difilter per unit, gunakan logic yang sama dengan unit kerja
+            // Jika user prodi, dia bertanggung jawab atas prodinya sendiri
             $query->where('prodi_id', $user->prodi_id);
         }
 
         $targetIds = $query->pluck('ti_id');
 
-        // 3. Jika tidak ada beban kerja untuk unit ini di prodi ini, tombol tidak muncul
         if ($targetIds->isEmpty()) {
             return false;
         }
 
-        // 4. Hitung detail yang SUDAH TERISI (Capaian tidak null & tidak kosong)
-        // Hanya hitung baris detail yang ID-nya ada dalam daftar tanggung jawab unit ini
+        // Hitung yang sudah diisi oleh unit/prodi tersebut
         $filledCount = MonitoringIKU_Detail::where('mti_id', $this->mti_id)
             ->whereIn('ti_id', $targetIds)
             ->whereNotNull('mtid_capaian')
             ->where('mtid_capaian', '!=', '')
             ->count();
 
-        // 5. Bandingkan: Apakah jumlah yang diisi sudah sama dengan jumlah beban kerja?
         return $filledCount === $targetIds->count();
     }
 

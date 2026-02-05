@@ -221,7 +221,7 @@
                                     @elseif (strtolower($capaian) === 'draft')
                                         <span class="text-warning"><i class="fa-solid fa-info-circle"></i> Draft</span>
                                     @else
-                                        <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Tidak Terlaksana</span>
+                                        <span class="text-danger"><i class="fa-solid fa-times-circle"></i> Belum ada Capaian</span>
                                     @endif
                                 @elseif (!empty($capaian))
                                     <span class="badge badge-primary">{{ $capaian }}</span>

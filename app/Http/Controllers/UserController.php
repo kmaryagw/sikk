@@ -160,36 +160,28 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'username' => 'required|string|max:255',
-            'status' => 'required|string|in:0,1',
+        $rules = [
+            'username' => 'required|string|max:255|unique:users,username',
+            'status'   => 'required|in:0,1',
             'password' => 'required|string|min:8',
-            'role' => 'required|in:admin,prodi,unit kerja,fakultas',
-        ]);
+            'role'     => 'required|in:admin,prodi,unit kerja,fakultas',
+        ];
 
         if ($request->role === 'prodi') {
             $rules['prodi_id'] = 'required|exists:program_studi,prodi_id';
-            $rules['unit_id'] = 'nullable';
-            $rules['id_fakultas'] = 'nullable';
-        } elseif ($request->role === 'unit kerja') {
-            $rules['unit_id'] = 'required|exists:unit_kerja,id_unit_kerja';
-            $rules['prodi_id'] = 'nullable';
-            $rules['id_fakultas'] = 'nullable';
-        } elseif ($request->role === 'fakultas') {
+        } 
+        elseif ($request->role === 'unit kerja') {
+            $rules['unit_id'] = 'required|exists:unit_kerja,unit_id';
+            $rules['id_fakultas'] = 'nullable|exists:fakultasn,id_fakultas'; 
+        } 
+        elseif ($request->role === 'fakultas') {
             $rules['id_fakultas'] = 'required|exists:fakultasn,id_fakultas';
-            $rules['prodi_id'] = 'nullable';
-            $rules['unit_id'] = 'nullable';
-        } elseif ($request->role === 'admin') {
-            $rules['prodi_id'] = 'nullable';
-            $rules['unit_id'] = 'nullable';
-            $rules['id_fakultas'] = 'nullable';
         }
-    
-        $customPrefix = 'US';
-        $timestamp = time();
-        $md5Hash = md5($timestamp);
-        $id_user = $customPrefix . strtoupper($md5Hash);
-    
+
+        $validatedData = $request->validate($rules);
+
+        $id_user = 'US' . strtoupper(md5(time() . rand()));
+
         $user = new User();
         $user->id_user = $id_user;
         $user->username = $request->username;
@@ -197,14 +189,18 @@ class UserController extends Controller
         $user->role = $request->role;
         $user->password = Hash::make($request->password);
 
-        $user->prodi_id = $request->prodi_id;
-        $user->unit_id = $request->unit_id;
-        $user->id_fakultas = $request->id_fakultas;
-    
+        $user->prodi_id = ($request->role === 'prodi') ? $request->prodi_id : null;
+        $user->unit_id = ($request->role === 'unit kerja') ? $request->unit_id : null;
+        
+        if ($request->role === 'fakultas' || $request->role === 'unit kerja') {
+            $user->id_fakultas = $request->id_fakultas;
+        } else {
+            $user->id_fakultas = null;
+        }
+
         $user->save();
-    
-        Alert::success('Sukses', 'Data Berhasil Ditambah');
-    
+
+        Alert::success('Sukses', 'User Berhasil Ditambah');
         return redirect()->route('user.index');
     }
 
@@ -237,49 +233,47 @@ class UserController extends Controller
 
     public function update(User $user, Request $request)
     {
+        // 1. Validasi Dasar
         $request->validate([
-            'username' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,username,' . $user->id_user . ',id_user',
             'status' => 'required|string|in:0,1',
             'role' => 'required|in:admin,prodi,unit kerja,fakultas',
         ]);
 
-        if (User::where('username', $request->username)->where('id_user', '<>', $user->id_user)->exists()) {
-            return back()->withErrors(['username' => 'Username sudah terdaftar']);
-        }
-
+        // 2. Update Data Dasar
         $user->username = $request->username;
         $user->status = $request->status;
         $user->role = $request->role;
 
-        if ($request->password) {
-            $request->validate([
-                'password' => 'string|min:8',
-            ]);
+        // 3. Update Password jika diisi
+        if ($request->filled('password')) {
+            $request->validate(['password' => 'string|min:8']);
             $user->password = Hash::make($request->password);
         }
 
+        // 4. Logika Relasi Berdasarkan Role
         if ($request->role === 'prodi') {
-            $request->validate([
-                'prodi_id' => 'required|exists:program_studi,prodi_id',
-            ]);
+            $request->validate(['prodi_id' => 'required|exists:program_studi,prodi_id']);
             $user->prodi_id = $request->prodi_id;
             $user->unit_id = null;
             $user->id_fakultas = null;
+
         } elseif ($request->role === 'unit kerja') {
             $request->validate([
                 'unit_id' => 'required|exists:unit_kerja,unit_id',
+                'id_fakultas' => 'nullable|exists:fakultasn,id_fakultas' // Bisa null kecuali dekanat
             ]);
             $user->unit_id = $request->unit_id;
+            $user->id_fakultas = $request->id_fakultas; // Ini yang menangani Dekanat
             $user->prodi_id = null;
-            $user->id_fakultas = null;
+
         } elseif ($request->role === 'fakultas') {
-            $request->validate([
-                'id_fakultas' => 'required|exists:fakultasn,id_fakultas',
-            ]);
+            $request->validate(['id_fakultas' => 'required|exists:fakultasn,id_fakultas']);
             $user->id_fakultas = $request->id_fakultas;
             $user->prodi_id = null;
             $user->unit_id = null;
-        } else {
+
+        } else { // Admin
             $user->prodi_id = null;
             $user->unit_id = null;
             $user->id_fakultas = null;
@@ -288,7 +282,7 @@ class UserController extends Controller
         $user->save();
 
         Alert::success('Sukses', 'Data Berhasil Diubah');
-        return redirect()->route('user.index'); // Admin kembali ke daftar user
+        return redirect()->route('user.index');
     }
 
     public function updateProfile(Request $request)

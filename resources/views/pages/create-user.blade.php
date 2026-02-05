@@ -99,6 +99,9 @@
 
                                     <div class="mb-3" id="fakultas_field" style="display: none;">
                                         <label>Fakultas</label>
+                                        <div id="fakultas_hint" class="text-muted small mb-2" style="display: none;">
+                                            <i class="fa-solid fa-info-circle"></i> Pilih fakultas jika unit kerja ini adalah <b>Dekanat</b> (untuk kendali monitoring prodi).
+                                        </div>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
@@ -106,7 +109,7 @@
                                                 </div>
                                             </div>
                                             <select class="form-control" name="id_fakultas">
-                                                <option value="" disabled selected>Pilih Fakultas</option>
+                                                <option value="" selected>Pilih Fakultas (Opsional)</option>
                                                 @foreach ($fakultasns as $fakultas)
                                                     <option value="{{ $fakultas->id_fakultas }}" {{ old('id_fakultas') == $fakultas->id_fakultas ? 'selected' : '' }}>{{ $fakultas->nama_fakultas }}</option>
                                                 @endforeach
@@ -147,6 +150,8 @@
                                             </select>
                                         </div>
                                     </div>
+
+
                                     
 
                                     <div class="form-group">
@@ -187,45 +192,33 @@
             const prodiField = document.getElementById('prodi_field');
             const unitField = document.getElementById('unit_field');
             const fakultasField = document.getElementById('fakultas_field');
+            const fakultasHint = document.getElementById('fakultas_hint');
 
             function toggleFields() {
                 const selectedRole = roleSelect.value;
 
-                
-                if (selectedRole === 'admin') {
-                    prodiField.style.display = 'none';
-                    unitField.style.display = 'none';
-                    fakultasField.style.display = 'none';
-                    document.querySelector('select[name="prodi_id"]').value = '';
-                    document.querySelector('select[name="unit_id"]').value = '';
-                    document.querySelector('select[name="id_fakultas"]').value = '';
-                } else if (selectedRole === 'prodi') {
+                // Reset semua tampilan
+                prodiField.style.display = 'none';
+                unitField.style.display = 'none';
+                fakultasField.style.display = 'none';
+                fakultasHint.style.display = 'none';
+
+                if (selectedRole === 'prodi') {
                     prodiField.style.display = 'block';
-                    unitField.style.display = 'none';
-                    fakultasField.style.display = 'none';
-                    document.querySelector('select[name="unit_id"]').value = '';
-                    document.querySelector('select[name="id_fakultas"]').value = '';
-                } else if (selectedRole === 'unit kerja') {
-                    prodiField.style.display = 'none';
-                    fakultasField.style.display = 'none';
+                } 
+                else if (selectedRole === 'unit kerja') {
                     unitField.style.display = 'block';
-                    document.querySelector('select[name="prodi_id"]').value = '';
-                    document.querySelector('select[name="id_fakultas"]').value = '';
-                } else if (selectedRole === 'fakultas') {
-                    prodiField.style.display = 'none';
-                    unitField.style.display = 'none';
+                    // Munculkan fakultas juga untuk dekanat
                     fakultasField.style.display = 'block';
-                    document.querySelector('select[name="prodi_id"]').value = '';
-                    document.querySelector('select[name="unit_id"]').value = '';
-                } else {
-                    prodiField.style.display = 'none';
-                    unitField.style.display = 'none';
-                    fakultasField.style.display = 'none';
+                    fakultasHint.style.display = 'block'; 
+                } 
+                else if (selectedRole === 'fakultas') {
+                    fakultasField.style.display = 'block';
                 }
             }
 
             roleSelect.addEventListener('change', toggleFields);
-            toggleFields();
+            toggleFields(); // Jalankan saat halaman load
         });
     </script>
 @endpush

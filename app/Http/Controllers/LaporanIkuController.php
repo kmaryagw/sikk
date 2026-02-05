@@ -115,17 +115,14 @@ class LaporanIkuController extends Controller
 
         $tanggal = now()->format('Ymd_His');
 
-        // Sanitasi agar tidak mengandung karakter ilegal
         $sanitize = fn($string) => preg_replace('/[\/\\\\]+/', '-', str_replace(' ', '-', $string ?? ''));
 
-        // Nama file rapi + informatif
         $filename = "Laporan_IKU_" 
             . $sanitize($tahunText) . "_" 
             . $sanitize($prodiText) . "_" 
             . $sanitize($unitText) . "_" 
             . $tanggal . ".xlsx";
 
-        // Ekspor Excel
         return Excel::download(
             new IkuExport(
                 $tahunId,
@@ -159,9 +156,9 @@ class LaporanIkuController extends Controller
             ->leftJoin('indikator_kinerja', 'indikator_kinerja.ik_id', '=', 'target_indikator.ik_id')
             ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
             ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id')
-            ->orderBy('target_indikator.ti_target', 'asc');
+            
+            ->orderBy('indikator_kinerja.ik_kode', 'asc'); 
 
-        // 2. Filter-filter
         if ($tahunId) {
             $query->where('target_indikator.th_id', $tahunId);
         }
@@ -179,7 +176,8 @@ class LaporanIkuController extends Controller
 
         $target_capaians = $query->get();
 
-        // 3. Data Header
+        $target_capaians = $target_capaians->sortBy('indikatorKinerja.ik_kode', SORT_NATURAL);
+
         $tahun = $tahunId ? tahun_kerja::find($tahunId)?->th_tahun : 'Semua-Tahun';
         $prodi = $prodiId ? program_studi::find($prodiId)?->nama_prodi : 'Semua-Prodi';
         $unit  = $unitId ? UnitKerja::find($unitId)?->unit_nama : 'Semua-Unit';
@@ -187,7 +185,8 @@ class LaporanIkuController extends Controller
         $sanitize = fn($string) => preg_replace('/[\/\\\\]+/', '-', str_replace(' ', '-', $string ?? ''));
 
         $namaFile = "Laporan_IKU_" . $sanitize($tahun) . "_" . $sanitize($prodi) . "_" . $sanitize($unit) . ".pdf";
-        $pdf = Pdf::loadView('export.laporan-iku-pdf', [
+        
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('export.laporan-iku-pdf', [
             'target_capaians' => $target_capaians,
             'tahun' => $tahun,
             'prodi' => $prodi,

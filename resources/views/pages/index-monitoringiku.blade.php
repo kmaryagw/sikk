@@ -18,20 +18,26 @@
             </div>
             <div class="card mb-3">
                 <div class="card-header">
-                    <form class="row g-2 align-items-center">
+                    <form class="row g-2 align-items-center" method="GET" action="{{ route('monitoringiku.index') }}">
                         <div class="col-auto">
                             <input class="form-control" name="q" value="{{ $q }}" placeholder="Pencarian..." />
                         </div>
                         <div class="col-auto">
-                            <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
+                            <select class="form-control" name="th_id" onchange="this.form.submit()">
+                                <option value=""> Semua Tahun </option>
+                                @foreach ($tahuns as $tahun)
+                                    <option value="{{ $tahun->th_id }}" {{ request('th_id') == $tahun->th_id ? 'selected' : '' }}>
+                                        {{ $tahun->th_tahun }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
-                        {{-- @if (Auth::user()->role== 'admin')
                         <div class="col-auto">
-                            <button type="button" class="btn btn-primary" id="showModalBtn">
-                                <i class="fa-solid fa-plus"></i> Tambah
-                            </button>
+                            <button class="btn btn-info"><i class="fa-solid fa-search"></i> Cari</button>
+                            <a href="{{ route('monitoringiku.index') }}" class="btn btn-danger ml-3">
+                                <i class="fa-solid fa-rotate"></i> Reset
+                            </a>
                         </div>
-                        @endif --}}
                     </form>
                 </div>
 

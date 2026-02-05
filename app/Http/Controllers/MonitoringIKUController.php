@@ -34,60 +34,44 @@ class MonitoringIKUController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-
         $title = 'Data Monitoring IKU';
         $q = $request->query('q');
+        
+        $th_id = $request->query('th_id');
 
-        $allowedProdis = [];
-
-        // Tentukan prodi sesuai role/unit kerja
-        if ($user->role == 'fakultas') {
-            $prodis = program_studi::where('id_fakultas', $user->id_fakultas)
-                ->orderBy('nama_prodi', 'asc')
-                ->get();
-            $allowedProdis = $prodis->pluck('prodi_id')->toArray();
-
-        } elseif ($user->role == 'prodi') {
-            $prodis = program_studi::where('prodi_id', $user->prodi_id)->get();
-            $allowedProdis = [$user->prodi_id];
-    
-
-        } elseif ($user->role == 'unit kerja' && $user->unitKerja && $user->unitKerja->unit_nama == 'Dekanat FTI') {
-            $prodis = program_studi::whereIn('nama_prodi', [
-                'Informatika',
-                'Rekayasa Sistem Komputer'
-            ])->get();
-            $allowedProdis = $prodis->pluck('prodi_id')->toArray();
-
-        } elseif ($user->role == 'unit kerja' && $user->unitKerja && $user->unitKerja->unit_nama == 'Dekanat FBDK') {
-            $prodis = program_studi::whereIn('nama_prodi', [
-                'Bisnis Digital',
-                'Desain Komunikasi Visual'
-            ])->get();
-            $allowedProdis = $prodis->pluck('prodi_id')->toArray();
-
-        } else {
-            $prodis = program_studi::orderBy('nama_prodi', 'asc')->get();
-            $allowedProdis = $prodis->pluck('prodi_id')->toArray();
+        if (!$request->has('th_id')) {
+            $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->first();
+            $th_id = $tahunAktif ? $tahunAktif->th_id : null;
         }
 
-        // Query MonitoringIKU difilter berdasarkan allowedProdis
-        $monitoringikus = MonitoringIKU::with(['targetIndikator.prodi', 'tahunKerja'])
-            ->whereHas('targetIndikator.prodi', function ($query) use ($q, $allowedProdis) {
-                if ($q) {
-                    $query->where('nama_prodi', 'like', '%' . $q . '%');
-                }
-                if (!empty($allowedProdis)) {
-                    $query->whereIn('prodi_id', $allowedProdis);
-                }
-            })
-            ->paginate(10);
+        $query = MonitoringIKU::with(['prodi', 'tahunKerja']);
 
+        if ($th_id) {
+            $query->where('th_id', $th_id);
+        }
+
+        if (!empty($user->id_fakultas)) {
+            $query->whereHas('prodi', function ($subQuery) use ($user) {
+                $subQuery->where('id_fakultas', $user->id_fakultas);
+            });
+            $prodis = program_studi::where('id_fakultas', $user->id_fakultas)
+                        ->orderBy('nama_prodi', 'asc')->get();
+        } elseif ($user->role == 'prodi') {
+            $query->where('prodi_id', $user->prodi_id);
+            $prodis = program_studi::where('prodi_id', $user->prodi_id)->get();
+        } else {
+            $prodis = program_studi::orderBy('nama_prodi', 'asc')->get();
+        }
+
+        if ($q) {
+            $query->whereHas('prodi', function ($subQuery) use ($q) {
+                $subQuery->where('nama_prodi', 'like', '%' . $q . '%');
+            });
+        }
+
+        $monitoringikus = $query->paginate(10)->withQueryString();
         $no = $monitoringikus->firstItem();
-
-        $tahuns = tahun_kerja::where('th_is_aktif', 'y')
-            ->orderBy('th_tahun', 'asc')
-            ->get();
+        $tahuns = tahun_kerja::orderBy('th_tahun', 'desc')->get();
 
         return view('pages.index-monitoringiku', [
             'title' => $title,
@@ -95,6 +79,7 @@ class MonitoringIKUController extends Controller
             'prodis' => $prodis,
             'tahuns' => $tahuns,
             'q' => $q,
+            'th_id' => $th_id,
             'no' => $no,
             'type_menu' => 'monitoringiku',
         ]);
