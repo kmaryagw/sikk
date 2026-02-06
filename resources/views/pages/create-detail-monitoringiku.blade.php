@@ -425,35 +425,27 @@
     <script>
         $(document).ready(function () {
             var table = $("#table-indikator").DataTable({
-                "paging": true,
-                "pageLength": 10, 
-                "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Semua"]],
+                "paging": false,          
+                "searching": true,        
+                "info": true,            
                 "order": [[1, 'asc']],
-                "dom": "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+                "dom": "<'row'<'col-sm-12'f>>" + 
                     "<'row'<'col-sm-12'tr>>" +
-                    "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                    "<'row'<'col-sm-12'i>>",
                 "language": {
-                    "search": "_INPUT_",
+                    "search": "", 
                     "searchPlaceholder": "Cari Indikator...",
-                    "lengthMenu": "Tampilkan _MENU_ data",
-                    "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
-                    "paginate": {
-                        "previous": "<i class='fas fa-chevron-left'></i>",
-                        "next": "<i class='fas fa-chevron-right'></i>",
-                        "first": "<i class='fas fa-angle-double-left'></i>",
-                        "last": "<i class='fas fa-angle-double-right'></i>"
-                    }
-                },
-                "pagingType": "full_numbers", 
-                "drawCallback": function() {
-                    $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+                    "info": "Menampilkan total _TOTAL_ data",
+                    "infoEmpty": "Menampilkan 0 data",
+                    "zeroRecords": "Data tidak ditemukan"
                 }
             });
+
+            $('.dataTables_filter input').before('<i class="fas fa-search mr-2 text-primary"></i>');
         });
 
         $('form').on('submit', function(e) {
             var form = this;
-
             var params = table.$('input,select,textarea').serializeArray();
             $.each(params, function() {
                 if (!$.contains(document, form[this.name])) {
