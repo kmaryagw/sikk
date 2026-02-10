@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'User')
+@section('title','SPMI')
 
 @push('style')
     <!-- CSS Libraries -->

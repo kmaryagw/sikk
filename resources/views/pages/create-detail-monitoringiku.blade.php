@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Detail Monitoring IKU')
+@section('title','SPMI')
 
 @push('style')
     <link rel="stylesheet" href="{{ asset('library/bootstrap-daterangepicker/daterangepicker.css') }}">
@@ -26,7 +26,6 @@
             box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
         }
 
-        /* Styling Filter Baru yang Lebih Compact */
         .filter-group-clean {
             display: flex;
             align-items: center;
@@ -46,7 +45,7 @@
             padding: 0.375rem 0.75rem;
             background: transparent;
             border: none;
-            color: #4e73df; /* Warna Primary */
+            color: #4e73df; 
         }
 
         .filter-group-clean .custom-select {
@@ -59,7 +58,7 @@
         .filter-group-clean .btn-reset {
             border: none;
             background: transparent;
-            color: #e74a3b; /* Warna Danger */
+            color: #e74a3b; 
             padding: 0.375rem 0.75rem;
             display: flex;
             align-items: center;
@@ -72,7 +71,6 @@
             color: #c0392b;
         }
 
-        /* Merapikan area info dan paging */
         .dataTables_wrapper .dataTables_info {
             padding-top: 1rem;
             font-weight: 600;
@@ -83,9 +81,8 @@
             padding-top: 1rem;
         }
 
-        /* Mempercantik Tombol Pagination */
         .paginate_button.page-item.active .page-link {
-            background-color: #4e73df !important; /* Warna Primary Anda */
+            background-color: #4e73df !important; 
             border-color: #4e73df !important;
             box-shadow: 0 4px 6px rgba(78, 115, 223, 0.2);
         }
@@ -102,8 +99,6 @@
             transform: translateY(-1px);
         }
 
-        /* Sticky Bottom Action Bar (UX SANGAT PENTING) */
-        /* Karena tabel panjang, tombol simpan harus selalu terlihat */
         .action-bar-sticky {
             position: sticky;
             bottom: 0;
@@ -428,7 +423,7 @@
                 "paging": false,          
                 "searching": true,        
                 "info": true,            
-                "order": [[1, 'asc']],
+                "order": [],
                 "dom": "<'row'<'col-sm-12'f>>" + 
                     "<'row'<'col-sm-12'tr>>" +
                     "<'row'<'col-sm-12'i>>",

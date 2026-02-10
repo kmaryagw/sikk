@@ -1,6 +1,6 @@
 <!-- File: resources/views/pages/edit-periode-monitoring.blade.php -->
 @extends('layouts.app')
-@section('title', 'Edit Periode Monitoring')
+@section('title','SPMI')
 
 @section('main')
     <div class="main-content">

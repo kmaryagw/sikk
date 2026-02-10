@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'create-prodi')
+@section('title','SPMI')
 
 @push('style')
     <!-- CSS Libraries -->

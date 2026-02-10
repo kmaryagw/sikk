@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Pilih Indikator')
+@section('title','SPMI')
 
 @push('style')
     <!-- CSS DataTables Standar -->

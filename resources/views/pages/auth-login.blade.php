@@ -1,6 +1,6 @@
 @extends('layouts.auth')
 
-@section('title','SPMI INSTIKI')
+@section('title','SPMI')
 
 @push('style')
     {{-- <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"> untuk fontnya --}}
@@ -340,7 +340,7 @@
                 </button>
 
                 <div class="login-footer">
-                    &copy; {{ date('Y') }} <strong>INSTIKI</strong>. Institut Bisnis dan Teknologi Indonesia.<br>
+                     &copy; 2024 {{-- {{ date('Y') }}--}} <strong>INSTIKI</strong>. Institut Bisnis dan Teknologi Indonesia.<br>
                     All Rights Reserved.
                 </div>
             </form>

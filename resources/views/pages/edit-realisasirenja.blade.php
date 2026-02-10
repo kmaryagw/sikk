@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Realisasi Renja')
+@section('title','SPMI')
 
 @push('style')
     <link rel="stylesheet" href="{{ asset('library/bootstrap-daterangepicker/daterangepicker.css') }}">

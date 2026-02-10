@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Pengaturan Akun')
+@section('title','SPMI')
 
 @push('style')
 <style>

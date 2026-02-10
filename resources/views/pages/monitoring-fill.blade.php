@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Isi Monitoring')
+@section('title','SPMI')
 
 @section('main')
 <div class="main-content">

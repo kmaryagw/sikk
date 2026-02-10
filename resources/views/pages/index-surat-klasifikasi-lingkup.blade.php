@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Surat Klasifikasi Lingkup')
+@section('title','SPMI')
 
 @push('style')
     <!-- CSS Libraries -->

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Edit Monitoring Indikator Kinerja')
+@section('title','SPMI')
 
 @push('style')
     <link rel="stylesheet" href="{{ asset('library/select2/dist/css/select2.min.css') }}">

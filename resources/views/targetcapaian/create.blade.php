@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Isi Target Indikator')
+@section('title','SPMI')
 
 @push('style')
     <!-- CSS Libraries -->

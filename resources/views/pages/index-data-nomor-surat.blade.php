@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Data Nomor Surat')
+@section('title','SPMI')
 
 @push('style')
     <!-- CSS Libraries -->

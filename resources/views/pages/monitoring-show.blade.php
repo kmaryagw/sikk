@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Lihat Monitoring')
+@section('title','SPMI')
 
 @section('main')
 <div class="main-content">

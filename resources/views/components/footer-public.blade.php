@@ -1,44 +1,65 @@
 <footer class="main-footer">
-    <div class="footer">
-        Copyright &copy; 2024 <div class="bullet"></div> INSTIKI
+    <div class="footer-container">
+        <span>Copyright &copy; 2024</span>
+        <span class="bullet"></span>
+        <span class="brand-footer">INSTIKI</span>
     </div>
 </footer>
+
 <style>
     /* Footer Style */
     .main-footer {
-        color: rgb(167, 167, 167);
-        padding: 15px 0;
-        padding-left: 5rem;
-        text-align: start;
+        background-color: #ffffff; /* Warna putih bersih */
+        color: #6c757d; /* Abu-abu profesional */
+        padding: 25px 0;
+        border-top: 1px solid #ececec;
         font-family: 'Poppins', sans-serif;
         font-size: 14px;
-        position: relative;
+        width: 100%;
     }
 
     /* Kontainer footer */
     .footer-container {
-        max-width: 1200px;
+        max-width: 1850px;
         margin: auto;
         padding: 0 20px;
+        /* Default Desktop: Padding left mengikuti layout dashboard biasanya */
+        padding-left: 5rem; 
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
     }
 
     /* Bullet kecil di tengah */
-    .footer-container .bullet {
+    .main-footer .bullet {
         display: inline-block;
-        width: 6px;
-        height: 6px;
-        background-color: white;
+        width: 5px;
+        height: 5px;
+        background-color: #adb5bd;
         border-radius: 50%;
-        margin: 0 8px;
-        vertical-align: middle;
+        margin: 0 12px;
     }
 
-    /* Responsif (optional, tapi rapi di mobile) */
-    @media (max-width: 600px) {
+    .brand-footer {
+        font-weight: 600;
+        color: #f34e4e; /* Senada dengan warna tema Navbar */
+    }
+
+    /* RESPONSIF MOBILE (iPhone X, dll) */
+    @media (max-width: 768px) {
         .main-footer {
+            padding: 20px 0;
             font-size: 12px;
-            padding: 10px 0;
+        }
+
+        .footer-container {
+            padding-left: 0; /* Hapus padding besar di mobile */
+            justify-content: center; /* Teks jadi rata tengah di mobile */
+            flex-direction: row; /* Tetap satu baris agar ringkas */
+        }
+
+        .main-footer .bullet {
+            margin: 0 8px;
         }
     }
-
 </style>

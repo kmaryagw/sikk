@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Menunggu Validasi')
+@section('title','SPMI')
 
 @push('style')
     <!-- CSS Libraries -->

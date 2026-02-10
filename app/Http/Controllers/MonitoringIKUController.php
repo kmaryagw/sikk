@@ -149,11 +149,12 @@ class MonitoringIKUController extends Controller
         $user = Auth::user();
 
         $q = trim($request->input('q', ''));
-
         $unitKerjaFilter = $request->input('unit_kerja', '');
 
-        $targetIndikatorsQuery = target_indikator::where('prodi_id', $prodi_id)
-            ->where('th_id', $th_id)
+        $targetIndikatorsQuery = target_indikator::select('target_indikator.*') 
+            ->join('indikator_kinerja', 'target_indikator.ik_id', '=', 'indikator_kinerja.ik_id')
+            ->where('target_indikator.prodi_id', $prodi_id)
+            ->where('target_indikator.th_id', $th_id)
             ->with([
                 'indikatorKinerja.unitKerja',
                 'baselineTahun' => function ($sub) use ($prodi_id, $th_id) {
@@ -183,13 +184,12 @@ class MonitoringIKUController extends Controller
             $targetIndikatorsQuery->whereHas('indikatorKinerja.unitKerja', function ($sub) use ($user) {
                 $sub->where('unit_kerja.unit_id', $user->unit_id);
             })
-            ->whereNotNull('ti_target'); // hanya tampilkan yang sudah ada target
+            ->whereNotNull('ti_target'); 
         }
 
-        $targetIndikators = $targetIndikatorsQuery->get();
-
-        // Debug untuk memeriksa apakah monitoringDetail sudah dimuat dengan benar
-        // dd($targetIndikators->pluck('monitoringDetail')); // Memeriksa monitoringDetail pada setiap target_indikator
+        $targetIndikators = $targetIndikatorsQuery->get()->sortBy(function ($item) {
+            return optional($item->indikatorKinerja)->ik_kode ?? '';
+        }, SORT_NATURAL | SORT_FLAG_CASE)->values();
 
         $unitKerjas = UnitKerja::all();
 
@@ -207,15 +207,18 @@ class MonitoringIKUController extends Controller
     {
         $monitoringiku = MonitoringIKU::with(['prodi', 'tahunKerja'])->findOrFail($mti_id);
         $user = Auth::user();
-        if (Auth::user()->role === 'prodi') {
+        
+        if ($user->role === 'prodi') {
             return redirect()->back()->with('error', 'Akun Prodi hanya memiliki akses Lihat (Read-Only).');
         }
 
         $q = trim($request->input('q', '')); 
         $unitKerjaFilter = $request->input('unit_kerja', ''); 
 
-        $targetIndikatorQuery = target_indikator::where('prodi_id', $monitoringiku->prodi_id)
-            ->where('th_id', $monitoringiku->th_id)
+        $targetIndikatorQuery = target_indikator::select('target_indikator.*')
+            ->join('indikator_kinerja', 'target_indikator.ik_id', '=', 'indikator_kinerja.ik_id')
+            ->where('target_indikator.prodi_id', $monitoringiku->prodi_id)
+            ->where('target_indikator.th_id', $monitoringiku->th_id)
             ->with([
                 'indikatorKinerja.unitKerja',
                 'baselineTahun' => function ($sub) use ($monitoringiku) {
@@ -248,9 +251,16 @@ class MonitoringIKUController extends Controller
             });
         }
 
-        $targetIndikator = $targetIndikatorQuery->get();
+        /**
+         * LOGIKA PENGURUTAN NATURAL (CAST)
+         */
+        // $targetIndikatorQuery->orderByRaw("LENGTH(SUBSTRING_INDEX(indikator_kinerja.ik_kode, '.', 1)) ASC, 
+        // SUBSTRING_INDEX(indikator_kinerja.ik_kode, '.', 1) ASC, LENGTH(indikator_kinerja.ik_kode) ASC, indikator_kinerja.ik_kode ASC");
 
-        // Cek kosong (Hanya redirect jika benar-benar tidak ada data, bukan karena hasil filter pencarian kosong)
+        $targetIndikator = $targetIndikatorQuery->get()->sortBy(function ($item) {
+            return optional($item->indikatorKinerja)->ik_kode ?? '';
+        }, SORT_NATURAL | SORT_FLAG_CASE)->values();
+
         if ($targetIndikator->isEmpty() && empty($q) && empty($unitKerjaFilter)) {
             return redirect()->route('monitoringiku.index')
                 ->with('error', 'Tidak ada indikator yang tersedia atau Anda tidak memiliki akses.');
@@ -302,28 +312,22 @@ class MonitoringIKUController extends Controller
                 return redirect()->back()->with('error', 'Monitoring IKU ini sudah final.');
             }
 
-            // Gunakan Database Transaction agar data aman jika terjadi error di tengah jalan
             \DB::transaction(function () use ($request, $mti_id, $user) {
                 
                 foreach ($request->ti_id as $ti_id) {
-                    // 1. Ambil data target indikator
                     $targetIndikator = target_indikator::with('indikatorKinerja')->where('ti_id', $ti_id)->first();
                     if (!$targetIndikator) continue;
 
-                    // 2. Cari data detail yang sudah ada (Draft)
                     $existing = MonitoringIKU_Detail::where('mti_id', $mti_id)->where('ti_id', $ti_id)->first();
                     
-                    // Gunakan UUID jika data benar-benar baru
                     $mtid_id = $existing ? $existing->mtid_id : 'MTID' . \Str::uuid();
                     $jenis_ik = strtolower($targetIndikator->indikatorKinerja->ik_ketercapaian ?? 'nilai');
 
-                    // --- AMBIL DATA DARI REQUEST BERDASARKAN TI_ID (Bukan Index) ---
                     $tipeInput      = $request->mtid_capaian[$ti_id] ?? ''; 
                     $nilaiInput     = $request->capaian_value[$ti_id] ?? '';
                     $val_keterangan = $request->mtid_keterangan[$ti_id] ?? ($existing->mtid_keterangan ?? null);
                     $val_url        = $request->mtid_url[$ti_id] ?? ($existing->mtid_url ?? null);
                     
-                    // Data evaluasi (khusus Admin/Fakultas)
                     $val_evaluasi     = $existing->mtid_evaluasi ?? null;
                     $val_tindaklanjut = $existing->mtid_tindaklanjut ?? null;
                     $val_peningkatan  = $existing->mtid_peningkatan ?? null;
@@ -331,7 +335,6 @@ class MonitoringIKUController extends Controller
                     $val_status       = $existing->mtid_status ?? 'Draft';
                     
                     if ($user->role !== 'admin' && $user->role !== 'fakultas') {
-                        // --- LOGIKA UNIT KERJA (Input Capaian) ---
                         
                         if ($tipeInput === 'rasio') {
                             if (strpos($nilaiInput, ':') !== false) {
@@ -342,7 +345,6 @@ class MonitoringIKUController extends Controller
                                 $val_capaian = $nilaiInput; 
                             }
                         } elseif ($tipeInput === 'persentase') {
-                            // Jika input angka saja, tambahkan %
                             $val_capaian = is_numeric($nilaiInput) ? $nilaiInput . '%' : $nilaiInput;
                         } elseif ($tipeInput === 'ada' || $tipeInput === 'draft') {
                             $val_capaian = $tipeInput;
@@ -350,17 +352,14 @@ class MonitoringIKUController extends Controller
                             $val_capaian = $nilaiInput;
                         }
 
-                        // Hitung Status Otomatis
                         $val_status = $this->hitungStatus($val_capaian, $targetIndikator->ti_target, $jenis_ik);
 
                     } else {
-                        // --- LOGIKA ADMIN / FAKULTAS (Input Evaluasi) ---
                         $val_evaluasi     = $request->mtid_evaluasi[$ti_id] ?? $val_evaluasi;
                         $val_tindaklanjut = $request->mtid_tindaklanjut[$ti_id] ?? $val_tindaklanjut;
                         $val_peningkatan  = $request->mtid_peningkatan[$ti_id] ?? $val_peningkatan;
                     }
 
-                    // 3. UPDATE ATAU CREATE DETAIL
                     $detail = MonitoringIKU_Detail::updateOrCreate(
                         ['mti_id' => $mti_id, 'ti_id' => $ti_id],
                         [
@@ -376,7 +375,6 @@ class MonitoringIKUController extends Controller
                         ]
                     );
 
-                    // 4. CEK PERUBAHAN UNTUK HISTORY
                     $hasChanged = false;
                     if (!$existing) {
                         $hasChanged = true;

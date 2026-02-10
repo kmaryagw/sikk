@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Monitoring Periode')
+@section('title','SPMI')
 
 @push('style')
     <link rel="stylesheet" href="{{ asset('library/jqvmap/dist/jqvmap.min.css') }}">

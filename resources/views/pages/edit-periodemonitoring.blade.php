@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Periode Monitoring')
+@section('title','SPMI')
 
 @push('style')
     <!-- CSS Libraries -->

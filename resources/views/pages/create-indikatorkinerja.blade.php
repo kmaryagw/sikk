@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Create Indikator Kinerja Utama')
+@section('title','SPMI')
 
 @push('style')
     <!-- CSS Libraries -->

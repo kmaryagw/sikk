@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Riwayat Perubahan Indikator')
+@section('title','SPMI')
 
 @push('style')
     <style>

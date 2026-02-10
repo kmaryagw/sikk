@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Gate;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\IndikatorKinerjaImport;
 use Illuminate\Support\Str;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 
 class IndikatorKinerjaController extends Controller
 {
@@ -28,48 +30,63 @@ class IndikatorKinerjaController extends Controller
     }
     
     public function index(Request $request)
-{
-    $title = 'Data Indikator Kinerja Utama';
-    
-    $q = $request->query('q');
-    $unit_id = $request->query('unit_id'); 
+    {
+        $title = 'Data Indikator Kinerja Utama';
+        
+        $q = $request->query('q');
+        $unit_id = $request->query('unit_id'); 
 
-    $query = IndikatorKinerja::select('indikator_kinerja.*', 'standar.std_deskripsi', 'standar.std_nama')
-        ->leftJoin('standar', 'standar.std_id', '=', 'indikator_kinerja.std_id')
-        ->with('unitKerja') 
-        ->orderBy('ik_kode', 'asc');
+        $query = IndikatorKinerja::select('indikator_kinerja.*', 'standar.std_deskripsi', 'standar.std_nama')
+            ->leftJoin('standar', 'standar.std_id', '=', 'indikator_kinerja.std_id')
+            ->with('unitKerja');
 
-    if ($q) {
-        $query->where(function ($subQuery) use ($q) {
-            $subQuery->where('ik_kode', 'like', '%' . $q . '%')
-                ->orWhere('ik_nama', 'like', '%' . $q . '%')
-                ->orWhere('std_deskripsi', 'like', '%' . $q . '%')
-                ->orWhere('std_nama', 'like', '%' . $q . '%');
-        });
+        if ($q) {
+            $query->where(function ($subQuery) use ($q) {
+                $subQuery->where('ik_kode', 'like', '%' . $q . '%')
+                    ->orWhere('ik_nama', 'like', '%' . $q . '%')
+                    ->orWhere('standar.std_deskripsi', 'like', '%' . $q . '%')
+                    ->orWhere('standar.std_nama', 'like', '%' . $q . '%');
+            });
+        }
+
+        if ($unit_id) {
+            $query->whereHas('unitKerja', function ($subQuery) use ($unit_id) {
+                $subQuery->where('unit_kerja.unit_id', $unit_id);
+            });
+        }
+
+        $allData = $query->get()->sortBy(function($item) {
+            return $item->ik_kode;
+        }, SORT_NATURAL | SORT_FLAG_CASE);
+
+        $currentPage = Paginator::resolveCurrentPage() ?: 1;
+        $perPage = 10;
+        $currentItems = $allData->slice(($currentPage - 1) * $perPage, $perPage)->values();
+
+        $indikatorkinerjas = new LengthAwarePaginator(
+            $currentItems, 
+            $allData->count(), 
+            $perPage, 
+            $currentPage, 
+            ['path' => Paginator::resolveCurrentPath()]
+        );
+
+        $indikatorkinerjas->withQueryString();
+
+        $no = $indikatorkinerjas->firstItem();
+        $unitKerjas = \App\Models\UnitKerja::orderBy('unit_nama', 'asc')->get();
+
+        return view('pages.index-indikatorkinerja', [
+            'title'             => $title,
+            'indikatorkinerjas' => $indikatorkinerjas,
+            'q'                 => $q,
+            'no'                => $no,
+            'unitKerjas'        => $unitKerjas, 
+            'selectedUnit'      => $unit_id,    
+            'type_menu'         => 'masterdata',
+            'sub_menu'          => 'indikatorkinerja',
+        ]);
     }
-
-    if ($unit_id) {
-        $query->whereHas('unitKerja', function ($subQuery) use ($unit_id) {
-            $subQuery->where('unit_kerja.unit_id', $unit_id);
-        });
-    }
-
-    $indikatorkinerjas = $query->paginate(10)->withQueryString();
-    $no = $indikatorkinerjas->firstItem();
-
-    $unitKerjas = \App\Models\UnitKerja::orderBy('unit_nama', 'asc')->get();
-
-    return view('pages.index-indikatorkinerja', [
-        'title'             => $title,
-        'indikatorkinerjas' => $indikatorkinerjas,
-        'q'                 => $q,
-        'no'                => $no,
-        'unitKerjas'        => $unitKerjas, 
-        'selectedUnit'      => $unit_id,    
-        'type_menu'         => 'masterdata',
-        'sub_menu'          => 'indikatorkinerja',
-    ]);
-}
 
     public function import(Request $request)
     {

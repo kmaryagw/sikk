@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'create-organisasi-jabatan')
+@section('title','SPMI')
 
 @push('style')
     <!-- CSS Libraries -->

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Renstra')
+@section('title','SPMI')
 
 @push('style')
     <!-- CSS Libraries -->

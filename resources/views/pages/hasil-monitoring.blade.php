@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Analytics Hasil Monitoring')
+@section('title','SPMI')
 
 @push('style')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">

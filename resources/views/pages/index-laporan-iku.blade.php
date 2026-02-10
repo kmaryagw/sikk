@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Laporan IKU/IKT')
+@section('title','SPMI')
 
 @push('style')
     <!-- CSS Libraries -->

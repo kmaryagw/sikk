@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Daftar Monitoring Indikator Kinerja')
+@section('title','SPMI')
 
 @push('style')
     <!-- CSS Libraries -->
@@ -669,7 +669,7 @@
                 "searching": false,
                 "ordering": true,
                 "info": true, 
-                "order": [[1, 'asc']],
+                "order": [],
                 "language": {
                     "info": "Menampilkan _TOTAL_ indikator",
                     "infoEmpty": "Tidak ada data"

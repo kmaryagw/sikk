@@ -5,18 +5,21 @@
     <div class="navbar-container">
         <!-- Logo & Brand -->
         <a class="navbar-brand" href="{{ url('/') }}">
-            <img src="{{ asset('img/instiki-putih.webp') }}" alt="Instiki Logo" height="50">
-            <span>SISTEM PENJAMINAN MUTU INSTIKI</span>
+            <img src="{{ asset('img/instiki-putih.webp') }}" alt="Instiki Logo">
+            <div class="brand-text">
+                <span class="brand-sub">SISTEM PENJAMINAN MUTU</span>
+                <span class="brand-main">INSTIKI</span>
+            </div>
         </a>
 
         <!-- Toggle Button (Mobile) -->
         <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle navigation">
-            ☰
+            <span class="hamburger"></span>
         </button>
 
         <!-- Menu -->
         <ul class="navbar-menu" id="navbarMenu">
-            <li><a href="{{ route('login') }}">Login</a></li>
+            <li><a href="{{ route('login') }}" class="btn-login-mobile">Login</a></li>
         </ul>
     </div>
 </nav>
@@ -37,13 +40,16 @@
         top: 0;
         width: 100%;
         z-index: 1000;
-        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        transition: all 0.3s ease;
+        height: 70px; /* Tinggi tetap agar rapi */
+        display: flex;
+        align-items: center;
     }
 
-    /* Scroll effect */
     .navbar-instiki.scrolled {
-        background-color: #a00000;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        background-color: #c80000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        height: 60px;
     }
 
     /* Container */
@@ -51,95 +57,146 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 8px 20px;
-        max-width: 1850px;
+        padding: 0 20px;
+        width: 100%;
+        max-width: 1400px;
         margin: auto;
     }
 
-    /* Brand */
+    /* Brand Styling */
     .navbar-brand {
         display: flex;
         align-items: center;
         text-decoration: none;
         color: white;
-        font-weight: 600;
-        font-size: 15px;
+        gap: 12px;
     }
+    
     .navbar-brand img {
-        margin-right: 10px;
-    }
-    .navbar-brand span {
-        white-space: nowrap;
+        height: 45px;
+        width: auto;
+        transition: 0.3s;
     }
 
-    /* Menu */
+    .brand-text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+    }
+
+    .brand-sub {
+        font-size: 10px;
+        font-weight: 400;
+        letter-spacing: 1px;
+    }
+
+    .brand-main {
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    /* Menu Desktop */
     .navbar-menu {
         list-style: none;
         display: flex;
-        gap: 24px;
+        gap: 30px;
         margin: 0;
         padding: 0;
     }
+
     .navbar-menu li a {
         color: white;
         text-decoration: none;
-        font-weight: 500;
+        font-weight: 600;
         font-size: 14px;
-        transition: color 0.3s ease;
-    }
-    .navbar-menu li a:hover {
-        color: #ffdede;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: 0.3s;
     }
 
-    /* Toggle (Mobile) */
+    .navbar-menu li a:hover {
+        background: rgba(255,255,255,0.2);
+    }
+
+    /* Toggle Button (Hamburger) */
     .navbar-toggle {
         display: none;
-        font-size: 22px;
+        width: 30px;
+        height: 30px;
+        padding: 0;
         background: none;
         border: none;
-        color: white;
         cursor: pointer;
+        position: relative;
     }
 
-    /* Responsive */
+    .hamburger, .hamburger::before, .hamburger::after {
+        content: '';
+        display: block;
+        background: white;
+        height: 3px;
+        width: 100%;
+        border-radius: 3px;
+        transition: all 0.3s ease;
+        position: absolute;
+    }
+    .hamburger { top: 13px; }
+    .hamburger::before { top: -8px; }
+    .hamburger::after { top: 8px; }
+
+    /* Hamburger Animation when Active */
+    .navbar-toggle.active .hamburger { background: transparent; }
+    .navbar-toggle.active .hamburger::before { transform: rotate(45deg); top: 0; }
+    .navbar-toggle.active .hamburger::after { transform: rotate(-45deg); top: 0; }
+
+    /* RESPONSIVE IPHONE X & MOBILE */
     @media (max-width: 768px) {
-        .navbar-toggle {
-            display: block;
-        }
+        .navbar-instiki { height: 65px; }
+
+        .navbar-toggle { display: block; }
+
+        .brand-sub { font-size: 8px; }
+        .brand-main { font-size: 13px; }
+        .navbar-brand img { height: 35px; }
+
         .navbar-menu {
-            display: none;
-            flex-direction: column;
-            background-color: #c80000;
-            position: absolute;
-            top: 60px;
+            position: fixed;
+            top: 65px; /* Sesuai tinggi navbar */
+            left: 0;
             right: 0;
-            width: 220px;
-            padding: 10px 0;
-            animation: slideDown 0.3s ease forwards;
+            background-color: #c80000;
+            flex-direction: column;
+            gap: 0;
+            width: 100%;
+            height: 0;
+            overflow: hidden;
+            transition: height 0.3s ease;
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
         }
+
         .navbar-menu.show {
-            display: flex;
+            height: auto;
+            padding: 15px 0;
         }
+
         .navbar-menu li {
-            padding: 12px 20px;
+            width: 100%;
+            text-align: center;
         }
-        .navbar-brand span {
-            font-size: 13px;
+
+        .navbar-menu li a {
+            display: block;
+            padding: 15px;
+            font-size: 16px;
+            border-radius: 0;
+        }
+
+        .btn-login-mobile {
+            background: rgba(255,255,255,0.1);
+            margin: 0 20px;
+            border-radius: 10px !important;
         }
     }
-
-    /* Animasi menu mobile */
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
 </style>
 
 <script>
@@ -150,11 +207,20 @@
     // Toggle menu on mobile
     toggle.addEventListener('click', () => {
         menu.classList.toggle('show');
+        toggle.classList.toggle('active'); // Untuk animasi hamburger
+    });
+
+    // Close menu when clicking a link (mobile)
+    document.querySelectorAll('.navbar-menu a').forEach(link => {
+        link.addEventListener('click', () => {
+            menu.classList.remove('show');
+            toggle.classList.remove('active');
+        });
     });
 
     // Scroll effect
     document.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
+        if (window.scrollY > 30) {
             navbar.classList.add('scrolled');
         } else {
             navbar.classList.remove('scrolled');
