@@ -16,7 +16,6 @@
     .text-shadow-strong { text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
     .ls-1 { letter-spacing: 0.5px; }
     
-    /* --- Carousel & Ken Burns Effect --- */
     #announcementCarousel { 
         border-radius: var(--border-radius-lg); 
         overflow: hidden; 
@@ -28,7 +27,6 @@
         transition: transform 1.2s cubic-bezier(0.7, 0, 0.3, 1);
     }
 
-    /* Efek gambar bergerak pelan (Ken Burns) */
     .carousel-item.active .carousel-img {
         animation: kenburns 10s ease-out both;
     }
@@ -42,10 +40,9 @@
         height: 100%;
         width: 100%;
         object-fit: cover;
-        opacity: 0.7; /* Membuat teks lebih menonjol */
+        opacity: 0.7;
     }
 
-    /* --- Cinematic Overlay --- */
     .carousel-overlay {
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
@@ -54,12 +51,11 @@
             rgba(0,0,0,0.4) 50%, 
             rgba(0,0,0,0.9) 100%);
         display: flex;
-        align-items: flex-end; /* Teks di bawah agar cinematic */
+        align-items: flex-end;
         padding: 60px;
-        text-align: left; /* Rata kiri lebih modern untuk slider besar */
+        text-align: left;
     }
 
-    /* --- Glassmorphism Badge --- */
     .badge-glass {
         display: inline-block;
         padding: 8px 20px;
@@ -75,9 +71,8 @@
         font-weight: 600;
     }
 
-    /* --- Custom Navigation Circles --- */
     .custom-nav {
-        width: 10%; /* Area klik lebih luas */
+        width: 10%; 
         opacity: 0;
         transition: all 0.4s ease;
     }
@@ -105,7 +100,6 @@
         transform: scale(1.1);
     }
 
-    /* --- Animations --- */
     .title-animate {
         animation: fadeInUp 0.8s ease-out both;
     }
@@ -164,9 +158,32 @@
     #announcementCarousel .carousel-indicators {
         display: none !important;
     }
-    
 
-    
+    /* rapihin deskripsis di card announcement */
+    .card-title {
+        display: block;
+        min-height: 1.2em; 
+        margin-bottom: 0.75rem;
+    }
+
+    .card-text {
+        line-height: 1.6;
+        display: -webkit-box;
+        -webkit-line-clamp: 4; 
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .card-body.d-flex.flex-column {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mt-auto {
+        margin-top: auto !important;
+    }
+        
     @media (min-width: 992px) {
         .card-modern:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
     }
@@ -328,15 +345,17 @@
                     </div>
                     
                     <div class="card-body d-flex flex-column p-3">
-                        <h6 class="card-title fw-bold mb-2">
+                        <h6 class="card-title fw-bold mb-2 lh-base">
                             <a href="#" data-bs-toggle="modal" data-bs-target="#modalDetail{{ $announcement->id }}" class="text-decoration-none text-dark stretched-link">
-                                {{ \Illuminate\Support\Str::limit($announcement->title, 50) }}
+                                {{ $announcement->title }}
                             </a>
                         </h6>
-                        <p class="card-text text-muted small flex-grow-1">
-                            {{ \Illuminate\Support\Str::limit(strip_tags($announcement->summary ?? $announcement->content), 70) }}
+
+                        <p class="card-text text-muted small flex-grow-1 mb-3">
+                            {{ \Illuminate\Support\Str::limit(strip_tags($announcement->summary ?? $announcement->content), 160) }}
                         </p>
-                        <div class="mt-3 pt-2 border-top">
+
+                        <div class="mt-auto pt-2 border-top">
                             <span class="text-primary fw-bold" style="font-size: 0.75rem">
                                 Selengkapnya <i class="bi bi-arrow-right ms-1"></i>
                             </span>

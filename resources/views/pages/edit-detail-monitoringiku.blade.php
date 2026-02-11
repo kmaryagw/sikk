@@ -229,7 +229,6 @@
                                                         <input class="form-control" type="url" name="mtid_url" 
                                                             value="{{ old('mtid_url', $monitoringikuDetail->mtid_url) }}" 
                                                             placeholder="https://..."
-                                                            required
                                                             @if($readonlyMonitoring) readonly @endif>
                                                     </div>
                                                 </div>

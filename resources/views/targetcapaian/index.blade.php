@@ -206,7 +206,7 @@
                                     <td>
                                         <div class="d-flex justify-content-center">
                                             <a href="{{ route('targetcapaianprodi.edit', $targetcapaian->ti_id) }}" class="btn btn-warning btn-sm">
-                                                <i class="fa-solid fa-pen-to-square"></i> Edit
+                                                <i class="fa-solid fa-pen-to-square"></i> Ubah
                                             </a>
                                         </div>
                                     </td>                                                                                                         
@@ -249,7 +249,7 @@
                     "ordering": true,       
                     "info": true,           
                     "autoWidth": false,
-                    "order": [[ 3, 'asc' ]] 
+                    "order": [] 
                 });
             @endif
         });

@@ -268,7 +268,7 @@
                 ],
                 "paging": false, 
                 "searching": true, 
-                "order": [[1, 'asc']],
+                "order": [],
                 "info": true,
                 "language": {
                     "search": "Cari Indikator:",

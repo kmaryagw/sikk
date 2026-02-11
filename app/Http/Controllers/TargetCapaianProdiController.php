@@ -79,41 +79,30 @@ class TargetCapaianProdiController extends Controller
             });
         }
 
-        if ($tahunId) {
-            $query->where('target_indikator.th_id', $tahunId);
-        }
-
-        if ($prodiId) {
-            $query->where('program_studi.prodi_id', $prodiId);
-        }
-
+        if ($tahunId) $query->where('target_indikator.th_id', $tahunId);
+        if ($prodiId) $query->where('program_studi.prodi_id', $prodiId);
         if ($unitKerjaId) {
             $query->whereIn('indikator_kinerja.ik_id', function($subQuery) use ($unitKerjaId) {
-                $subQuery->select('ik_id')
-                        ->from('indikatorkinerja_unitkerja')
-                        ->where('unit_id', $unitKerjaId);
+                $subQuery->select('ik_id')->from('indikatorkinerja_unitkerja')->where('unit_id', $unitKerjaId);
             });
         }
 
+        // --- LOGIKA PENGURUTAN NATURAL PHP ---
+        // Hapus $query->orderBy dan gunakan sortBy setelah get()
+        $target_capaians = $query->get()->sortBy(function ($item) {
+            return $item->ik_kode;
+        }, SORT_NATURAL | SORT_FLAG_CASE)->values();
 
-        $query->orderBy('indikator_kinerja.ik_nama', 'asc');
-
-        $target_capaians = $query->get();
-
+        // Mapping Baseline (Tetap Sama)
         $ikProdiPairs = $target_capaians->map(function ($item) {
-            return [
-                'ik_id' => $item->ik_id,
-                'prodi_id' => $item->prodi_id
-            ];
+            return ['ik_id' => $item->ik_id, 'prodi_id' => $item->prodi_id];
         })->unique();
 
         $baselineData = IkBaselineTahun::where('th_id', $tahunId)
             ->whereIn('ik_id', $ikProdiPairs->pluck('ik_id'))
             ->whereIn('prodi_id', $ikProdiPairs->pluck('prodi_id'))
             ->get()
-            ->keyBy(function ($item) {
-                return $item->ik_id . '_' . $item->prodi_id;
-            });
+            ->keyBy(fn($item) => $item->ik_id . '_' . $item->prodi_id);
 
         $target_capaians->transform(function ($item) use ($baselineData) {
             $key = $item->ik_id . '_' . $item->prodi_id;
@@ -166,8 +155,9 @@ class TargetCapaianProdiController extends Controller
             $queryIndikator->has('unitKerja'); 
         }
 
-        $indikatorkinerjas = $queryIndikator->orderBy('ik_kode', 'asc')
-            ->get()
+        // --- LOGIKA PENGURUTAN NATURAL PHP ---
+        // Hapus orderBy dari query, lakukan pengurutan di akhir pipeline collection
+        $indikatorkinerjas = $queryIndikator->get()
             ->map(function ($ik) use ($baseline_data, $existing_targets) {
                 $raw_baseline = $baseline_data[$ik->ik_id]->baseline ?? null;
                 $raw_target = $existing_targets[$ik->ik_id]->ti_target ?? null;
@@ -176,7 +166,10 @@ class TargetCapaianProdiController extends Controller
                 $ik->baseline_tahun = str_replace('%', '', $raw_baseline);
                 $ik->ti_keterangan = $existing_targets[$ik->ik_id]->ti_keterangan ?? '';
                 return $ik;
-            });
+            })
+            ->sortBy(function ($ik) {
+                return $ik->ik_kode;
+            }, SORT_NATURAL | SORT_FLAG_CASE)->values();
 
         $userProdi = Auth::user()->programStudi;
         $allYearsInRenstra = tahun_kerja::where('ren_id', $tahuns->ren_id)

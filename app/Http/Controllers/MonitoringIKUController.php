@@ -302,6 +302,7 @@ class MonitoringIKUController extends Controller
     {
         $request->validate([
             'ti_id' => 'required|array',
+            'mtid_url.*' => 'nullable|url', 
         ]);
 
         try {
@@ -323,10 +324,13 @@ class MonitoringIKUController extends Controller
                     $mtid_id = $existing ? $existing->mtid_id : 'MTID' . \Str::uuid();
                     $jenis_ik = strtolower($targetIndikator->indikatorKinerja->ik_ketercapaian ?? 'nilai');
 
+                    // Ambil data dari request, jika kosong set NULL (agar bisa menghapus data lama)
                     $tipeInput      = $request->mtid_capaian[$ti_id] ?? ''; 
                     $nilaiInput     = $request->capaian_value[$ti_id] ?? '';
-                    $val_keterangan = $request->mtid_keterangan[$ti_id] ?? ($existing->mtid_keterangan ?? null);
-                    $val_url        = $request->mtid_url[$ti_id] ?? ($existing->mtid_url ?? null);
+                    
+                    // Gunakan ternary agar jika input kosong, di database tersimpan NULL
+                    $val_keterangan = isset($request->mtid_keterangan[$ti_id]) ? ($request->mtid_keterangan[$ti_id] ?: null) : ($existing->mtid_keterangan ?? null);
+                    $val_url        = isset($request->mtid_url[$ti_id]) ? ($request->mtid_url[$ti_id] ?: null) : ($existing->mtid_url ?? null);
                     
                     $val_evaluasi     = $existing->mtid_evaluasi ?? null;
                     $val_tindaklanjut = $existing->mtid_tindaklanjut ?? null;
@@ -335,9 +339,9 @@ class MonitoringIKUController extends Controller
                     $val_status       = $existing->mtid_status ?? 'Draft';
                     
                     if ($user->role !== 'admin' && $user->role !== 'fakultas') {
-                        
                         if ($tipeInput === 'rasio') {
-                            if (strpos($nilaiInput, ':') !== false) {
+                            // Gunakan regex agar konsisten dengan updateDetail
+                            if (preg_match('/^\d+\s*:\s*\d+$/', $nilaiInput)) {
                                 $cleaned = preg_replace('/\s+/', '', $nilaiInput);
                                 [$left, $right] = explode(':', $cleaned);
                                 $val_capaian = $left . ' : ' . $right;
@@ -355,9 +359,10 @@ class MonitoringIKUController extends Controller
                         $val_status = $this->hitungStatus($val_capaian, $targetIndikator->ti_target, $jenis_ik);
 
                     } else {
-                        $val_evaluasi     = $request->mtid_evaluasi[$ti_id] ?? $val_evaluasi;
-                        $val_tindaklanjut = $request->mtid_tindaklanjut[$ti_id] ?? $val_tindaklanjut;
-                        $val_peningkatan  = $request->mtid_peningkatan[$ti_id] ?? $val_peningkatan;
+                        // Logika Admin/Fakultas
+                        $val_evaluasi     = isset($request->mtid_evaluasi[$ti_id]) ? ($request->mtid_evaluasi[$ti_id] ?: null) : $val_evaluasi;
+                        $val_tindaklanjut = isset($request->mtid_tindaklanjut[$ti_id]) ? ($request->mtid_tindaklanjut[$ti_id] ?: null) : $val_tindaklanjut;
+                        $val_peningkatan  = isset($request->mtid_peningkatan[$ti_id]) ? ($request->mtid_peningkatan[$ti_id] ?: null) : $val_peningkatan;
                     }
 
                     $detail = MonitoringIKU_Detail::updateOrCreate(
@@ -382,7 +387,9 @@ class MonitoringIKUController extends Controller
                         if (
                             $existing->mtid_capaian != $val_capaian ||
                             $existing->mtid_status != $val_status ||
-                            $existing->mtid_evaluasi != $val_evaluasi
+                            $existing->mtid_evaluasi != $val_evaluasi ||
+                            $existing->mtid_url != $val_url ||
+                            $existing->mtid_keterangan != $val_keterangan
                         ) {
                             $hasChanged = true;
                         }
@@ -406,12 +413,12 @@ class MonitoringIKUController extends Controller
                 }
             });
 
-            \RealRashid\SweetAlert\Facades\Alert::success('Sukses', 'Data Berhasil Disimpan');
+            \Alert::success('Sukses', 'Data Berhasil Disimpan');
             return redirect()->route('monitoringiku.index-detail', $mti_id);
 
         } catch (\Exception $e) {
             \Log::error("Error Store Detail: " . $e->getMessage());
-            \RealRashid\SweetAlert\Facades\Alert::error('Error', 'Terjadi Kesalahan: ' . $e->getMessage());
+            \Alert::error('Error', 'Terjadi Kesalahan: ' . $e->getMessage());
             return redirect()->back()->withInput();
         }
     }
@@ -525,7 +532,7 @@ class MonitoringIKUController extends Controller
             $rules = [
                 'mtid_capaian'    => 'required|string', 
                 'mtid_keterangan' => 'required|string',
-                'mtid_url'        => 'required|url', 
+                'mtid_url'        => 'nullable|url', 
                 
                
                 'capaian_value'   => [

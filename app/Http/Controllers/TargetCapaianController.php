@@ -36,12 +36,10 @@ class TargetCapaianController extends Controller
         $prodis = program_studi::all();
         $unitKerjas = UnitKerja::orderBy('unit_nama', 'asc')->get();
 
-        // Set Default Tahun
         if (!$tahunId && $tahunAktif) {
             $tahunId = $tahunAktif->th_id;
         }
 
-        // menggunakan SELECT spesifik agar ID tidak tertimpa
         $query = target_indikator::query()
             ->select(
                 'target_indikator.*',
@@ -56,13 +54,12 @@ class TargetCapaianController extends Controller
             ->leftJoin('program_studi', 'program_studi.prodi_id', '=', 'target_indikator.prodi_id')
             ->leftJoin('tahun_kerja', 'tahun_kerja.th_id', '=', 'target_indikator.th_id');
 
+        // ... (Filter role, q, tahun, prodi, unit kerja tetap sama) ...
         $query->whereExists(function ($sub) {
-            $sub->select('ik_id')
-                ->from('indikatorkinerja_unitkerja')
+            $sub->select('ik_id')->from('indikatorkinerja_unitkerja')
                 ->whereColumn('indikatorkinerja_unitkerja.ik_id', 'indikator_kinerja.ik_id');
         });
 
-        // Filter Role Prodi
         if (Auth::user()->role == 'prodi') {
             $query->where('target_indikator.prodi_id', Auth::user()->prodi_id);
             $prodis = program_studi::where('prodi_id', Auth::user()->prodi_id)->get();
@@ -76,42 +73,31 @@ class TargetCapaianController extends Controller
             });
         }
 
-        if ($tahunId) {
-            $query->where('target_indikator.th_id', $tahunId);
-        }
-
-        if ($prodiId) {
-            $query->where('program_studi.prodi_id', $prodiId);
-        }
-
+        if ($tahunId) $query->where('target_indikator.th_id', $tahunId);
+        if ($prodiId) $query->where('program_studi.prodi_id', $prodiId);
         if ($unitKerjaId) {
             $query->whereIn('indikator_kinerja.ik_id', function($subQuery) use ($unitKerjaId) {
-                $subQuery->select('ik_id')
-                        ->from('indikatorkinerja_unitkerja')
+                $subQuery->select('ik_id')->from('indikatorkinerja_unitkerja')
                         ->where('unit_id', $unitKerjaId);
             });
         }
 
-        $query->orderBy('indikator_kinerja.ik_nama', 'asc');
+        // --- LOGIKA PENGURUTAN NATURAL PHP ---
+        // Kita ambil data (get) lalu urutkan di level PHP agar akurat terhadap titik dan huruf
+        $target_capaians = $query->get()->sortBy(function ($item) {
+            return $item->ik_kode;
+        }, SORT_NATURAL | SORT_FLAG_CASE)->values();
 
-        //Eksekusi Query
-        $target_capaians = $query->get(); 
-
-        //Logika Baseline
+        // --- Logika Baseline (Tetap Sama) ---
         $ikProdiPairs = $target_capaians->map(function ($item) {
-            return [
-                'ik_id' => $item->ik_id,
-                'prodi_id' => $item->prodi_id
-            ];
+            return ['ik_id' => $item->ik_id, 'prodi_id' => $item->prodi_id];
         })->unique();
 
         $baselineData = IkBaselineTahun::whereIn('ik_id', $ikProdiPairs->pluck('ik_id'))
             ->where('th_id', $tahunId)
             ->whereIn('prodi_id', $ikProdiPairs->pluck('prodi_id'))
             ->get()
-            ->keyBy(function ($item) {
-                return $item->ik_id . '_' . $item->prodi_id;
-            });
+            ->keyBy(fn($item) => $item->ik_id . '_' . $item->prodi_id);
 
         $target_capaians->transform(function ($item) use ($baselineData) {
             $key = $item->ik_id . '_' . $item->prodi_id;
@@ -119,7 +105,6 @@ class TargetCapaianController extends Controller
             return $item;
         });
 
-        // 7. Return View
         return view('pages.index-targetcapaian', [
             'title' => $title,
             'target_capaians' => $target_capaians,

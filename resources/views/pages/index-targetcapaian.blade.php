@@ -266,7 +266,7 @@
                     "ordering": true,       
                     "info": true,           
                     "autoWidth": false,
-                    "order": [[ 3, 'asc' ]] 
+                    "order": [] 
                 });
             @endif
         });
