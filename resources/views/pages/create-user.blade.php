@@ -57,7 +57,13 @@
                                                     <i class="fas fa-lock"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="password" name="password" required />
+                                            <input class="form-control" type="password" name="password" id="password" required />
+                                            
+                                            <div class="input-group-append">
+                                                <div class="input-group-text" id="togglePassword" style="cursor: pointer;">
+                                                    <i class="fa-solid fa-eye" id="eyeIcon"></i>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div id="pwindicator" class="pwindicator">
                                             <div class="bar"></div>
@@ -188,6 +194,7 @@
     <!-- Custom Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // --- Script Toggle Role (Sudah Ada) ---
             const roleSelect = document.getElementById('role');
             const prodiField = document.getElementById('prodi_field');
             const unitField = document.getElementById('unit_field');
@@ -196,8 +203,6 @@
 
             function toggleFields() {
                 const selectedRole = roleSelect.value;
-
-                // Reset semua tampilan
                 prodiField.style.display = 'none';
                 unitField.style.display = 'none';
                 fakultasField.style.display = 'none';
@@ -208,7 +213,6 @@
                 } 
                 else if (selectedRole === 'unit kerja') {
                     unitField.style.display = 'block';
-                    // Munculkan fakultas juga untuk dekanat
                     fakultasField.style.display = 'block';
                     fakultasHint.style.display = 'block'; 
                 } 
@@ -218,7 +222,19 @@
             }
 
             roleSelect.addEventListener('change', toggleFields);
-            toggleFields(); // Jalankan saat halaman load
+            toggleFields(); 
+
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+
+            togglePassword.addEventListener('click', function () {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                
+                eyeIcon.classList.toggle('fa-eye');
+                eyeIcon.classList.toggle('fa-eye-slash');
+            });
         });
     </script>
 @endpush

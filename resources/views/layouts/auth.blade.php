@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no"
         name="viewport">
-    <title>@yield('title') &mdash; Instiki</title>
+    <title>@yield('title') &mdash; INSTIKI</title>
     <link rel="icon" href="{{ asset('/img/instiki-logo.png') }}" type="image/png">
 
     <!-- General CSS Files -->

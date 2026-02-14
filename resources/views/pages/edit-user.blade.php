@@ -59,7 +59,15 @@
                                                     <i class="fas fa-lock"></i>
                                                 </div>
                                             </div>
-                                            <input class="form-control" type="password" name="password" placeholder="Kosongkan jika tidak diubah"/>
+                                            <!-- Tambahkan id="password" -->
+                                            <input class="form-control" type="password" name="password" id="password" placeholder="Kosongkan jika tidak diubah"/>
+                                            
+                                            <!-- Tambahkan Group Append untuk Ikon Mata -->
+                                            <div class="input-group-append">
+                                                <div class="input-group-text" id="togglePassword" style="cursor: pointer;">
+                                                    <i class="fa-solid fa-eye" id="eyeIcon"></i>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div id="pwindicator" class="pwindicator">
                                             <div class="bar"></div>
@@ -178,10 +186,8 @@
     <script src="{{ asset('library/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ asset('library/selectric/public/jquery.selectric.min.js') }}"></script>
 
-    <!-- Page Specific JS File -->
     <script src="{{ asset('js/page/forms-advanced-forms.js') }}"></script>
 
-    <!-- Custom Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const roleSelect = document.getElementById('role');
@@ -193,7 +199,6 @@
             function toggleFields() {
                 const selectedRole = roleSelect.value;
 
-                // Reset semua tampilan
                 prodiField.style.display = 'none';
                 unitField.style.display = 'none';
                 fakultasField.style.display = 'none';
@@ -204,7 +209,6 @@
                 } 
                 else if (selectedRole === 'unit kerja') {
                     unitField.style.display = 'block';
-                    // Munculkan fakultas juga untuk dekanat
                     fakultasField.style.display = 'block';
                     fakultasHint.style.display = 'block'; 
                 } 
@@ -214,7 +218,19 @@
             }
 
             roleSelect.addEventListener('change', toggleFields);
-            toggleFields(); // Jalankan saat halaman load (Edit Mode)
+            toggleFields(); 
+
+            const togglePassword = document.querySelector('#togglePassword');
+            const password = document.querySelector('#password');
+            const eyeIcon = document.querySelector('#eyeIcon');
+
+            togglePassword.addEventListener('click', function () {
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                
+                eyeIcon.classList.toggle('fa-eye');
+                eyeIcon.classList.toggle('fa-eye-slash');
+            }); 
         });
     </script>
 @endpush
