@@ -62,20 +62,19 @@
                                     <td>
                                         @php
                                             $user = Auth::user();
-                                            $isAdmin = $user->role === 'admin' || $user->role === 'fakultas'|| $user->role === 'prodi';
+                                            $isAdmin = in_array($user->role, ['admin', 'fakultas', 'prodi']);
                                             $unitId = $user->unit_id;
 
                                             $isFinalForUnit = $monitoringiku->isFinalForUnit($unitId);
                                             
-                                            $isYearLocked = $monitoringiku->targetIndikator->tahunKerja->th_is_editable == 0;
+                                            $isYearLocked = ($monitoringiku->tahunKerja->th_is_editable == 0) || ($monitoringiku->tahunKerja->th_is_aktif == 'n');
                                         @endphp
 
                                         @if($isYearLocked)
-                                            <a class="btn btn-secondary" href="{{ route('monitoringiku.show-monitoringiku', $monitoringiku->mti_id) }}">
-                                                <i class="fa-solid fa-lock"></i> Data Terkunci (Lihat)
+                                            <a class="btn btn-success" href="{{ route('monitoringiku.show-monitoringiku', $monitoringiku->mti_id) }}">
+                                                <i class="fa-solid fa-lock"></i> Lihat Data
                                             </a>
                                         @else
-
                                             @if($monitoringiku->status == 0 && $isAdmin)
                                                 <a class="btn btn-primary" href="{{ route('monitoringiku.index-detail', $monitoringiku->mti_id) }}">
                                                     <i class="fa-solid fa-pen-to-square"></i> Lihat Monitoring
@@ -117,7 +116,6 @@
                                                     </button>
                                                 @endif
                                             @endif
-
                                         @endif 
                                     </td>
                                     {{-- Debugging td --}}

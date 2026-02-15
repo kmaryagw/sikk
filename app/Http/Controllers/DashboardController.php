@@ -99,7 +99,7 @@ class DashboardController extends Controller
         // RINGKASAN IKT PER PRODI
         if ($user->role === 'prodi') {
 
-            // 1️⃣ Data untuk prodi yang sedang login
+            //Data untuk prodi yang sedang login
             $ikuiktPerProdiSendiri = program_studi::with(['targetIndikator.indikatorKinerja', 'targetIndikator.monitoringDetail'])
                 ->where('prodi_id', $user->prodi_id)
                 ->get()
@@ -107,7 +107,7 @@ class DashboardController extends Controller
                     return $this->hitungStatusProdi($prodi, $tahunAktif);
                 });
 
-            // 2️⃣ Data untuk seluruh prodi
+            //Data untuk seluruh prodi
             $ikuiktPerProdiSemua = program_studi::with(['targetIndikator.indikatorKinerja', 'targetIndikator.monitoringDetail'])
                 ->orderBy('nama_prodi')
                 ->get()
