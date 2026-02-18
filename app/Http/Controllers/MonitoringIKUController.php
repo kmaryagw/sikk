@@ -36,8 +36,11 @@ class MonitoringIKUController extends Controller
         $user = Auth::user();
         $title = 'Data Monitoring IKU';
         $q = $request->query('q');
-        
         $th_id = $request->query('th_id');
+
+        // ID Fakultas yang terlibat
+        $idFakultasFTI = 'FK66A330D9AA18520C38F84970A3D4541A';
+        $idFakultasPasca = 'FKD6EB977B27579D953FE119ECDC3E8EF3';
 
         if (!$request->has('th_id')) {
             $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->first();
@@ -51,11 +54,20 @@ class MonitoringIKUController extends Controller
         }
 
         if (!empty($user->id_fakultas)) {
-            $query->whereHas('prodi', function ($subQuery) use ($user) {
-                $subQuery->where('id_fakultas', $user->id_fakultas);
+            
+            $allowedFaculties = [$user->id_fakultas];
+
+            if ($user->id_fakultas === $idFakultasFTI) {
+                $allowedFaculties[] = $idFakultasPasca;
+            }
+
+            $query->whereHas('prodi', function ($subQuery) use ($allowedFaculties) {
+                $subQuery->whereIn('id_fakultas', $allowedFaculties);
             });
-            $prodis = program_studi::where('id_fakultas', $user->id_fakultas)
+
+            $prodis = program_studi::whereIn('id_fakultas', $allowedFaculties)
                         ->orderBy('nama_prodi', 'asc')->get();
+
         } elseif ($user->role == 'prodi') {
             $query->where('prodi_id', $user->prodi_id);
             $prodis = program_studi::where('prodi_id', $user->prodi_id)->get();
