@@ -84,6 +84,26 @@
                                     </div>
 
                                     <div class="form-group">
+                                        <label for="unit_id_pengelola">Unit Dekanat</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa-solid fa-briefcase"></i>
+                                                </div>
+                                            </div>
+                                            <select class="form-control" name="unit_id_pengelola" id="unit_id_pengelola">
+                                                <option value="">Semua Unit</option>
+                                                @foreach ($unitKerjas as $unit)
+                                                    <option value="{{ $unit->unit_id }}" 
+                                                        {{ old('unit_id_pengelola', $prodi->unit_id_pengelola) == $unit->unit_id ? 'selected' : '' }}>
+                                                        {{ $unit->unit_nama }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Simpan</button>
                                         <a href="{{ url('prodi') }}" class="btn btn-danger">Kembali</a>
                                     </div>

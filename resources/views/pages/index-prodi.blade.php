@@ -38,6 +38,7 @@
                                 <th>Nama Prodi</th>
                                 <th>Singkatan</th>
                                 <th>Fakultas</th>
+                                <th>Dekanat Pengelola</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -49,6 +50,13 @@
                                     <td>{{ $prodi->nama_prodi }}</td>
                                     <td>{{ $prodi->singkatan_prodi }}</td>
                                     <td>{{ $prodi->Fakultasn ? $prodi->Fakultasn->nama_fakultas : 'Tidak ada Fakultas' }}</td>
+                                    <td>
+                                        @if($prodi->unitPengelola)
+                                            <span class="badge badge-info">{{ $prodi->unitPengelola->unit_nama }}</span>
+                                        @else
+                                            <span class="text-muted"><small>(Semua Unit)</small></span>
+                                        @endif
+                                    </td>
 
                                     <td>
                                         <a class="btn btn-warning" href="{{ route('prodi.edit', $prodi->prodi_id) }}"><i class="fa-solid fa-pen-to-square"></i> Ubah </a>

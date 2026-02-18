@@ -38,10 +38,6 @@ class MonitoringIKUController extends Controller
         $q = $request->query('q');
         $th_id = $request->query('th_id');
 
-        // ID Fakultas yang terlibat
-        $idFakultasFTI = 'FK66A330D9AA18520C38F84970A3D4541A';
-        $idFakultasPasca = 'FKD6EB977B27579D953FE119ECDC3E8EF3';
-
         if (!$request->has('th_id')) {
             $tahunAktif = tahun_kerja::where('th_is_aktif', 'y')->first();
             $th_id = $tahunAktif ? $tahunAktif->th_id : null;
@@ -53,24 +49,35 @@ class MonitoringIKUController extends Controller
             $query->where('th_id', $th_id);
         }
 
-        if (!empty($user->id_fakultas)) {
+        // --- LOGIKA FILTER UNIT KERJA (DEKANAT VS UMUM) ---
+        if ($user->role === 'unit kerja') {
             
-            $allowedFaculties = [$user->id_fakultas];
+            // Cek: Apakah unit kerja ini terdaftar sebagai pengelola di salah satu prodi?
+            $isManager = program_studi::where('unit_id_pengelola', $user->unit_id)->exists();
 
-            if ($user->id_fakultas === $idFakultasFTI) {
-                $allowedFaculties[] = $idFakultasPasca;
+            if ($isManager) {
+                // JIKA DIA DEKANAT: Filter hanya prodi yang dia kelola
+                $allowedProdiIds = program_studi::where('unit_id_pengelola', $user->unit_id)
+                                    ->pluck('prodi_id')
+                                    ->toArray();
+
+                $query->whereIn('prodi_id', $allowedProdiIds);
+                $prodis = program_studi::whereIn('prodi_id', $allowedProdiIds)->get();
+            } else {
+                // JIKA DIA UNIT UMUM (BAAK/LPM/DLL): Lihat seluruh prodi
+                $prodis = program_studi::orderBy('nama_prodi', 'asc')->get();
             }
 
-            $query->whereHas('prodi', function ($subQuery) use ($allowedFaculties) {
-                $subQuery->whereIn('id_fakultas', $allowedFaculties);
-            });
-
-            $prodis = program_studi::whereIn('id_fakultas', $allowedFaculties)
-                        ->orderBy('nama_prodi', 'asc')->get();
-
-        } elseif ($user->role == 'prodi') {
+        } elseif ($user->role === 'prodi') {
             $query->where('prodi_id', $user->prodi_id);
             $prodis = program_studi::where('prodi_id', $user->prodi_id)->get();
+
+        } elseif ($user->role === 'fakultas') {
+            $query->whereHas('prodi', function($sq) use ($user) {
+                $sq->where('id_fakultas', $user->id_fakultas);
+            });
+            $prodis = program_studi::where('id_fakultas', $user->id_fakultas)->get();
+
         } else {
             $prodis = program_studi::orderBy('nama_prodi', 'asc')->get();
         }

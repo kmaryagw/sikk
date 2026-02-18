@@ -103,6 +103,11 @@
                         <td class="text-wrap">
                             {{ $detail->mtid_keterangan ?? '-' }}
                             <span class="status-text">Status: {{ ucfirst($detail->mtid_status ?? 'Draft') }}</span>
+                            @if(!empty($detail->mtid_url))
+                                <div style="margin-top: 5px; font-size: 8pt; word-wrap: break-word;">
+                                    <strong>Bukti:</strong> <a href="{{ $detail->mtid_url }}" target="_blank" style="color: blue; text-decoration: underline;">{{ $detail->mtid_url }}</a>
+                                </div>
+                            @endif
                         </td>
                     @endif
 

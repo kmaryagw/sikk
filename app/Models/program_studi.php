@@ -39,4 +39,8 @@ class program_studi extends Model
         return $this->belongsToMany(RencanaKerja::class, 'rencana_kerja_program_studi', 'prodi_id', 'rk_id');
     }
 
-}
+    public function unitPengelola()
+    {
+        return $this->belongsTo(UnitKerja::class, 'unit_id_pengelola', 'unit_id');
+    }
+    }
