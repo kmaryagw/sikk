@@ -344,10 +344,17 @@ class DashboardController extends Controller
     
     private function hitungStatusUnit($unit, $tahunAktif)
     {
-        $unitFacultyId = DB::table('users')
-            ->where('unit_id', $unit->unit_id)
-            ->whereNotNull('id_fakultas')
-            ->value('id_fakultas');
+        $managedProdis = program_studi::where('unit_id_pengelola', $unit->unit_id)
+                            ->orderBy('nama_prodi', 'asc')
+                            ->get();
+
+        if ($managedProdis->isNotEmpty()) {
+            $targetProdis = $managedProdis;
+        } else {
+            $targetProdis = program_studi::orderBy('nama_prodi', 'asc')->get();
+        }
+
+        $allowedProdiIds = $targetProdis->pluck('prodi_id')->toArray();
 
         $statusCount = [
             'unit_id' => $unit->unit_id,
@@ -361,13 +368,6 @@ class DashboardController extends Controller
             'detail_finalisasi' => [],
             'status_global' => 'belum',
         ];
-
-        $prodiQuery = program_studi::orderBy('nama_prodi', 'asc');
-        if ($unitFacultyId) {
-            $prodiQuery->where('id_fakultas', $unitFacultyId);
-        }
-        $targetProdis = $prodiQuery->get();
-        $allowedProdiIds = $targetProdis->pluck('prodi_id')->toArray();
 
         foreach ($unit->indikatorKinerja as $indikator) {
             if ($indikator->ik_jenis !== 'IKU/IKT') continue;
