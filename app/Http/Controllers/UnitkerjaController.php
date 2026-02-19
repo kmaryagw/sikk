@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use RealRashid\SweetAlert\Facades\Alert;
 
-class UnitkerjaController extends Controller
+class UnitKerjaController extends Controller
 {
     public function __construct()
     {
