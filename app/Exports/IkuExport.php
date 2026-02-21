@@ -5,7 +5,7 @@ namespace App\Exports;
 use App\Models\target_indikator;
 use App\Models\tahun_kerja;
 use App\Models\program_studi;
-use App\Models\UnitKerja; // Pastikan model ini ada
+use App\Models\UnitKerja;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;

@@ -576,9 +576,6 @@ class MonitoringIKUController extends Controller
                         }
                     }
                 ],
-                // 'mtid_keterangan' => 'nullable|string',
-                // 'mtid_status'     => 'required|in:tercapai,tidak tercapai,tidak terlaksana',
-                // 'mtid_url'        => 'required|url',
             ];
         }
 

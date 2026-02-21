@@ -196,7 +196,7 @@
                                                                 Nilai Capaian 
                                                             @else
                                                                 Masukkan Nilai Capaian 
-                                                                @if($jenis_ik_db == 'persentase') (Tanpa %) 
+                                                                @if($jenis_ik_db == 'persentase') (Tanpa % | Gunakan (.) untuk desimal) 
                                                                 @elseif($jenis_ik_db == 'rasio') (Format x:y) 
                                                                 @endif
                                                             @endif
