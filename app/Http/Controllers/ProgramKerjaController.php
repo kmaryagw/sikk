@@ -8,7 +8,7 @@ use App\Models\RencanaKerja;
 use App\Models\tahun_kerja;
 use App\Models\target_indikator;
 use App\Models\UnitKerja;
-use App\Models\standar;
+use App\Models\Standar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use RealRashid\SweetAlert\Facades\Alert;
