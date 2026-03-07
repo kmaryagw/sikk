@@ -297,10 +297,10 @@
                 $('#table-laporan').DataTable({
                     "paging": false,        
                     "searching": true,     
-                    "ordering": true,       
+                    "ordering": true, 
                     "info": true,           
                     "autoWidth": false,     
-                    "order": [[ 3, 'asc' ]] 
+                    "order": []
                 });
             @endif
         });

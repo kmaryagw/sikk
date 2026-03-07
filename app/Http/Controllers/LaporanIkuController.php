@@ -28,7 +28,7 @@ class LaporanIkuController extends Controller
     
     public function index(Request $request)
     {
-        $title   = 'Data Target Capaian';
+        $title   = 'Laporan Monitoring Indikator Kinerja Utama/Tambahan';
         $q       = $request->query('q');
         $tahunId = $request->query('tahun');
         $prodiId = $request->query('prodi');
@@ -43,7 +43,6 @@ class LaporanIkuController extends Controller
             $tahunId = $tahunAktif?->th_id;
         }
 
-        // 1. Tambahkan monitoringDetail ke dalam eager loading agar status & capaian muncul
         $query = target_indikator::with([
                 'indikatorKinerja.unitKerja', 
                 'prodi', 
@@ -59,11 +58,13 @@ class LaporanIkuController extends Controller
                 'indikator_kinerja.ik_kode', 
                 'program_studi.nama_prodi', 
                 'tahun_kerja.th_tahun'
-            )
-            ->orderBy('target_indikator.ti_target', 'asc');
+            );
 
         if ($q) {
-            $query->where('indikator_kinerja.ik_nama', 'like', '%' . $q . '%');
+            $query->where(function ($subQuery) use ($q) {
+                $subQuery->where('indikator_kinerja.ik_nama', 'like', '%' . $q . '%')
+                        ->orWhere('indikator_kinerja.ik_kode', 'like', '%' . $q . '%');
+            });
         }
 
         if ($tahunId) {
@@ -80,11 +81,13 @@ class LaporanIkuController extends Controller
             });
         }
 
-        $target_capaians = $query->get();
+        $target_capaians = $query->get()->sortBy(function($item) {
+            return $item->ik_kode;
+        }, SORT_NATURAL | SORT_FLAG_CASE);
 
         return view('pages.index-laporan-iku', [
             'title'          => $title,
-            'target_capaians'=> $target_capaians,
+            'target_capaians'=> $target_capaians, 
             'tahuns'         => $tahuns,
             'prodis'         => $prodis,
             'units'          => $units, 
