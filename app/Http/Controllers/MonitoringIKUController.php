@@ -49,14 +49,11 @@ class MonitoringIKUController extends Controller
             $query->where('th_id', $th_id);
         }
 
-        // --- LOGIKA FILTER UNIT KERJA (DEKANAT VS UMUM) ---
         if ($user->role === 'unit kerja') {
             
-            // Cek: Apakah unit kerja ini terdaftar sebagai pengelola di salah satu prodi?
             $isManager = program_studi::where('unit_id_pengelola', $user->unit_id)->exists();
 
             if ($isManager) {
-                // JIKA DIA DEKANAT: Filter hanya prodi yang dia kelola
                 $allowedProdiIds = program_studi::where('unit_id_pengelola', $user->unit_id)
                                     ->pluck('prodi_id')
                                     ->toArray();
@@ -64,7 +61,6 @@ class MonitoringIKUController extends Controller
                 $query->whereIn('prodi_id', $allowedProdiIds);
                 $prodis = program_studi::whereIn('prodi_id', $allowedProdiIds)->get();
             } else {
-                // JIKA DIA UNIT UMUM (BAAK/LPM/DLL): Lihat seluruh prodi
                 $prodis = program_studi::orderBy('nama_prodi', 'asc')->get();
             }
 
