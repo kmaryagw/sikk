@@ -26,9 +26,12 @@ class MonitoringIKUController extends Controller
 {
     public function __construct()
     {
-        if (Auth::check() && Auth::user()->role !== 'admin' && Auth::user()->role !== 'unit kerja' && Auth::user()->role !== 'fakultas' && Auth::user()->role !== 'prodi') {
-            abort(403, 'Unauthorized access');
-        }
+        $this->middleware(function ($request, $next) {
+            if (Auth::check() && Auth::user()->role !== 'admin' && Auth::user()->role !== 'unit kerja' && Auth::user()->role !== 'fakultas' && Auth::user()->role !== 'prodi') {
+                abort(403, 'Unauthorized access');
+            }
+            return $next($request);
+        });
     }
     
     public function index(Request $request)
@@ -701,18 +704,11 @@ class MonitoringIKUController extends Controller
             $partsTarget  = explode(':', $targetStr);
 
             if (count($partsCapaian) == 2 && count($partsTarget) == 2) {
-                
                 $rightCapaian = $this->parseNumber($partsCapaian[1]);
                 $rightTarget  = $this->parseNumber($partsTarget[1]);
-                
-                $leftCapaian = $this->parseNumber($partsCapaian[0]);
-                $leftTarget  = $this->parseNumber($partsTarget[0]);
 
                 if ($rightCapaian == 0 || $rightTarget == 0) return 'Tidak Tercapai';
 
-                $ratioCapaian = $leftCapaian / $rightCapaian;
-                $ratioTarget  = $leftTarget / $rightTarget;
-                
                 if ($rightCapaian > $rightTarget) {
                     return 'Terlampaui';
                 } elseif ($rightCapaian == $rightTarget) {
@@ -772,12 +768,12 @@ class MonitoringIKUController extends Controller
     public function show(Request $request, $mti_id)
     {
         $user = Auth::user();
+        $Monitoringiku = MonitoringIKU::findOrFail($mti_id);
 
         if ($user->role == 'prodi' && $Monitoringiku->prodi_id != $user->prodi_id) {
             abort(403);
         }
 
-        $Monitoringiku = MonitoringIKU::findOrFail($mti_id);
         $prodi_id = $Monitoringiku->prodi_id;
         $th_id = $Monitoringiku->th_id;
 

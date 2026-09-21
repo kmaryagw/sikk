@@ -38,12 +38,6 @@ use Illuminate\Support\Facades\Route;
 // Halaman publik (/) → tampilkan index-announcement.blade.php
 Route::get('/', [AnnouncementController::class, 'publicPage'])->name('announcement.public');
 
-// Admin (CRUD) → tampilkan index-admin-announcement.blade.php
-Route::middleware('auth')->group(function () {
-    Route::resource('announcement', AnnouncementController::class);
-});
-
-
 // Route login dipindah ke misalnya /login
 Route::get('/login', [UserController::class, 'login'])->name('login');
 Route::post('/login', [UserController::class, 'loginAction'])->name('login.action');
@@ -53,6 +47,7 @@ Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 Route::middleware('auth')->group(function () {
     
     // Resource routes untuk berbagai entitas
+    Route::resource('announcement', AnnouncementController::class);
     Route::resource('user', UserController::class);
     Route::resource('unit', UnitKerjaController::class);
     Route::resource('prodi', ProdiController::class);
@@ -158,7 +153,7 @@ Route::middleware('auth')->group(function () {
     Route::get('monitoringiku/export-pdf-detail/{mti_id}', [App\Http\Controllers\MonitoringIKUController::class, 'exportPdfDetail'])
     ->name('monitoringiku.export-pdf-detail');
 
-     Route::prefix('history-monitoring')->group(function () {
+    Route::prefix('history-monitoring')->group(function () {
         // 1. Halaman Awal History (Pilih Prodi/Tahun)
         Route::get('/', [App\Http\Controllers\MonitoringIKUController::class, 'indexHistory'])
             ->name('pages.index-history-monitoring');
@@ -180,7 +175,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifikasi/read/{id}', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifikasi.read');
 
     // Route untuk Menghapus Notifikasi
-    Route::get('/notifikasi/delete/{id}', [App\Http\Controllers\NotificationController::class, 'delete'])->name('notifikasi.delete');
+    Route::delete('/notifikasi/delete/{id}', [App\Http\Controllers\NotificationController::class, 'delete'])->name('notifikasi.delete');
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');

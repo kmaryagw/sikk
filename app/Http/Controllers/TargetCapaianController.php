@@ -17,9 +17,12 @@ class TargetCapaianController extends Controller
 {
     public function __construct()
     {
-        if (Auth::check() && Auth::user()->role !== 'admin') {
-            abort(403, 'Unauthorized access');
-        }
+        $this->middleware(function ($request, $next) {
+            if (Auth::check() && Auth::user()->role !== 'admin') {
+                abort(403, 'Unauthorized access');
+            }
+            return $next($request);
+        });
     }
 
     public function index(Request $request)
@@ -126,8 +129,7 @@ class TargetCapaianController extends Controller
 
         // Ambil semua indikator yang aktif dan sudah diisi unit kerja
         $indikatorkinerjas = IndikatorKinerja::where('ik_is_aktif', 'y')
-            ->whereNotNull('unit_id') // hanya yang sudah diisi unit kerja
-            ->where('unit_id', '!=', '') // pastikan tidak string kosong
+            ->whereHas('unitKerja') // hanya yang sudah di-assign ke unit kerja via pivot
             ->orderBy('ik_nama')
             ->get();
 
@@ -205,10 +207,7 @@ class TargetCapaianController extends Controller
 
         $request->validate($validationRules);
 
-        $customPrefix = 'TC';
-        $timestamp = time();
-        $md5Hash = md5($timestamp);
-        $ti_id = $customPrefix . strtoupper($md5Hash);
+        $ti_id = 'TC' . Str::uuid();
 
         $targetcapaian = new target_indikator();
         $targetcapaian->ti_id = $ti_id;

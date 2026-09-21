@@ -157,6 +157,7 @@ class DashboardController extends Controller
         //     });
         if ($user->role === 'unit kerja') {
             $realisasi = UnitKerja::with(['rencanaKerja', 'rencanaKerja.realisasi'])
+            ->where('unit_id', $user->unit_id)
             ->get()
             ->map(function ($unit) {
                 $unit->jumlah_renja = $unit->rencanaKerja->count();
@@ -506,9 +507,9 @@ class DashboardController extends Controller
 
     private function hitungStatus($capaian, $target, $jenis)
     {
-        $jenis = strtolower(trim($jenis));
+        $jenis = strtolower(trim($jenis ?? ''));
         
-        if (is_null($capaian) || trim($capaian) === '') {
+        if (is_null($capaian) || trim((string)$capaian) === '') {
             return 'tidak_terlaksana';
         }
 
@@ -527,8 +528,8 @@ class DashboardController extends Controller
         }
 
         if ($jenis === 'rasio') {
-            $capaianStr = preg_replace('/\s+/', '', $capaian);
-            $targetStr  = preg_replace('/\s+/', '', $target);
+            $capaianStr = preg_replace('/\s+/', '', (string)$capaian);
+            $targetStr  = preg_replace('/\s+/', '', (string)$target);
 
             $partsCapaian = explode(':', $capaianStr);
             $partsTarget  = explode(':', $targetStr);
@@ -550,7 +551,7 @@ class DashboardController extends Controller
 
         // --- LOGIKA 3: KETERSEDIAAN (String) ---
         if ($jenis === 'ketersediaan') {
-            $capaianLower = strtolower(trim($capaian));
+            $capaianLower = strtolower(trim((string)$capaian));
             if ($capaianLower === 'ada') {
                 return 'tercapai';
             } elseif ($capaianLower === 'draft') {

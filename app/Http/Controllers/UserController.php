@@ -11,6 +11,7 @@ use App\Models\UnitKerja;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class UserController extends Controller
@@ -27,8 +28,20 @@ class UserController extends Controller
             'username' => 'required',
             'password' => 'required',
         ]);
+
+        // Rate limiting: max 5 attempts per minute per IP
+        $throttleKey = 'login:' . $request->ip();
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = \Illuminate\Support\Facades\RateLimiter::availableIn($throttleKey);
+            Alert::error('Error', "Terlalu banyak percobaan login. Silakan coba lagi dalam {$seconds} detik.");
+            return back();
+        }
+
+        \Illuminate\Support\Facades\RateLimiter::hit($throttleKey, 60);
         
         if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
+            
+            \Illuminate\Support\Facades\RateLimiter::clear($throttleKey);
             
             $user = Auth::user();
 
@@ -73,13 +86,6 @@ class UserController extends Controller
 
     public function logout(Request $request)
     {
-        $user = Auth::user();
-        
-        if ($user instanceof User) {
-            // $user->status = 0;
-            $user->save();
-        }
-
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -180,7 +186,7 @@ class UserController extends Controller
 
         $validatedData = $request->validate($rules);
 
-        $id_user = 'US' . strtoupper(md5(time() . rand()));
+        $id_user = 'US' . Str::uuid();
 
         $user = new User();
         $user->id_user = $id_user;
@@ -327,6 +333,15 @@ class UserController extends Controller
 
     public function destroy(user $user)
     {
+        // Cek apakah user masih memiliki data terkait
+        $hasRelatedData = \App\Models\MonitoringFinalUnit::where('finalized_by', $user->id_user)->exists()
+            || \App\Models\SuratNomor::where('unit_id', $user->unit_id)->exists();
+
+        if ($hasRelatedData) {
+            Alert::error('Gagal', 'User tidak dapat dihapus karena masih memiliki data terkait. Nonaktifkan user ini sebagai alternatif.');
+            return redirect()->route('user.index');
+        }
+
         $user->delete();
         Alert::success('Sukses', 'Data Berhasil Dihapus');
         return redirect()->route('user.index');

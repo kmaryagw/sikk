@@ -19,9 +19,12 @@ class ProgramKerjaController extends Controller
 {
     public function __construct()
     {
-        if (Auth::check() && Auth::user()->role !== 'admin' && Auth::user()->role !== 'prodi' && Auth::user()->role !== 'unit kerja') {
-            abort(403, 'Unauthorized access');
-        }
+        $this->middleware(function ($request, $next) {
+            if (Auth::check() && Auth::user()->role !== 'admin' && Auth::user()->role !== 'prodi' && Auth::user()->role !== 'unit kerja') {
+                abort(403, 'Unauthorized access');
+            }
+            return $next($request);
+        });
     }
     
     public function index(Request $request)
@@ -144,7 +147,7 @@ class ProgramKerjaController extends Controller
             'pm_id' => 'array',
             'ti_id' => 'array',
             'prodi_id' => 'required|array',
-            'prodi_id' => 'exists:target_indikator,prodi_id',
+            'prodi_id.*' => 'exists:target_indikator,prodi_id',
         ]);
 
         $unitAktif = UnitKerja::where('unit_id', $request->unit_id)->where('unit_kerja', 'y')->exists();
@@ -155,10 +158,7 @@ class ProgramKerjaController extends Controller
             return redirect()->back()->withInput();
         }
 
-        $customPrefix = 'RK';
-        $timestamp = time();
-        $md5Hash = md5($timestamp);
-        $rk_id = $customPrefix . strtoupper($md5Hash);
+        $rk_id = 'RK' . Str::uuid();
 
         $programkerja = new RencanaKerja();
         $programkerja->rk_id = $rk_id;

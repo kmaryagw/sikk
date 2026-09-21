@@ -16,9 +16,12 @@ class NomorSuratController extends Controller
 {
     public function __construct()
     {
-        if (Auth::check() && Auth::user()->role !== 'unit kerja') {
-            abort(403, 'Unauthorized access');
-        }
+        $this->middleware(function ($request, $next) {
+            if (Auth::check() && Auth::user()->role !== 'unit kerja') {
+                abort(403, 'Unauthorized access');
+            }
+            return $next($request);
+        });
     }
     
     public function index(Request $request)
@@ -96,10 +99,7 @@ class NomorSuratController extends Controller
 
         $nomorUrut = $latestNomor ? str_pad((int)$latestNomor->sn_nomor_urut + 1, 3, '0', STR_PAD_LEFT) : '001';
     
-        $customPrefix = 'SN';
-        $timestamp = time();
-        $md5Hash = md5($timestamp);
-        $sn_id = $customPrefix . strtoupper($md5Hash);
+        $sn_id = 'SN' . Str::uuid();
 
         $userUnitId = Auth::user()->unit_id;
     
@@ -215,6 +215,14 @@ class NomorSuratController extends Controller
     {
         $suratNomor = SuratNomor::findOrFail($id);
 
+        // Pastikan hanya pemilik surat yang bisa memvalidasi
+        if ($suratNomor->unit_id != Auth::user()->unit_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki akses untuk memvalidasi surat ini.'
+            ], 403);
+        }
+
         if ($suratNomor->sn_status == 'draft' || $suratNomor->sn_status == 'revisi') {
             $nomorSurat = $this->generateNomorSurat($suratNomor);
             $suratNomor->update([
@@ -232,6 +240,15 @@ class NomorSuratController extends Controller
     public function ajukanData($id)
     {
         $suratNomor = SuratNomor::findOrFail($id);
+
+        // Pastikan hanya pemilik surat yang bisa mengajukan
+        if ($suratNomor->unit_id != Auth::user()->unit_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki akses untuk mengajukan surat ini.'
+            ], 403);
+        }
+
         if ($suratNomor->sn_status == 'draft' || $suratNomor->sn_status == 'revisi') {
             $suratNomor->update(['sn_status' => 'ajukan']);
         }

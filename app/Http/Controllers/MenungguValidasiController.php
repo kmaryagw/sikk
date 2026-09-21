@@ -11,9 +11,12 @@ class MenungguValidasiController extends NomorSuratController
 {
     public function __construct()
     {
-        if (Auth::check() && Auth::user()->role !== 'admin') {
-            abort(403, 'Unauthorized access');
-        }
+        $this->middleware(function ($request, $next) {
+            if (Auth::check() && Auth::user()->role !== 'admin') {
+                abort(403, 'Unauthorized access');
+            }
+            return $next($request);
+        });
     }
     
     // public function index(Request $request)
