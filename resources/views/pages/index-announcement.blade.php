@@ -16,65 +16,280 @@
     .text-shadow-strong { text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
     .ls-1 { letter-spacing: 0.5px; }
     
+    /* ====================================================================
+       CINEMATIC MOTION SUITE FOR ANNOUNCEMENT CAROUSEL
+       ==================================================================== */
     #announcementCarousel { 
         border-radius: var(--border-radius-lg); 
         overflow: hidden; 
-        background: #000;
+        background: #090d16;
+        position: relative;
     }
 
-    .carousel-item { 
+    /* 1. Cinematic Cross-Depth Transition (Pengganti Fade Biasa) */
+    .carousel-fade .carousel-item { 
         height: 500px; 
-        transition: transform 1.2s cubic-bezier(0.7, 0, 0.3, 1);
+        opacity: 0;
+        transition: opacity 0.95s cubic-bezier(0.16, 1, 0.3, 1), transform 1.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        transform: scale(1.06) !important;
+        pointer-events: none;
     }
 
-    .carousel-item.active .carousel-img {
-        animation: kenburns 10s ease-out both;
+    .carousel-fade .carousel-item.active {
+        opacity: 1;
+        transform: scale(1) !important;
+        pointer-events: auto;
+        z-index: 2;
     }
 
-    @keyframes kenburns {
-        0% { transform: scale(1); }
-        100% { transform: scale(1.1); }
-    }
-
+    /* 2. Ken Burns 2.0 Continuous Breathing Pan & Zoom */
     .carousel-img {
         height: 100%;
         width: 100%;
         object-fit: cover;
-        opacity: 0.7;
+        opacity: 0.78;
+        filter: brightness(0.92) contrast(1.05);
+        transform-origin: center center;
     }
 
+    .carousel-item.active .carousel-img {
+        animation: cinematicKenBurns 9s cubic-bezier(0.25, 1, 0.5, 1) infinite alternate;
+    }
+
+    @keyframes cinematicKenBurns {
+        0% { transform: scale(1) translate3d(0, 0, 0); }
+        100% { transform: scale(1.08) translate3d(-1.5%, -1%, 0); }
+    }
+
+    /* 3. Cinematic Studio Vignette Gradient */
     .carousel-overlay {
         position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: linear-gradient(to bottom, 
-            rgba(0,0,0,0.1) 0%, 
-            rgba(0,0,0,0.4) 50%, 
-            rgba(0,0,0,0.9) 100%);
+        inset: 0;
+        background: linear-gradient(180deg, 
+            rgba(9, 13, 22, 0.05) 0%, 
+            rgba(9, 13, 22, 0.38) 40%, 
+            rgba(9, 13, 22, 0.94) 100%);
         display: flex;
         align-items: flex-end;
-        padding: 60px;
+        padding: 55px 60px 70px;
         text-align: left;
+        z-index: 3;
     }
 
-    .badge-glass {
-        display: inline-block;
-        padding: 8px 20px;
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 50px;
-        color: #fff;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        font-weight: 600;
-    }
-
-    .custom-nav {
-        width: 10%; 
+    /* 4. Choreographed Staggered Entry for Content */
+    .carousel-item .carousel-badge-glass,
+    .carousel-item .carousel-title-anim,
+    .carousel-item .carousel-btn-anim {
         opacity: 0;
-        transition: all 0.4s ease;
+        will-change: transform, opacity;
+    }
+
+    /* Badge Stagger (Step 1: 0.15s) */
+    .carousel-item.active .carousel-badge-glass {
+        animation: badgeEntrance 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+    }
+
+    /* Title Stagger (Step 2: 0.3s dengan Optical Blur Fade) */
+    .carousel-item.active .carousel-title-anim {
+        animation: titleEntrance 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+    }
+
+    /* Button Stagger (Step 3: 0.45s) */
+    .carousel-item.active .carousel-btn-anim {
+        animation: btnEntrance 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both;
+    }
+
+    @keyframes badgeEntrance {
+        from {
+            opacity: 0;
+            transform: translateY(-22px) scale(0.92);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes titleEntrance {
+        from {
+            opacity: 0;
+            transform: translateY(32px);
+            filter: blur(6px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+        }
+    }
+
+    @keyframes btnEntrance {
+        from {
+            opacity: 0;
+            transform: translateY(24px) scale(0.94);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    /* 5. Glowing Frosted Glass Badge with Live Pulsing Beacon */
+    .carousel-badge-glass {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 18px;
+        background: rgba(13, 110, 253, 0.38);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 50px;
+        color: #ffffff;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        box-shadow: 0 4px 20px rgba(13, 110, 253, 0.35);
+    }
+
+    .pulsing-beacon {
+        width: 8px;
+        height: 8px;
+        background: #38bdf8;
+        border-radius: 50%;
+        position: relative;
+        display: inline-block;
+    }
+
+    .pulsing-beacon::after {
+        content: '';
+        position: absolute;
+        inset: -3px;
+        border-radius: 50%;
+        background: rgba(56, 189, 248, 0.6);
+        animation: beaconPulse 2s infinite cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes beaconPulse {
+        0% { transform: scale(0.8); opacity: 1; }
+        100% { transform: scale(2.4); opacity: 0; }
+    }
+
+    /* 6. Typography & Text Shadow */
+    .carousel-title-anim {
+        font-size: 2.35rem;
+        font-weight: 800;
+        line-height: 1.25;
+        letter-spacing: -0.5px;
+        color: #ffffff;
+        text-shadow: 0 4px 24px rgba(0, 0, 0, 0.85);
+        max-width: 90%;
+    }
+
+    /* 7. Action Button with Shimmer & Spring Icon */
+    .btn-modern-action {
+        position: relative;
+        overflow: hidden;
+        background: #ffffff;
+        color: #0f172a;
+        border: none;
+        padding: 12px 28px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        border-radius: 50px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+    }
+
+    .btn-modern-action:hover {
+        transform: translateY(-3px) scale(1.02);
+        color: var(--primary-color);
+        background: #ffffff;
+        box-shadow: 0 14px 32px rgba(13, 110, 253, 0.4);
+    }
+
+    .btn-modern-action .btn-arrow {
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-modern-action:hover .btn-arrow {
+        transform: translateX(5px);
+    }
+
+    .btn-modern-action::before {
+        content: '';
+        position: absolute;
+        top: 0; left: -100%;
+        width: 60%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent);
+        transform: skewX(-20deg);
+        transition: 0.7s;
+    }
+
+    .btn-modern-action:hover::before {
+        left: 160%;
+    }
+
+    /* 8. Timer Progress Bar Indicators (Story / Netflix Style) */
+    .custom-indicators {
+        position: absolute;
+        bottom: 25px;
+        left: 60px;
+        right: auto;
+        margin: 0;
+        display: flex !important;
+        gap: 8px;
+        z-index: 10;
+    }
+
+    .custom-indicators button {
+        width: 32px !important;
+        height: 5px !important;
+        padding: 0;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.3) !important;
+        border: none !important;
+        transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), background 0.4s ease !important;
+        position: relative;
+        overflow: hidden;
+        opacity: 1 !important;
+    }
+
+    .custom-indicators button.active {
+        width: 60px !important;
+        background: rgba(255, 255, 255, 0.25) !important;
+    }
+
+    .custom-indicators button.active .indicator-progress {
+        position: absolute;
+        top: 0; left: 0; bottom: 0;
+        width: 100%;
+        background: #ffffff;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
+        animation: fillProgressBar 5s linear forwards;
+    }
+
+    #announcementCarousel:hover .indicator-progress {
+        animation-play-state: paused;
+    }
+
+    @keyframes fillProgressBar {
+        from { width: 0%; }
+        to { width: 100%; }
+    }
+
+    /* 9. Floating Frosted Navigation Controls */
+    .custom-nav {
+        width: 70px;
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 10;
+        border: none;
+        background: transparent;
     }
 
     #announcementCarousel:hover .custom-nav {
@@ -82,31 +297,27 @@
     }
 
     .nav-circle {
-        width: 50px;
-        height: 50px;
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(5px);
+        width: 46px;
+        height: 46px;
+        background: rgba(15, 23, 42, 0.5);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.22);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
-        font-size: 1.5rem;
-        transition: 0.3s;
+        color: #ffffff;
+        font-size: 1.05rem;
+        transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
     }
 
-    .nav-circle:hover {
+    .custom-nav:hover .nav-circle {
         background: var(--primary-color);
-        transform: scale(1.1);
-    }
-
-    .title-animate {
-        animation: fadeInUp 0.8s ease-out both;
-    }
-
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(30px); }
-        to { opacity: 1; transform: translateY(0); }
+        transform: scale(1.12);
+        box-shadow: 0 10px 28px rgba(13, 110, 253, 0.5);
+        border-color: rgba(255, 255, 255, 0.5);
     }
 
     .card-modern {
@@ -153,10 +364,6 @@
     .row.gy-4 > .col {
         padding-top: 10px;
         padding-bottom: 10px;
-    }
-
-    #announcementCarousel .carousel-indicators {
-        display: none !important;
     }
 
     /* rapihin deskripsis di card announcement */
@@ -233,13 +440,18 @@
             border-radius: var(--border-radius-lg); 
         }
 
-        .carousel-item { height: 350px; }
+        .carousel-item { height: 350px !important; }
         .carousel-overlay { 
-            padding: 60px 20px 25px; 
+            padding: 30px 20px 28px !important; 
             border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
         }
-        .carousel-overlay h1 { font-size: 1.25rem !important; margin-bottom: 10px !important; }
-        .carousel-overlay .btn { padding: 8px 20px; font-size: 0.85rem; }
+        .carousel-title-anim { font-size: 1.35rem !important; margin-bottom: 12px !important; }
+        .btn-modern-action { padding: 9px 20px !important; font-size: 0.85rem !important; }
+        .carousel-badge-glass { font-size: 0.65rem !important; padding: 5px 12px !important; margin-bottom: 8px !important; }
+        .custom-indicators { left: 20px !important; bottom: 15px !important; }
+        .custom-indicators button { width: 22px !important; }
+        .custom-indicators button.active { width: 40px !important; }
+        .custom-nav { display: none !important; }
         
         .modal-hero-container { height: 200px; }
         .modal-body-content { padding: 20px; }
@@ -258,7 +470,24 @@
     <div class="row g-4 mb-5">
         <div class="col-lg-8 col-xl-9">
             @if($sliderAnnouncements->count() > 0)
-                <div id="announcementCarousel" class="carousel slide carousel-fade shadow-lg" data-bs-ride="carousel" data-bs-interval="5000">
+                <div id="announcementCarousel" class="carousel slide carousel-fade shadow-lg" data-bs-ride="carousel" data-bs-interval="5000" data-bs-pause="hover">
+                    
+                    {{-- Timer Progress Bar Indicators --}}
+                    @if($sliderAnnouncements->count() > 1)
+                        <div class="carousel-indicators custom-indicators">
+                            @foreach($sliderAnnouncements as $key => $slide)
+                                <button type="button" 
+                                        data-bs-target="#announcementCarousel" 
+                                        data-bs-slide-to="{{ $key }}" 
+                                        class="{{ $key == 0 ? 'active' : '' }}" 
+                                        aria-current="{{ $key == 0 ? 'true' : 'false' }}" 
+                                        aria-label="Slide {{ $key + 1 }}">
+                                    <span class="indicator-progress"></span>
+                                </button>
+                            @endforeach
+                        </div>
+                    @endif
+
                     <div class="carousel-inner">
                         @foreach($sliderAnnouncements as $key => $slide)
                             <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
@@ -269,33 +498,36 @@
                                 @endif
                                 
                                 <div class="carousel-overlay">
-                                    <div class="container-inner">
-                                        <!-- Tambahkan class d-none (sembunyi di semua layar) -->
-                                        <!-- Dan d-md-inline-block (muncul kembali mulai dari layar medium/desktop) -->
-                                        <span class="badge bg-primary mb-2 px-3 py-2 rounded-pill text-uppercase ls-1 d-none d-md-inline-block" style="font-size: 0.7rem;">
-                                            Pengumuman Utama
-                                        </span>
+                                    <div class="container-inner w-100">
+                                        <div class="carousel-badge-glass mb-3">
+                                            <span>Pengumuman Utama</span>
+                                        </div>
                                         
-                                        <h1 class="fw-bold text-white text-shadow-strong mb-3">
+                                        <h1 class="fw-bold text-white carousel-title-anim mb-3">
                                             {{ \Illuminate\Support\Str::limit($slide->title, 70) }}
                                         </h1>
                                         
-                                        <button type="button" data-bs-toggle="modal" data-bs-target="#modalDetail{{ $slide->id }}" class="btn btn-light rounded-pill fw-bold">
-                                            Baca Selengkapnya
-                                        </button>
+                                        <div class="carousel-btn-wrapper">
+                                            <button type="button" data-bs-toggle="modal" data-bs-target="#modalDetail{{ $slide->id }}" class="btn btn-modern-action carousel-btn-anim">
+                                                <span>Baca Selengkapnya</span>
+                                                <i class="fa-solid fa-arrow-right ms-2 btn-arrow"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         @endforeach
                     </div>
                     
-                    <!-- Custom Navigation -->
-                    {{-- <button class="carousel-control-prev custom-nav" type="button" data-bs-target="#announcementCarousel" data-bs-slide="prev">
-                        <span class="nav-circle"><i class="bi bi-chevron-left"></i></span>
-                    </button>
-                    <button class="carousel-control-next custom-nav" type="button" data-bs-target="#announcementCarousel" data-bs-slide="next">
-                        <span class="nav-circle"><i class="bi bi-chevron-right"></i></span>
-                    </button> --}}
+                    {{-- Floating Frosted Navigation Controls --}}
+                    @if($sliderAnnouncements->count() > 1)
+                        <button class="carousel-control-prev custom-nav" type="button" data-bs-target="#announcementCarousel" data-bs-slide="prev" aria-label="Sebelumnya">
+                            <span class="nav-circle"><i class="fa-solid fa-chevron-left"></i></span>
+                        </button>
+                        <button class="carousel-control-next custom-nav" type="button" data-bs-target="#announcementCarousel" data-bs-slide="next" aria-label="Selanjutnya">
+                            <span class="nav-circle"><i class="fa-solid fa-chevron-right"></i></span>
+                        </button>
+                    @endif
                 </div>
             @endif
         </div>
@@ -413,3 +645,21 @@
 @endforeach
 
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const carousel = document.getElementById('announcementCarousel');
+        if (carousel) {
+            carousel.addEventListener('slide.bs.carousel', function() {
+                const progressBars = carousel.querySelectorAll('.indicator-progress');
+                progressBars.forEach(function(bar) {
+                    bar.style.animation = 'none';
+                    bar.offsetHeight; /* trigger reflow */
+                    bar.style.animation = '';
+                });
+            });
+        }
+    });
+</script>
+@endpush
